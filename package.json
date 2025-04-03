@@ -13,8 +13,8 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=chpt_0ef5343646fc319",
-    "lint": "npx @biomejs/biome check",
-    "lint:fix": "npx @biomejs/biome check --write"
+    "lint": "npx @biomejs/biome check .",
+    "lint:fix": "npx @biomejs/biome check --write ."
   },
   "dependencies": {
     "@react-router/node": "^7.4.0",
