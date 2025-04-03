@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: &relevant_paths
+    paths:
       - '**/*.ts'
       - '**/*.tsx'
       - '**/*.js'
@@ -13,10 +13,17 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - '.github/workflows/ci.yml'
-
   pull_request:
     branches: [main]
-    paths: *relevant_paths
+    paths:
+      - '**/*.ts'
+      - '**/*.tsx'
+      - '**/*.js'
+      - '**/*.jsx'
+      - '**/*.json'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/ci.yml'
 
 jobs:
   test:
