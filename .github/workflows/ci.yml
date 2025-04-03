@@ -1,10 +1,11 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: ["**"]
   pull_request:
-    branches: ["main"]
+    branches: [main]
   paths:
     - '**/*.ts'
     - '**/*.tsx'
