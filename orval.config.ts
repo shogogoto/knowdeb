@@ -3,7 +3,7 @@ import { defineConfig } from "orval";
 export default defineConfig({
   petstore: {
     output: {
-      mode: "single",
+      mode: "tags-split",
       target: "./app/generated",
       baseUrl: "http://localhost:8000",
       client: "fetch",
