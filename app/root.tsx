@@ -8,6 +8,7 @@ import {
 } from "react-router";
 
 import type { Route } from "./+types/root";
+import { ThemeProvider } from "./components/theme";
 import "./app.css";
 
 export const links: Route.LinksFunction = () => [
@@ -24,16 +25,29 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  // useEffect(() => {
+  //   setInitialTheme();
+  // }, []);
+  const themeScript = `
+    (function() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const storedTheme = localStorage.getItem('vite-ui-theme');
+      const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  `;
   return (
-    <html lang="en">
+    <html lang="ja">
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        {/* biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation> */}
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body>
-        {children}
+        <ThemeProvider defaultTheme="dark">{children}</ThemeProvider>
         <ScrollRestoration />
         <Scripts />
       </body>
