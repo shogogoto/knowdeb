@@ -13,22 +13,29 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "chromatic": "npx chromatic --project-token=chpt_0ef5343646fc319",
-    "lint": "npx @biomejs/biome check .",
-    "lint:fix": "npx @biomejs/biome check --write ."
+    "lint": "npx @biomejs/biome check --unsafe .",
+    "lint:fix": "npx @biomejs/biome check --write --unsafe ."
   },
   "dependencies": {
     "@react-router/node": "^7.4.0",
     "@react-router/serve": "^7.4.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "isbot": "^5.1.17",
+    "lucide-react": "^0.492.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-router": "^7.4.0"
+    "react-router": "^7.4.0",
+    "tailwind-merge": "^3.2.0",
+    "tw-animate-css": "^1.2.5"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@chromatic-com/storybook": "^3.2.6",
+    "@faker-js/faker": "^9.7.0",
     "@netlify/vite-plugin-react-router": "^1.0.0",
     "@react-router/dev": "^7.4.0",
+    "@shadcn/ui": "^0.0.4",
     "@storybook/addon-essentials": "^8.6.12",
     "@storybook/addon-onboarding": "^8.6.12",
     "@storybook/blocks": "^8.6.12",
@@ -49,6 +56,7 @@
     "happy-dom": "^17.4.4",
     "lefthook": "^1.11.6",
     "msw": "^2.7.3",
+    "orval": "^7.8.0",
     "playwright": "^1.51.1",
     "react-router-devtools": "^1.1.0",
     "storybook": "^8.6.12",
