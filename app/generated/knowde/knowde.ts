@@ -47,8 +47,8 @@ export const getSearchByTextKnowdeGetUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `http://localhost:8000/knowde/?${stringifiedParams}`
-    : "http://localhost:8000/knowde/";
+    ? `https://knowde.onrender.com/knowde/?${stringifiedParams}`
+    : "https://knowde.onrender.com/knowde/";
 };
 
 export const searchByTextKnowdeGet = async (
