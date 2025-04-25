@@ -19,14 +19,14 @@ export default function SearchBar() {
             value={q}
             name="q"
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="検索語を入力..."
-            className="w-full p-2 border bg-gray-800"
+            placeholder="検索文字列を入力..."
+            className="w-full p-2 border dark:bg-gray-800"
           />
         </div>
         <SearchOption val={searchType} set={setSearchType} />
         <button
           type="submit"
-          className="md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700"
+          className="md:w-auto px-4 py-2 border bg-blue-600 hover:bg-blue-700"
           disabled={isLoading}
         >
           {isLoading ? "検索中..." : "検索"}
@@ -51,7 +51,7 @@ export function SearchOption(props: SearchOptionProps) {
       <select
         value={val}
         onChange={(e) => set(e.target.value as SearchByTextKnowdeGetType)}
-        className="w-full p-2 border bg-gray-800"
+        className="w-full p-2 border dark:bg-gray-800"
         name="type"
       >
         <option value={SearchByTextKnowdeGetType.CONTAINS}>部分一致</option>
