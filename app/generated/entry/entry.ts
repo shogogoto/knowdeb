@@ -28,7 +28,7 @@ export type getNamaspaceNamespaceGetResponse =
   };
 
 export const getGetNamaspaceNamespaceGetUrl = () => {
-  return "http://localhost:8000/namespace";
+  return "https://knowde.onrender.com/namespace";
 };
 
 export const getNamaspaceNamespaceGet = async (
@@ -75,7 +75,7 @@ export type syncPathsNamespacePostResponse =
   };
 
 export const getSyncPathsNamespacePostUrl = () => {
-  return "http://localhost:8000/namespace";
+  return "https://knowde.onrender.com/namespace";
 };
 
 export const syncPathsNamespacePost = async (
