@@ -9,7 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { ThemeProvider, ThemeToggle } from "./components/theme";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
+import ThemeToggle from "./components/theme/ThemeToggle";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
