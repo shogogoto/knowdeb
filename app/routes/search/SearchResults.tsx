@@ -1,6 +1,10 @@
 import type { KAdjacency } from "~/generated/fastAPI.schemas";
 
-export default function SearchResults({ data }: { data: KAdjacency[] }) {
+type Props = {
+  data: KAdjacency[];
+};
+
+export default function SearchResults({ data }: Props) {
   return (
     <div className="container mx-auto p-4">
       <div className="results">

@@ -1,10 +1,11 @@
-import type { Preview, ReactRenderer } from "@storybook/react";
+import type { Preview } from "@storybook/react";
 import "../app/app.css";
 import { withThemeByClassName } from "@storybook/addon-themes";
 import {
   reactRouterParameters,
   withRouter,
 } from "storybook-addon-remix-react-router";
+import type { Renderer } from "storybook/internal/types";
 
 const preview: Preview = {
   parameters: {
@@ -18,7 +19,7 @@ const preview: Preview = {
   },
   decorators: [
     withRouter,
-    withThemeByClassName<ReactRenderer>({
+    withThemeByClassName<Renderer>({
       themes: {
         light: "",
         dark: "dark",

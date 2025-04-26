@@ -1,6 +1,6 @@
 import { searchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import { searchByTextKnowdeGetQueryParams } from "~/generated/knowde/knowde.zod";
-import type { Route } from "./+types/search";
+import type { Route } from "./+types";
 import SearchBar from "./SearchBar";
 import SearchResults from "./SearchResults";
 
