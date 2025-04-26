@@ -30,12 +30,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # cromaticでコケないように完全な履歴を取得
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 'latest'
           cache: 'npm'
-          fetch-depth: 0 # cromaticでコケないように完全な履歴を取得
       - name: Install dependencies
         run: |
           npm ci
