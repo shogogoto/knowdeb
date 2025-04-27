@@ -25,6 +25,7 @@ export default defineConfig({
       client: "zod",
       target: "./app/generated",
       fileExtension: ".zod.ts",
+      biome: true,
     },
   },
 });
