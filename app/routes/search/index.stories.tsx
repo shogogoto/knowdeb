@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import { useLoaderData } from "react-router";
 import { reactRouterParameters } from "storybook-addon-remix-react-router";
 import {
   getKnowdeMock,
   getSearchByTextKnowdeGetMockHandler,
-  getSearchByTextKnowdeGetResponseMock,
 } from "~/generated/knowde/knowde.msw";
 import Search, { loader } from "./index";
 
@@ -18,10 +18,16 @@ export default meta;
 
 type Story = StoryObj<typeof Search>;
 
+function DataLoader() {
+  const loaderData = useLoaderData();
+  return <Search loaderData={loaderData} />;
+}
+
 export const WithResults: Story = {
-  args: {
-    loaderData: { data: getSearchByTextKnowdeGetResponseMock() },
-  },
+  // args: {
+  //   loaderData: { data: getSearchByTextKnowdeGetResponseMock() },
+  // },
+  render: () => <DataLoader />,
   parameters: {
     reactRouter: reactRouterParameters({
       routing: {
