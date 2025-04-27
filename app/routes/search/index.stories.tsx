@@ -5,6 +5,7 @@ import {
   getKnowdeMock,
   getSearchByTextKnowdeGetMockHandler,
 } from "~/generated/knowde/knowde.msw";
+import type { Route } from "./+types";
 import Search, { loader } from "./index";
 
 const meta = {
@@ -19,7 +20,9 @@ export default meta;
 type Story = StoryObj<typeof Search>;
 
 function DataLoader() {
-  const loaderData = useLoaderData();
+  const loaderData: Route.ComponentProps = useLoaderData();
+
+  // @ts-ignore
   return <Search loaderData={loaderData} />;
 }
 
