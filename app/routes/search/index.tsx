@@ -32,3 +32,12 @@ export default function Search({ loaderData }: Route.ComponentProps) {
     </>
   );
 }
+
+export function HydrateFallback() {
+  return (
+    <div id="loading-splash">
+      <div id="loading-splash-spinner" />
+      <p>読み込み中、しばらくお待ちください...</p>
+    </div>
+  );
+}
