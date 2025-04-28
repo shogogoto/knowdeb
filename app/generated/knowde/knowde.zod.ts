@@ -66,6 +66,30 @@ export const searchByTextKnowdeGetQueryParams = zod.object({
     .optional(),
 });
 
+export const searchByTextKnowdeGetResponseStatsNDetailMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsNDetailMax = 1000;
+export const searchByTextKnowdeGetResponseStatsNPremiseMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsNPremiseMax = 1000;
+export const searchByTextKnowdeGetResponseStatsNConclusionMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsNConclusionMax = 1000;
+export const searchByTextKnowdeGetResponseStatsNReferMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsNReferMax = 1000;
+export const searchByTextKnowdeGetResponseStatsNReferredMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsNReferredMax = 1000;
+export const searchByTextKnowdeGetResponseStatsDistAxiomMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsDistAxiomMax = 1000;
+export const searchByTextKnowdeGetResponseStatsDistLeafMin = 0;
+
+export const searchByTextKnowdeGetResponseStatsDistLeafMax = 1000;
+export const searchByTextKnowdeGetResponseStatsScoreMinOne = 0;
+export const searchByTextKnowdeGetResponseStatsScoreMaxOne = 1000;
+
 export const searchByTextKnowdeGetResponseItem = zod
   .object({
     center: zod
@@ -199,14 +223,39 @@ export const searchByTextKnowdeGetResponseItem = zod
       .optional(),
     stats: zod
       .object({
-        n_detail: zod.number(),
-        n_premise: zod.number(),
-        n_conclusion: zod.number(),
-        n_refer: zod.number(),
-        n_referred: zod.number(),
-        dist_axiom: zod.number(),
-        dist_leaf: zod.number(),
-        score: zod.number().or(zod.null()).optional(),
+        n_detail: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsNDetailMin)
+          .max(searchByTextKnowdeGetResponseStatsNDetailMax),
+        n_premise: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsNPremiseMin)
+          .max(searchByTextKnowdeGetResponseStatsNPremiseMax),
+        n_conclusion: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsNConclusionMin)
+          .max(searchByTextKnowdeGetResponseStatsNConclusionMax),
+        n_refer: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsNReferMin)
+          .max(searchByTextKnowdeGetResponseStatsNReferMax),
+        n_referred: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsNReferredMin)
+          .max(searchByTextKnowdeGetResponseStatsNReferredMax),
+        dist_axiom: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsDistAxiomMin)
+          .max(searchByTextKnowdeGetResponseStatsDistAxiomMax),
+        dist_leaf: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsDistLeafMin)
+          .max(searchByTextKnowdeGetResponseStatsDistLeafMax),
+        score: zod
+          .number()
+          .min(searchByTextKnowdeGetResponseStatsScoreMinOne)
+          .max(searchByTextKnowdeGetResponseStatsScoreMaxOne)
+          .or(zod.null()),
       })
       .describe("知識の関係統計.")
       .or(zod.null())

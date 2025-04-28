@@ -26,7 +26,7 @@ function DataLoader() {
   return <Search loaderData={loaderData} />;
 }
 
-export const WithResults: Story = {
+export const Default: Story = {
   // args: {
   //   loaderData: { data: getSearchByTextKnowdeGetResponseMock() },
   // },

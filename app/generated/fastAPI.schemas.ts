@@ -115,14 +115,42 @@ export type KStatsScore = number | null;
  * 知識の関係統計.
  */
 export interface KStats {
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   n_detail: number;
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   n_premise: number;
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   n_conclusion: number;
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   n_refer: number;
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   n_referred: number;
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   dist_axiom: number;
+  /**
+   * @minimum 0
+   * @maximum 1000
+   */
   dist_leaf: number;
-  score?: KStatsScore;
+  score: KStatsScore;
 }
 
 export type KnowdeTerm = Term | null;
