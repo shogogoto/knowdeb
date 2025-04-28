@@ -27,12 +27,3 @@ export const Default: Story = {
     },
   },
 };
-
-export const Mobile: Story = {
-  ...Default,
-  parameters: {
-    viewport: {
-      defaultViewport: "mobile",
-    },
-  },
-};
