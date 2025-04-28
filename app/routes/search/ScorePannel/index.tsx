@@ -14,8 +14,8 @@ export default function ScorePannel(props: Props) {
   return (
     <div>
       {props.stats && (
-        <div className="grid grid-cols-2 border gap-1 w-16">
-          <div className="text-right">{props.stats.score}</div>
+        <div className="grid grid-cols-6 gap-1">
+          <div className="text-right font-bold">{props.stats.score}</div>
           <div className="text-right">{props.stats.n_detail}</div>
           <div className="text-right">{props.stats.n_premise}</div>
           <div className="text-right">{props.stats.n_conclusion}</div>
