@@ -21,6 +21,25 @@ const preview: Preview = {
       },
     },
     reactRouter: reactRouterParameters({}),
+    viewport: {
+      viewports: {
+        mobile: {
+          name: "モバイル",
+          styles: {
+            width: "375px",
+            height: "667px",
+          },
+        },
+        tablet: {
+          name: "タブレット",
+          styles: {
+            width: "768px",
+            height: "1024px",
+          },
+        },
+      },
+      defaultViewport: "responsive",
+    },
   },
   loaders: [mswLoader],
   decorators: [
