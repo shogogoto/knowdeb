@@ -9,6 +9,7 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { ThemeProvider, ThemeToggle } from "./components/theme";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -24,6 +25,14 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
+  const themeScript = `
+    (function() {
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const storedTheme = localStorage.getItem('vite-ui-theme');
+      const theme = storedTheme || (prefersDark ? 'dark' : 'light');
+      document.documentElement.classList.add(theme);
+    })();
+  `;
   return (
     <html lang="ja">
       <head>
@@ -31,13 +40,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script>{themeScript}</script>
       </head>
       <body>
-        <main className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
-          {children}
-          <ScrollRestoration />
-          <Scripts />
-        </main>
+        <ThemeProvider>
+          <ThemeToggle />
+          <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
+            {children}
+            <ScrollRestoration />
+            <Scripts />
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );

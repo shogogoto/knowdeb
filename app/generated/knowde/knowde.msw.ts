@@ -190,16 +190,16 @@ export const getSearchByTextKnowdeGetResponseMock = (): KAdjacency[] =>
     stats: faker.helpers.arrayElement([
       faker.helpers.arrayElement([
         {
-          n_detail: faker.number.int({ min: undefined, max: undefined }),
-          n_premise: faker.number.int({ min: undefined, max: undefined }),
-          n_conclusion: faker.number.int({ min: undefined, max: undefined }),
-          n_refer: faker.number.int({ min: undefined, max: undefined }),
-          n_referred: faker.number.int({ min: undefined, max: undefined }),
-          dist_axiom: faker.number.int({ min: undefined, max: undefined }),
-          dist_leaf: faker.number.int({ min: undefined, max: undefined }),
+          n_detail: faker.number.int({ min: -100, max: 1000 }),
+          n_premise: faker.number.int({ min: -100, max: 1000 }),
+          n_conclusion: faker.number.int({ min: -100, max: 1000 }),
+          n_refer: faker.number.int({ min: -100, max: 1000 }),
+          n_referred: faker.number.int({ min: -100, max: 1000 }),
+          dist_axiom: faker.number.int({ min: -100, max: 1000 }),
+          dist_leaf: faker.number.int({ min: -100, max: 1000 }),
           score: faker.helpers.arrayElement([
             faker.helpers.arrayElement([
-              faker.number.int({ min: undefined, max: undefined }),
+              faker.number.int({ min: -100, max: 1000 }),
               null,
             ]),
             undefined,

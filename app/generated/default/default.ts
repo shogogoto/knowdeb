@@ -32,7 +32,7 @@ export type readFileUploadPostResponse = readFileUploadPostResponseComposite & {
 };
 
 export const getReadFileUploadPostUrl = () => {
-  return "http://localhost:8000/upload";
+  return "https://knowde.onrender.com/upload";
 };
 
 export const readFileUploadPost = async (
@@ -78,7 +78,7 @@ export type checkHealthHealthGetResponse =
   };
 
 export const getCheckHealthHealthGetUrl = () => {
-  return "http://localhost:8000/health";
+  return "https://knowde.onrender.com/health";
 };
 
 export const checkHealthHealthGet = async (

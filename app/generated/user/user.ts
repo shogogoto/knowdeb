@@ -34,7 +34,7 @@ export type usersCurrentUserUserMeGetResponse =
   };
 
 export const getUsersCurrentUserUserMeGetUrl = () => {
-  return "http://localhost:8000/user/me";
+  return "https://knowde.onrender.com/user/me";
 };
 
 export const usersCurrentUserUserMeGet = async (
@@ -92,7 +92,7 @@ export type usersPatchCurrentUserUserMePatchResponse =
   };
 
 export const getUsersPatchCurrentUserUserMePatchUrl = () => {
-  return "http://localhost:8000/user/me";
+  return "https://knowde.onrender.com/user/me";
 };
 
 export const usersPatchCurrentUserUserMePatch = async (
@@ -146,7 +146,7 @@ export type usersUserUserIdGetResponse = usersUserUserIdGetResponseComposite & {
 };
 
 export const getUsersUserUserIdGetUrl = (id: string) => {
-  return `http://localhost:8000/user/${id}`;
+  return `https://knowde.onrender.com/user/${id}`;
 };
 
 export const usersUserUserIdGet = async (
@@ -203,7 +203,7 @@ export type usersPatchUserUserIdPatchResponse =
   };
 
 export const getUsersPatchUserUserIdPatchUrl = (id: string) => {
-  return `http://localhost:8000/user/${id}`;
+  return `https://knowde.onrender.com/user/${id}`;
 };
 
 export const usersPatchUserUserIdPatch = async (
@@ -259,7 +259,7 @@ export type usersDeleteUserUserIdDeleteResponse =
   };
 
 export const getUsersDeleteUserUserIdDeleteUrl = (id: string) => {
-  return `http://localhost:8000/user/${id}`;
+  return `https://knowde.onrender.com/user/${id}`;
 };
 
 export const usersDeleteUserUserIdDelete = async (

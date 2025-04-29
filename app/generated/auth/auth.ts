@@ -49,7 +49,7 @@ export type authJwtLoginAuthJwtLoginPostResponse =
   };
 
 export const getAuthJwtLoginAuthJwtLoginPostUrl = () => {
-  return "http://localhost:8000/auth/jwt/login";
+  return "https://knowde.onrender.com/auth/jwt/login";
 };
 
 export const authJwtLoginAuthJwtLoginPost = async (
@@ -135,7 +135,7 @@ export type authJwtLogoutAuthJwtLogoutPostResponse =
   };
 
 export const getAuthJwtLogoutAuthJwtLogoutPostUrl = () => {
-  return "http://localhost:8000/auth/jwt/logout";
+  return "https://knowde.onrender.com/auth/jwt/logout";
 };
 
 export const authJwtLogoutAuthJwtLogoutPost = async (
@@ -187,7 +187,7 @@ export type registerRegisterAuthRegisterPostResponse =
   };
 
 export const getRegisterRegisterAuthRegisterPostUrl = () => {
-  return "http://localhost:8000/auth/register";
+  return "https://knowde.onrender.com/auth/register";
 };
 
 export const registerRegisterAuthRegisterPost = async (
@@ -236,7 +236,7 @@ export type resetForgotPasswordAuthForgotPasswordPostResponse =
   };
 
 export const getResetForgotPasswordAuthForgotPasswordPostUrl = () => {
-  return "http://localhost:8000/auth/forgot-password";
+  return "https://knowde.onrender.com/auth/forgot-password";
 };
 
 export const resetForgotPasswordAuthForgotPasswordPost = async (
@@ -291,7 +291,7 @@ export type resetResetPasswordAuthResetPasswordPostResponse =
   };
 
 export const getResetResetPasswordAuthResetPasswordPostUrl = () => {
-  return "http://localhost:8000/auth/reset-password";
+  return "https://knowde.onrender.com/auth/reset-password";
 };
 
 export const resetResetPasswordAuthResetPasswordPost = async (
@@ -340,7 +340,7 @@ export type verifyRequestTokenAuthRequestVerifyTokenPostResponse =
   };
 
 export const getVerifyRequestTokenAuthRequestVerifyTokenPostUrl = () => {
-  return "http://localhost:8000/auth/request-verify-token";
+  return "https://knowde.onrender.com/auth/request-verify-token";
 };
 
 export const verifyRequestTokenAuthRequestVerifyTokenPost = async (
@@ -397,7 +397,7 @@ export type verifyVerifyAuthVerifyPostResponse =
   };
 
 export const getVerifyVerifyAuthVerifyPostUrl = () => {
-  return "http://localhost:8000/auth/verify";
+  return "https://knowde.onrender.com/auth/verify";
 };
 
 export const verifyVerifyAuthVerifyPost = async (
@@ -459,8 +459,8 @@ export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `http://localhost:8000/google/authorize?${stringifiedParams}`
-    : "http://localhost:8000/google/authorize";
+    ? `https://knowde.onrender.com/google/authorize?${stringifiedParams}`
+    : "https://knowde.onrender.com/google/authorize";
 };
 
 export const oauthGoogleJwtAuthorizeGoogleAuthorizeGet = async (
@@ -530,8 +530,8 @@ export const getOauthGoogleJwtCallbackGoogleCallbackGetUrl = (
   const stringifiedParams = normalizedParams.toString();
 
   return stringifiedParams.length > 0
-    ? `http://localhost:8000/google/callback?${stringifiedParams}`
-    : "http://localhost:8000/google/callback";
+    ? `https://knowde.onrender.com/google/callback?${stringifiedParams}`
+    : "https://knowde.onrender.com/google/callback";
 };
 
 export const oauthGoogleJwtCallbackGoogleCallbackGet = async (

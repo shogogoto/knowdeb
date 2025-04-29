@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "dev": "react-router dev",
+    "dev": "react-router dev --open",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "test": "vitest run",
@@ -12,7 +12,7 @@
     "test:coverage": "vitest run --coverage",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "chromatic": "npx chromatic --project-token=chpt_0ef5343646fc319",
+    "chromatic": "npx chromatic --project-token=chpt_c2ac28686a816e4",
     "lint": "npx @biomejs/biome check --unsafe .",
     "lint:fix": "npx @biomejs/biome check --write --unsafe ."
   },
@@ -38,6 +38,8 @@
     "@shadcn/ui": "^0.0.4",
     "@storybook/addon-essentials": "^8.6.12",
     "@storybook/addon-onboarding": "^8.6.12",
+    "@storybook/addon-themes": "^8.6.12",
+    "@storybook/addon-viewport": "^8.6.12",
     "@storybook/blocks": "^8.6.12",
     "@storybook/experimental-addon-test": "^8.6.12",
     "@storybook/react": "^8.6.12",
@@ -56,14 +58,19 @@
     "happy-dom": "^17.4.4",
     "lefthook": "^1.11.6",
     "msw": "^2.7.3",
+    "msw-storybook-addon": "^2.0.4",
     "orval": "^7.8.0",
     "playwright": "^1.51.1",
     "react-router-devtools": "^1.1.0",
     "storybook": "^8.6.12",
+    "storybook-addon-remix-react-router": "^4.0.1",
     "tailwindcss": "^4.0.0",
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vite-tsconfig-paths": "^5.1.4",
     "vitest": "^3.1.1"
+  },
+  "msw": {
+    "workerDirectory": ["public"]
   }
 }

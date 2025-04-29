@@ -30,6 +30,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # cromaticでコケないように完全な履歴を取得
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
@@ -46,3 +48,11 @@ jobs:
         run: npm run test
       - name: Run Biome check
         run: npm run lint
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          exitZeroOnChanges: true
+          onlyChanged: true # TurboSnap enable
+

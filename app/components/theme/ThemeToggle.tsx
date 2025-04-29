@@ -1,6 +1,6 @@
 import { Moon, Sun } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTheme } from "./theme-provider";
+import { useTheme } from "./ThemeProvider";
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme();
@@ -20,7 +20,7 @@ export function ThemeToggle() {
       <button
         type="button"
         onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-        className="rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+        className="cursor-pointer rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
         aria-label="Toggle theme"
       >
         {theme === "light" ? (

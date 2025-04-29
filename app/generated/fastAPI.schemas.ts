@@ -115,12 +115,40 @@ export type KStatsScore = number | null;
  * 知識の関係統計.
  */
 export interface KStats {
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   n_detail: number;
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   n_premise: number;
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   n_conclusion: number;
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   n_refer: number;
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   n_referred: number;
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   dist_axiom: number;
+  /**
+   * @minimum -100
+   * @maximum 1000
+   */
   dist_leaf: number;
   score?: KStatsScore;
 }
@@ -149,33 +177,6 @@ export interface NameSpace {
 
 export interface OAuth2AuthorizeResponse {
   authorization_url: string;
-}
-
-/**
- * ORDER BY句.
-
-weightと項目の合計値(score)でソートできる
-他のスコア算出方法についてはペンディング
- */
-export interface OrderBy {
-  n_detail?: number;
-  n_premise?: number;
-  n_conclusion?: number;
-  n_refer?: number;
-  n_referred?: number;
-  dist_axiom?: number;
-  dist_leaf?: number;
-  desc?: boolean;
-}
-
-/**
- * クエリのページング.
- */
-export interface Paging {
-  /** */
-  page?: number;
-  /** */
-  size?: number;
 }
 
 export type ResourceMetaPublished = string | null;
@@ -289,8 +290,16 @@ export type OauthGoogleJwtCallbackGoogleCallbackGetParams = {
 export type SearchByTextKnowdeGetParams = {
   q?: string;
   type?: SearchByTextKnowdeGetType;
-  paging?: Paging;
-  order?: OrderBy | null;
+  page?: number;
+  size?: number;
+  n_detail?: number;
+  n_premise?: number;
+  n_conclusion?: number;
+  n_refer?: number;
+  n_referred?: number;
+  dist_axiom?: number;
+  dist_leaf?: number;
+  desc?: boolean;
 };
 
 export type SearchByTextKnowdeGetType =

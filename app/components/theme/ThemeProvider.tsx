@@ -21,7 +21,7 @@ const initialState: ThemeProviderState = {
 const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
 
 // Function to apply theme to document
-const applyThemeClass = (theme: Theme, storageKey: string) => {
+const applyThemeClass = (theme: Theme) => {
   if (typeof window === "undefined") return;
 
   const root = window.document.documentElement;
@@ -36,19 +36,6 @@ const applyThemeClass = (theme: Theme, storageKey: string) => {
 
   root.classList.add(appliedTheme);
 };
-
-// This function will be called once during SSR or page load
-// to avoid flash of unstyled content
-export function setInitialTheme(storageKey = "vite-ui-theme") {
-  if (typeof window !== "undefined") {
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)",
-    ).matches;
-    const storedTheme = localStorage.getItem(storageKey) as Theme | null;
-    const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
-    document.documentElement.classList.add(initialTheme);
-  }
-}
 
 export function ThemeProvider({
   children,
@@ -73,8 +60,8 @@ export function ThemeProvider({
   // Apply theme class to document element
   useEffect(() => {
     if (!mounted) return;
-    applyThemeClass(theme, storageKey);
-  }, [theme, mounted, storageKey]);
+    applyThemeClass(theme);
+  }, [theme, mounted]);
 
   const value = {
     theme,

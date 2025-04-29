@@ -5,7 +5,7 @@ export default defineConfig({
     output: {
       mode: "tags-split",
       target: "./app/generated",
-      baseUrl: "http://localhost:8000",
+      baseUrl: "https://knowde.onrender.com",
       client: "fetch",
       mock: true,
     },
@@ -14,6 +14,18 @@ export default defineConfig({
     },
     hooks: {
       afterAllFilesWrite: "biome check --fix --unsafe",
+    },
+  },
+  petstoreZod: {
+    input: {
+      target: "http://localhost:8000/openapi.json",
+    },
+    output: {
+      mode: "tags-split",
+      client: "zod",
+      target: "./app/generated",
+      fileExtension: ".zod.ts",
+      biome: true,
     },
   },
 });
