@@ -1,5 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { OrderBy } from "./types";
+import type { OrderBy } from "../types";
 
 type WRProps = {
   name: string;
