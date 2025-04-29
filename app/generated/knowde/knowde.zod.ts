@@ -10,84 +10,60 @@ import { z as zod } from "zod";
  * 文字列検索.
  * @summary Search By Text
  */
-export const searchByTextKnowdeGetQueryQDefault = ".*";
-export const searchByTextKnowdeGetQueryTypeDefault = "REGEX";
-export const searchByTextKnowdeGetQueryPagingPageDefault = 1;
-export const searchByTextKnowdeGetQueryPagingSizeDefault = 100;
-export const searchByTextKnowdeGetQueryOrderNDetailDefault = 1;
-export const searchByTextKnowdeGetQueryOrderNPremiseDefault = 3;
-export const searchByTextKnowdeGetQueryOrderNConclusionDefault = 3;
-export const searchByTextKnowdeGetQueryOrderNReferDefault = 3;
-export const searchByTextKnowdeGetQueryOrderNReferredDefault = -3;
-export const searchByTextKnowdeGetQueryOrderDistAxiomDefault = 1;
-export const searchByTextKnowdeGetQueryOrderDistLeafDefault = 1;
-export const searchByTextKnowdeGetQueryOrderDescDefault = true;
+export const searchByTextKnowdeGetQueryQDefault = "";
+export const searchByTextKnowdeGetQueryTypeDefault = "CONTAINS";
+export const searchByTextKnowdeGetQueryPageDefault = 1;
+export const searchByTextKnowdeGetQuerySizeDefault = 100;
+export const searchByTextKnowdeGetQueryNDetailDefault = 1;
+export const searchByTextKnowdeGetQueryNPremiseDefault = 3;
+export const searchByTextKnowdeGetQueryNConclusionDefault = 3;
+export const searchByTextKnowdeGetQueryNReferDefault = 3;
+export const searchByTextKnowdeGetQueryNReferredDefault = 3;
+export const searchByTextKnowdeGetQueryDistAxiomDefault = 1;
+export const searchByTextKnowdeGetQueryDistLeafDefault = 1;
+export const searchByTextKnowdeGetQueryDescDefault = true;
 
 export const searchByTextKnowdeGetQueryParams = zod.object({
-  q: zod.string().default(searchByTextKnowdeGetQueryQDefault),
+  q: zod.string().optional(),
   type: zod
     .enum(["CONTAINS", "STARTS_WITH", "ENDS_WITH", "REGEX", "EQUAL"])
     .default(searchByTextKnowdeGetQueryTypeDefault),
-  paging: zod
-    .object({
-      page: zod.number().default(searchByTextKnowdeGetQueryPagingPageDefault),
-      size: zod.number().default(searchByTextKnowdeGetQueryPagingSizeDefault),
-    })
-    .optional(),
-  order: zod
-    .object({
-      n_detail: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderNDetailDefault),
-      n_premise: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderNPremiseDefault),
-      n_conclusion: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderNConclusionDefault),
-      n_refer: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderNReferDefault),
-      n_referred: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderNReferredDefault),
-      dist_axiom: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderDistAxiomDefault),
-      dist_leaf: zod
-        .number()
-        .default(searchByTextKnowdeGetQueryOrderDistLeafDefault),
-      desc: zod.boolean().default(searchByTextKnowdeGetQueryOrderDescDefault),
-    })
-    .describe(
-      "ORDER BY句.\n\nweightと項目の合計値(score)でソートできる\n他のスコア算出方法についてはペンディング",
-    )
-    .or(zod.null())
-    .optional(),
+  page: zod.number().default(searchByTextKnowdeGetQueryPageDefault),
+  size: zod.number().default(searchByTextKnowdeGetQuerySizeDefault),
+  n_detail: zod.number().default(searchByTextKnowdeGetQueryNDetailDefault),
+  n_premise: zod.number().default(searchByTextKnowdeGetQueryNPremiseDefault),
+  n_conclusion: zod
+    .number()
+    .default(searchByTextKnowdeGetQueryNConclusionDefault),
+  n_refer: zod.number().default(searchByTextKnowdeGetQueryNReferDefault),
+  n_referred: zod.number().default(searchByTextKnowdeGetQueryNReferredDefault),
+  dist_axiom: zod.number().default(searchByTextKnowdeGetQueryDistAxiomDefault),
+  dist_leaf: zod.number().default(searchByTextKnowdeGetQueryDistLeafDefault),
+  desc: zod.boolean().default(searchByTextKnowdeGetQueryDescDefault),
 });
 
-export const searchByTextKnowdeGetResponseStatsNDetailMin = 0;
+export const searchByTextKnowdeGetResponseStatsNDetailMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsNDetailMax = 1000;
-export const searchByTextKnowdeGetResponseStatsNPremiseMin = 0;
+export const searchByTextKnowdeGetResponseStatsNPremiseMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsNPremiseMax = 1000;
-export const searchByTextKnowdeGetResponseStatsNConclusionMin = 0;
+export const searchByTextKnowdeGetResponseStatsNConclusionMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsNConclusionMax = 1000;
-export const searchByTextKnowdeGetResponseStatsNReferMin = 0;
+export const searchByTextKnowdeGetResponseStatsNReferMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsNReferMax = 1000;
-export const searchByTextKnowdeGetResponseStatsNReferredMin = 0;
+export const searchByTextKnowdeGetResponseStatsNReferredMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsNReferredMax = 1000;
-export const searchByTextKnowdeGetResponseStatsDistAxiomMin = 0;
+export const searchByTextKnowdeGetResponseStatsDistAxiomMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsDistAxiomMax = 1000;
-export const searchByTextKnowdeGetResponseStatsDistLeafMin = 0;
+export const searchByTextKnowdeGetResponseStatsDistLeafMin = -100;
 
 export const searchByTextKnowdeGetResponseStatsDistLeafMax = 1000;
-export const searchByTextKnowdeGetResponseStatsScoreMinOne = 0;
+export const searchByTextKnowdeGetResponseStatsScoreMinOne = -100;
 export const searchByTextKnowdeGetResponseStatsScoreMaxOne = 1000;
 
 export const searchByTextKnowdeGetResponseItem = zod
@@ -255,7 +231,8 @@ export const searchByTextKnowdeGetResponseItem = zod
           .number()
           .min(searchByTextKnowdeGetResponseStatsScoreMinOne)
           .max(searchByTextKnowdeGetResponseStatsScoreMaxOne)
-          .or(zod.null()),
+          .or(zod.null())
+          .optional(),
       })
       .describe("知識の関係統計.")
       .or(zod.null())
