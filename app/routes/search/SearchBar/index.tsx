@@ -1,59 +1,55 @@
 import { useState } from "react";
 import { Form, useNavigation } from "react-router";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import SearchConfig, {
-  SearchOption,
-  type OrderBy,
-  type Paging,
-} from "./SearchConfig";
+import SearchConfig from "./SearchConfig";
+import { type OrderBy, type Paging, defaultOrderBy } from "./types";
 
 export default function SearchBar() {
   const [q, setQ] = useState("");
-  const [searchType, setSearchType] = useState<SearchByTextKnowdeGetType>(
+  const [searchOption, setSearchOption] = useState<SearchByTextKnowdeGetType>(
     SearchByTextKnowdeGetType.CONTAINS,
   );
   const [paging, setPaging] = useState<Paging>({ page: 1, size: 100 });
-  const [order, setOrderBy] = useState<OrderBy>({
-    n_detail: 1,
-    n_premise: 1,
-    n_conclusion: 1,
-    n_refer: 1,
-    n_referred: 1,
-    dist_axiom: 1,
-    dist_leaf: 1,
-    desc: true,
-  });
+  const [order, setOrderBy] = useState<OrderBy>(defaultOrderBy);
   const navigation = useNavigation();
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
+
+  const [isShown, setShown] = useState(false);
+  const toggleShow = () => setShown(!isShown);
   return (
-    <Form action="/search">
-      <div className="flex flex-col md:flex-row gap-4">
-        <div>
-          <input
-            type="search"
-            value={q}
-            name="q"
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="検索文字列を入力..."
-            className="w-full p-2 border dark:bg-gray-800"
-          />
-        </div>
-        <SearchOption val={searchType} set={setSearchType} />
+    <Form action="/search" className="container mx-auto p-4">
+      {/* {Object.entries(order).map(([key, value]) => `[${key}= ${value}]`)} */}
+      <div className="flex w-full">
+        <input
+          type="search"
+          value={q}
+          name="q"
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="検索文字列を入力..."
+          className="w-full border dark:bg-gray-800"
+        />
+        <button
+          type="submit"
+          className="md:w-auto px-2 border bg-blue-600 hover:bg-blue-700"
+          disabled={isLoading}
+        >
+          {isLoading ? "..." : "🔍"}
+        </button>
+        <button type="button" className="md:w-auto px-2" onClick={toggleShow}>
+          ⚙
+        </button>
+      </div>
+      {isShown && (
         <SearchConfig
           paging={paging}
           order={order}
           setPaging={setPaging}
           setOrderBy={setOrderBy}
+          searchOption={searchOption}
+          setSearchOption={setSearchOption}
         />
-        <button
-          type="submit"
-          className="md:w-auto px-4 py-2 border bg-blue-600 hover:bg-blue-700"
-          disabled={isLoading}
-        >
-          {isLoading ? "検索中..." : "検索"}
-        </button>
-      </div>
+      )}
     </Form>
   );
 }
