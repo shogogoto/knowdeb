@@ -1,11 +1,25 @@
 import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import {
-  type OrderBy,
-  type Paging,
   type SearchByTextKnowdeGetParams,
   SearchByTextKnowdeGetType,
 } from "~/generated/fastAPI.schemas";
+
+export type Paging = {
+  page?: number;
+  size?: number;
+};
+
+export type OrderBy = {
+  n_detail?: number;
+  n_premise?: number;
+  n_conclusion?: number;
+  n_refer?: number;
+  n_referred?: number;
+  dist_axiom?: number;
+  dist_leaf?: number;
+  desc?: boolean;
+};
 
 type Props = Omit<SearchByTextKnowdeGetParams, "q" | "type"> & {
   setPaging: Dispatch<SetStateAction<Paging>>;
@@ -57,135 +71,55 @@ export default function SearchConfig(props: Props) {
                 className="mr-2"
                 name="desc"
               />
-              <span>降順(高い順)</span>
+              <span>降順</span>
             </label>
           </div>
 
           <div className="mb-4">
             <h4 className="text-sm font-medium mb-1">スコア重み設定</h4>
             <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label htmlFor="n_detail" className="text-xs">
-                  詳細数
-                </label>
-                <input
-                  name="n_detail"
-                  type="range"
-                  min={0}
-                  max="10"
-                  value={order.n_detail}
-                  onChange={(e) =>
-                    setOrderBy({ ...order, n_detail: Number(e.target.value) })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.n_detail}</div>
-              </div>
-              <div>
-                <label htmlFor="n_premise" className="text-xs">
-                  前提数
-                </label>
-                <input
-                  name="n_premise"
-                  type="range"
-                  min={0}
-                  max="10"
-                  value={order.n_premise}
-                  onChange={(e) =>
-                    setOrderBy({ ...order, n_premise: Number(e.target.value) })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.n_premise}</div>
-              </div>
-              <div>
-                <label htmlFor="n_conclusion" className="text-xs">
-                  結論数
-                </label>
-                <input
-                  name="n_conclusion"
-                  type="range"
-                  min={0}
-                  max="10"
-                  value={order.n_conclusion}
-                  onChange={(e) =>
-                    setOrderBy({
-                      ...order,
-                      n_conclusion: Number(e.target.value),
-                    })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.n_conclusion}</div>
-              </div>
-              <div>
-                <label htmlFor="n_refer" className="text-xs">
-                  参照数
-                </label>
-                <input
-                  name="n_refer"
-                  type="range"
-                  min={0}
-                  max="10"
-                  value={order.n_refer}
-                  onChange={(e) =>
-                    setOrderBy({ ...order, n_refer: Number(e.target.value) })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.n_refer}</div>
-              </div>
-              <div>
-                <label htmlFor="n_referred" className="text-xs">
-                  被参照数
-                </label>
-                <input
-                  name="n_referred"
-                  type="range"
-                  min={0}
-                  max="10"
-                  value={order.n_referred}
-                  onChange={(e) =>
-                    setOrderBy({ ...order, n_referred: Number(e.target.value) })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.n_referred}</div>
-              </div>
-              <div>
-                <label htmlFor="dist_axiom" className="text-xs">
-                  公理距離
-                </label>
-                <input
-                  name="dist_axiom"
-                  type="range"
-                  min={0}
-                  max="10"
-                  value={order.dist_axiom}
-                  onChange={(e) =>
-                    setOrderBy({ ...order, dist_axiom: Number(e.target.value) })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.dist_axiom}</div>
-              </div>
-              <div>
-                <label htmlFor="dist_leaf" className="text-xs">
-                  リーフ距離
-                </label>
-                <input
-                  name="dist_leaf"
-                  type="range"
-                  min={0}
-                  max={10}
-                  value={order.dist_leaf}
-                  onChange={(e) =>
-                    setOrderBy({ ...order, dist_leaf: Number(e.target.value) })
-                  }
-                  className="w-full"
-                />
-                <div className="text-xs text-right">{order.dist_leaf}</div>
-              </div>
+              <WeightRange
+                name="n_detail"
+                label="詳細数"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
+              <WeightRange
+                name="n_premise"
+                label="前提数"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
+              <WeightRange
+                name="n_conclusion"
+                label="結論数"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
+              <WeightRange
+                name="n_refer"
+                label="参照数"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
+              <WeightRange
+                name="n_referred"
+                label="被参照数"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
+              <WeightRange
+                name="dist_axiom"
+                label="公理距離"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
+              <WeightRange
+                name="dist_leaf"
+                label="リーフ距離"
+                order={order}
+                setOrderBy={setOrderBy}
+              />
             </div>
           </div>
 
@@ -200,6 +134,37 @@ export default function SearchConfig(props: Props) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+type WRProps = {
+  name: string;
+  label: string;
+  order: OrderBy;
+  setOrderBy: Dispatch<SetStateAction<OrderBy>>;
+};
+
+function WeightRange({ name, label, order, setOrderBy }: WRProps) {
+  const val = Number(order[name as keyof OrderBy]);
+
+  return (
+    <div>
+      <label htmlFor={name} className="text-xs flex justify-between">
+        {label}
+        <span className="text-xs text-right">{val}</span>
+      </label>
+      <input
+        name={name}
+        type="range"
+        min={-5}
+        max={5}
+        value={val}
+        onChange={(e) =>
+          setOrderBy({ ...order, [name]: Number(e.target.value) })
+        }
+        className="w-full"
+      />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Form, useNavigation } from "react-router";
-import {
+import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import SearchConfig, {
+  SearchOption,
   type OrderBy,
   type Paging,
-  SearchByTextKnowdeGetType,
-} from "~/generated/fastAPI.schemas";
-import SearchConfig, { SearchOption } from "./SearchConfig";
+} from "./SearchConfig";
 
 export default function SearchBar() {
   const [q, setQ] = useState("");
