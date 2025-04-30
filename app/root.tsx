@@ -9,7 +9,9 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { ThemeProvider, ThemeToggle } from "./components/theme";
+import { Header } from "./components/Header";
+import { AuthProvider, useAuth } from "./components/auth";
+import { ThemeProvider } from "./components/theme";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -23,6 +25,25 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
+
+function AppContent() {
+  const { isAuthenticated, user, logout } = useAuth();
+
+  return (
+    <>
+      <Header
+        isLoggedIn={isAuthenticated}
+        userEmail={user?.email}
+        onLogout={logout}
+      />
+      <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
+        <Outlet />
+        <ScrollRestoration />
+        <Scripts />
+      </div>
+    </>
+  );
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const themeScript = `
@@ -44,12 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>
-          <ThemeToggle />
-          <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
-            {children}
-            <ScrollRestoration />
-            <Scripts />
-          </div>
+          <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
       </body>
     </html>
@@ -57,7 +73,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
-  return <Outlet />;
+  return <AppContent />;
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
