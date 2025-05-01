@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { useAuth } from "../auth";
 import { ThemeToggle } from "../theme";
 
 interface HeaderProps {
@@ -7,7 +8,8 @@ interface HeaderProps {
   onLogout?: () => void;
 }
 
-export function Header({ isLoggedIn, userEmail, onLogout }: HeaderProps) {
+export function Header() {
+  const { isAuthenticated, user, logout } = useAuth();
   return (
     <header className="fixed top-0 left-0 w-full bg-white dark:bg-gray-900 shadow-md z-10">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
@@ -33,14 +35,14 @@ export function Header({ isLoggedIn, userEmail, onLogout }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <div className="flex items-center">
               <span className="text-sm text-gray-700 dark:text-gray-300 mr-3">
-                {userEmail}
+                {user?.email}
               </span>
               <button
                 type="button"
-                onClick={onLogout}
+                onClick={logout}
                 className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
               >
                 Logout

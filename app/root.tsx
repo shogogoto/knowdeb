@@ -10,7 +10,7 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { Header } from "./components/Header";
-import { AuthProvider, useAuth } from "./components/auth";
+import { AuthProvider } from "./components/auth";
 import { ThemeProvider } from "./components/theme";
 
 export const links: Route.LinksFunction = () => [
@@ -25,25 +25,6 @@ export const links: Route.LinksFunction = () => [
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
 ];
-
-function AppContent() {
-  const { isAuthenticated, user, logout } = useAuth();
-
-  return (
-    <>
-      <Header
-        isLoggedIn={isAuthenticated}
-        userEmail={user?.email}
-        onLogout={logout}
-      />
-      <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
-        <Outlet />
-        <ScrollRestoration />
-        <Scripts />
-      </div>
-    </>
-  );
-}
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const themeScript = `
@@ -67,13 +48,22 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <ThemeProvider>
           <AuthProvider>{children}</AuthProvider>
         </ThemeProvider>
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
 }
 
 export default function App() {
-  return <AppContent />;
+  return (
+    <>
+      <Header />
+      <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
+        <Outlet />
+      </div>
+    </>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

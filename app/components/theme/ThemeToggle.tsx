@@ -16,19 +16,17 @@ export function ThemeToggle() {
   }
 
   return (
-    <div className="absolute top-4 right-4">
-      <button
-        type="button"
-        onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-        className="cursor-pointer rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
-        aria-label="Toggle theme"
-      >
-        {theme === "light" ? (
-          <Moon className="h-5 w-5 text-gray-800" />
-        ) : (
-          <Sun className="h-5 w-5 text-yellow-200" />
-        )}
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+      className="cursor-pointer rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+      aria-label="Toggle theme"
+    >
+      {theme === "light" ? (
+        <Moon className="h-5 w-5 text-gray-800" />
+      ) : (
+        <Sun className="h-5 w-5 text-yellow-200" />
+      )}
+    </button>
   );
 }

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { AuthProvider } from "../components/auth";
-import Login from "./login";
+import { AuthProvider } from "~/components/auth";
+import Login from "./index";
 
 const meta = {
   title: "Routes/Login",
