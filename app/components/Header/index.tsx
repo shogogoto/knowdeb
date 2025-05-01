@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ThemeToggle } from "./theme";
+import { ThemeToggle } from "../theme";
 
 interface HeaderProps {
   isLoggedIn: boolean;
@@ -33,8 +33,6 @@ export function Header({ isLoggedIn, userEmail, onLogout }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
-          <ThemeToggle />
-
           {isLoggedIn ? (
             <div className="flex items-center">
               <span className="text-sm text-gray-700 dark:text-gray-300 mr-3">
@@ -56,6 +54,7 @@ export function Header({ isLoggedIn, userEmail, onLogout }: HeaderProps) {
               Login
             </Link>
           )}
+          <ThemeToggle />
         </div>
       </div>
     </header>

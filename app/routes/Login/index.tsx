@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { useAuth } from "../components/auth";
+import { useEffect, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router";
+import { useAuth } from "~/components/auth";
 import {
   authJwtLoginAuthJwtLoginPost,
   oauthGoogleJwtAuthorizeGoogleAuthorizeGet,
-} from "../generated/auth/auth";
+} from "~/generated/auth/auth";
 
 export function meta() {
   return [
@@ -15,13 +15,27 @@ export function meta() {
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const location = useLocation();
+  const { login, saveRedirectUrl, getRedirectUrl } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>(
     {},
   );
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    // Check if we have a redirect URL in the state or search params
+    const searchParams = new URLSearchParams(location.search);
+    console.log(searchParams);
+    const redirectTo =
+      searchParams.get("redirectTo") ||
+      (location.state as { redirectTo?: string })?.redirectTo;
+
+    if (redirectTo) {
+      saveRedirectUrl(redirectTo);
+    }
+  }, [location, saveRedirectUrl]);
 
   const validateForm = () => {
     const newErrors: { email?: string; password?: string } = {};
@@ -58,7 +72,10 @@ export default function Login() {
           email: email,
           id: "", // The login endpoint doesn't return the user ID, we'd need another API call
         });
-        navigate("/");
+
+        // Navigate to saved redirect URL or home
+        const redirectUrl = getRedirectUrl();
+        navigate(redirectUrl || "/");
       } else {
         setErrors({ password: "Invalid email or password" });
       }
@@ -93,7 +110,6 @@ export default function Login() {
     <main className="container mx-auto px-4 py-8">
       <div className="max-w-md mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
         <h1 className="text-2xl font-bold text-center mb-6">Login to Knowde</h1>
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label
