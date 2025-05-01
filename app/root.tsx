@@ -9,9 +9,20 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { Header } from "./components/Header";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/react-router";
+import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { AuthProvider } from "./components/auth";
 import { ThemeProvider } from "./components/theme";
+
+export async function loader(args: Route.LoaderArgs) {
+  return rootAuthLoader(args);
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -55,17 +66,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function App() {
+export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <>
-      <Header />
-      <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
+    <ClerkProvider
+      loaderData={loaderData}
+      signUpFallbackRedirectUrl="/"
+      signInFallbackRedirectUrl="/"
+    >
+      <header className="flex items-center justify-center py-8 px-4">
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </header>
+      <main>
         <Outlet />
-      </div>
-    </>
+      </main>
+    </ClerkProvider>
   );
 }
-
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
