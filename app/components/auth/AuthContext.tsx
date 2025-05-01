@@ -10,14 +10,17 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (token: string, userData: User) => void;
+  login: (token: string, userData: User, redirectTo?: string) => void;
   logout: () => Promise<void>;
+  saveRedirectUrl: (url: string) => void;
+  getRedirectUrl: () => string | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const TOKEN_KEY = "knowde_auth_token";
 const USER_DATA_KEY = "knowde_user_data";
+const REDIRECT_URL_KEY = "knowde_redirect_url";
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -41,10 +44,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false);
   }, []);
 
-  const login = (token: string, userData: User) => {
+  const login = (token: string, userData: User, redirectTo?: string) => {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_DATA_KEY, JSON.stringify(userData));
     setUser(userData);
+
+    if (redirectTo) {
+      localStorage.setItem(REDIRECT_URL_KEY, redirectTo);
+    }
+  };
+
+  const saveRedirectUrl = (url: string) => {
+    localStorage.setItem(REDIRECT_URL_KEY, url);
+  };
+
+  const getRedirectUrl = () => {
+    const url = localStorage.getItem(REDIRECT_URL_KEY);
+    if (url) {
+      localStorage.removeItem(REDIRECT_URL_KEY);
+    }
+    return url;
   };
 
   const logout = async () => {
@@ -72,6 +91,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     login,
     logout,
+    saveRedirectUrl,
+    getRedirectUrl,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

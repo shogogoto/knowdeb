@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useAuth } from "../../../components/auth";
 import { oauthGoogleJwtCallbackGoogleCallbackGet } from "../../../generated/auth/auth";
+import type { BearerResponse } from "../../../generated/fastAPI.schemas";
 
 export function meta() {
   return [
@@ -12,7 +13,7 @@ export function meta() {
 
 export default function GoogleCallback() {
   const location = useLocation();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { login } = useAuth();
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,18 +45,16 @@ export default function GoogleCallback() {
         });
 
         if (response.status === 200) {
-          // The response format depends on your backend implementation
-          // This assumes it returns a token and user data
-          const responseData = response.data as {
-            access_token: string;
-            user: {
-              email: string;
-              id: string;
-            };
+          // API returns BearerResponse type (access_token and token_type)
+          const responseData = response.data as BearerResponse;
+          const userEmail =
+            localStorage.getItem("knowde_oauth_email") ||
+            "google-user@example.com";
+          const user = {
+            email: userEmail,
+            id: "", // We don't have the ID in this response
           };
-
-          login(responseData.access_token, responseData.user);
-          navigate("/");
+          login(responseData.access_token, user);
         } else {
           setError("Authentication failed");
         }
@@ -68,7 +67,7 @@ export default function GoogleCallback() {
     };
 
     processCallback();
-  }, [location, login, navigate]);
+  }, [location, login]);
 
   if (isLoading) {
     return (
