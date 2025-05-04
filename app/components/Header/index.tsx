@@ -1,24 +1,23 @@
+import {
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/react-router";
 import { Link } from "react-router";
-import { useAuth } from "../auth";
+import favicon from "/favicon.ico";
 import { ThemeToggle } from "../theme";
 
-interface HeaderProps {
-  isLoggedIn: boolean;
-  userEmail?: string;
-  onLogout?: () => void;
-}
-
 export function Header() {
-  const { isAuthenticated, user, logout } = useAuth();
   return (
     <header className="fixed top-0 left-0 w-full bg-white dark:bg-gray-900 shadow-md z-10">
-      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div className="mx-auto px-4 py-3 flex items-center justify-between border">
         <div className="flex items-center">
           <Link
             to="/"
             className="text-2xl font-bold text-blue-600 dark:text-blue-400"
           >
-            Knowde
+            <img src={favicon} alt="Logo" className="inline" />
           </Link>
           <nav className="ml-6">
             <ul className="flex space-x-4">
@@ -35,27 +34,12 @@ export function Header() {
         </div>
 
         <div className="flex items-center space-x-4">
-          {isAuthenticated ? (
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700 dark:text-gray-300 mr-3">
-                {user?.email}
-              </span>
-              <button
-                type="button"
-                onClick={logout}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <Link
-              to="/login"
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-            >
-              Login
-            </Link>
-          )}
+          <SignedOut>
+            <SignInButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
           <ThemeToggle />
         </div>
       </div>
