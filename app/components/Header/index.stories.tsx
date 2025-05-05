@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { ClerkProvider } from "@clerk/react-router";
 import { ThemeProvider } from "../theme";
 import { Header } from "./index";
-const PUBLISHABLE_KEY = process.env.VITE_CLERK_PUBLISHABLE_KEY;
+const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 const meta = {
   component: Header,
