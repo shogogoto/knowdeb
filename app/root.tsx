@@ -9,7 +9,15 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { ThemeProvider, ThemeToggle } from "./components/theme";
+import { jaJP } from "@clerk/localizations";
+import { ClerkProvider } from "@clerk/react-router";
+import { rootAuthLoader } from "@clerk/react-router/ssr.server";
+import { Header } from "./components/Header";
+import { ThemeProvider } from "./components/theme";
+
+export async function loader(args: Route.LoaderArgs) {
+  return rootAuthLoader(args);
+}
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,23 +51,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <script>{themeScript}</script>
       </head>
       <body>
-        <ThemeProvider>
-          <ThemeToggle />
-          <div className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
-            {children}
-            <ScrollRestoration />
-            <Scripts />
-          </div>
-        </ThemeProvider>
+        <ThemeProvider>{children}</ThemeProvider>
+        <ScrollRestoration />
+        <Scripts />
       </body>
     </html>
   );
 }
 
-export default function App() {
-  return <Outlet />;
+export default function App({ loaderData }: Route.ComponentProps) {
+  return (
+    <ClerkProvider
+      loaderData={loaderData}
+      signUpFallbackRedirectUrl="/"
+      signInFallbackRedirectUrl="/"
+      localization={jaJP}
+    >
+      <Header />
+      <main className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
+        <Outlet />
+      </main>
+    </ClerkProvider>
+  );
 }
-
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
