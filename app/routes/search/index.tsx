@@ -1,6 +1,8 @@
+import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import { searchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import type { Route } from "./+types";
 import SearchBar from "./SearchBar";
+import { SearchProvider } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
 export function meta() {
@@ -12,21 +14,50 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const raw = Object.fromEntries(url.searchParams.entries());
-  const res = await searchByTextKnowdeGet(raw);
-  if (res.status !== 200) {
-    throw new Response("Error", { status: res.status });
+  const q = url.searchParams.get("q");
+
+  // Handle pagination parameters
+  const page = url.searchParams.get("page")
+    ? Number.parseInt(url.searchParams.get("page") || "1", 10)
+    : 1;
+  const size = url.searchParams.get("size")
+    ? Number.parseInt(url.searchParams.get("size") || "100", 10)
+    : 100;
+
+  // Set page and size parameters before sending the request
+  const params = Object.fromEntries(url.searchParams.entries());
+  params.page = page.toString();
+  params.size = size.toString();
+
+  // Provide default search type if not specified
+  if (!params.search_type) {
+    params.search_type = SearchByTextKnowdeGetType.CONTAINS;
   }
-  return { data: res.data };
+
+  // Only make API request if there's a search query
+  let data = { total: 0, data: [] };
+  if (q && q.trim() !== "") {
+    const res = await searchByTextKnowdeGet(params);
+    data = res.data;
+  }
+
+  return {
+    data,
+    q,
+    page,
+    size,
+    searchType: params.search_type,
+  };
 }
 
 export default function Search({ loaderData }: Route.ComponentProps) {
   const { data } = loaderData;
+
   return (
-    <>
+    <SearchProvider>
       <SearchBar />
       <SearchResults data={data} />
-    </>
+    </SearchProvider>
   );
 }
 
