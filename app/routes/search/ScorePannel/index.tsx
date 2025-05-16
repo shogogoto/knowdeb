@@ -21,6 +21,8 @@ export default function ScorePannel(props: Props) {
           <div className="text-right">{props.stats.n_conclusion}</div>
           <div className="text-right">{props.stats.n_refer}</div>
           <div className="text-right">{props.stats.n_referred}</div>
+          <div className="text-right">{props.stats.dist_axiom}</div>
+          <div className="text-right">{props.stats.dist_leaf}</div>
         </div>
       )}
     </div>

@@ -24,7 +24,7 @@ export default function WeightRange({
       <input
         name={name}
         type="range"
-        min={-5}
+        min={-1}
         max={5}
         value={val}
         onChange={(e) =>
