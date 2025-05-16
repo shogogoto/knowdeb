@@ -1,4 +1,7 @@
-import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import {
+  type KnowdeSearchResult,
+  SearchByTextKnowdeGetType,
+} from "~/generated/fastAPI.schemas";
 import { searchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import type { Route } from "./+types";
 import SearchBar from "./SearchBar";
@@ -29,16 +32,14 @@ export async function loader({ request }: Route.LoaderArgs) {
   params.page = page.toString();
   params.size = size.toString();
 
-  // Provide default search type if not specified
   if (!params.search_type) {
     params.search_type = SearchByTextKnowdeGetType.CONTAINS;
   }
 
-  // Only make API request if there's a search query
-  let data = { total: 0, data: [] };
+  let data: KnowdeSearchResult = { total: 0, data: [] };
   if (q && q.trim() !== "") {
     const res = await searchByTextKnowdeGet(params);
-    data = res.data;
+    data = res.data as KnowdeSearchResult;
   }
 
   return {
