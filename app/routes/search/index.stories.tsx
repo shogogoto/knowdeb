@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { useLoaderData } from "react-router";
 import { reactRouterParameters } from "storybook-addon-remix-react-router";
 import { getKnowdeMock } from "~/generated/knowde/knowde.msw";
-import Search, { loader } from "./index";
+import Search from "./index";
 
 const meta = {
   component: Search,
@@ -33,7 +33,7 @@ export const Default: Story = {
     reactRouter: reactRouterParameters({
       routing: {
         path: "/search",
-        loader: loader,
+        // loader: loader,
       },
     }),
   },

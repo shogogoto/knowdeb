@@ -17,7 +17,7 @@ export const Default: Story = {
   args: {
     row: {
       center: {
-        sentence: "a".repeat(80),
+        sentence: "aaaa".repeat(20),
         uid: faker.string.uuid(),
         term: {
           names: ["Sample Name", "Sample Name2"],
@@ -25,6 +25,7 @@ export const Default: Story = {
       },
       when: "2025-04-28",
     },
+    index: 1,
   },
 };
 
@@ -34,8 +35,10 @@ export const NoName: Story = {
       center: {
         sentence: "A".repeat(120),
         uid: faker.string.uuid(),
+        when: "2025-04-28",
       },
     },
+    index: 1,
   },
 };
 
@@ -50,5 +53,6 @@ export const LongName: Story = {
         },
       },
     },
+    index: 1,
   },
 };

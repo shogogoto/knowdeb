@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { SearchProvider } from "../SearchContext";
 import Index from "./index";
 
 const meta = {
@@ -12,12 +11,11 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: {},
-  decorators: [
-    (Story) => (
-      <SearchProvider>
-        <Story />
-      </SearchProvider>
-    ),
-  ],
+  args: {
+    knowde: {
+      sentence: "dummy",
+      uid: "8923b4b9-27a8-43c7-bb8f-e63b77b72c12",
+      when: "19C",
+    },
+  },
 };

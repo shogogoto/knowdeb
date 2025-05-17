@@ -36,6 +36,7 @@ export const registerRegisterAuthRegisterPostBody = zod
       .default(registerRegisterAuthRegisterPostBodyIsActiveDefault),
     is_superuser: zod.boolean().or(zod.null()).optional(),
     is_verified: zod.boolean().or(zod.null()).optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("作成.");
 
@@ -83,6 +84,7 @@ export const verifyVerifyAuthVerifyPostResponse = zod
       .default(verifyVerifyAuthVerifyPostResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("読み取り.");
 

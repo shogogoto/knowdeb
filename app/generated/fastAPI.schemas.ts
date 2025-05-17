@@ -4,6 +4,22 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+export type AccountExpiresAt = number | null;
+
+export type AccountRefreshToken = string | null;
+
+/**
+ * OAuthAccountProtocol[UUID]を満たす.
+ */
+export interface Account {
+  oauth_name: string;
+  access_token: string;
+  expires_at?: AccountExpiresAt;
+  refresh_token?: AccountRefreshToken;
+  account_id: string;
+  account_email: string;
+}
+
 export interface BearerResponse {
   access_token: string;
   token_type: string;
@@ -43,6 +59,30 @@ export interface BodyVerifyRequestTokenAuthRequestVerifyTokenPost {
 
 export interface BodyVerifyVerifyAuthVerifyPost {
   token: string;
+}
+
+/**
+ * Webhook sent event.
+ */
+export type ClerkEventType =
+  (typeof ClerkEventType)[keyof typeof ClerkEventType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ClerkEventType = {
+  usercreated: "user.created",
+  userupdated: "user.updated",
+  userdeleted: "user.deleted",
+  emailcreated: "email.created",
+} as const;
+
+export type ClerkPayloadData = { [key: string]: unknown };
+
+/**
+ * webhook request json.
+ */
+export interface ClerkPayload {
+  data: ClerkPayloadData;
+  type: ClerkEventType;
 }
 
 /**
@@ -155,6 +195,8 @@ export interface KStats {
 
 export type KnowdeTerm = Term | null;
 
+export type KnowdeWhen = string | null;
+
 /**
  * 知識の最小単位.
  */
@@ -162,6 +204,67 @@ export interface Knowde {
   sentence: string;
   uid: string;
   term?: KnowdeTerm;
+  when?: KnowdeWhen;
+}
+
+export type KnowdeDetailKnowdes = { [key: string]: Knowde };
+
+/**
+ * 詳細.
+ */
+export interface KnowdeDetail {
+  uid: string;
+  g: GraphData;
+  knowdes: KnowdeDetailKnowdes;
+  location: KnowdeLocation;
+}
+
+/**
+ * knowdeの位置情報.
+ */
+export interface KnowdeLocation {
+  user: User;
+  folders: UidStr[];
+  resource: MResource;
+  headers: UidStr[];
+  parents: Knowde[];
+}
+
+/**
+ * knowde検索結果.
+ */
+export interface KnowdeSearchResult {
+  total: number;
+  data: KAdjacency[];
+}
+
+export type MResourceElementIdProperty = string | null;
+
+export type MResourceAuthors = string[] | null;
+
+export type MResourcePublished = string | null;
+
+export type MResourceUrls = string[] | null;
+
+export type MResourcePath = string[] | null;
+
+export type MResourceUpdated = string | null;
+
+export type MResourceTxtHash = number | null;
+
+/**
+ * LResourceのOGM, リソースのメタ情報.
+ */
+export interface MResource {
+  name: string;
+  element_id_property?: MResourceElementIdProperty;
+  uid: string;
+  authors?: MResourceAuthors;
+  published?: MResourcePublished;
+  urls?: MResourceUrls;
+  path?: MResourcePath;
+  updated?: MResourceUpdated;
+  txt_hash?: MResourceTxtHash;
 }
 
 export type NameSpaceRoots = { [key: string]: Entry };
@@ -219,11 +322,42 @@ export interface Term {
   alias?: TermAlias;
 }
 
+/**
+ * UUID付き文章.
+ */
+export interface UidStr {
+  val: string;
+  uid: string;
+}
+
+export type UserUid = string | null;
+
+export type UserClerkId = string | null;
+
+export type UserDisplayName = string | null;
+
+/**
+ * UserProtocol[UUID]を満たす.
+ */
+export interface User {
+  uid?: UserUid;
+  email: string;
+  hashed_password: string;
+  is_active: boolean;
+  is_superuser?: boolean;
+  is_verified?: boolean;
+  oauth_accounts?: Account[];
+  clerk_id?: UserClerkId;
+  display_name?: UserDisplayName;
+}
+
 export type UserCreateIsActive = boolean | null;
 
 export type UserCreateIsSuperuser = boolean | null;
 
 export type UserCreateIsVerified = boolean | null;
+
+export type UserCreateDisplayName = string | null;
 
 /**
  * 作成.
@@ -234,7 +368,10 @@ export interface UserCreate {
   is_active?: UserCreateIsActive;
   is_superuser?: UserCreateIsSuperuser;
   is_verified?: UserCreateIsVerified;
+  display_name?: UserCreateDisplayName;
 }
+
+export type UserReadDisplayName = string | null;
 
 /**
  * 読み取り.
@@ -245,6 +382,7 @@ export interface UserRead {
   is_active?: boolean;
   is_superuser?: boolean;
   is_verified?: boolean;
+  display_name?: UserReadDisplayName;
 }
 
 export type UserUpdatePassword = string | null;
@@ -257,6 +395,8 @@ export type UserUpdateIsSuperuser = boolean | null;
 
 export type UserUpdateIsVerified = boolean | null;
 
+export type UserUpdateDisplayName = string | null;
+
 /**
  * 更新.
  */
@@ -266,6 +406,7 @@ export interface UserUpdate {
   is_active?: UserUpdateIsActive;
   is_superuser?: UserUpdateIsSuperuser;
   is_verified?: UserUpdateIsVerified;
+  display_name?: UserUpdateDisplayName;
 }
 
 export type ValidationErrorLocItem = string | number;
@@ -313,3 +454,5 @@ export const SearchByTextKnowdeGetType = {
   REGEX: "REGEX",
   EQUAL: "EQUAL",
 } as const;
+
+export type ClerkWebhookWebhookClerkPost200 = User | null;
