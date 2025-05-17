@@ -1,14 +1,14 @@
 import type { KAdjacency } from "~/generated/fastAPI.schemas";
-import ScorePannel from "../ScorePannel";
 import DefLine from "./DefLine";
-import DetailList from "./RowDetail";
+import RowPrefix from "./RowPrefix";
 
 type Props = {
   row: KAdjacency;
+  index: number;
   isOpen?: boolean;
 };
 
-export default function ResultRow({ row }: Props) {
+export default function ResultRow({ row, index }: Props) {
   const [summary, total] = adjToSummary(row);
   return (
     <div
@@ -16,23 +16,23 @@ export default function ResultRow({ row }: Props) {
       className="p-4 border border-gray-200 rounded-md dark:border-gray-700"
     >
       {/* <div className="grid grid-cols-2 justify-start"> */}
-      <div className="flex flex-col">
-        <ScorePannel stats={row.stats} />
+      <div className="flex gap-2">
+        <RowPrefix index={index} stats={row.stats} />
         <DefLine kn={row.center} />
       </div>
       {total > 0 && (
-        <div className="mt-3">
-          <details open>
-            <summary className="cursor-pointer text-blue-600 dark:text-blue-400">
-              {`${summary}件`}
-              {row.when && <span className="mb-2"> @{row.when}</span>}
-            </summary>
-            <DetailList arr={row.details} caption={"詳細"} />
-            <DetailList arr={row.premises} caption={"前提"} />
-            <DetailList arr={row.conclusions} caption={"結論"} />
-            <DetailList arr={row.refers} caption={"参照"} />
-            <DetailList arr={row.referreds} caption={"被参照"} />
-          </details>
+        <div className="mt-1">
+          {/* <details open> */}
+          {/*   <summary className="cursor-pointer text-blue-600 dark:text-blue-400"> */}
+          {/*     {`${summary}件`} */}
+          {/*     {row.when && <span className="mb-2"> @{row.when}</span>} */}
+          {/*   </summary> */}
+          {/*   <DetailList arr={row.details} caption={"詳細"} /> */}
+          {/*   <DetailList arr={row.premises} caption={"前提"} /> */}
+          {/*   <DetailList arr={row.conclusions} caption={"結論"} /> */}
+          {/*   <DetailList arr={row.refers} caption={"参照"} /> */}
+          {/*   <DetailList arr={row.referreds} caption={"被参照"} /> */}
+          {/* </details> */}
         </div>
       )}
     </div>

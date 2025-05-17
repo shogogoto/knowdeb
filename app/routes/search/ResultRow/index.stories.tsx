@@ -25,6 +25,7 @@ export const Default: Story = {
       },
       when: "2025-04-28",
     },
+    index: 1,
   },
 };
 
@@ -36,6 +37,7 @@ export const NoName: Story = {
         uid: faker.string.uuid(),
       },
     },
+    index: 1,
   },
 };
 
@@ -50,5 +52,6 @@ export const LongName: Story = {
         },
       },
     },
+    index: 1,
   },
 };

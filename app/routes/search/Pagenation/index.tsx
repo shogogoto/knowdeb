@@ -104,8 +104,8 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
           <PaginationPrevious
             href={createPageUrl(Math.max(1, currentPage - 1))}
             onClick={(e) => {
-              e.preventDefault();
               if (currentPage > 1) {
+                e.preventDefault();
                 handlePageChange(currentPage - 1);
               }
             }}
@@ -142,8 +142,8 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
           <PaginationNext
             href={createPageUrl(Math.min(totalPages, currentPage + 1))}
             onClick={(e) => {
-              e.preventDefault();
               if (currentPage < totalPages) {
+                e.preventDefault();
                 handlePageChange(currentPage + 1);
               }
             }}

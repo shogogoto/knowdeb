@@ -12,11 +12,8 @@ type Props = {
 };
 
 export default function SearchResults({ data }: Props) {
-  const searchContext = useContext(SearchContext);
-
-  if (!searchContext) {
-    throw new Error("SearchResults must be used within a SearchProvider");
-  }
+  const ctx = useContext(SearchContext);
+  const start = (ctx?.paging?.size ?? 0) * ((ctx?.paging?.page ?? 1) - 1) + 1;
 
   return (
     <div className="container mx-auto p-4">
@@ -31,9 +28,13 @@ export default function SearchResults({ data }: Props) {
                 <SearchPagination totalItems={data.total} />
               </div>
             </div>
-            <div className="space-y-4">
-              {data.data.map((row) => (
-                <ResultRow row={row} key={row.center.uid} />
+            <div className="">
+              {data.data.map((row, index) => (
+                <ResultRow
+                  row={row}
+                  index={index + start}
+                  key={row.center.uid}
+                />
               ))}
             </div>
 
