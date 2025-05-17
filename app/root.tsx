@@ -15,10 +15,6 @@ import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { Header } from "./components/Header";
 import { ThemeProvider } from "./components/theme";
 
-export async function loader(args: Route.LoaderArgs) {
-  return rootAuthLoader(args);
-}
-
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -58,10 +54,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
     </html>
   );
 }
+export async function loader(args: Route.LoaderArgs) {
+  return rootAuthLoader(args);
+}
 
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <ClerkProvider
+      publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
       loaderData={loaderData}
       signUpFallbackRedirectUrl="/"
       signInFallbackRedirectUrl="/"

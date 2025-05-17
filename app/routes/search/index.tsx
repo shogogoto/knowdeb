@@ -15,7 +15,7 @@ export function meta() {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
+export async function clientLoader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
   const q = url.searchParams.get("q");
 
@@ -62,11 +62,11 @@ export default function Search({ loaderData }: Route.ComponentProps) {
   );
 }
 
-export function HydrateFallback() {
-  return (
-    <div id="loading-splash">
-      <div id="loading-splash-spinner" />
-      <p>読み込み中、しばらくお待ちください...</p>
-    </div>
-  );
-}
+// export function HydrateFallback() {
+//   return (
+//     <div id="loading-splash">
+//       <div id="loading-splash-spinner" />
+//       <p>読み込み中、しばらくお待ちください...</p>
+//     </div>
+//   );
+// }
