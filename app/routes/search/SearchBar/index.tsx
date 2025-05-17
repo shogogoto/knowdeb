@@ -1,12 +1,12 @@
+import { LoaderCircle } from "lucide-react";
 import { useContext, useState } from "react";
-import { Form, useNavigate, useNavigation, useSubmit } from "react-router";
+import { Form, useNavigation, useSubmit } from "react-router";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
 export default function SearchBar() {
   const searchContext = useContext(SearchContext);
   const navigation = useNavigation();
-  const navigate = useNavigate();
   const submit = useSubmit();
   const [isShown, setShown] = useState(false);
 
@@ -60,7 +60,7 @@ export default function SearchBar() {
       className="container mx-auto p-4"
       onSubmit={handleSearch}
     >
-      <div className="flex w-full">
+      <div className="flex w-full relative">
         <input
           type="search"
           value={q}
@@ -70,15 +70,21 @@ export default function SearchBar() {
           }}
           placeholder="検索文字列を入力..."
           className="w-full border dark:bg-gray-800"
+          disabled={isLoading}
         />
         <button
           type="submit"
-          className="md:w-auto px-2 border bg-blue-600 hover:bg-blue-700"
+          className="md:w-auto px-2 border bg-blue-600 hover:bg-blue-700 text-white"
           disabled={isLoading}
         >
-          {isLoading ? "..." : "🔍"}
+          {isLoading ? <LoaderCircle className="animate-spin" /> : "🔍"}
         </button>
-        <button type="button" className="md:w-auto px-2" onClick={toggleShow}>
+        <button
+          type="button"
+          className="md:w-auto px-2"
+          onClick={toggleShow}
+          disabled={isLoading}
+        >
           ⚙
         </button>
       </div>

@@ -44,7 +44,6 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function Search({ loaderData }: Route.ComponentProps) {
   const { data } = loaderData;
-
   return (
     <SearchProvider>
       <SearchBar />
