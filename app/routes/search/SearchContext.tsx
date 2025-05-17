@@ -33,7 +33,7 @@ export function SearchProvider({ children }: Props) {
   const pageParam = searchParams.get("page");
   const sizeParam = searchParams.get("size");
   const initialPage = pageParam ? Number.parseInt(pageParam, 10) : 1;
-  const initialSize = sizeParam ? Number.parseInt(sizeParam, 10) : 100;
+  const initialSize = sizeParam ? Number.parseInt(sizeParam, 10) : 50;
 
   const [q, setQ] = useState(searchParams.get("q") || "");
   const [searchOption, setSearchOption] = useState<SearchByTextKnowdeGetType>(

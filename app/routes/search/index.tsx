@@ -15,17 +15,12 @@ export function meta() {
   ];
 }
 
-export async function clientLoader({ request }: Route.LoaderArgs) {
+export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const q = url.searchParams.get("q");
+  const q = url.searchParams.get("q") || "";
 
-  // Handle pagination parameters
-  const page = url.searchParams.get("page")
-    ? Number.parseInt(url.searchParams.get("page") || "1", 10)
-    : 1;
-  const size = url.searchParams.get("size")
-    ? Number.parseInt(url.searchParams.get("size") || "100", 10)
-    : 100;
+  const page = url.searchParams.get("page") || "1";
+  const size = url.searchParams.get("size") || "50";
 
   // Set page and size parameters before sending the request
   const params = Object.fromEntries(url.searchParams.entries());
@@ -35,12 +30,8 @@ export async function clientLoader({ request }: Route.LoaderArgs) {
   if (!params.search_type) {
     params.search_type = SearchByTextKnowdeGetType.CONTAINS;
   }
-
-  let data: KnowdeSearchResult = { total: 0, data: [] };
-  if (q && q.trim() !== "") {
-    const res = await searchByTextKnowdeGet(params);
-    data = res.data as KnowdeSearchResult;
-  }
+  const res = await searchByTextKnowdeGet(params);
+  const data = res.data as KnowdeSearchResult;
 
   return {
     data,
@@ -62,11 +53,11 @@ export default function Search({ loaderData }: Route.ComponentProps) {
   );
 }
 
-// export function HydrateFallback() {
-//   return (
-//     <div id="loading-splash">
-//       <div id="loading-splash-spinner" />
-//       <p>読み込み中、しばらくお待ちください...</p>
-//     </div>
-//   );
-// }
+export function HydrateFallback() {
+  return (
+    <div id="loading-splash">
+      <div id="loading-splash-spinner" />
+      <p>読み込み中、しばらくお待ちください...</p>
+    </div>
+  );
+}

@@ -1,6 +1,7 @@
 import type { KAdjacency } from "~/generated/fastAPI.schemas";
 import DefLine from "./DefLine";
 import RowPrefix from "./RowPrefix";
+import RowSuffix from "./RowSuffix";
 
 type Props = {
   row: KAdjacency;
@@ -15,10 +16,12 @@ export default function ResultRow({ row, index }: Props) {
       key={row.center.uid}
       className="p-4 border border-gray-200 rounded-md dark:border-gray-700"
     >
-      {/* <div className="grid grid-cols-2 justify-start"> */}
       <div className="flex gap-2">
         <RowPrefix index={index} stats={row.stats} />
         <DefLine kn={row.center} />
+        <div className="ml-auto">
+          <RowSuffix knowde={row.center} />
+        </div>
       </div>
       {total > 0 && (
         <div className="mt-1">

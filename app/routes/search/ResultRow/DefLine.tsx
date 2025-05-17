@@ -6,9 +6,9 @@ type Props = {
 
 export default function DefLine({ kn }: Props) {
   return (
-    <div className="break-words">
+    <div className="break-all">
       {kn.term?.names && (
-        <span className="font-semibold text-green-700 dark:text-green-600 contents">
+        <span className="font-semibold text-green-700 dark:text-green-600">
           {kn.term.names.join(", ")}:&nbsp;
         </span>
       )}
