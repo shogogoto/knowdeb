@@ -26,9 +26,7 @@ export default function SearchResults({ data }: Props) {
         {data.total > 0 ? (
           <div>
             <h2 className="text-xl font-semibold">検索結果 ({data.total}件)</h2>
-            <div className="">
-              <SearchPagination totalItems={data.total} />
-            </div>
+            <SearchPagination totalItems={data.total} />
 
             {isLoading ? (
               <div className="flex items-center justify-center">

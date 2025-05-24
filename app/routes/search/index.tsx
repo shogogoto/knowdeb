@@ -22,7 +22,6 @@ export async function loader({ request }: Route.LoaderArgs) {
   const page = url.searchParams.get("page") || "1";
   const size = url.searchParams.get("size") || "50";
 
-  // Set page and size parameters before sending the request
   const params = Object.fromEntries(url.searchParams.entries());
   params.page = page.toString();
   params.size = size.toString();
@@ -52,11 +51,11 @@ export default function Search({ loaderData }: Route.ComponentProps) {
   );
 }
 
-export function HydrateFallback() {
-  return (
-    <div id="loading-splash">
-      <div id="loading-splash-spinner" />
-      <p>読み込み中、しばらくお待ちください...</p>
-    </div>
-  );
-}
+// export function HydrateFallback() {
+//   return (
+//     <div id="loading-splash">
+//       <div id="loading-splash-spinner" />
+//       <p>読み込み中、しばらくお待ちください...</p>
+//     </div>
+//   );
+// }

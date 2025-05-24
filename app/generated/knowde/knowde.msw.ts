@@ -49,171 +49,156 @@ export const getSearchByTextKnowdeGetResponseMock = (
       faker.helpers.arrayElement([faker.string.alpha(20), null]),
       undefined,
     ]),
-    details: faker.helpers.arrayElement([
-      Array.from(
-        { length: faker.number.int({ min: 1, max: 10 }) },
-        (_, i) => i + 1,
-      ).map(() => ({
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
+    details: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
+        undefined,
+      ]),
+      when: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+    })),
+    premises: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-      })),
-      undefined,
-    ]),
-    premises: faker.helpers.arrayElement([
-      Array.from(
-        { length: faker.number.int({ min: 1, max: 10 }) },
-        (_, i) => i + 1,
-      ).map(() => ({
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
+        undefined,
+      ]),
+      when: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+    })),
+    conclusions: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
+        undefined,
+      ]),
+      when: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+    })),
+    refers: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-      })),
-      undefined,
-    ]),
-    conclusions: faker.helpers.arrayElement([
-      Array.from(
-        { length: faker.number.int({ min: 1, max: 10 }) },
-        (_, i) => i + 1,
-      ).map(() => ({
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
+        undefined,
+      ]),
+      when: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+    })),
+    referreds: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-      })),
-      undefined,
-    ]),
-    refers: faker.helpers.arrayElement([
-      Array.from(
-        { length: faker.number.int({ min: 1, max: 10 }) },
-        (_, i) => i + 1,
-      ).map(() => ({
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
-        ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-      })),
-      undefined,
-    ]),
-    referreds: faker.helpers.arrayElement([
-      Array.from(
-        { length: faker.number.int({ min: 1, max: 10 }) },
-        (_, i) => i + 1,
-      ).map(() => ({
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
-        ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-      })),
-      undefined,
-    ]),
+        undefined,
+      ]),
+      when: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+    })),
     stats: faker.helpers.arrayElement([
       faker.helpers.arrayElement([
         {

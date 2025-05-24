@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import type { Knowde } from "~/generated/fastAPI.schemas";
 
 type Props = {
@@ -7,13 +8,14 @@ type Props = {
 export default function DefLine({ kn }: Props) {
   return (
     <div className="break-all">
-      {kn.term?.names && (
-        <span className="font-semibold text-green-700 dark:text-green-600">
-          {kn.term.names.join(", ")}:&nbsp;
-        </span>
-      )}
-      {kn.sentence}
-      {/* <span className="font-medium mb-2">{kn.sentence}</span> */}
+      <Link to={`/knowde/${kn.uid}`} className="hover:underline">
+        {kn.term?.names && (
+          <span className="font-semibold text-green-700 dark:text-green-600">
+            {kn.term.names.join(", ")}:&nbsp;
+          </span>
+        )}
+        {kn.sentence}
+      </Link>
     </div>
   );
 }

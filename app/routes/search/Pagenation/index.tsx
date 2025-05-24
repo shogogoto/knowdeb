@@ -50,13 +50,9 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
     [paging, setPaging, searchParams, navigate],
   );
 
-  // Generate page numbers to display
   const generatePagination = () => {
-    // Always show first, last, current and pages adjacent to current
     const pages: (number | null)[] = [];
-
-    // Always add page 1
-    pages.push(1);
+    pages.push(1); // Always add page 1
 
     // Add null if there's a gap after page 1
     if (currentPage > 3) {
@@ -114,12 +110,7 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
 
         {pages.map((page, i) => {
           if (page === null) {
-            return (
-              // biome-ignore lint/suspicious/noArrayIndexKey:
-              <PaginationItem key={`ellipsis-${i}`}>
-                <PaginationEllipsis />
-              </PaginationItem>
-            );
+            return <PaginationEllipsis />;
           }
 
           return (

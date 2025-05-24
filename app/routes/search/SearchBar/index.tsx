@@ -30,36 +30,8 @@ export default function SearchBar() {
 
   const toggleShow = () => setShown(!isShown);
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    // Reset to page 1 when performing a new search
-    setPaging((prev) => ({ ...prev, page: 1 }));
-
-    // Prepare search parameters
-    const formData = new FormData();
-    formData.append("q", q);
-    formData.append("search_type", searchOption);
-    formData.append("page", "1");
-    formData.append("size", paging.size?.toString() || "100");
-
-    // Add ordering parameters
-    Object.entries(order).forEach(([key, value]) => {
-      if (value !== undefined) {
-        formData.append(key, value.toString());
-      }
-    });
-
-    submit(formData, { method: "get", action: "/search" });
-  };
-
   return (
-    <Form
-      action="/search"
-      method="get"
-      className="container mx-auto p-4"
-      onSubmit={handleSearch}
-    >
+    <Form action="/search" method="get" className="container mx-auto p-4">
       <div className="flex w-full relative">
         <input
           type="search"
@@ -123,3 +95,8 @@ export default function SearchBar() {
     </Form>
   );
 }
+
+// export function CommandDemo() {
+//   return (
+//   );
+// }

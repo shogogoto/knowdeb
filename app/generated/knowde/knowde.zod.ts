@@ -92,121 +92,111 @@ export const searchByTextKnowdeGetResponse = zod
             })
             .describe("知識の最小単位."),
           when: zod.string().or(zod.null()).optional(),
-          details: zod
-            .array(
-              zod
-                .object({
-                  sentence: zod.string(),
-                  uid: zod.string().uuid(),
-                  term: zod
-                    .object({
-                      names: zod.array(zod.string()).optional(),
-                      alias: zod
-                        .string()
-                        .or(zod.null())
-                        .optional()
-                        .describe("参照用の無意味な記号(参照を持たない)"),
-                    })
-                    .describe("用語.")
-                    .or(zod.null())
-                    .optional(),
-                  when: zod.string().or(zod.null()).optional(),
-                })
-                .describe("知識の最小単位."),
-            )
-            .optional(),
-          premises: zod
-            .array(
-              zod
-                .object({
-                  sentence: zod.string(),
-                  uid: zod.string().uuid(),
-                  term: zod
-                    .object({
-                      names: zod.array(zod.string()).optional(),
-                      alias: zod
-                        .string()
-                        .or(zod.null())
-                        .optional()
-                        .describe("参照用の無意味な記号(参照を持たない)"),
-                    })
-                    .describe("用語.")
-                    .or(zod.null())
-                    .optional(),
-                  when: zod.string().or(zod.null()).optional(),
-                })
-                .describe("知識の最小単位."),
-            )
-            .optional(),
-          conclusions: zod
-            .array(
-              zod
-                .object({
-                  sentence: zod.string(),
-                  uid: zod.string().uuid(),
-                  term: zod
-                    .object({
-                      names: zod.array(zod.string()).optional(),
-                      alias: zod
-                        .string()
-                        .or(zod.null())
-                        .optional()
-                        .describe("参照用の無意味な記号(参照を持たない)"),
-                    })
-                    .describe("用語.")
-                    .or(zod.null())
-                    .optional(),
-                  when: zod.string().or(zod.null()).optional(),
-                })
-                .describe("知識の最小単位."),
-            )
-            .optional(),
-          refers: zod
-            .array(
-              zod
-                .object({
-                  sentence: zod.string(),
-                  uid: zod.string().uuid(),
-                  term: zod
-                    .object({
-                      names: zod.array(zod.string()).optional(),
-                      alias: zod
-                        .string()
-                        .or(zod.null())
-                        .optional()
-                        .describe("参照用の無意味な記号(参照を持たない)"),
-                    })
-                    .describe("用語.")
-                    .or(zod.null())
-                    .optional(),
-                  when: zod.string().or(zod.null()).optional(),
-                })
-                .describe("知識の最小単位."),
-            )
-            .optional(),
-          referreds: zod
-            .array(
-              zod
-                .object({
-                  sentence: zod.string(),
-                  uid: zod.string().uuid(),
-                  term: zod
-                    .object({
-                      names: zod.array(zod.string()).optional(),
-                      alias: zod
-                        .string()
-                        .or(zod.null())
-                        .optional()
-                        .describe("参照用の無意味な記号(参照を持たない)"),
-                    })
-                    .describe("用語.")
-                    .or(zod.null())
-                    .optional(),
-                  when: zod.string().or(zod.null()).optional(),
-                })
-                .describe("知識の最小単位."),
-            )
-            .optional(),
+          details: zod.array(
+            zod
+              .object({
+                sentence: zod.string(),
+                uid: zod.string().uuid(),
+                term: zod
+                  .object({
+                    names: zod.array(zod.string()).optional(),
+                    alias: zod
+                      .string()
+                      .or(zod.null())
+                      .optional()
+                      .describe("参照用の無意味な記号(参照を持たない)"),
+                  })
+                  .describe("用語.")
+                  .or(zod.null())
+                  .optional(),
+                when: zod.string().or(zod.null()).optional(),
+              })
+              .describe("知識の最小単位."),
+          ),
+          premises: zod.array(
+            zod
+              .object({
+                sentence: zod.string(),
+                uid: zod.string().uuid(),
+                term: zod
+                  .object({
+                    names: zod.array(zod.string()).optional(),
+                    alias: zod
+                      .string()
+                      .or(zod.null())
+                      .optional()
+                      .describe("参照用の無意味な記号(参照を持たない)"),
+                  })
+                  .describe("用語.")
+                  .or(zod.null())
+                  .optional(),
+                when: zod.string().or(zod.null()).optional(),
+              })
+              .describe("知識の最小単位."),
+          ),
+          conclusions: zod.array(
+            zod
+              .object({
+                sentence: zod.string(),
+                uid: zod.string().uuid(),
+                term: zod
+                  .object({
+                    names: zod.array(zod.string()).optional(),
+                    alias: zod
+                      .string()
+                      .or(zod.null())
+                      .optional()
+                      .describe("参照用の無意味な記号(参照を持たない)"),
+                  })
+                  .describe("用語.")
+                  .or(zod.null())
+                  .optional(),
+                when: zod.string().or(zod.null()).optional(),
+              })
+              .describe("知識の最小単位."),
+          ),
+          refers: zod.array(
+            zod
+              .object({
+                sentence: zod.string(),
+                uid: zod.string().uuid(),
+                term: zod
+                  .object({
+                    names: zod.array(zod.string()).optional(),
+                    alias: zod
+                      .string()
+                      .or(zod.null())
+                      .optional()
+                      .describe("参照用の無意味な記号(参照を持たない)"),
+                  })
+                  .describe("用語.")
+                  .or(zod.null())
+                  .optional(),
+                when: zod.string().or(zod.null()).optional(),
+              })
+              .describe("知識の最小単位."),
+          ),
+          referreds: zod.array(
+            zod
+              .object({
+                sentence: zod.string(),
+                uid: zod.string().uuid(),
+                term: zod
+                  .object({
+                    names: zod.array(zod.string()).optional(),
+                    alias: zod
+                      .string()
+                      .or(zod.null())
+                      .optional()
+                      .describe("参照用の無意味な記号(参照を持たない)"),
+                  })
+                  .describe("用語.")
+                  .or(zod.null())
+                  .optional(),
+                when: zod.string().or(zod.null()).optional(),
+              })
+              .describe("知識の最小単位."),
+          ),
           stats: zod
             .object({
               n_detail: zod

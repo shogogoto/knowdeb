@@ -141,11 +141,11 @@ export type KAdjacencyStats = KStats | null;
 export interface KAdjacency {
   center: Knowde;
   when?: KAdjacencyWhen;
-  details?: Knowde[];
-  premises?: Knowde[];
-  conclusions?: Knowde[];
-  refers?: Knowde[];
-  referreds?: Knowde[];
+  details: Knowde[];
+  premises: Knowde[];
+  conclusions: Knowde[];
+  refers: Knowde[];
+  referreds: Knowde[];
   stats?: KAdjacencyStats;
 }
 

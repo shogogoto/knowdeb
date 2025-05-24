@@ -7,7 +7,7 @@ type Props = {
 export default function RowSuffix({ knowde }: Props) {
   return (
     <>
-      <div>{knowde.when}</div>
+      <div className="border">{knowde.when}</div>
     </>
   );
 }
