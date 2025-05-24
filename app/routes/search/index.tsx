@@ -1,6 +1,11 @@
+import {
+  type KnowdeSearchResult,
+  SearchByTextKnowdeGetType,
+} from "~/generated/fastAPI.schemas";
 import { searchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import type { Route } from "./+types";
 import SearchBar from "./SearchBar";
+import { SearchProvider } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
 export function meta() {
@@ -12,29 +17,45 @@ export function meta() {
 
 export async function loader({ request }: Route.LoaderArgs) {
   const url = new URL(request.url);
-  const raw = Object.fromEntries(url.searchParams.entries());
-  const res = await searchByTextKnowdeGet(raw);
-  if (res.status !== 200) {
-    throw new Response("Error", { status: res.status });
+  const q = url.searchParams.get("q") || "";
+
+  const page = url.searchParams.get("page") || "1";
+  const size = url.searchParams.get("size") || "50";
+
+  const params = Object.fromEntries(url.searchParams.entries());
+  params.page = page.toString();
+  params.size = size.toString();
+
+  if (!params.search_type) {
+    params.search_type = SearchByTextKnowdeGetType.CONTAINS;
   }
-  return { data: res.data };
+  const res = await searchByTextKnowdeGet(params);
+  const data = res.data as KnowdeSearchResult;
+
+  return {
+    data,
+    q,
+    page,
+    size,
+    searchType: params.search_type,
+  };
 }
 
 export default function Search({ loaderData }: Route.ComponentProps) {
   const { data } = loaderData;
   return (
-    <>
+    <SearchProvider>
       <SearchBar />
       <SearchResults data={data} />
-    </>
+    </SearchProvider>
   );
 }
 
-export function HydrateFallback() {
-  return (
-    <div id="loading-splash">
-      <div id="loading-splash-spinner" />
-      <p>読み込み中、しばらくお待ちください...</p>
-    </div>
-  );
-}
+// export function HydrateFallback() {
+//   return (
+//     <div id="loading-splash">
+//       <div id="loading-splash-spinner" />
+//       <p>読み込み中、しばらくお待ちください...</p>
+//     </div>
+//   );
+// }
