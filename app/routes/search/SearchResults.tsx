@@ -1,23 +1,52 @@
+import { LoaderCircle } from "lucide-react";
+import { useContext } from "react";
+import { useNavigation } from "react-router";
 import type { KAdjacency } from "~/generated/fastAPI.schemas";
+import SearchPagination from "./Pagenation";
 import ResultRow from "./ResultRow";
+import SearchContext from "./SearchContext";
 
 type Props = {
-  data: KAdjacency[];
+  data: {
+    total: number;
+    data: KAdjacency[];
+  };
 };
 
 export default function SearchResults({ data }: Props) {
+  const ctx = useContext(SearchContext);
+  const start = (ctx?.paging?.size ?? 0) * ((ctx?.paging?.page ?? 1) - 1) + 1;
+  const navigation = useNavigation();
+  const isLoading =
+    navigation.state === "submitting" || navigation.state === "loading";
+
   return (
     <div className="container mx-auto p-4">
       <div className="results">
-        {data.length ? (
+        {data.total > 0 ? (
           <div>
-            <h2 className="text-xl font-semibold mb-4">
-              検索結果 ({data.length}件)
-            </h2>
-            <div className="space-y-4">
-              {data.map((row) => (
-                <ResultRow row={row} key={row.center.uid} />
-              ))}
+            <h2 className="text-xl font-semibold">検索結果 ({data.total}件)</h2>
+            <SearchPagination totalItems={data.total} />
+
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <LoaderCircle className="animate-spin" />
+              </div>
+            ) : (
+              <div className="">
+                {data.data.map((row, index) => (
+                  <ResultRow
+                    row={row}
+                    index={index + start}
+                    key={row.center.uid}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Bottom pagination for easier navigation on long results */}
+            <div className="mt-6">
+              <SearchPagination totalItems={data.total} />
             </div>
           </div>
         ) : (

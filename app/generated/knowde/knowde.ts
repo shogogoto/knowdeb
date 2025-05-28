@@ -6,7 +6,8 @@
  */
 import type {
   HTTPValidationError,
-  KAdjacency,
+  KnowdeDetail,
+  KnowdeSearchResult,
   SearchByTextKnowdeGetParams,
 } from "../fastAPI.schemas";
 
@@ -15,7 +16,7 @@ import type {
  * @summary Search By Text
  */
 export type searchByTextKnowdeGetResponse200 = {
-  data: KAdjacency[];
+  data: KnowdeSearchResult;
   status: 200;
 };
 
@@ -70,4 +71,52 @@ export const searchByTextKnowdeGet = async (
     status: res.status,
     headers: res.headers,
   } as searchByTextKnowdeGetResponse;
+};
+
+/**
+ * knowde詳細.
+ * @summary Detail
+ */
+export type detailKnowdeSentenceSentenceIdGetResponse200 = {
+  data: KnowdeDetail;
+  status: 200;
+};
+
+export type detailKnowdeSentenceSentenceIdGetResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type detailKnowdeSentenceSentenceIdGetResponseComposite =
+  | detailKnowdeSentenceSentenceIdGetResponse200
+  | detailKnowdeSentenceSentenceIdGetResponse422;
+
+export type detailKnowdeSentenceSentenceIdGetResponse =
+  detailKnowdeSentenceSentenceIdGetResponseComposite & {
+    headers: Headers;
+  };
+
+export const getDetailKnowdeSentenceSentenceIdGetUrl = (sentenceId: string) => {
+  return `https://knowde.onrender.com/knowde/sentence/${sentenceId}`;
+};
+
+export const detailKnowdeSentenceSentenceIdGet = async (
+  sentenceId: string,
+  options?: RequestInit,
+): Promise<detailKnowdeSentenceSentenceIdGetResponse> => {
+  const res = await fetch(getDetailKnowdeSentenceSentenceIdGetUrl(sentenceId), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: detailKnowdeSentenceSentenceIdGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as detailKnowdeSentenceSentenceIdGetResponse;
 };

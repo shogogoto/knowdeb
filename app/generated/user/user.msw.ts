@@ -24,6 +24,10 @@ export const getUsersCurrentUserUserMeGetResponseMock = (
     faker.datatype.boolean(),
     undefined,
   ]),
+  display_name: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -39,6 +43,10 @@ export const getUsersPatchCurrentUserUserMePatchResponseMock = (
   ]),
   is_verified: faker.helpers.arrayElement([
     faker.datatype.boolean(),
+    undefined,
+  ]),
+  display_name: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
   ...overrideResponse,
@@ -58,6 +66,10 @@ export const getUsersUserUserIdGetResponseMock = (
     faker.datatype.boolean(),
     undefined,
   ]),
+  display_name: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -73,6 +85,10 @@ export const getUsersPatchUserUserIdPatchResponseMock = (
   ]),
   is_verified: faker.helpers.arrayElement([
     faker.datatype.boolean(),
+    undefined,
+  ]),
+  display_name: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
   ...overrideResponse,

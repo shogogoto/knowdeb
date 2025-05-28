@@ -22,6 +22,7 @@ export const usersCurrentUserUserMeGetResponse = zod
       .default(usersCurrentUserUserMeGetResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("読み取り.");
 
@@ -35,6 +36,7 @@ export const usersPatchCurrentUserUserMePatchBody = zod
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
     is_verified: zod.boolean().or(zod.null()).optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("更新.");
 
@@ -51,6 +53,7 @@ export const usersPatchCurrentUserUserMePatchResponse = zod
       .default(usersPatchCurrentUserUserMePatchResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("読み取り.");
 
@@ -72,6 +75,7 @@ export const usersUserUserIdGetResponse = zod
     is_active: zod.boolean().default(usersUserUserIdGetResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("読み取り.");
 
@@ -89,6 +93,7 @@ export const usersPatchUserUserIdPatchBody = zod
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
     is_verified: zod.boolean().or(zod.null()).optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("更新.");
 
@@ -105,6 +110,7 @@ export const usersPatchUserUserIdPatchResponse = zod
       .default(usersPatchUserUserIdPatchResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
+    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("読み取り.");
 
