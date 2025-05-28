@@ -23,21 +23,21 @@ export default function ResultRow({ row, index }: Props) {
           <RowSuffix knowde={row.center} />
         </div>
       </div>
-      {total > 0 && (
-        <div className="mt-1">
-          {/* <details open> */}
-          {/*   <summary className="cursor-pointer text-blue-600 dark:text-blue-400"> */}
-          {/*     {`${summary}件`} */}
-          {/*     {row.when && <span className="mb-2"> @{row.when}</span>} */}
-          {/*   </summary> */}
-          {/*   <DetailList arr={row.details} caption={"詳細"} /> */}
-          {/*   <DetailList arr={row.premises} caption={"前提"} /> */}
-          {/*   <DetailList arr={row.conclusions} caption={"結論"} /> */}
-          {/*   <DetailList arr={row.refers} caption={"参照"} /> */}
-          {/*   <DetailList arr={row.referreds} caption={"被参照"} /> */}
-          {/* </details> */}
-        </div>
-      )}
+      {/* {total > 0 && ( */}
+      {/*   <div className="mt-1"> */}
+      {/* <details open> */}
+      {/* <summary className="cursor-pointer text-blue-600 dark:text-blue-400"> */}
+      {/*   {`${summary}件`} */}
+      {/*   {row.when && <span className="mb-2"> @{row.when}</span>} */}
+      {/* </summary> */}
+      {/* <DetailList arr={row.details} caption={"詳細"} /> */}
+      {/* <DetailList arr={row.premises} caption={"前提"} /> */}
+      {/* <DetailList arr={row.conclusions} caption={"結論"} /> */}
+      {/* <DetailList arr={row.refers} caption={"参照"} /> */}
+      {/* <DetailList arr={row.referreds} caption={"被参照"} /> */}
+      {/* </details> */}
+      {/* //   </div> */}
+      {/* // )} */}
     </div>
   );
 }
