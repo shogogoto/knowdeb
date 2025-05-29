@@ -4,6 +4,12 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+import useSwr from "swr";
+import type { Key, SWRConfiguration } from "swr";
+
+import useSWRMutation from "swr/mutation";
+import type { SWRMutationConfiguration } from "swr/mutation";
+
 import type {
   HTTPValidationError,
   NameSpace,
@@ -51,6 +57,45 @@ export const getNamaspaceNamespaceGet = async (
   } as getNamaspaceNamespaceGetResponse;
 };
 
+export const getGetNamaspaceNamespaceGetKey = () =>
+  ["https://knowde.onrender.com/namespace"] as const;
+
+export type GetNamaspaceNamespaceGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getNamaspaceNamespaceGet>>
+>;
+export type GetNamaspaceNamespaceGetQueryError = Promise<unknown>;
+
+/**
+ * @summary Get Namaspace
+ */
+export const useGetNamaspaceNamespaceGet = <
+  TError = Promise<unknown>,
+>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof getNamaspaceNamespaceGet>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() => (isEnabled ? getGetNamaspaceNamespaceGetKey() : null));
+  const swrFn = () => getNamaspaceNamespaceGet(fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * ファイルシステムと同期.
  * @summary Sync Paths
@@ -99,4 +144,50 @@ export const syncPathsNamespacePost = async (
     status: res.status,
     headers: res.headers,
   } as syncPathsNamespacePostResponse;
+};
+
+export const getSyncPathsNamespacePostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: ResourceMetas },
+  ): Promise<syncPathsNamespacePostResponse> => {
+    return syncPathsNamespacePost(arg, options);
+  };
+};
+export const getSyncPathsNamespacePostMutationKey = () =>
+  ["https://knowde.onrender.com/namespace"] as const;
+
+export type SyncPathsNamespacePostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof syncPathsNamespacePost>>
+>;
+export type SyncPathsNamespacePostMutationError = Promise<HTTPValidationError>;
+
+/**
+ * @summary Sync Paths
+ */
+export const useSyncPathsNamespacePost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof syncPathsNamespacePost>>,
+    TError,
+    Key,
+    ResourceMetas,
+    Awaited<ReturnType<typeof syncPathsNamespacePost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey = swrOptions?.swrKey ?? getSyncPathsNamespacePostMutationKey();
+  const swrFn = getSyncPathsNamespacePostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
 };

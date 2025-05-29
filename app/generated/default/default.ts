@@ -4,6 +4,12 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+import useSwr from "swr";
+import type { Key, SWRConfiguration } from "swr";
+
+import useSWRMutation from "swr/mutation";
+import type { SWRMutationConfiguration } from "swr/mutation";
+
 import type {
   BodyReadFileUploadPost,
   HTTPValidationError,
@@ -60,6 +66,49 @@ export const readFileUploadPost = async (
   } as readFileUploadPostResponse;
 };
 
+export const getReadFileUploadPostMutationFetcher = (options?: RequestInit) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyReadFileUploadPost },
+  ): Promise<readFileUploadPostResponse> => {
+    return readFileUploadPost(arg, options);
+  };
+};
+export const getReadFileUploadPostMutationKey = () =>
+  ["https://knowde.onrender.com/upload"] as const;
+
+export type ReadFileUploadPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof readFileUploadPost>>
+>;
+export type ReadFileUploadPostMutationError = Promise<HTTPValidationError>;
+
+/**
+ * @summary Read File
+ */
+export const useReadFileUploadPost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof readFileUploadPost>>,
+    TError,
+    Key,
+    BodyReadFileUploadPost,
+    Awaited<ReturnType<typeof readFileUploadPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey = swrOptions?.swrKey ?? getReadFileUploadPostMutationKey();
+  const swrFn = getReadFileUploadPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * Check health.
  * @summary Check Health
@@ -99,4 +148,42 @@ export const checkHealthHealthGet = async (
     status: res.status,
     headers: res.headers,
   } as checkHealthHealthGetResponse;
+};
+
+export const getCheckHealthHealthGetKey = () =>
+  ["https://knowde.onrender.com/health"] as const;
+
+export type CheckHealthHealthGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof checkHealthHealthGet>>
+>;
+export type CheckHealthHealthGetQueryError = Promise<unknown>;
+
+/**
+ * @summary Check Health
+ */
+export const useCheckHealthHealthGet = <TError = Promise<unknown>>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof checkHealthHealthGet>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() => (isEnabled ? getCheckHealthHealthGetKey() : null));
+  const swrFn = () => checkHealthHealthGet(fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
 };

@@ -4,6 +4,12 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+import useSwr from "swr";
+import type { Arguments, Key, SWRConfiguration } from "swr";
+
+import useSWRMutation from "swr/mutation";
+import type { SWRMutationConfiguration } from "swr/mutation";
+
 import type {
   ErrorModel,
   HTTPValidationError,
@@ -57,6 +63,43 @@ export const usersCurrentUserUserMeGet = async (
   } as usersCurrentUserUserMeGetResponse;
 };
 
+export const getUsersCurrentUserUserMeGetKey = () =>
+  ["https://knowde.onrender.com/user/me"] as const;
+
+export type UsersCurrentUserUserMeGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof usersCurrentUserUserMeGet>>
+>;
+export type UsersCurrentUserUserMeGetQueryError = Promise<void>;
+
+/**
+ * @summary Users:Current User
+ */
+export const useUsersCurrentUserUserMeGet = <TError = Promise<void>>(options?: {
+  swr?: SWRConfiguration<
+    Awaited<ReturnType<typeof usersCurrentUserUserMeGet>>,
+    TError
+  > & { swrKey?: Key; enabled?: boolean };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() => (isEnabled ? getUsersCurrentUserUserMeGetKey() : null));
+  const swrFn = () => usersCurrentUserUserMeGet(fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Users:Patch Current User
  */
@@ -118,6 +161,55 @@ export const usersPatchCurrentUserUserMePatch = async (
   } as usersPatchCurrentUserUserMePatchResponse;
 };
 
+export const getUsersPatchCurrentUserUserMePatchMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: UserUpdate },
+  ): Promise<usersPatchCurrentUserUserMePatchResponse> => {
+    return usersPatchCurrentUserUserMePatch(arg, options);
+  };
+};
+export const getUsersPatchCurrentUserUserMePatchMutationKey = () =>
+  ["https://knowde.onrender.com/user/me"] as const;
+
+export type UsersPatchCurrentUserUserMePatchMutationResult = NonNullable<
+  Awaited<ReturnType<typeof usersPatchCurrentUserUserMePatch>>
+>;
+export type UsersPatchCurrentUserUserMePatchMutationError = Promise<
+  ErrorModel | undefined | HTTPValidationError
+>;
+
+/**
+ * @summary Users:Patch Current User
+ */
+export const useUsersPatchCurrentUserUserMePatch = <
+  TError = Promise<ErrorModel | undefined | HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof usersPatchCurrentUserUserMePatch>>,
+    TError,
+    Key,
+    UserUpdate,
+    Awaited<ReturnType<typeof usersPatchCurrentUserUserMePatch>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getUsersPatchCurrentUserUserMePatchMutationKey();
+  const swrFn =
+    getUsersPatchCurrentUserUserMePatchMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Users:User
  */
@@ -168,6 +260,50 @@ export const usersUserUserIdGet = async (
   } as usersUserUserIdGetResponse;
 };
 
+export const getUsersUserUserIdGetKey = (id: string) =>
+  [`https://knowde.onrender.com/user/${id}`] as const;
+
+export type UsersUserUserIdGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof usersUserUserIdGet>>
+>;
+export type UsersUserUserIdGetQueryError = Promise<
+  undefined | HTTPValidationError
+>;
+
+/**
+ * @summary Users:User
+ */
+export const useUsersUserUserIdGet = <
+  TError = Promise<undefined | HTTPValidationError>,
+>(
+  id: string,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof usersUserUserIdGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false && !!id;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() => (isEnabled ? getUsersUserUserIdGetKey(id) : null));
+  const swrFn = () => usersUserUserIdGet(id, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Users:Patch User
  */
@@ -230,6 +366,58 @@ export const usersPatchUserUserIdPatch = async (
   } as usersPatchUserUserIdPatchResponse;
 };
 
+export const getUsersPatchUserUserIdPatchMutationFetcher = (
+  id: string,
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: UserUpdate },
+  ): Promise<usersPatchUserUserIdPatchResponse> => {
+    return usersPatchUserUserIdPatch(id, arg, options);
+  };
+};
+export const getUsersPatchUserUserIdPatchMutationKey = (id: string) =>
+  [`https://knowde.onrender.com/user/${id}`] as const;
+
+export type UsersPatchUserUserIdPatchMutationResult = NonNullable<
+  Awaited<ReturnType<typeof usersPatchUserUserIdPatch>>
+>;
+export type UsersPatchUserUserIdPatchMutationError = Promise<
+  ErrorModel | undefined | HTTPValidationError
+>;
+
+/**
+ * @summary Users:Patch User
+ */
+export const useUsersPatchUserUserIdPatch = <
+  TError = Promise<ErrorModel | undefined | HTTPValidationError>,
+>(
+  id: string,
+  options?: {
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof usersPatchUserUserIdPatch>>,
+      TError,
+      Key,
+      UserUpdate,
+      Awaited<ReturnType<typeof usersPatchUserUserIdPatch>>
+    > & { swrKey?: string };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getUsersPatchUserUserIdPatchMutationKey(id);
+  const swrFn = getUsersPatchUserUserIdPatchMutationFetcher(id, fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Users:Delete User
  */
@@ -281,4 +469,57 @@ export const usersDeleteUserUserIdDelete = async (
     status: res.status,
     headers: res.headers,
   } as usersDeleteUserUserIdDeleteResponse;
+};
+
+export const getUsersDeleteUserUserIdDeleteMutationFetcher = (
+  id: string,
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    __: { arg: Arguments },
+  ): Promise<usersDeleteUserUserIdDeleteResponse> => {
+    return usersDeleteUserUserIdDelete(id, options);
+  };
+};
+export const getUsersDeleteUserUserIdDeleteMutationKey = (id: string) =>
+  [`https://knowde.onrender.com/user/${id}`] as const;
+
+export type UsersDeleteUserUserIdDeleteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof usersDeleteUserUserIdDelete>>
+>;
+export type UsersDeleteUserUserIdDeleteMutationError = Promise<
+  undefined | HTTPValidationError
+>;
+
+/**
+ * @summary Users:Delete User
+ */
+export const useUsersDeleteUserUserIdDelete = <
+  TError = Promise<undefined | HTTPValidationError>,
+>(
+  id: string,
+  options?: {
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof usersDeleteUserUserIdDelete>>,
+      TError,
+      Key,
+      Arguments,
+      Awaited<ReturnType<typeof usersDeleteUserUserIdDelete>>
+    > & { swrKey?: string };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getUsersDeleteUserUserIdDeleteMutationKey(id);
+  const swrFn = getUsersDeleteUserUserIdDeleteMutationFetcher(id, fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
 };
