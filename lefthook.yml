@@ -3,17 +3,10 @@
 #   https://lefthook.dev/configuration/
 pre-commit:
   commands:
-    tsc:
-      run: npm run typecheck
-      stage_fixed: true
-      exclude:
-        - "node_modules/**"
     check:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,mdx}"
       run: |
         npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
-      exclude:
-        - "node_modules/**"
       stage_fixed: true
 
 pre-push:
@@ -25,3 +18,4 @@ pre-push:
       glob: "*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc,mdx}"
       run: |
         npx @biomejs/biome check --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {push_files}
+      stage_fixed: true
