@@ -17,7 +17,7 @@ export default function Home() {
     <div className="w-full max-w-4xl mx-auto px-4 py-8 text-center">
       <Link
         to="search"
-        className="inline-block px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+        className="p-3 bg-blue-600 text-white rounded-md hover:bg-blue-700"
       >
         知識検索ページへ
       </Link>
