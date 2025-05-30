@@ -8,6 +8,7 @@ import { Files, Home, Search } from "lucide-react";
 import { Link } from "react-router";
 import favicon from "/favicon.ico";
 import { ThemeToggle } from "../theme";
+import { Separator } from "../ui/separator";
 
 export function SiteLogo() {
   return (
@@ -17,25 +18,21 @@ export function SiteLogo() {
   );
 }
 
-type HeaderLinkProps = {
-  to: string;
-  children: React.ReactNode;
-};
-
-export function HeaderItem({ to, children }: HeaderLinkProps) {
+export function HeaderItem({ children }: React.PropsWithChildren) {
   return (
-    <li>
-      <Link
-        to={to}
-        className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400"
-      >
-        {children}
-      </Link>
-    </li>
+    <div className="text-gray-700 hover:text-blue-600 dark:text-gray-300 dark:hover:text-blue-400">
+      {children}
+    </div>
   );
 }
 
 export function Header({ children }: React.PropsWithChildren) {
+  const items = [
+    { title: "Home", to: "/home", icon: Home },
+    { title: "Search", to: "/search", icon: Search },
+    { title: "Document", to: "/docs", icon: Files },
+  ];
+
   return (
     <header className="p-2 flex justify-between border">
       <div className="flex items-center">
@@ -43,27 +40,35 @@ export function Header({ children }: React.PropsWithChildren) {
           <ul className="flex space-x-2 items-center">
             {children}
             <SiteLogo />
-            <HeaderItem to="/home">
-              <Home />
-            </HeaderItem>
-            <HeaderItem to="/search">
-              <Search />
-            </HeaderItem>
-            <HeaderItem to="/search">
-              <Files />
-            </HeaderItem>
           </ul>
         </nav>
       </div>
 
+      {/* 右側 */}
       <div className="flex space-x-2">
-        <SignedOut>
-          <SignInButton />
-        </SignedOut>
-        <SignedIn>
-          <UserButton />
-        </SignedIn>
-        <ThemeToggle />
+        <nav className="flex items-center">
+          <ul className="flex space-x-2">
+            {items.map((item) => (
+              <HeaderItem key={item.title}>
+                <Link to={item.to}>
+                  <item.icon />
+                </Link>
+              </HeaderItem>
+            ))}
+          </ul>
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <HeaderItem>
+            <SignedOut>
+              <SignInButton />
+            </SignedOut>
+            <SignedIn>
+              <UserButton />
+            </SignedIn>
+          </HeaderItem>
+          <HeaderItem>
+            <ThemeToggle />
+          </HeaderItem>
+        </nav>
       </div>
     </header>
   );

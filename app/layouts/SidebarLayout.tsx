@@ -1,4 +1,5 @@
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
+import { Separator } from "@radix-ui/react-separator";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import { Link, Outlet } from "react-router";
 import { Header } from "~/components/Header";
@@ -12,6 +13,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
+  SidebarRail,
   SidebarTrigger,
 } from "~/components/ui/sidebar";
 import type { Route } from "../+types/root";
@@ -28,6 +30,7 @@ export default function SidebarLayout() {
           <div className="w-full bg-white dark:bg-gray-900">
             <Header>
               <SidebarTrigger />
+              <Separator orientation="vertical" className="mr-2 h-4 border-r" />
             </Header>
             <main className="flex-1 p-4">
               <Outlet />
@@ -70,7 +73,7 @@ export function AppSidebar() {
   ];
 
   return (
-    <Sidebar>
+    <Sidebar collapsible="icon">
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>
@@ -90,6 +93,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarRail />
     </Sidebar>
   );
 }
