@@ -12,7 +12,6 @@ import "./app.css";
 import { jaJP } from "@clerk/localizations";
 import { ClerkProvider } from "@clerk/react-router";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
-import { Header } from "./components/Header";
 import { ThemeProvider } from "./components/theme";
 
 export const links: Route.LinksFunction = () => [
@@ -67,10 +66,7 @@ export default function App({ loaderData }: Route.ComponentProps) {
       signInFallbackRedirectUrl="/"
       localization={jaJP}
     >
-      <Header />
-      <main className="flex flex-col items-center pt-16 pb-4 min-h-screen bg-white dark:bg-gray-950">
-        <Outlet />
-      </main>
+      <Outlet />
     </ClerkProvider>
   );
 }

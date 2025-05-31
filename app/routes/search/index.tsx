@@ -1,8 +1,6 @@
-import {
-  type KnowdeSearchResult,
-  SearchByTextKnowdeGetType,
-} from "~/generated/fastAPI.schemas";
-import { searchByTextKnowdeGet } from "~/generated/knowde/knowde";
+import { LoaderCircle } from "lucide-react";
+import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import type { Route } from "./+types";
 import SearchBar from "./SearchBar";
 import { SearchProvider } from "./SearchContext";
@@ -29,11 +27,9 @@ export async function loader({ request }: Route.LoaderArgs) {
   if (!params.search_type) {
     params.search_type = SearchByTextKnowdeGetType.CONTAINS;
   }
-  const res = await searchByTextKnowdeGet(params);
-  const data = res.data as KnowdeSearchResult;
 
   return {
-    data,
+    params,
     q,
     page,
     size,
@@ -42,11 +38,17 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function Search({ loaderData }: Route.ComponentProps) {
-  const { data } = loaderData;
+  const { params } = loaderData;
+  const { data, isLoading } = useSearchByTextKnowdeGet(params);
+
   return (
     <SearchProvider>
       <SearchBar />
-      <SearchResults data={data} />
+      {isLoading ? (
+        <LoaderCircle className="animate-spin" />
+      ) : (
+        data?.status === 200 && data.data && <SearchResults data={data.data} />
+      )}
     </SearchProvider>
   );
 }

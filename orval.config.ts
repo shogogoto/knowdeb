@@ -6,7 +6,8 @@ export default defineConfig({
       mode: "tags-split",
       target: "./app/generated",
       baseUrl: "https://knowde.onrender.com",
-      client: "fetch",
+      client: "swr",
+      httpClient: "fetch",
       mock: true,
     },
     input: {

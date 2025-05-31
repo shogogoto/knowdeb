@@ -4,6 +4,12 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+import useSwr from "swr";
+import type { Arguments, Key, SWRConfiguration } from "swr";
+
+import useSWRMutation from "swr/mutation";
+import type { SWRMutationConfiguration } from "swr/mutation";
+
 import type {
   BearerResponse,
   BodyAuthJwtLoginAuthJwtLoginPost,
@@ -112,6 +118,54 @@ export const authJwtLoginAuthJwtLoginPost = async (
   } as authJwtLoginAuthJwtLoginPostResponse;
 };
 
+export const getAuthJwtLoginAuthJwtLoginPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyAuthJwtLoginAuthJwtLoginPost },
+  ): Promise<authJwtLoginAuthJwtLoginPostResponse> => {
+    return authJwtLoginAuthJwtLoginPost(arg, options);
+  };
+};
+export const getAuthJwtLoginAuthJwtLoginPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/jwt/login"] as const;
+
+export type AuthJwtLoginAuthJwtLoginPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof authJwtLoginAuthJwtLoginPost>>
+>;
+export type AuthJwtLoginAuthJwtLoginPostMutationError = Promise<
+  ErrorModel | HTTPValidationError
+>;
+
+/**
+ * @summary Auth:Jwt.Login
+ */
+export const useAuthJwtLoginAuthJwtLoginPost = <
+  TError = Promise<ErrorModel | HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof authJwtLoginAuthJwtLoginPost>>,
+    TError,
+    Key,
+    BodyAuthJwtLoginAuthJwtLoginPost,
+    Awaited<ReturnType<typeof authJwtLoginAuthJwtLoginPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getAuthJwtLoginAuthJwtLoginPostMutationKey();
+  const swrFn = getAuthJwtLoginAuthJwtLoginPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Auth:Jwt.Logout
  */
@@ -158,6 +212,52 @@ export const authJwtLogoutAuthJwtLogoutPost = async (
   } as authJwtLogoutAuthJwtLogoutPostResponse;
 };
 
+export const getAuthJwtLogoutAuthJwtLogoutPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    __: { arg: Arguments },
+  ): Promise<authJwtLogoutAuthJwtLogoutPostResponse> => {
+    return authJwtLogoutAuthJwtLogoutPost(options);
+  };
+};
+export const getAuthJwtLogoutAuthJwtLogoutPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/jwt/logout"] as const;
+
+export type AuthJwtLogoutAuthJwtLogoutPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>
+>;
+export type AuthJwtLogoutAuthJwtLogoutPostMutationError = Promise<void>;
+
+/**
+ * @summary Auth:Jwt.Logout
+ */
+export const useAuthJwtLogoutAuthJwtLogoutPost = <
+  TError = Promise<void>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>,
+    TError,
+    Key,
+    Arguments,
+    Awaited<ReturnType<typeof authJwtLogoutAuthJwtLogoutPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getAuthJwtLogoutAuthJwtLogoutPostMutationKey();
+  const swrFn = getAuthJwtLogoutAuthJwtLogoutPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Register:Register
  */
@@ -213,6 +313,55 @@ export const registerRegisterAuthRegisterPost = async (
   } as registerRegisterAuthRegisterPostResponse;
 };
 
+export const getRegisterRegisterAuthRegisterPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: UserCreate },
+  ): Promise<registerRegisterAuthRegisterPostResponse> => {
+    return registerRegisterAuthRegisterPost(arg, options);
+  };
+};
+export const getRegisterRegisterAuthRegisterPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/register"] as const;
+
+export type RegisterRegisterAuthRegisterPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof registerRegisterAuthRegisterPost>>
+>;
+export type RegisterRegisterAuthRegisterPostMutationError = Promise<
+  ErrorModel | HTTPValidationError
+>;
+
+/**
+ * @summary Register:Register
+ */
+export const useRegisterRegisterAuthRegisterPost = <
+  TError = Promise<ErrorModel | HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof registerRegisterAuthRegisterPost>>,
+    TError,
+    Key,
+    UserCreate,
+    Awaited<ReturnType<typeof registerRegisterAuthRegisterPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getRegisterRegisterAuthRegisterPostMutationKey();
+  const swrFn =
+    getRegisterRegisterAuthRegisterPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Reset:Forgot Password
  */
@@ -262,6 +411,56 @@ export const resetForgotPasswordAuthForgotPasswordPost = async (
   } as resetForgotPasswordAuthForgotPasswordPostResponse;
 };
 
+export const getResetForgotPasswordAuthForgotPasswordPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyResetForgotPasswordAuthForgotPasswordPost },
+  ): Promise<resetForgotPasswordAuthForgotPasswordPostResponse> => {
+    return resetForgotPasswordAuthForgotPasswordPost(arg, options);
+  };
+};
+export const getResetForgotPasswordAuthForgotPasswordPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/forgot-password"] as const;
+
+export type ResetForgotPasswordAuthForgotPasswordPostMutationResult =
+  NonNullable<
+    Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>
+  >;
+export type ResetForgotPasswordAuthForgotPasswordPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Reset:Forgot Password
+ */
+export const useResetForgotPasswordAuthForgotPasswordPost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>,
+    TError,
+    Key,
+    BodyResetForgotPasswordAuthForgotPasswordPost,
+    Awaited<ReturnType<typeof resetForgotPasswordAuthForgotPasswordPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getResetForgotPasswordAuthForgotPasswordPostMutationKey();
+  const swrFn =
+    getResetForgotPasswordAuthForgotPasswordPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Reset:Reset Password
  */
@@ -317,6 +516,56 @@ export const resetResetPasswordAuthResetPasswordPost = async (
   } as resetResetPasswordAuthResetPasswordPostResponse;
 };
 
+export const getResetResetPasswordAuthResetPasswordPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyResetResetPasswordAuthResetPasswordPost },
+  ): Promise<resetResetPasswordAuthResetPasswordPostResponse> => {
+    return resetResetPasswordAuthResetPasswordPost(arg, options);
+  };
+};
+export const getResetResetPasswordAuthResetPasswordPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/reset-password"] as const;
+
+export type ResetResetPasswordAuthResetPasswordPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>
+>;
+export type ResetResetPasswordAuthResetPasswordPostMutationError = Promise<
+  ErrorModel | HTTPValidationError
+>;
+
+/**
+ * @summary Reset:Reset Password
+ */
+export const useResetResetPasswordAuthResetPasswordPost = <
+  TError = Promise<ErrorModel | HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>,
+    TError,
+    Key,
+    BodyResetResetPasswordAuthResetPasswordPost,
+    Awaited<ReturnType<typeof resetResetPasswordAuthResetPasswordPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getResetResetPasswordAuthResetPasswordPostMutationKey();
+  const swrFn =
+    getResetResetPasswordAuthResetPasswordPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Verify:Request-Token
  */
@@ -368,6 +617,58 @@ export const verifyRequestTokenAuthRequestVerifyTokenPost = async (
   } as verifyRequestTokenAuthRequestVerifyTokenPostResponse;
 };
 
+export const getVerifyRequestTokenAuthRequestVerifyTokenPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyVerifyRequestTokenAuthRequestVerifyTokenPost },
+  ): Promise<verifyRequestTokenAuthRequestVerifyTokenPostResponse> => {
+    return verifyRequestTokenAuthRequestVerifyTokenPost(arg, options);
+  };
+};
+export const getVerifyRequestTokenAuthRequestVerifyTokenPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/request-verify-token"] as const;
+
+export type VerifyRequestTokenAuthRequestVerifyTokenPostMutationResult =
+  NonNullable<
+    Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>
+  >;
+export type VerifyRequestTokenAuthRequestVerifyTokenPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Verify:Request-Token
+ */
+export const useVerifyRequestTokenAuthRequestVerifyTokenPost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>,
+    TError,
+    Key,
+    BodyVerifyRequestTokenAuthRequestVerifyTokenPost,
+    Awaited<ReturnType<typeof verifyRequestTokenAuthRequestVerifyTokenPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getVerifyRequestTokenAuthRequestVerifyTokenPostMutationKey();
+  const swrFn =
+    getVerifyRequestTokenAuthRequestVerifyTokenPostMutationFetcher(
+      fetchOptions,
+    );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Verify:Verify
  */
@@ -423,6 +724,54 @@ export const verifyVerifyAuthVerifyPost = async (
   } as verifyVerifyAuthVerifyPostResponse;
 };
 
+export const getVerifyVerifyAuthVerifyPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyVerifyVerifyAuthVerifyPost },
+  ): Promise<verifyVerifyAuthVerifyPostResponse> => {
+    return verifyVerifyAuthVerifyPost(arg, options);
+  };
+};
+export const getVerifyVerifyAuthVerifyPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/verify"] as const;
+
+export type VerifyVerifyAuthVerifyPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>
+>;
+export type VerifyVerifyAuthVerifyPostMutationError = Promise<
+  ErrorModel | HTTPValidationError
+>;
+
+/**
+ * @summary Verify:Verify
+ */
+export const useVerifyVerifyAuthVerifyPost = <
+  TError = Promise<ErrorModel | HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>,
+    TError,
+    Key,
+    BodyVerifyVerifyAuthVerifyPost,
+    Awaited<ReturnType<typeof verifyVerifyAuthVerifyPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getVerifyVerifyAuthVerifyPostMutationKey();
+  const swrFn = getVerifyVerifyAuthVerifyPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Oauth:Google.Jwt.Authorize
  */
@@ -487,6 +836,58 @@ export const oauthGoogleJwtAuthorizeGoogleAuthorizeGet = async (
   } as oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse;
 };
 
+export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetKey = (
+  params?: OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
+) =>
+  [
+    "https://knowde.onrender.com/google/authorize",
+    ...(params ? [params] : []),
+  ] as const;
+
+export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof oauthGoogleJwtAuthorizeGoogleAuthorizeGet>>
+>;
+export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetQueryError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Oauth:Google.Jwt.Authorize
+ */
+export const useOauthGoogleJwtAuthorizeGoogleAuthorizeGet = <
+  TError = Promise<HTTPValidationError>,
+>(
+  params?: OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof oauthGoogleJwtAuthorizeGoogleAuthorizeGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() =>
+      isEnabled
+        ? getOauthGoogleJwtAuthorizeGoogleAuthorizeGetKey(params)
+        : null);
+  const swrFn = () =>
+    oauthGoogleJwtAuthorizeGoogleAuthorizeGet(params, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * The response varies based on the authentication backend used.
  * @summary Oauth:Google.Jwt.Callback
@@ -556,4 +957,56 @@ export const oauthGoogleJwtCallbackGoogleCallbackGet = async (
     status: res.status,
     headers: res.headers,
   } as oauthGoogleJwtCallbackGoogleCallbackGetResponse;
+};
+
+export const getOauthGoogleJwtCallbackGoogleCallbackGetKey = (
+  params?: OauthGoogleJwtCallbackGoogleCallbackGetParams,
+) =>
+  [
+    "https://knowde.onrender.com/google/callback",
+    ...(params ? [params] : []),
+  ] as const;
+
+export type OauthGoogleJwtCallbackGoogleCallbackGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof oauthGoogleJwtCallbackGoogleCallbackGet>>
+>;
+export type OauthGoogleJwtCallbackGoogleCallbackGetQueryError = Promise<
+  ErrorModel | HTTPValidationError
+>;
+
+/**
+ * @summary Oauth:Google.Jwt.Callback
+ */
+export const useOauthGoogleJwtCallbackGoogleCallbackGet = <
+  TError = Promise<ErrorModel | HTTPValidationError>,
+>(
+  params?: OauthGoogleJwtCallbackGoogleCallbackGetParams,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof oauthGoogleJwtCallbackGoogleCallbackGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() =>
+      isEnabled ? getOauthGoogleJwtCallbackGoogleCallbackGetKey(params) : null);
+  const swrFn = () =>
+    oauthGoogleJwtCallbackGoogleCallbackGet(params, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
 };

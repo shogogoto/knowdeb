@@ -19,7 +19,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="cursor-pointer rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white"
+      className="border cursor-pointer rounded-md p-2"
       aria-label="Toggle theme"
     >
       {theme === "light" ? (
