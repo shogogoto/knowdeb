@@ -7,7 +7,7 @@ export default function MainLayout() {
       <div className="fixed top-0 left-0 w-full bg-white dark:bg-gray-900 shadow-md z-10">
         <Header />
       </div>
-      <main className="flex flex-col items-center  pb-4 min-h-screen bg-white dark:bg-gray-950">
+      <main className="flex flex-col items-center min-h-screen bg-white dark:bg-gray-950">
         <Outlet />
       </main>
     </>

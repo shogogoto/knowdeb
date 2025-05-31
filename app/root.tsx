@@ -66,7 +66,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
       signInFallbackRedirectUrl="/"
       localization={jaJP}
     >
-      {/* <MainLayout() */}
       <Outlet />
     </ClerkProvider>
   );

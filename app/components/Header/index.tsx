@@ -56,7 +56,7 @@ export function Header({ children }: React.PropsWithChildren) {
               </HeaderItem>
             ))}
           </ul>
-          <Separator orientation="vertical" className="mr-2 h-4" />
+          <Separator orientation="vertical" className="mr-2" />
           <HeaderItem>
             <SignedOut>
               <SignInButton />

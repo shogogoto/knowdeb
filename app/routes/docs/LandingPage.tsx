@@ -292,7 +292,7 @@ const KnowdeLanding = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-4 border-t border-gray-700">
+      <footer className="px-4 border-t border-gray-700">
         <div className="max-w-6xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-4">knowde</h3>
           <p className="text-gray-400 mb-6">
