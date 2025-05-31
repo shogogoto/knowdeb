@@ -24,7 +24,7 @@ export async function loader(args: Route.LoaderArgs) {
 export default function SidebarLayout() {
   return (
     <>
-      <SidebarProvider defaultOpen={true}>
+      <SidebarProvider>
         <div className="flex w-full">
           <AppSidebar />
           <div className="w-full bg-white dark:bg-gray-900">
