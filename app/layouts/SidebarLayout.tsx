@@ -1,44 +1,40 @@
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
-import { Separator } from "@radix-ui/react-separator";
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import { Link, Outlet } from "react-router";
-import { Header } from "~/components/Header";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarProvider,
   SidebarRail,
-  SidebarTrigger,
 } from "~/components/ui/sidebar";
 import type { Route } from "../+types/root";
+import ButtonNavigation from "./ButtonNavigation";
+import { NavUser } from "./NavUser";
 
 export async function loader(args: Route.LoaderArgs) {
   return rootAuthLoader(args);
 }
 export default function SidebarLayout() {
   return (
-    <>
-      <SidebarProvider>
-        <div className="flex w-full">
-          <AppSidebar />
-          <div className="w-full bg-white dark:bg-gray-900">
-            <Header>
-              <SidebarTrigger />
-              <Separator orientation="vertical" className="mr-2 h-4 border-r" />
-            </Header>
-            <main className="flex-1 p-4">
-              <Outlet />
-            </main>
-          </div>
-        </div>
-      </SidebarProvider>
-    </>
+    <SidebarProvider>
+      <AppSidebar />
+      <div className="flex flex-col w-full h-screen  bg-white dark:bg-gray-950">
+        {/* <div className="sticky top-0 w-full"> */}
+        {/*   <Header /> */}
+        {/* </div> */}
+        <main className="overflow-auto">
+          <Outlet />
+        </main>
+        <ButtonNavigation />
+      </div>
+    </SidebarProvider>
   );
 }
 
@@ -74,6 +70,10 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <NavUser user={{ name: "test", email: "test", avatar: "test" }} />
+      </SidebarHeader>
+
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Application</SidebarGroupLabel>

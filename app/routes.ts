@@ -6,7 +6,9 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  layout("layouts/GuestSidebar.tsx", [index("routes/docs/LandingPage.tsx")]),
+  layout("layouts/GuestLayout/index.tsx", [
+    index("routes/docs/LandingPage.tsx"),
+  ]),
   layout("layouts/SidebarLayout.tsx", [
     route("home", "routes/home.tsx"),
     route("search", "routes/search/index.tsx"),
