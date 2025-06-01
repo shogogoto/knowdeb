@@ -36,7 +36,6 @@ export function Header({ children }: React.PropsWithChildren) {
     <header className="p-2 border">
       <ul className="flex w-full space-x-2 items-center justify-between">
         {children}
-        <SiteLogo />
         <HeaderItem>
           <SignedOut>
             <SignInButton />

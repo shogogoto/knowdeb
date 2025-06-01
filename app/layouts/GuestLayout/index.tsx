@@ -3,7 +3,7 @@ import { SidebarProvider } from "~/components/ui/sidebar";
 import ButtonNavigation from "../ButtonNavigation";
 import GuestSidebar from "./GuestSidebar";
 
-export default function MainLayout() {
+export default function GuestLayout() {
   return (
     <SidebarProvider>
       <GuestSidebar />

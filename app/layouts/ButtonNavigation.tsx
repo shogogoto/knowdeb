@@ -1,6 +1,6 @@
 // モバイル向けに常時表示される下部ボタン群
 
-import { Crown, HomeIcon, Search, SettingsIcon, UserIcon } from "lucide-react";
+import { Crown, Home, Search, SettingsIcon, UserIcon } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { SidebarTrigger } from "~/components/ui/sidebar";
 
@@ -11,7 +11,7 @@ export default function ButtonNavigation() {
         <SidebarTrigger variant="ghost" />
       </div>
       <Button variant="ghost">
-        <HomeIcon />
+        <Home />
       </Button>
       <Button variant="ghost">
         <Search />

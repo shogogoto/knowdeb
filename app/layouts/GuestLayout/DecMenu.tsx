@@ -1,36 +1,14 @@
-import {
-  BookOpen,
-  Bot,
-  ChevronRight,
-  Settings2,
-  SquareTerminal,
-} from "lucide-react";
-
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  SidebarGroup,
-  SidebarMenu,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
-} from "@/components/ui/sidebar";
-import type { ReactNode } from "react";
-import { Link } from "react-router";
+import { SidebarGroup, SidebarMenu } from "@/components/ui/sidebar";
+import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import Sidemenu from "~/components/Sidemenu";
 
 export default function DocMenu() {
   return (
     <SidebarGroup>
       <SidebarMenu>
-        <SideMenu
+        <Sidemenu
           title={"Playground"}
-          to={"#"}
+          to={"/docs"}
           icon={<SquareTerminal />}
           subs={[
             {
@@ -47,7 +25,7 @@ export default function DocMenu() {
             },
           ]}
         />
-        <SideMenu
+        <Sidemenu
           title={"Models"}
           to={"#"}
           icon={<Bot />}
@@ -66,7 +44,7 @@ export default function DocMenu() {
             },
           ]}
         />
-        <SideMenu
+        <Sidemenu
           title={"Documentation"}
           to={"#"}
           icon={<BookOpen />}
@@ -89,7 +67,7 @@ export default function DocMenu() {
             },
           ]}
         />
-        <SideMenu
+        <Sidemenu
           title={"Settings"}
           to={"#"}
           icon={<Settings2 />}
@@ -114,75 +92,5 @@ export default function DocMenu() {
         />
       </SidebarMenu>
     </SidebarGroup>
-  );
-}
-
-type MenuItem = {
-  title: string;
-  to: string;
-};
-
-type SideMenuProps = MenuItem & {
-  icon: ReactNode;
-  subs?: MenuItem[];
-};
-
-function SideMenu({ title, to, icon, subs }: SideMenuProps) {
-  return (
-    <Collapsible asChild>
-      <SidebarMenuItem>
-        <SidebarMenuButton asChild tooltip={title}>
-          <Link to={to}>
-            {icon}
-            <span>{title}</span>
-          </Link>
-        </SidebarMenuButton>
-        <SubMenu items={subs} />
-      </SidebarMenuItem>
-    </Collapsible>
-  );
-}
-
-function SubMenu({ items }: { items?: MenuItem[] }) {
-  if (items?.length === 0) return null;
-  return (
-    <>
-      <MenuToggle />
-      <CollapsibleContent>
-        <SidebarMenuSub>
-          {items?.map((subItem) => (
-            <SubMenuItem
-              key={subItem.title}
-              to={subItem.to}
-              title={subItem.title}
-            />
-          ))}
-        </SidebarMenuSub>
-      </CollapsibleContent>
-    </>
-  );
-}
-
-function SubMenuItem({ to, title }: { to: string; title: string }) {
-  return (
-    <SidebarMenuSubItem>
-      <SidebarMenuSubButton asChild>
-        <Link to={to}>
-          <span>{title}</span>
-        </Link>
-      </SidebarMenuSubButton>
-    </SidebarMenuSubItem>
-  );
-}
-
-function MenuToggle() {
-  return (
-    <CollapsibleTrigger asChild>
-      <SidebarMenuAction className="data-[state=open]:rotate-90">
-        <ChevronRight />
-        {/* ↓ これが必要な理由が謎 */}
-        <span className="sr-only">Toggle</span>
-      </SidebarMenuAction>
-    </CollapsibleTrigger>
   );
 }
