@@ -8,8 +8,6 @@ import {
 export default [
   layout("layouts/GuestLayout/index.tsx", [
     index("routes/docs/LandingPage.tsx"),
-  ]),
-  layout("layouts/SidebarLayout.tsx", [
     route("home", "routes/home.tsx"),
     route("search", "routes/search/index.tsx"),
     route("knowde/:id", "routes/knowde/detail/index.tsx"),

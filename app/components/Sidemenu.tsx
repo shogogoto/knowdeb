@@ -16,14 +16,14 @@ import {
 import type { ReactNode } from "react";
 import { Link } from "react-router";
 
-type MenuItem = {
+type MenuProps = {
   title: string;
   to: string;
+  icon?: ReactNode;
 };
 
-type SideMenuProps = MenuItem & {
-  icon: ReactNode;
-  subs?: MenuItem[];
+type SideMenuProps = MenuProps & {
+  subs?: MenuProps[];
 };
 
 export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
@@ -32,15 +32,26 @@ export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
       <CollapsibleTrigger asChild>
         <SidebarMenuItem>
           <SidebarMenuButton asChild tooltip={title}>
-            <div>
-              {icon}
-              <span>{title}</span>
-            </div>
+            {subs?.length ? (
+              <div>
+                {icon}
+                <span>{title}</span>
+              </div>
+            ) : (
+              <Link to={to}>
+                {icon}
+                <span>{title}</span>
+              </Link>
+            )}
           </SidebarMenuButton>
-          <CollapseToggle />
-          <CollapsibleContent>
-            <SubMenu items={subs} />
-          </CollapsibleContent>
+          {subs?.length ? (
+            <>
+              <CollapseToggle />
+              <CollapsibleContent>
+                <SubMenu items={subs} />
+              </CollapsibleContent>
+            </>
+          ) : null}
         </SidebarMenuItem>
       </CollapsibleTrigger>
     </Collapsible>
@@ -59,7 +70,7 @@ function CollapseToggle() {
   );
 }
 
-function SubMenu({ items }: { items?: MenuItem[] }) {
+function SubMenu({ items }: { items?: MenuProps[] }) {
   if (items?.length === 0) return null;
   return (
     <SidebarMenuSub>
@@ -68,17 +79,19 @@ function SubMenu({ items }: { items?: MenuItem[] }) {
           key={subItem.title}
           to={subItem.to}
           title={subItem.title}
+          icon={subItem.icon}
         />
       ))}
     </SidebarMenuSub>
   );
 }
 
-function SubMenuItem({ to, title }: { to: string; title: string }) {
+function SubMenuItem({ to, title, icon }: MenuProps) {
   return (
     <SidebarMenuSubItem>
       <SidebarMenuSubButton asChild>
         <Link to={to}>
+          {icon}
           <span>{title}</span>
         </Link>
       </SidebarMenuSubButton>

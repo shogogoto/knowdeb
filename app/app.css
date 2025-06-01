@@ -156,3 +156,9 @@ body {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
+
+.disabled-link {
+  pointer-events: none;
+  /* 見た目を無効にするためのスタイルも追加 */
+  cursor: not-allowed;
+}

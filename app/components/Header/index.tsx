@@ -5,16 +5,11 @@ import {
   UserButton,
 } from "@clerk/react-router";
 import { Files, Home, Search } from "lucide-react";
-import { Link } from "react-router";
 import favicon from "/favicon.ico";
 import { ThemeToggle } from "../theme";
 
 export function SiteLogo() {
-  return (
-    <Link to="/" className="text-blue-600 dark:text-blue-400">
-      <img src={favicon} alt="Logo" className="inline" />
-    </Link>
-  );
+  return <img src={favicon} alt="Logo" className="inline" />;
 }
 
 export function HeaderItem({ children }: React.PropsWithChildren) {

@@ -1,96 +1,149 @@
 import { SidebarGroup, SidebarMenu } from "@/components/ui/sidebar";
-import { BookOpen, Bot, Settings2, SquareTerminal } from "lucide-react";
+import {
+  BellRing,
+  BookOpen,
+  Bookmark,
+  ChevronsLeftRightEllipsis,
+  Crown,
+  Folder,
+  FolderSearch,
+  Search,
+  Speech,
+  TextSearch,
+  UserPen,
+  UserSearch,
+  Users,
+} from "lucide-react";
 import Sidemenu from "~/components/Sidemenu";
 
-export default function DocMenu() {
+export default function DocMenu({ children }: { children?: React.ReactNode }) {
   return (
     <SidebarGroup>
       <SidebarMenu>
         <Sidemenu
-          title={"Playground"}
+          title={"ドキュメント"}
           to={"/docs"}
-          icon={<SquareTerminal />}
+          icon={<BookOpen />}
           subs={[
             {
-              title: "History",
-              to: "/home",
+              title: "Knowdeについて",
+              to: "/",
             },
             {
-              title: "Starred",
-              to: "#",
+              title: "Get Started",
+              to: "/",
             },
             {
-              title: "Settings",
-              to: "#",
+              title: "xxxx",
+              to: "/",
+            },
+            {
+              title: "Get Started",
+              to: "/",
+            },
+            {
+              title: "xxxx",
+              to: "/",
+            },
+            {
+              title: "Get Started",
+              to: "/",
+            },
+            {
+              title: "xxxx",
+              to: "/",
             },
           ]}
         />
         <Sidemenu
-          title={"Models"}
+          title={"検索"}
           to={"#"}
-          icon={<Bot />}
+          icon={<Search />}
           subs={[
             {
-              title: "Genesis",
-              to: "#",
+              title: "単文検索",
+              to: "/search",
+              icon: <TextSearch />,
             },
             {
-              title: "Explorer",
-              to: "#",
+              title: "リソース検索",
+              to: "/search",
+              icon: <FolderSearch />,
             },
             {
-              title: "Quantum",
-              to: "#",
+              title: "ユーザー検索",
+              to: "/search",
+              icon: <UserSearch />,
+            },
+          ]}
+        />
+
+        <Sidemenu
+          title={"ランキング"}
+          to={"#"}
+          icon={<Crown />}
+          subs={[
+            {
+              title: "単文ランキング",
+              to: "/search",
+              icon: <TextSearch />,
+            },
+            {
+              title: "リソースランキング",
+              to: "/search",
+              icon: <FolderSearch />,
+            },
+            {
+              title: "ユーザーランキング",
+              to: "/search",
+              icon: <UserSearch />,
             },
           ]}
         />
         <Sidemenu
-          title={"Documentation"}
+          title={"ログイン後機能(予定)"}
           to={"#"}
           icon={<BookOpen />}
           subs={[
             {
-              title: "Introduction",
+              title: "通知",
               to: "#",
+              icon: <BellRing />,
             },
             {
-              title: "Get Started",
+              title: "エントリー管理",
               to: "#",
+              icon: <Folder />,
             },
             {
-              title: "Tutorials",
+              title: "ブックマーク",
               to: "#",
+              icon: <Bookmark />,
             },
             {
-              title: "Changelog",
+              title: "検索パラメータ",
               to: "#",
-            },
-          ]}
-        />
-        <Sidemenu
-          title={"Settings"}
-          to={"#"}
-          icon={<Settings2 />}
-          subs={[
-            {
-              title: "General",
-              to: "#",
+              icon: <ChevronsLeftRightEllipsis />,
             },
             {
-              title: "Team",
+              title: "参加中ディスカッション",
               to: "#",
+              icon: <Speech />,
             },
             {
-              title: "Billing",
+              title: "加入グループ",
               to: "#",
+              icon: <Users />,
             },
             {
-              title: "Limits",
+              title: "プロフィール",
               to: "#",
+              icon: <UserPen />,
             },
           ]}
         />
       </SidebarMenu>
+      {children}
     </SidebarGroup>
   );
 }
