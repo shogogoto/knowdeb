@@ -4,6 +4,9 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+import useSwr from "swr";
+import type { Key, SWRConfiguration } from "swr";
+
 import type {
   HTTPValidationError,
   KnowdeDetail,
@@ -73,6 +76,48 @@ export const searchByTextKnowdeGet = async (
   } as searchByTextKnowdeGetResponse;
 };
 
+export const getSearchByTextKnowdeGetKey = (
+  params?: SearchByTextKnowdeGetParams,
+) =>
+  ["https://knowde.onrender.com/knowde/", ...(params ? [params] : [])] as const;
+
+export type SearchByTextKnowdeGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchByTextKnowdeGet>>
+>;
+export type SearchByTextKnowdeGetQueryError = Promise<HTTPValidationError>;
+
+/**
+ * @summary Search By Text
+ */
+export const useSearchByTextKnowdeGet = <TError = Promise<HTTPValidationError>>(
+  params?: SearchByTextKnowdeGetParams,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof searchByTextKnowdeGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() => (isEnabled ? getSearchByTextKnowdeGetKey(params) : null));
+  const swrFn = () => searchByTextKnowdeGet(params, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * knowde詳細.
  * @summary Detail
@@ -119,4 +164,50 @@ export const detailKnowdeSentenceSentenceIdGet = async (
     status: res.status,
     headers: res.headers,
   } as detailKnowdeSentenceSentenceIdGetResponse;
+};
+
+export const getDetailKnowdeSentenceSentenceIdGetKey = (sentenceId: string) =>
+  [`https://knowde.onrender.com/knowde/sentence/${sentenceId}`] as const;
+
+export type DetailKnowdeSentenceSentenceIdGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof detailKnowdeSentenceSentenceIdGet>>
+>;
+export type DetailKnowdeSentenceSentenceIdGetQueryError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Detail
+ */
+export const useDetailKnowdeSentenceSentenceIdGet = <
+  TError = Promise<HTTPValidationError>,
+>(
+  sentenceId: string,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof detailKnowdeSentenceSentenceIdGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false && !!sentenceId;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() =>
+      isEnabled ? getDetailKnowdeSentenceSentenceIdGetKey(sentenceId) : null);
+  const swrFn = () =>
+    detailKnowdeSentenceSentenceIdGet(sentenceId, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
 };

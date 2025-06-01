@@ -1,0 +1,100 @@
+import { ChevronRight } from "lucide-react";
+
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+} from "@/components/ui/sidebar";
+import type { ReactNode } from "react";
+import { Link } from "react-router";
+
+type MenuProps = {
+  title: string;
+  to: string;
+  icon?: ReactNode;
+};
+
+type SideMenuProps = MenuProps & {
+  subs?: MenuProps[];
+};
+
+export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
+  return (
+    <Collapsible>
+      <CollapsibleTrigger asChild>
+        <SidebarMenuItem>
+          <SidebarMenuButton asChild tooltip={title}>
+            {subs?.length ? (
+              <div>
+                {icon}
+                <span>{title}</span>
+              </div>
+            ) : (
+              <Link to={to}>
+                {icon}
+                <span>{title}</span>
+              </Link>
+            )}
+          </SidebarMenuButton>
+          {subs?.length ? (
+            <>
+              <CollapseToggle />
+              <CollapsibleContent>
+                <SubMenu items={subs} />
+              </CollapsibleContent>
+            </>
+          ) : null}
+        </SidebarMenuItem>
+      </CollapsibleTrigger>
+    </Collapsible>
+  );
+}
+
+function CollapseToggle() {
+  return (
+    <CollapsibleTrigger asChild>
+      <SidebarMenuAction className="data-[state=open]:rotate-90">
+        <ChevronRight />
+        {/* ↓ これが必要な理由が謎 */}
+        <span className="sr-only">Toggle</span>
+      </SidebarMenuAction>
+    </CollapsibleTrigger>
+  );
+}
+
+function SubMenu({ items }: { items?: MenuProps[] }) {
+  if (items?.length === 0) return null;
+  return (
+    <SidebarMenuSub>
+      {items?.map((subItem) => (
+        <SubMenuItem
+          key={subItem.title}
+          to={subItem.to}
+          title={subItem.title}
+          icon={subItem.icon}
+        />
+      ))}
+    </SidebarMenuSub>
+  );
+}
+
+function SubMenuItem({ to, title, icon }: MenuProps) {
+  return (
+    <SidebarMenuSubItem>
+      <SidebarMenuSubButton asChild>
+        <Link to={to}>
+          {icon}
+          <span>{title}</span>
+        </Link>
+      </SidebarMenuSubButton>
+    </SidebarMenuSubItem>
+  );
+}
