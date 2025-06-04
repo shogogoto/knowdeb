@@ -18,17 +18,25 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  useSidebar,
 } from "~/components/ui/sidebar";
 import DocMenu from "./DecMenu";
 
 export default function GuestSidebar() {
+  const { isMobile, toggleSidebar } = useSidebar();
+  const handleMenuClick = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
+  };
+
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className="border">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip={"Landng Page"}>
-              <Link to="/">
+              <Link to="/" onClick={handleMenuClick}>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <SiteLogo />
                 </div>
