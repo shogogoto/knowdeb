@@ -6,7 +6,7 @@ import { SidebarTrigger } from "~/components/ui/sidebar";
 
 export default function ButtonNavigation() {
   return (
-    <nav className="sm:hidden flex bottom-0 left-0 right-0 w-full border-t justify-between">
+    <nav className="sm:hidden fixed flex bottom-0 left-0 right-0 w-full border-t justify-between bg-white dark:bg-gray-950">
       <div className="p-1">
         <SidebarTrigger variant="ghost" />
       </div>
