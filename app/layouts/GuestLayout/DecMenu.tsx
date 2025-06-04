@@ -31,7 +31,7 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
             },
             {
               title: "Get Started",
-              to: "/",
+              to: "/docs/get-started",
             },
             {
               title: "xxxx",

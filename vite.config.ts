@@ -11,10 +11,7 @@ export default defineConfig({
     process.env.VITEST ? reactVitest() : reactRouter(), // storybookのテスト解消
     tsconfigPaths(),
     netlifyPlugin(),
-    {
-      enforce: "pre",
-      ...mdx(),
-    },
+    { enforce: "pre", ...mdx() },
   ],
   test: {
     globals: true, // テスト関数のインポート省略
