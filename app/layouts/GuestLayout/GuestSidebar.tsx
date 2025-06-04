@@ -5,8 +5,7 @@ import {
   UserButton,
 } from "@clerk/react-router";
 import { MailQuestion } from "lucide-react";
-import { useEffect } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { SiteLogo } from "~/components/Header";
 import SideMenu from "~/components/Sidemenu";
 import { ThemeToggle } from "~/components/theme";
@@ -24,39 +23,10 @@ import {
 import DocMenu from "./DecMenu";
 
 export default function GuestSidebar() {
-  const { isMobile, setOpenMobile } = useSidebar();
-  const navigate = useNavigate();
-
-  // Close mobile sidebar on navigation
-  useEffect(() => {
-    // Create navigation event listener
-    const handleNavigation = () => {
-      if (isMobile) {
-        setOpenMobile(false);
-      }
-    };
-
-    // Add event listener for clicks on links within the sidebar
-    const sidebarElement = document.querySelector('[data-sidebar="sidebar"]');
-    if (sidebarElement) {
-      const links = sidebarElement.querySelectorAll("a");
-      links.forEach((link) => {
-        link.addEventListener("click", handleNavigation);
-      });
-
-      // Cleanup
-      return () => {
-        links.forEach((link) => {
-          link.removeEventListener("click", handleNavigation);
-        });
-      };
-    }
-  }, [isMobile, setOpenMobile]);
-
-  // Handle home link click to close sidebar on mobile
-  const handleHomeClick = () => {
+  const { isMobile, toggleSidebar } = useSidebar();
+  const handleMenuClick = () => {
     if (isMobile) {
-      setOpenMobile(false);
+      toggleSidebar();
     }
   };
 
@@ -66,7 +36,7 @@ export default function GuestSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild tooltip={"Landng Page"}>
-              <Link to="/" onClick={handleHomeClick}>
+              <Link to="/" onClick={handleMenuClick}>
                 <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
                   <SiteLogo />
                 </div>

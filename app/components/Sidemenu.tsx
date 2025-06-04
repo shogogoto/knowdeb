@@ -12,6 +12,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import type { ReactNode } from "react";
 import { Link } from "react-router";
@@ -27,6 +28,13 @@ type SideMenuProps = MenuProps & {
 };
 
 export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
+  const { isMobile, toggleSidebar } = useSidebar();
+  const handleMenuClick = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
+  };
+
   return (
     <Collapsible>
       <CollapsibleTrigger asChild>
@@ -38,7 +46,7 @@ export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
                 <span>{title}</span>
               </div>
             ) : (
-              <Link to={to}>
+              <Link to={to} onClick={handleMenuClick}>
                 {icon}
                 <span>{title}</span>
               </Link>
@@ -87,10 +95,17 @@ function SubMenu({ items }: { items?: MenuProps[] }) {
 }
 
 function SubMenuItem({ to, title, icon }: MenuProps) {
+  const { isMobile, toggleSidebar } = useSidebar();
+  const handleMenuClick = () => {
+    if (isMobile) {
+      toggleSidebar();
+    }
+  };
+
   return (
     <SidebarMenuSubItem>
       <SidebarMenuSubButton asChild>
-        <Link to={to}>
+        <Link to={to} onClick={handleMenuClick}>
           {icon}
           <span>{title}</span>
         </Link>
