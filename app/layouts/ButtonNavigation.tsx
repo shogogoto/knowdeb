@@ -1,32 +1,38 @@
 // モバイル向けに常時表示される下部ボタン群
 
-import { Crown, Home, Search, SettingsIcon, UserIcon } from "lucide-react";
-import { Button } from "~/components/ui/button";
-import { SidebarTrigger } from "~/components/ui/sidebar";
+import {
+  Bookmark,
+  Crown,
+  Home,
+  PanelLeftIcon,
+  Search,
+  Users,
+} from "lucide-react";
+import { Link } from "react-router";
+import { useSidebar } from "~/components/ui/sidebar";
 
 export default function ButtonNavigation() {
-  const size = 24 * 3;
+  const { toggleSidebar } = useSidebar();
+  const size = 24;
 
   return (
-    <nav className="sm:hidden fixed flex bottom-0 left-0 right-0 px-3 py-1 border-t justify-between bg-white dark:bg-gray-950">
-      <div className="p-1">
-        <SidebarTrigger variant="ghost" />
-      </div>
-      <Button variant="ghost" asChild>
+    <nav className="sm:hidden fixed flex bottom-0 left-0 right-0 px-4 py-1 border-t justify-between bg-white dark:bg-gray-950">
+      <PanelLeftIcon size={size} onClick={toggleSidebar} />
+      <Link to="/home">
         <Home size={size} />
-      </Button>
-      <Button variant="ghost" asChild>
+      </Link>
+      <Link to="/search">
         <Search size={size} />
-      </Button>
-      <Button variant="ghost" asChild>
+      </Link>
+      <Link to="/group">
+        <Users size={size} />
+      </Link>
+      <Link to="/ranking">
         <Crown size={size} />
-      </Button>
-      <Button variant="ghost" asChild>
-        <UserIcon size={size} />
-      </Button>
-      <Button variant="ghost" asChild>
-        <SettingsIcon size={size} />
-      </Button>
+      </Link>
+      <Link to="/bookmarks">
+        <Bookmark size={size} />
+      </Link>
     </nav>
   );
 }
