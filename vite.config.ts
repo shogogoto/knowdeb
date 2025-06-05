@@ -17,12 +17,20 @@ export default defineConfig({
     {
       enforce: "pre",
       ...mdx({
-        remarkPlugins: [
-          remarkGfm,
-          // remark-mermaidjs は不要になる
-        ],
+        remarkPlugins: [remarkGfm],
         rehypePlugins: [
-          [rehypeMermaid, { strategy: "img-svg" }], // strategy オプションは重要
+          [
+            rehypeMermaid,
+            {
+              strategy: "img-svg",
+              mermaid: { theme: "default" },
+              dark: {
+                theme: "dark",
+              },
+              background: "transparent",
+              className: "mermaid-diagram",
+            },
+          ],
         ],
       }),
     },
