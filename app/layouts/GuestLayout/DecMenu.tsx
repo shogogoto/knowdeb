@@ -7,6 +7,7 @@ import {
   Crown,
   Folder,
   FolderSearch,
+  LogIn,
   Search,
   Speech,
   TextSearch,
@@ -26,27 +27,20 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
           icon={<BookOpen />}
           subs={[
             {
-              title: "Knowdeについて",
-              to: "/",
+              title: "目次",
+              to: "/docs",
             },
+            {
+              title: "コンセプト",
+              to: "/docs/concept",
+            },
+
             {
               title: "Get Started",
               to: "/docs/get-started",
             },
             {
-              title: "xxxx",
-              to: "/",
-            },
-            {
-              title: "Get Started",
-              to: "/",
-            },
-            {
-              title: "xxxx",
-              to: "/",
-            },
-            {
-              title: "Get Started",
+              title: "Get",
               to: "/",
             },
             {
@@ -103,7 +97,7 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
         <Sidemenu
           title={"ログイン後機能(予定)"}
           to={"#"}
-          icon={<BookOpen />}
+          icon={<LogIn />}
           subs={[
             {
               title: "通知",

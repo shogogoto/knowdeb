@@ -13,13 +13,16 @@ import {
 export default [
   layout("layouts/GuestLayout/index.tsx", [
     index("routes/docs/LandingPage.tsx"),
+    route("1", "routes/docs/LP.tsx"),
     route("home", "routes/home.tsx"),
     route("search", "routes/search/index.tsx"),
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
   ]),
 
   layout("layouts/DocumentLayout.tsx", [
+    route("docs", "routes/docs/index.tsx"),
     route("docs/get-started", "routes/docs/GetStarted.mdx"),
+    route("docs/concept", "routes/docs/concept.mdx"),
   ]),
 
   route("login", "routes/Login/index.tsx"),

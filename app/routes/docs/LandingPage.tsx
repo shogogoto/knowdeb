@@ -29,13 +29,13 @@ const KnowdeLanding = () => {
       icon: <Network className="w-6 h-6" />,
       title: "グラフ構造",
       description:
-        "文と文の関係性を可視化。接続詞の冗長さを構造化によって排除します。",
+        "単文を繋ぐネットワーク構造によって接続詞の冗長さを排除し、知識を簡潔に表現します。",
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
       title: "スコアリング",
       description:
-        "関係カウントによる単文の評価値。理解コストや重要度を可視化します。",
+        "繋がりのカウントによって単文の重要度を数値化し、重要度を可視化、検索可能にします。",
     },
     {
       icon: <Search className="w-6 h-6" />,
@@ -97,22 +97,22 @@ const KnowdeLanding = () => {
             <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto leading-relaxed">
               単文主義で知識を構造化する
               <br />
-              新しい時代の知識管理プラットフォーム
+              知識管理プラットフォーム
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                type="button"
+              <a
+                href="/search"
                 className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
               >
-                今すぐ始める
+                検索してみよう！
                 <ChevronRight className="inline-block ml-2 w-5 h-5" />
-              </button>
-              <button
-                type="button"
+              </a>
+              <a
+                href="/register"
                 className="px-8 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
               >
-                デモを見る
-              </button>
+                新規登録してみよう！
+              </a>
             </div>
           </div>
         </div>
@@ -125,31 +125,18 @@ const KnowdeLanding = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Problem Section */}
       <section className="py-20 px-4 relative">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
-            なぜ<span className="text-purple-400">knowde</span>なのか？
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-12">
+            文章を理解するのって大変！
           </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
-              <div
-                key={feature.title}
-                className={`p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer ${
-                  activeFeature === index
-                    ? "bg-white/20 border-purple-400 scale-105"
-                    : "bg-white/5 border-gray-600 hover:bg-white/10"
-                }`}
-                onMouseEnter={() => setActiveFeature(index)}
-              >
-                <div className="text-purple-400 mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
+          <div className="bg-white/5 p-8 rounded-2xl border border-gray-600">
+            <ul className="space-y-4 text-xl text-gray-300 text-left">
+              <li>• 重要な内容はどこ？</li>
+              <li>• この内容がどこに繋がるの？現在地が分からない</li>
+              <li>• これを理解するのにどこまで勉強すればいいの？</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -163,26 +150,31 @@ const KnowdeLanding = () => {
 
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6 text-left">
-              <div className="p-6 bg-red-500/10 border-l-4 border-red-500 rounded-r-xl">
-                <h3 className="text-xl font-semibold mb-2 text-red-400">
-                  従来の問題点
+              <div className="p-6 bg-purple-500/10 border-l-4 border-purple-500 rounded-r-xl">
+                <h3 className="text-xl font-semibold mb-2 text-purple-400">
+                  単文主義
                 </h3>
-                <ul className="space-y-2 text-gray-300">
-                  <li>• 長文は全体を読まないと理解できない</li>
-                  <li>• 重要なポイントが分からない</li>
-                  <li>• 理解コストが不透明</li>
-                </ul>
+                <p className="text-gray-300">
+                  長文の複雑さを排除し、一つの文で一つの概念を表現。理解コストを最小化します。
+                </p>
+              </div>
+
+              <div className="p-6 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl">
+                <h3 className="text-xl font-semibold mb-2 text-blue-400">
+                  グラフ構造
+                </h3>
+                <p className="text-gray-300">
+                  単文を繋ぐネットワーク構造によって接続詞の冗長さを排除し、知識を簡潔に表現。
+                </p>
               </div>
 
               <div className="p-6 bg-green-500/10 border-l-4 border-green-500 rounded-r-xl">
                 <h3 className="text-xl font-semibold mb-2 text-green-400">
-                  knowdeの解決策
+                  スコアリング
                 </h3>
-                <ul className="space-y-2 text-gray-300">
-                  <li>• 一文一概念で明確性を確保</li>
-                  <li>• グラフ構造で関係性を可視化</li>
-                  <li>• スコアリングで重要度を定量化</li>
-                </ul>
+                <p className="text-gray-300">
+                  繋がりのカウントによって単文の重要度を数値化し、重要度を可視化、検索可能。
+                </p>
               </div>
             </div>
 
@@ -192,44 +184,54 @@ const KnowdeLanding = () => {
               </div>
             </div>
           </div>
+          <div className="mt-12 text-center">
+            <a
+              href="/docs/concept"
+              className="text-purple-400 hover:underline text-lg flex items-center justify-center"
+            >
+              より詳細なコンセプトの説明はこちら
+              <ChevronRight className="inline-block ml-2 w-5 h-5" />
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* Roadmap Section */}
+      {/* SNS Integration Section */}
       <section className="py-20 px-4 relative">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
-            開発ロードマップ
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-12">
+            単文主義 × SNS
           </h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {roadmapItems.map((item) => (
-              <div
-                key={item.title}
-                className="relative p-6 bg-white/5 backdrop-blur-sm border border-gray-600 rounded-2xl hover:bg-white/10 transition-all duration-300"
-              >
-                <div
-                  className={`inline-block px-3 py-1 ${item.color} rounded-full text-xs font-medium mb-4`}
-                >
-                  {item.level}
-                </div>
-                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <p className="text-gray-300 text-sm mb-4">{item.description}</p>
-                <div className="text-xs text-gray-400">{item.status}</div>
-              </div>
-            ))}
-          </div>
-
-          <div className="text-center mt-12">
-            <p className="text-gray-400 mb-4">目標納期: 2025年12月31日</p>
-            <div className="w-full max-w-md mx-auto bg-gray-700 rounded-full h-2">
-              <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full w-1/4" />
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="bg-white/5 p-6 rounded-2xl border border-gray-600 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-3 text-purple-300">
+                効率的なディスカッション
+              </h3>
+              <p className="text-gray-300">
+                ピンポイントな単文引用による、誤解の少ない効率的な議論が可能です。
+              </p>
+            </div>
+            <div className="bg-white/5 p-6 rounded-2xl border border-gray-600 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-3 text-blue-300">
+                再利用コラボレーション
+              </h3>
+              <p className="text-gray-300">
+                他のメモの単文を簡単にインポートし、知識の再利用と共同作業を促進します。
+              </p>
+            </div>
+            <div className="bg-white/5 p-6 rounded-2xl border border-gray-600 hover:bg-white/10 transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-3 text-green-300">
+                深い繋がり
+              </h3>
+              <p className="text-gray-300">
+                興味を細部まで表現することで、本当に共感できる人と深く繋がれます。
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
+      {/* CTA Section - Adjusted */}
       <section className="py-20 px-4 relative">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-8">
@@ -239,60 +241,47 @@ const KnowdeLanding = () => {
           </h2>
           <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
             単文主義で構造化された知識管理の革命に参加して、
+            <br />
             より効率的で明確な思考を手に入れましょう。
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <button
-              type="button"
+            <a
+              href="/search"
               className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
             >
-              早期アクセスに登録
-            </button>
-            <button
-              type="button"
+              検索してみよう！
+            </a>
+            <a
+              href="/register"
               className="px-10 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
             >
-              詳細資料をダウンロード
-            </button>
+              新規登録してみよう！
+            </a>
           </div>
 
-          {/* Social Links */}
-          <div className="flex justify-center space-x-6">
-            <button
-              type="button"
-              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+          {/* Additional Links */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
+            <a
+              href="/docs/getting-started"
+              className="text-gray-400 hover:underline flex items-center"
             >
-              <img
-                alt="GitHub"
-                height="32"
-                width="32"
-                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/github.svg"
-              />
-            </button>
-            <button
-              type="button"
-              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+              始め方について
+              <ChevronRight className="inline-block ml-2 w-4 h-4" />
+            </a>
+            <a
+              href="/contact"
+              className="text-gray-400 hover:underline flex items-center"
             >
-              <img
-                alt="GitHub"
-                height="32"
-                width="32"
-                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/x.svg"
-              />
-            </button>
-            <button
-              type="button"
-              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
-            >
-              <Mail className="w-6 h-6" />
-            </button>
+              問い合わせはこちら
+              <Mail className="inline-block ml-2 w-4 h-4" />
+            </a>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="px-4 border-t border-gray-700">
+      <footer className="py-8 px-4 border-t border-gray-700">
         <div className="max-w-6xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-4">knowde</h3>
           <p className="text-gray-400 mb-6">

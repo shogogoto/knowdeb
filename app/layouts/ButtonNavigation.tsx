@@ -1,7 +1,7 @@
 // モバイル向けに常時表示される下部ボタン群
 
 import {
-  Bookmark,
+  BookOpen,
   Crown,
   Home,
   PanelLeftIcon,
@@ -30,8 +30,8 @@ export default function ButtonNavigation() {
       <Link to="/ranking">
         <Crown size={size} />
       </Link>
-      <Link to="/bookmarks">
-        <Bookmark size={size} />
+      <Link to="/docs">
+        <BookOpen size={size} />
       </Link>
     </nav>
   );
