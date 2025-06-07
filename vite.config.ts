@@ -3,8 +3,11 @@ import netlifyPlugin from "@netlify/vite-plugin-react-router";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import reactVitest from "@vitejs/plugin-react";
+import rehypeMermaid from "rehype-mermaid";
+import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
@@ -13,7 +16,23 @@ export default defineConfig({
     netlifyPlugin(),
     {
       enforce: "pre",
-      ...mdx(),
+      ...mdx({
+        remarkPlugins: [remarkGfm],
+        rehypePlugins: [
+          [
+            rehypeMermaid,
+            {
+              strategy: "img-svg",
+              mermaid: { theme: "default" },
+              dark: {
+                theme: "dark",
+              },
+              background: "transparent",
+              className: "mermaid-diagram",
+            },
+          ],
+        ],
+      }),
     },
   ],
   test: {

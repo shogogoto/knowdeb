@@ -18,6 +18,14 @@ export default [
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
   ]),
 
+  layout("layouts/DocumentLayout.tsx", [
+    route("docs", "routes/docs/index.tsx"),
+    route("docs/get-started", "routes/docs/get-started.mdx"),
+    route("docs/concept", "routes/docs/concept.mdx"),
+    route("docs/cli", "routes/docs/cli.mdx"),
+    route("docs/features", "routes/docs/features.mdx"),
+  ]),
+
   route("login", "routes/Login/index.tsx"),
   route("auth/google/callback", "routes/auth/google/callback.tsx"),
 ] satisfies RouteConfig;

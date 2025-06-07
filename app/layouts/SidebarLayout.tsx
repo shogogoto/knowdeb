@@ -29,7 +29,7 @@ export default function SidebarLayout() {
         {/* <div className="sticky top-0 w-full"> */}
         {/*   <Header /> */}
         {/* </div> */}
-        <main className="overflow-auto">
+        <main className="overflow-auto markdown-body">
           <Outlet />
         </main>
         <ButtonNavigation />

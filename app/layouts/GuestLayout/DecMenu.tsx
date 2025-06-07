@@ -7,6 +7,7 @@ import {
   Crown,
   Folder,
   FolderSearch,
+  LogIn,
   Search,
   Speech,
   TextSearch,
@@ -15,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import Sidemenu from "~/components/Sidemenu";
+import { documents } from "~/routes/docs";
 
 export default function DocMenu({ children }: { children?: React.ReactNode }) {
   return (
@@ -24,36 +26,7 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
           title={"ドキュメント"}
           to={"/docs"}
           icon={<BookOpen />}
-          subs={[
-            {
-              title: "Knowdeについて",
-              to: "/",
-            },
-            {
-              title: "Get Started",
-              to: "/",
-            },
-            {
-              title: "xxxx",
-              to: "/",
-            },
-            {
-              title: "Get Started",
-              to: "/",
-            },
-            {
-              title: "xxxx",
-              to: "/",
-            },
-            {
-              title: "Get Started",
-              to: "/",
-            },
-            {
-              title: "xxxx",
-              to: "/",
-            },
-          ]}
+          subs={documents}
         />
         <Sidemenu
           title={"検索"}
@@ -103,7 +76,7 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
         <Sidemenu
           title={"ログイン後機能(予定)"}
           to={"#"}
-          icon={<BookOpen />}
+          icon={<LogIn />}
           subs={[
             {
               title: "通知",

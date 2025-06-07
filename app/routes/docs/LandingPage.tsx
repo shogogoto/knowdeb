@@ -1,10 +1,14 @@
 import {
   BookOpen,
   ChevronRight,
+  ExternalLink,
   Mail,
+  MessageCircle,
   Network,
   Search,
+  Share2,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -18,7 +22,26 @@ const KnowdeLanding = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const features = [
+  const problems = [
+    {
+      icon: <Search className="w-6 h-6" />,
+      title: "重要な内容はどこ？",
+      description:
+        "長い文章の中で、本当に重要なポイントを見つけるのに時間がかかる",
+    },
+    {
+      icon: <Network className="w-6 h-6" />,
+      title: "この内容がどこに繋がるの？",
+      description: "現在読んでいる情報の位置づけや関連性が分からない",
+    },
+    {
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: "どこまで勉強すればいいの？",
+      description: "理解に必要な学習範囲や深さが不透明で効率が悪い",
+    },
+  ];
+
+  const solutions = [
     {
       icon: <BookOpen className="w-6 h-6" />,
       title: "単文主義",
@@ -29,52 +52,38 @@ const KnowdeLanding = () => {
       icon: <Network className="w-6 h-6" />,
       title: "グラフ構造",
       description:
-        "文と文の関係性を可視化。接続詞の冗長さを構造化によって排除します。",
+        "単文を繋ぐネットワーク構造によって接続詞の冗長さを排除し、知識を簡潔に表現。",
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
       title: "スコアリング",
       description:
-        "関係カウントによる単文の評価値。理解コストや重要度を可視化します。",
-    },
-    {
-      icon: <Search className="w-6 h-6" />,
-      title: "高度な検索",
-      description:
-        "スコアリング、距離指定、リソース指定による精密な単文検索機能。",
+        "繋がりのカウントによって単文の重要度を数値化し、重要度を可視化、検索可能。",
     },
   ];
 
-  const roadmapItems = [
+  const snsFeatures = [
     {
-      level: "LV1",
-      title: "自分が使える",
-      description: "メモ評価・単文検索でメモ帳を超える使い勝手",
-      status: "開発中",
-      color: "bg-blue-500",
+      icon: <MessageCircle className="w-6 h-6" />,
+      title: "ピンポイントな単文引用",
+      description: "効率的なディスカッションを実現する精密な引用機能",
     },
     {
-      level: "LV2",
-      title: "他人に見せられる",
-      description: "考えやメモを伝達する手段として活用",
-      status: "計画中",
-      color: "bg-purple-500",
+      icon: <Share2 className="w-6 h-6" />,
+      title: "単文の再利用コラボレーション",
+      description: "他メモの単文をimportする新しい形のコラボレーション",
     },
     {
-      level: "LV3",
-      title: "ユーザー機能",
-      description: "他人も使えるサービス運用開始",
-      status: "計画中",
-      color: "bg-green-500",
-    },
-    {
-      level: "LV4",
-      title: "SNS機能",
-      description: "単文の追跡性を活かしたSNS",
-      status: "計画中",
-      color: "bg-yellow-500",
+      icon: <Users className="w-6 h-6" />,
+      title: "興味を細部まで表現",
+      description: "細かな興味関心を通じて同じ志向の人と繋がれる",
     },
   ];
+
+  const handleNavigation = (path: string) => {
+    // In a real app, this would use a router
+    console.log(`Navigating to: ${path}`);
+  };
 
   return (
     <div className="w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white overflow-hidden">
@@ -95,23 +104,26 @@ const KnowdeLanding = () => {
               knowde
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              単文主義で知識を構造化する
+              <span className="text-purple-400 font-semibold">単文主義</span>
+              で知識を構造化する
               <br />
-              新しい時代の知識管理プラットフォーム
+              知識管理プラットフォーム
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <button
                 type="button"
                 className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+                onClick={() => handleNavigation("/register")}
               >
-                今すぐ始める
+                新規登録してみよう！
                 <ChevronRight className="inline-block ml-2 w-5 h-5" />
               </button>
               <button
                 type="button"
                 className="px-8 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
+                onClick={() => handleNavigation("/search")}
               >
-                デモを見る
+                検索してみよう！
               </button>
             </div>
           </div>
@@ -125,28 +137,28 @@ const KnowdeLanding = () => {
         </div>
       </section>
 
-      {/* Features Section */}
+      {/* Problem Section */}
       <section className="py-20 px-4 relative">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
-            なぜ<span className="text-purple-400">knowde</span>なのか？
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">
+            文章を理解するのって<span className="text-red-400">大変</span>！
           </h2>
+          <p className="text-xl text-gray-300 text-center mb-16 max-w-2xl mx-auto">
+            日々の学習や情報収集で、こんな悩みを感じたことはありませんか？
+          </p>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {features.map((feature, index) => (
+          <div className="grid md:grid-cols-3 gap-8">
+            {problems.map((problem) => (
               <div
-                key={feature.title}
-                className={`p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer ${
-                  activeFeature === index
-                    ? "bg-white/20 border-purple-400 scale-105"
-                    : "bg-white/5 border-gray-600 hover:bg-white/10"
-                }`}
-                onMouseEnter={() => setActiveFeature(index)}
+                key={problem.title}
+                className="p-6 bg-red-500/10 border border-red-500/30 rounded-2xl backdrop-blur-sm hover:bg-red-500/15 transition-all duration-300"
               >
-                <div className="text-purple-400 mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <div className="text-red-400 mb-4">{problem.icon}</div>
+                <h3 className="text-xl font-semibold mb-3 text-red-300">
+                  {problem.title}
+                </h3>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  {feature.description}
+                  {problem.description}
                 </p>
               </div>
             ))}
@@ -154,77 +166,70 @@ const KnowdeLanding = () => {
         </div>
       </section>
 
-      {/* Concept Section */}
-      <section className="py-20 px-4 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12">
-            <span className="text-purple-400">単文主義</span>の革命
-          </h2>
-
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-left">
-              <div className="p-6 bg-red-500/10 border-l-4 border-red-500 rounded-r-xl">
-                <h3 className="text-xl font-semibold mb-2 text-red-400">
-                  従来の問題点
-                </h3>
-                <ul className="space-y-2 text-gray-300">
-                  <li>• 長文は全体を読まないと理解できない</li>
-                  <li>• 重要なポイントが分からない</li>
-                  <li>• 理解コストが不透明</li>
-                </ul>
-              </div>
-
-              <div className="p-6 bg-green-500/10 border-l-4 border-green-500 rounded-r-xl">
-                <h3 className="text-xl font-semibold mb-2 text-green-400">
-                  knowdeの解決策
-                </h3>
-                <ul className="space-y-2 text-gray-300">
-                  <li>• 一文一概念で明確性を確保</li>
-                  <li>• グラフ構造で関係性を可視化</li>
-                  <li>• スコアリングで重要度を定量化</li>
-                </ul>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="w-full h-64 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center">
-                <Network className="w-24 h-24 text-purple-400 animate-pulse" />
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Roadmap Section */}
+      {/* Solution Section */}
       <section className="py-20 px-4 relative">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
-            開発ロードマップ
+            <span className="text-purple-400">単文主義</span>の革命
           </h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {roadmapItems.map((item) => (
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {solutions.map((solution, index) => (
               <div
-                key={item.title}
-                className="relative p-6 bg-white/5 backdrop-blur-sm border border-gray-600 rounded-2xl hover:bg-white/10 transition-all duration-300"
+                key={solution.title}
+                className={`p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer ${
+                  activeFeature === index
+                    ? "bg-white/20 border-purple-400 scale-105"
+                    : "bg-white/5 border-gray-600 hover:bg-white/10"
+                }`}
+                onMouseEnter={() => setActiveFeature(index)}
               >
-                <div
-                  className={`inline-block px-3 py-1 ${item.color} rounded-full text-xs font-medium mb-4`}
-                >
-                  {item.level}
-                </div>
-                <h3 className="text-xl font-semibold mb-3">{item.title}</h3>
-                <p className="text-gray-300 text-sm mb-4">{item.description}</p>
-                <div className="text-xs text-gray-400">{item.status}</div>
+                <div className="text-purple-400 mb-4">{solution.icon}</div>
+                <h3 className="text-xl font-semibold mb-3">{solution.title}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {solution.description}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="text-center mt-12">
-            <p className="text-gray-400 mb-4">目標納期: 2025年12月31日</p>
-            <div className="w-full max-w-md mx-auto bg-gray-700 rounded-full h-2">
-              <div className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full w-1/4" />
-            </div>
+          <div className="text-center">
+            <button
+              type="button"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-400 rounded-xl text-lg font-medium hover:from-purple-600/30 hover:to-blue-600/30 transition-all duration-200"
+              onClick={() => handleNavigation("/docs/concept")}
+            >
+              より詳細なコンセプトの説明はこちら
+              <ExternalLink className="ml-2 w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SNS Features Section */}
+      <section className="py-20 px-4 relative">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">
+            <span className="text-purple-400">単文主義</span> ×{" "}
+            <span className="text-blue-400">SNS</span>
+          </h2>
+          <p className="text-xl text-gray-300 text-center mb-16 max-w-3xl mx-auto">
+            単文の精密さを活かした、新しいコミュニケーションの形
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {snsFeatures.map((feature) => (
+              <div
+                key={feature.title}
+                className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-2xl backdrop-blur-sm hover:from-blue-500/15 hover:to-purple-500/15 transition-all duration-300"
+              >
+                <div className="text-blue-400 mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -242,18 +247,37 @@ const KnowdeLanding = () => {
             より効率的で明確な思考を手に入れましょう。
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+          <div className="grid md:grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
             <button
               type="button"
-              className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              onClick={() => handleNavigation("/register")}
             >
-              早期アクセスに登録
+              新規登録してみよう！
             </button>
             <button
               type="button"
-              className="px-10 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
+              className="px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl text-lg font-medium hover:from-green-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              onClick={() => handleNavigation("/search")}
             >
-              詳細資料をダウンロード
+              検索してみよう！
+            </button>
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <button
+              type="button"
+              className="px-6 py-3 border border-gray-400 rounded-xl font-medium hover:bg-white/10 transition-all duration-200"
+              onClick={() => handleNavigation("/docs/getting-started")}
+            >
+              始め方について
+            </button>
+            <button
+              type="button"
+              className="px-6 py-3 border border-gray-400 rounded-xl font-medium hover:bg-white/10 transition-all duration-200"
+              onClick={() => handleNavigation("/contact")}
+            >
+              問い合わせはこちら
             </button>
           </div>
 
@@ -275,7 +299,7 @@ const KnowdeLanding = () => {
               className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
             >
               <img
-                alt="GitHub"
+                alt="X"
                 height="32"
                 width="32"
                 src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/x.svg"
@@ -292,11 +316,11 @@ const KnowdeLanding = () => {
       </section>
 
       {/* Footer */}
-      <footer className="px-4 border-t border-gray-700">
+      <footer className="py-12 px-4 border-t border-gray-700">
         <div className="max-w-6xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-4">knowde</h3>
           <p className="text-gray-400 mb-6">
-            単文主義で知識を構造化する新しい時代の知識管理プラットフォーム
+            単文主義で知識を構造化する知識管理プラットフォーム
           </p>
           <div className="text-sm text-gray-500">
             © 2025 knowde. All rights reserved.

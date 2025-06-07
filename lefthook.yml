@@ -11,3 +11,8 @@ pre-commit:
     tsc:
       run: npm run typecheck
       stage_fixed: true
+
+pre-push:
+  command:
+    build:
+      run: npm run build
