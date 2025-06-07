@@ -20,8 +20,9 @@ export default [
 
   layout("layouts/DocumentLayout.tsx", [
     route("docs", "routes/docs/index.tsx"),
-    route("docs/get-started", "routes/docs/GetStarted.mdx"),
+    route("docs/get-started", "routes/docs/get-started.mdx"),
     route("docs/concept", "routes/docs/concept.mdx"),
+    route("docs/features", "routes/docs/features.mdx"),
   ]),
 
   route("login", "routes/Login/index.tsx"),

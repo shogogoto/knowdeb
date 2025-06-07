@@ -1,13 +1,12 @@
 // モバイル向けに常時表示される下部ボタン群
 
 import {
-  BookOpen,
-  Crown,
-  Home,
-  PanelLeftIcon,
-  Search,
-  Users,
-} from "lucide-react";
+  SignInButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/react-router";
+import { BookOpen, Crown, Home, PanelLeftIcon, Search } from "lucide-react";
 import { Link } from "react-router";
 import { useSidebar } from "~/components/ui/sidebar";
 
@@ -24,9 +23,14 @@ export default function ButtonNavigation() {
       <Link to="/search">
         <Search size={size} />
       </Link>
-      <Link to="/group">
-        <Users size={size} />
-      </Link>
+      <div>
+        <SignedOut>
+          <SignInButton />
+        </SignedOut>
+        <SignedIn>
+          <UserButton />
+        </SignedIn>
+      </div>
       <Link to="/ranking">
         <Crown size={size} />
       </Link>

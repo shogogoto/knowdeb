@@ -36,16 +36,12 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
             },
 
             {
-              title: "Get Started",
+              title: "始めよう",
               to: "/docs/get-started",
             },
             {
-              title: "Get",
-              to: "/",
-            },
-            {
-              title: "xxxx",
-              to: "/",
+              title: "機能一覧",
+              to: "/docs/features",
             },
           ]}
         />
