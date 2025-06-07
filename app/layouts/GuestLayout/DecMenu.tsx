@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import Sidemenu from "~/components/Sidemenu";
+import { documents } from "~/routes/docs";
 
 export default function DocMenu({ children }: { children?: React.ReactNode }) {
   return (
@@ -25,25 +26,7 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
           title={"ドキュメント"}
           to={"/docs"}
           icon={<BookOpen />}
-          subs={[
-            {
-              title: "目次",
-              to: "/docs",
-            },
-            {
-              title: "コンセプト",
-              to: "/docs/concept",
-            },
-
-            {
-              title: "始めよう",
-              to: "/docs/get-started",
-            },
-            {
-              title: "機能一覧",
-              to: "/docs/features",
-            },
-          ]}
+          subs={documents}
         />
         <Sidemenu
           title={"検索"}

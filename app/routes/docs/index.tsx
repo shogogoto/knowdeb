@@ -1,22 +1,44 @@
 import { Link } from "react-router";
 
+export const documents = [
+  {
+    title: "ランディングページ",
+    to: "/",
+  },
+  {
+    title: "目次",
+    to: "/docs",
+  },
+  {
+    title: "コンセプト",
+    to: "/docs/concept",
+  },
+
+  {
+    title: "始めよう",
+    to: "/docs/get-started",
+  },
+  {
+    title: "CLI",
+    to: "/docs/cli",
+  },
+
+  {
+    title: "機能一覧",
+    to: "/docs/features",
+  },
+];
+
 export default function Docs() {
   return (
     <>
       <h1>ドキュメント一覧</h1>
       <ol>
-        <li>
-          <Link to="/">ランディングページ</Link>
-        </li>
-        <li>
-          <Link to="/docs/concept">コンセプト</Link>
-        </li>
-        <li>
-          <Link to="/docs/get-started">始めてみよう</Link>
-        </li>
-        <li>
-          <Link to="/docs/features">機能一覧</Link>
-        </li>
+        {documents.map((doc) => (
+          <li key={doc.title}>
+            <Link to={doc.to}>{doc.title}</Link>
+          </li>
+        ))}
       </ol>
     </>
   );
