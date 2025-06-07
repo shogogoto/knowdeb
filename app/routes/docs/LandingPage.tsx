@@ -1,10 +1,14 @@
 import {
   BookOpen,
   ChevronRight,
+  ExternalLink,
   Mail,
+  MessageCircle,
   Network,
   Search,
+  Share2,
   TrendingUp,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -18,7 +22,26 @@ const KnowdeLanding = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const features = [
+  const problems = [
+    {
+      icon: <Search className="w-6 h-6" />,
+      title: "重要な内容はどこ？",
+      description:
+        "長い文章の中で、本当に重要なポイントを見つけるのに時間がかかる",
+    },
+    {
+      icon: <Network className="w-6 h-6" />,
+      title: "この内容がどこに繋がるの？",
+      description: "現在読んでいる情報の位置づけや関連性が分からない",
+    },
+    {
+      icon: <TrendingUp className="w-6 h-6" />,
+      title: "どこまで勉強すればいいの？",
+      description: "理解に必要な学習範囲や深さが不透明で効率が悪い",
+    },
+  ];
+
+  const solutions = [
     {
       icon: <BookOpen className="w-6 h-6" />,
       title: "単文主義",
@@ -29,52 +52,38 @@ const KnowdeLanding = () => {
       icon: <Network className="w-6 h-6" />,
       title: "グラフ構造",
       description:
-        "単文を繋ぐネットワーク構造によって接続詞の冗長さを排除し、知識を簡潔に表現します。",
+        "単文を繋ぐネットワーク構造によって接続詞の冗長さを排除し、知識を簡潔に表現。",
     },
     {
       icon: <TrendingUp className="w-6 h-6" />,
       title: "スコアリング",
       description:
-        "繋がりのカウントによって単文の重要度を数値化し、重要度を可視化、検索可能にします。",
-    },
-    {
-      icon: <Search className="w-6 h-6" />,
-      title: "高度な検索",
-      description:
-        "スコアリング、距離指定、リソース指定による精密な単文検索機能。",
+        "繋がりのカウントによって単文の重要度を数値化し、重要度を可視化、検索可能。",
     },
   ];
 
-  const roadmapItems = [
+  const snsFeatures = [
     {
-      level: "LV1",
-      title: "自分が使える",
-      description: "メモ評価・単文検索でメモ帳を超える使い勝手",
-      status: "開発中",
-      color: "bg-blue-500",
+      icon: <MessageCircle className="w-6 h-6" />,
+      title: "ピンポイントな単文引用",
+      description: "効率的なディスカッションを実現する精密な引用機能",
     },
     {
-      level: "LV2",
-      title: "他人に見せられる",
-      description: "考えやメモを伝達する手段として活用",
-      status: "計画中",
-      color: "bg-purple-500",
+      icon: <Share2 className="w-6 h-6" />,
+      title: "単文の再利用コラボレーション",
+      description: "他メモの単文をimportする新しい形のコラボレーション",
     },
     {
-      level: "LV3",
-      title: "ユーザー機能",
-      description: "他人も使えるサービス運用開始",
-      status: "計画中",
-      color: "bg-green-500",
-    },
-    {
-      level: "LV4",
-      title: "SNS機能",
-      description: "単文の追跡性を活かしたSNS",
-      status: "計画中",
-      color: "bg-yellow-500",
+      icon: <Users className="w-6 h-6" />,
+      title: "興味を細部まで表現",
+      description: "細かな興味関心を通じて同じ志向の人と繋がれる",
     },
   ];
+
+  const handleNavigation = (path: string) => {
+    // In a real app, this would use a router
+    console.log(`Navigating to: ${path}`);
+  };
 
   return (
     <div className="w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white overflow-hidden">
@@ -95,24 +104,27 @@ const KnowdeLanding = () => {
               knowde
             </h1>
             <p className="text-xl md:text-2xl mb-8 text-gray-300 max-w-3xl mx-auto leading-relaxed">
-              単文主義で知識を構造化する
+              <span className="text-purple-400 font-semibold">単文主義</span>
+              で知識を構造化する
               <br />
               知識管理プラットフォーム
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <a
-                href="/search"
+              <button
+                type="button"
                 className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-              >
-                検索してみよう！
-                <ChevronRight className="inline-block ml-2 w-5 h-5" />
-              </a>
-              <a
-                href="/register"
-                className="px-8 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
+                onClick={() => handleNavigation("/register")}
               >
                 新規登録してみよう！
-              </a>
+                <ChevronRight className="inline-block ml-2 w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                className="px-8 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
+                onClick={() => handleNavigation("/search")}
+              >
+                検索してみよう！
+              </button>
             </div>
           </div>
         </div>
@@ -127,111 +139,102 @@ const KnowdeLanding = () => {
 
       {/* Problem Section */}
       <section className="py-20 px-4 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12">
-            文章を理解するのって大変！
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">
+            文章を理解するのって<span className="text-red-400">大変</span>！
           </h2>
-          <div className="bg-white/5 p-8 rounded-2xl border border-gray-600">
-            <ul className="space-y-4 text-xl text-gray-300 text-left">
-              <li>• 重要な内容はどこ？</li>
-              <li>• この内容がどこに繋がるの？現在地が分からない</li>
-              <li>• これを理解するのにどこまで勉強すればいいの？</li>
-            </ul>
+          <p className="text-xl text-gray-300 text-center mb-16 max-w-2xl mx-auto">
+            日々の学習や情報収集で、こんな悩みを感じたことはありませんか？
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {problems.map((problem) => (
+              <div
+                key={problem.title}
+                className="p-6 bg-red-500/10 border border-red-500/30 rounded-2xl backdrop-blur-sm hover:bg-red-500/15 transition-all duration-300"
+              >
+                <div className="text-red-400 mb-4">{problem.icon}</div>
+                <h3 className="text-xl font-semibold mb-3 text-red-300">
+                  {problem.title}
+                </h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {problem.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Concept Section */}
+      {/* Solution Section */}
       <section className="py-20 px-4 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16">
             <span className="text-purple-400">単文主義</span>の革命
           </h2>
 
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6 text-left">
-              <div className="p-6 bg-purple-500/10 border-l-4 border-purple-500 rounded-r-xl">
-                <h3 className="text-xl font-semibold mb-2 text-purple-400">
-                  単文主義
-                </h3>
-                <p className="text-gray-300">
-                  長文の複雑さを排除し、一つの文で一つの概念を表現。理解コストを最小化します。
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            {solutions.map((solution, index) => (
+              <div
+                key={solution.title}
+                className={`p-6 rounded-2xl backdrop-blur-sm border transition-all duration-300 cursor-pointer ${
+                  activeFeature === index
+                    ? "bg-white/20 border-purple-400 scale-105"
+                    : "bg-white/5 border-gray-600 hover:bg-white/10"
+                }`}
+                onMouseEnter={() => setActiveFeature(index)}
+              >
+                <div className="text-purple-400 mb-4">{solution.icon}</div>
+                <h3 className="text-xl font-semibold mb-3">{solution.title}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {solution.description}
                 </p>
               </div>
-
-              <div className="p-6 bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl">
-                <h3 className="text-xl font-semibold mb-2 text-blue-400">
-                  グラフ構造
-                </h3>
-                <p className="text-gray-300">
-                  単文を繋ぐネットワーク構造によって接続詞の冗長さを排除し、知識を簡潔に表現。
-                </p>
-              </div>
-
-              <div className="p-6 bg-green-500/10 border-l-4 border-green-500 rounded-r-xl">
-                <h3 className="text-xl font-semibold mb-2 text-green-400">
-                  スコアリング
-                </h3>
-                <p className="text-gray-300">
-                  繋がりのカウントによって単文の重要度を数値化し、重要度を可視化、検索可能。
-                </p>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="w-full h-64 bg-gradient-to-br from-purple-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center">
-                <Network className="w-24 h-24 text-purple-400 animate-pulse" />
-              </div>
-            </div>
+            ))}
           </div>
-          <div className="mt-12 text-center">
-            <a
-              href="/docs/concept"
-              className="text-purple-400 hover:underline text-lg flex items-center justify-center"
+
+          <div className="text-center">
+            <button
+              type="button"
+              className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-400 rounded-xl text-lg font-medium hover:from-purple-600/30 hover:to-blue-600/30 transition-all duration-200"
+              onClick={() => handleNavigation("/docs/concept")}
             >
               より詳細なコンセプトの説明はこちら
-              <ChevronRight className="inline-block ml-2 w-5 h-5" />
-            </a>
+              <ExternalLink className="ml-2 w-5 h-5" />
+            </button>
           </div>
         </div>
       </section>
 
-      {/* SNS Integration Section */}
+      {/* SNS Features Section */}
       <section className="py-20 px-4 relative">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-5xl font-bold mb-12">
-            単文主義 × SNS
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-8">
+            <span className="text-purple-400">単文主義</span> ×{" "}
+            <span className="text-blue-400">SNS</span>
           </h2>
+          <p className="text-xl text-gray-300 text-center mb-16 max-w-3xl mx-auto">
+            単文の精密さを活かした、新しいコミュニケーションの形
+          </p>
+
           <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-white/5 p-6 rounded-2xl border border-gray-600 hover:bg-white/10 transition-all duration-300">
-              <h3 className="text-xl font-semibold mb-3 text-purple-300">
-                効率的なディスカッション
-              </h3>
-              <p className="text-gray-300">
-                ピンポイントな単文引用による、誤解の少ない効率的な議論が可能です。
-              </p>
-            </div>
-            <div className="bg-white/5 p-6 rounded-2xl border border-gray-600 hover:bg-white/10 transition-all duration-300">
-              <h3 className="text-xl font-semibold mb-3 text-blue-300">
-                再利用コラボレーション
-              </h3>
-              <p className="text-gray-300">
-                他のメモの単文を簡単にインポートし、知識の再利用と共同作業を促進します。
-              </p>
-            </div>
-            <div className="bg-white/5 p-6 rounded-2xl border border-gray-600 hover:bg-white/10 transition-all duration-300">
-              <h3 className="text-xl font-semibold mb-3 text-green-300">
-                深い繋がり
-              </h3>
-              <p className="text-gray-300">
-                興味を細部まで表現することで、本当に共感できる人と深く繋がれます。
-              </p>
-            </div>
+            {snsFeatures.map((feature) => (
+              <div
+                key={feature.title}
+                className="p-6 bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/30 rounded-2xl backdrop-blur-sm hover:from-blue-500/15 hover:to-purple-500/15 transition-all duration-300"
+              >
+                <div className="text-blue-400 mb-4">{feature.icon}</div>
+                <h3 className="text-xl font-semibold mb-3">{feature.title}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section - Adjusted */}
+      {/* CTA Section */}
       <section className="py-20 px-4 relative">
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-8">
@@ -241,51 +244,83 @@ const KnowdeLanding = () => {
           </h2>
           <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
             単文主義で構造化された知識管理の革命に参加して、
-            <br />
             より効率的で明確な思考を手に入れましょう。
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <a
-              href="/search"
-              className="px-10 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-            >
-              検索してみよう！
-            </a>
-            <a
-              href="/register"
-              className="px-10 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
+          <div className="grid md:grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
+            <button
+              type="button"
+              className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              onClick={() => handleNavigation("/register")}
             >
               新規登録してみよう！
-            </a>
+            </button>
+            <button
+              type="button"
+              className="px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl text-lg font-medium hover:from-green-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
+              onClick={() => handleNavigation("/search")}
+            >
+              検索してみよう！
+            </button>
           </div>
 
-          {/* Additional Links */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mt-8">
-            <a
-              href="/docs/getting-started"
-              className="text-gray-400 hover:underline flex items-center"
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <button
+              type="button"
+              className="px-6 py-3 border border-gray-400 rounded-xl font-medium hover:bg-white/10 transition-all duration-200"
+              onClick={() => handleNavigation("/docs/getting-started")}
             >
               始め方について
-              <ChevronRight className="inline-block ml-2 w-4 h-4" />
-            </a>
-            <a
-              href="/contact"
-              className="text-gray-400 hover:underline flex items-center"
+            </button>
+            <button
+              type="button"
+              className="px-6 py-3 border border-gray-400 rounded-xl font-medium hover:bg-white/10 transition-all duration-200"
+              onClick={() => handleNavigation("/contact")}
             >
               問い合わせはこちら
-              <Mail className="inline-block ml-2 w-4 h-4" />
-            </a>
+            </button>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex justify-center space-x-6">
+            <button
+              type="button"
+              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+            >
+              <img
+                alt="GitHub"
+                height="32"
+                width="32"
+                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/github.svg"
+              />
+            </button>
+            <button
+              type="button"
+              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+            >
+              <img
+                alt="X"
+                height="32"
+                width="32"
+                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/x.svg"
+              />
+            </button>
+            <button
+              type="button"
+              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+            >
+              <Mail className="w-6 h-6" />
+            </button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 px-4 border-t border-gray-700">
+      <footer className="py-12 px-4 border-t border-gray-700">
         <div className="max-w-6xl mx-auto text-center">
           <h3 className="text-2xl font-bold mb-4">knowde</h3>
           <p className="text-gray-400 mb-6">
-            単文主義で知識を構造化する新しい時代の知識管理プラットフォーム
+            単文主義で知識を構造化する知識管理プラットフォーム
           </p>
           <div className="text-sm text-gray-500">
             © 2025 knowde. All rights reserved.
