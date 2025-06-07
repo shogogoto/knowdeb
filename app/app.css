@@ -162,3 +162,14 @@ body {
   /* 見た目を無効にするためのスタイルも追加 */
   cursor: not-allowed;
 }
+
+.list-md {
+  ul {
+    list-style-type: disc;
+    margin-left: 1.5em;
+  }
+  ol {
+    list-style-type: decimal;
+    margin-left: 1.5em;
+  }
+}

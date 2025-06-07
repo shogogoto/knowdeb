@@ -8,7 +8,7 @@ export default function GuestLayout() {
     <SidebarProvider>
       <GuestSidebar />
       <div className="flex flex-col w-full h-screen  bg-white dark:bg-gray-950">
-        <main className="overflow-auto markdown-body p-4">
+        <main className="overflow-y-auto markdown-body p-4 list-md">
           <Outlet />
         </main>
         <ButtonNavigation />
