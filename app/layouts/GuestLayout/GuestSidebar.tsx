@@ -3,6 +3,7 @@ import {
   SignedIn,
   SignedOut,
   UserButton,
+  useUser,
 } from "@clerk/react-router";
 import { MailQuestion } from "lucide-react";
 import { Link } from "react-router";
@@ -29,6 +30,8 @@ export default function GuestSidebar() {
       toggleSidebar();
     }
   };
+
+  const { user } = useUser();
 
   return (
     <Sidebar collapsible="icon">
@@ -59,8 +62,8 @@ export default function GuestSidebar() {
                 </div>
               </div>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">User Name</span>
-                <span className="truncate text-xs">@user-id</span>
+                <span className="truncate font-medium">{user?.fullName}</span>
+                <span className="truncate text-xs">{user?.username}</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

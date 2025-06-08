@@ -1,10 +1,28 @@
 import {Link} from "react-router";
 
 # CLI
+CLI(Command Line Interface) とはターミナル上で使用するためのコマンドツールです。
+ターミナル上からコマンドを叩くことでファイルを一括でアップロードすることができます。
 
-<Link to="/docs/get-started">始めよう</Link>
+<Link to="/docs/get-started">始めよう</Link>で説明した方法で
+いちいちファイルをウェブアプリでアップロードするのは面倒です。
 
+[こちら](https://github.com/shogogoto/knowde/releases/latest)をCLIツールのダウンロードできます。
+それにパスを通して使用してください。
 
-CLI(Command Line Interface) とはターミナル上で
+メモが置いてあるディレクトリに移動して、`kn`コマンドを実行します。
+```bash
+kn anchor
+```
 
-を使うことで知識を編集することができます。
+これで指定したパスの配下にあるファイルをコマンドひとつで一括同期できます。
+これを実行するパスはどこでも構いません。
+```bash
+kn sync
+```
+
+## gitを併用するとよい
+gitとはバージョン管理ツールです。メモの変更を簡単に取り消すことができます。
+
+notionやnoteのようなツールとは異なり、knowdeではメモを自分のローカルで保持するので、
+バージョン管理を簡単に導入することができます。
