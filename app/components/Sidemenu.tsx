@@ -36,7 +36,7 @@ export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
   };
 
   return (
-    <Collapsible>
+    <Collapsible defaultOpen={true}>
       <CollapsibleTrigger asChild>
         <SidebarMenuItem>
           <SidebarMenuButton asChild tooltip={title}>
