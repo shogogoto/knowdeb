@@ -309,6 +309,18 @@ const KnowdeLanding = () => {
               type="button"
               className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
             >
+              <img
+                alt="X"
+                height="32"
+                width="32"
+                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/google.svg"
+              />
+            </button>
+
+            <button
+              type="button"
+              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+            >
               <Mail className="w-6 h-6" />
             </button>
           </div>

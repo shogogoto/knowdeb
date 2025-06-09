@@ -26,6 +26,6 @@ export default [
     route("docs/features", "routes/docs/features.mdx"),
   ]),
 
-  route("login", "routes/Login/index.tsx"),
-  route("auth/google/callback", "routes/auth/google/callback.tsx"),
+  // route("login", "routes/Login/index.tsx"),
+  // route("auth/google/callback", "routes/auth/google/callback.tsx"),
 ] satisfies RouteConfig;
