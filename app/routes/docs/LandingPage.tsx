@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const KnowdeLanding = () => {
+export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 
@@ -341,6 +341,4 @@ const KnowdeLanding = () => {
       </footer>
     </div>
   );
-};
-
-export default KnowdeLanding;
+}
