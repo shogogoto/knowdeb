@@ -2,6 +2,7 @@ import type { Preview, ReactRenderer } from "@storybook/react-vite";
 // biome-ignore lint/correctness/noUnusedImports: <explanation>
 import React from "react"; // これを追加
 import "../app/app.css";
+
 import { withThemeByClassName } from "@storybook/addon-themes";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import {
@@ -14,15 +15,18 @@ initialize({
 });
 import { ClerkProvider } from "@clerk/clerk-react";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
+import { ThemeProvider } from "~/components/theme";
 
 const preview: Preview = {
   decorators: [
     (Story) => (
-      <ClerkProvider
-        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-      >
-        <Story />
-      </ClerkProvider>
+      <ThemeProvider>
+        <ClerkProvider
+          publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+        >
+          <Story />
+        </ClerkProvider>
+      </ThemeProvider>
     ),
     withRouter, // useNavigationとか解決
     withThemeByClassName<ReactRenderer>({
@@ -35,6 +39,7 @@ const preview: Preview = {
   ],
   parameters: {
     // actions: { argTypesRegex: "^on[A-Z].*" },
+    layout: "fullscreen",
     controls: {
       matchers: {
         color: /(background|color)$/i,
@@ -44,23 +49,6 @@ const preview: Preview = {
     reactRouter: reactRouterParameters({}),
     viewport: {
       options: MINIMAL_VIEWPORTS,
-      viewports: {
-        mobile: {
-          name: "モバイル",
-          styles: {
-            width: "375px",
-            height: "667px",
-          },
-        },
-        tablet: {
-          name: "タブレット",
-          styles: {
-            width: "768px",
-            height: "1024px",
-          },
-        },
-      },
-      // defaultViewport: "responsive",
     },
   },
   loaders: [mswLoader],

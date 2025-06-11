@@ -1,10 +1,12 @@
 import { ChevronRight } from "lucide-react";
 
+import type { ReactNode } from "react";
+import { Link } from "react-router";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible";
+} from "~/components/ui/collapsible";
 import {
   SidebarMenuAction,
   SidebarMenuButton,
@@ -13,9 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "@/components/ui/sidebar";
-import type { ReactNode } from "react";
-import { Link } from "react-router";
+} from "~/components/ui/sidebar";
 
 type MenuProps = {
   title: string;

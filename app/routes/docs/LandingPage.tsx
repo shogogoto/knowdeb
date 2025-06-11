@@ -86,7 +86,7 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white overflow-hidden">
       {/* Background Animation */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
