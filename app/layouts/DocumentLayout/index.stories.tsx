@@ -5,17 +5,17 @@ import {
   reactRouterParameters,
 } from "storybook-addon-remix-react-router";
 import Concept from "~/routes/docs/concept.mdx";
-import GuestLayout from "./index";
+import DocumentLayout from "./index";
 
 const meta = {
-  component: GuestLayout,
+  component: DocumentLayout,
   parameters: {
     reactRouter: reactRouterParameters({
       // routing: reactRouterOutlet(<LandingPage />),
       routing: reactRouterOutlet(<Concept />),
     }),
   },
-} satisfies Meta<typeof GuestLayout>;
+} satisfies Meta<typeof DocumentLayout>;
 
 export default meta;
 

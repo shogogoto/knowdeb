@@ -18,7 +18,7 @@ export default [
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
   ]),
 
-  layout("layouts/DocumentLayout.tsx", [
+  layout("layouts/DocumentLayout/index.tsx", [
     route("docs", "routes/docs/index.tsx"),
     route("docs/get-started", "routes/docs/get-started.mdx"),
     route("docs/concept", "routes/docs/concept.mdx"),
