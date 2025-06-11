@@ -1,4 +1,6 @@
 import type { Preview, ReactRenderer } from "@storybook/react-vite";
+// biome-ignore lint/correctness/noUnusedImports: <explanation>
+import React from "react"; // これを追加
 import "../app/app.css";
 import { withThemeByClassName } from "@storybook/addon-themes";
 import { initialize, mswLoader } from "msw-storybook-addon";
@@ -6,11 +8,31 @@ import {
   reactRouterParameters,
   withRouter,
 } from "storybook-addon-remix-react-router";
+
 initialize({
   onUnhandledRequest: "bypass", // 画像読み込みエラーを消す [MSW] Warning: intercepted a request without a matching request handler: • GET /app/stories/assets/accessibility.png?import If you still wish to intercept this unhandled request, please create a request handler for it.
 });
+import { ClerkProvider } from "@clerk/clerk-react";
+import { MINIMAL_VIEWPORTS } from "storybook/viewport";
 
 const preview: Preview = {
+  decorators: [
+    (Story) => (
+      <ClerkProvider
+        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+      >
+        <Story />
+      </ClerkProvider>
+    ),
+    withRouter, // useNavigationとか解決
+    withThemeByClassName<ReactRenderer>({
+      themes: {
+        light: "",
+        dark: "dark",
+      },
+      defaultTheme: "light",
+    }),
+  ],
   parameters: {
     // actions: { argTypesRegex: "^on[A-Z].*" },
     controls: {
@@ -21,6 +43,7 @@ const preview: Preview = {
     },
     reactRouter: reactRouterParameters({}),
     viewport: {
+      options: MINIMAL_VIEWPORTS,
       viewports: {
         mobile: {
           name: "モバイル",
@@ -37,20 +60,10 @@ const preview: Preview = {
           },
         },
       },
-      defaultViewport: "responsive",
+      // defaultViewport: "responsive",
     },
   },
   loaders: [mswLoader],
-  decorators: [
-    withRouter, // useNavigationとか解決
-    withThemeByClassName<ReactRenderer>({
-      themes: {
-        light: "",
-        dark: "dark",
-      },
-      defaultTheme: "light",
-    }),
-  ],
 };
 
 export default preview;
