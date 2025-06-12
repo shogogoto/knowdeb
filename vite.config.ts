@@ -8,7 +8,8 @@ import reactVitest from "@vitejs/plugin-react";
 import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-
+// import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+//
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname

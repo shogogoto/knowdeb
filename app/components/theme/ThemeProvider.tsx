@@ -1,18 +1,5 @@
-import type React from "react";
 import { createContext, useContext, useEffect, useState } from "react";
-
-type Theme = "dark" | "light" | "system";
-
-type ThemeProviderProps = {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
-};
-
-type ThemeProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-};
+import type { Theme, ThemeProviderState } from "./types";
 
 const initialState: ThemeProviderState = {
   theme: "system",
@@ -22,8 +9,6 @@ const initialState: ThemeProviderState = {
 export const ThemeProviderContext =
   createContext<ThemeProviderState>(initialState);
 
-// --- ユーティリティ関数 ---
-// ThemeProvider 内部でしか使わないため、ここに置いておくのがシンプル
 const applyThemeClass = (theme: Theme) => {
   if (typeof window === "undefined") return; // SSR対応
 
@@ -38,14 +23,19 @@ const applyThemeClass = (theme: Theme) => {
   }
   root.classList.add(appliedTheme); // 新しいテーマクラスを追加
 };
-// --- /ユーティリティ関数 ---
+
+type Props = {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
+};
 
 export function ThemeProvider({
   children,
   defaultTheme = "system",
   storageKey = "vite-ui-theme",
   ...props
-}: ThemeProviderProps) {
+}: Props) {
   const [theme, setThemeState] = useState<Theme>(() => {
     if (typeof window !== "undefined" && window.localStorage) {
       const savedTheme = localStorage.getItem(storageKey) as Theme | null;
@@ -59,11 +49,8 @@ export function ThemeProvider({
   const [mounted, setMounted] = useState(false);
 
   // useEffect の中で localStorage を使うのが安全 (hydration mismatch 防止)
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  // theme が変更されたとき、または mounted が true になったときにテーマを適用
   useEffect(() => {
     if (!mounted) return; // マウントされるまでテーマ適用ロジックを実行しない
     applyThemeClass(theme);
