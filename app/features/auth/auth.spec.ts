@@ -4,7 +4,7 @@ import {
 } from "~/generated/auth/auth";
 
 describe("try-auth-orval", () => {
-  it("register", async () => {
+  it("test", async () => {
     const email = "test1@test.com";
     const password = "test";
     const res1 = await registerRegisterAuthRegisterPost({ email, password });
