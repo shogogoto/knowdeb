@@ -7,8 +7,6 @@ import {
 } from "@clerk/react-router";
 import { MailQuestion } from "lucide-react";
 import { Link } from "react-router";
-import SideMenu from "~/components/Sidemenu";
-import SiteLogo from "~/components/SiteLogo";
 import { ThemeToggle } from "~/components/theme/ThemeToggle";
 import {
   Sidebar,
@@ -21,7 +19,9 @@ import {
   SidebarRail,
   useSidebar,
 } from "~/components/ui/sidebar";
-import DocMenu from "./DecMenu";
+import SideMenu from "../components/Sidemenu";
+import SiteLogo from "../components/SiteLogo";
+import GuestMenu from "./GuestMenu";
 
 export default function GuestSidebar() {
   const { isMobile, toggleSidebar } = useSidebar();
@@ -72,13 +72,13 @@ export default function GuestSidebar() {
         {/* <NavUser user={{ name: "test", email: "test", avatar: "test" }} /> */}
       </SidebarHeader>
       <SidebarContent>
-        <DocMenu>
+        <GuestMenu>
           <SideMenu
             icon={<MailQuestion />}
             to={"/contact"}
             title="問い合わせ"
           />
-        </DocMenu>
+        </GuestMenu>
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenuButton size="lg" asChild tooltip={"Toggle Theme"}>
