@@ -1,5 +1,3 @@
-export { AuthProvider, useAuth } from "./AuthContext";
-
 /**
  * Creates a URL to the login page with the current path as a redirect URL
  * @param currentPath - The current path that needs authentication

@@ -15,7 +15,7 @@ export default function RowPrefix({ index, stats }: Props) {
     <div className=" hover:bg-gray-200 hover:dark:bg-gray-800 ">
       <Popover modal={true}>
         <PopoverTrigger className="md:flex gap-2">
-          <div>{index}</div>
+          <div>#{index}</div>
           {stats?.score}
         </PopoverTrigger>
         <PopoverContent>

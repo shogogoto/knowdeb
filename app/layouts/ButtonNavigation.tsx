@@ -15,7 +15,7 @@ export default function ButtonNavigation() {
   const size = 24;
 
   return (
-    <nav className="sm:hidden fixed flex bottom-0 left-0 right-0 px-4 py-1 border-t justify-between bg-white dark:bg-gray-950">
+    <nav className="sm:hidden sticky flex bottom-0 left-0 w-full p-4 py-2 border-t justify-between bg-white dark:bg-gray-950">
       <PanelLeftIcon size={size} onClick={toggleSidebar} />
       <Link to="/home">
         <Home size={size} />

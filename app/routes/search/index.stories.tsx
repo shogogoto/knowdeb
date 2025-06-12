@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useLoaderData } from "react-router";
 import { reactRouterParameters } from "storybook-addon-remix-react-router";
 import { getKnowdeMock } from "~/generated/knowde/knowde.msw";

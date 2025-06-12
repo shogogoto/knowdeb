@@ -7,8 +7,8 @@ import {
 } from "@clerk/react-router";
 import { MailQuestion } from "lucide-react";
 import { Link } from "react-router";
-import { SiteLogo } from "~/components/Header";
 import SideMenu from "~/components/Sidemenu";
+import SiteLogo from "~/components/SiteLogo";
 import { ThemeToggle } from "~/components/theme";
 import {
   Sidebar,

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const KnowdeLanding = () => {
+export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0);
   const [scrollY, setScrollY] = useState(0);
 
@@ -86,7 +86,7 @@ const KnowdeLanding = () => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-800 text-white overflow-hidden">
       {/* Background Animation */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
@@ -309,6 +309,18 @@ const KnowdeLanding = () => {
               type="button"
               className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
             >
+              <img
+                alt="X"
+                height="32"
+                width="32"
+                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/google.svg"
+              />
+            </button>
+
+            <button
+              type="button"
+              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
+            >
               <Mail className="w-6 h-6" />
             </button>
           </div>
@@ -329,6 +341,4 @@ const KnowdeLanding = () => {
       </footer>
     </div>
   );
-};
-
-export default KnowdeLanding;
+}

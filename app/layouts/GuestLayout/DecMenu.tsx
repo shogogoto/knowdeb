@@ -1,4 +1,3 @@
-import { SidebarGroup, SidebarMenu } from "@/components/ui/sidebar";
 import {
   BellRing,
   BookOpen,
@@ -16,6 +15,7 @@ import {
   Users,
 } from "lucide-react";
 import Sidemenu from "~/components/Sidemenu";
+import { SidebarGroup, SidebarMenu } from "~/components/ui/sidebar";
 import { documents } from "~/routes/docs";
 
 export default function DocMenu({ children }: { children?: React.ReactNode }) {

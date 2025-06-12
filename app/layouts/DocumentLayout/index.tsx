@@ -1,10 +1,9 @@
 import { Outlet } from "react-router";
 import { SidebarProvider } from "~/components/ui/sidebar";
-import ButtonNavigation from "./ButtonNavigation";
-import GuestSidebar from "./GuestLayout/GuestSidebar";
-import "github-markdown-css/github-markdown.css";
+import ButtonNavigation from "../ButtonNavigation";
+import GuestSidebar from "../GuestLayout/GuestSidebar";
 
-export default function GuestLayout() {
+export default function DocumentLayout() {
   return (
     <SidebarProvider>
       <GuestSidebar />

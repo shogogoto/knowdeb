@@ -5,10 +5,10 @@ import {
   route,
 } from "@react-router/dev/routes";
 
-// // Add any necessary exports for server rendering
-// export const config = {
-//   hydrate: true
-// };
+// Add any necessary exports for server rendering
+export const config = {
+  hydrate: true,
+};
 
 export default [
   layout("layouts/GuestLayout/index.tsx", [
@@ -18,7 +18,7 @@ export default [
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
   ]),
 
-  layout("layouts/DocumentLayout.tsx", [
+  layout("layouts/DocumentLayout/index.tsx", [
     route("docs", "routes/docs/index.tsx"),
     route("docs/get-started", "routes/docs/get-started.mdx"),
     route("docs/concept", "routes/docs/concept.mdx"),
@@ -26,6 +26,6 @@ export default [
     route("docs/features", "routes/docs/features.mdx"),
   ]),
 
-  route("login", "routes/Login/index.tsx"),
-  route("auth/google/callback", "routes/auth/google/callback.tsx"),
+  // route("login", "routes/Login/index.tsx"),
+  // route("auth/google/callback", "routes/auth/google/callback.tsx"),
 ] satisfies RouteConfig;
