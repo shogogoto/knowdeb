@@ -12,7 +12,8 @@ import "./app.css";
 import { jaJP } from "@clerk/localizations";
 import { ClerkProvider } from "@clerk/react-router";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
-import { ThemeProvider } from "./components/theme";
+import { ThemeProvider } from "./components/theme/ThemeProvider";
+import ThemeScript from "./components/theme/ThemeScript";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -28,14 +29,6 @@ export const links: Route.LinksFunction = () => [
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const themeScript = `
-    (function() {
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const storedTheme = localStorage.getItem('vite-ui-theme');
-      const theme = storedTheme || (prefersDark ? 'dark' : 'light');
-      document.documentElement.classList.add(theme);
-    })();
-  `;
   return (
     <html lang="ja">
       <head>
@@ -43,10 +36,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
-        <script>{themeScript}</script>
+        <ThemeScript />
       </head>
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        {children}
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -59,15 +52,17 @@ export async function loader(args: Route.LoaderArgs) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <ClerkProvider
-      publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-      loaderData={loaderData}
-      signUpFallbackRedirectUrl="/home"
-      signInFallbackRedirectUrl="/home"
-      localization={jaJP}
-    >
-      <Outlet />
-    </ClerkProvider>
+    <ThemeProvider>
+      <ClerkProvider
+        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+        loaderData={loaderData}
+        signUpFallbackRedirectUrl="/home"
+        signInFallbackRedirectUrl="/home"
+        localization={jaJP}
+      >
+        <Outlet />
+      </ClerkProvider>
+    </ThemeProvider>
   );
 }
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

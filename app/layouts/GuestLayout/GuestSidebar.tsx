@@ -9,7 +9,7 @@ import { MailQuestion } from "lucide-react";
 import { Link } from "react-router";
 import SideMenu from "~/components/Sidemenu";
 import SiteLogo from "~/components/SiteLogo";
-import { ThemeToggle } from "~/components/theme";
+import { ThemeToggle } from "~/components/theme/ThemeToggle";
 import {
   Sidebar,
   SidebarContent,
