@@ -14,9 +14,9 @@ import {
   UserSearch,
   Users,
 } from "lucide-react";
-import Sidemenu from "~/components/Sidemenu";
 import { SidebarGroup, SidebarMenu } from "~/components/ui/sidebar";
 import { documents } from "~/routes/docs";
+import Sidemenu from "../components/Sidemenu";
 
 export default function DocMenu({ children }: { children?: React.ReactNode }) {
   return (

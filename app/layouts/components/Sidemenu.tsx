@@ -27,6 +27,7 @@ type SideMenuProps = MenuProps & {
   subs?: MenuProps[];
 };
 
+// 開閉できるサイドバーの単位
 export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
   const { isMobile, toggleSidebar } = useSidebar();
   const handleMenuClick = () => {
