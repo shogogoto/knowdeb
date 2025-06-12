@@ -10,16 +10,22 @@ export async function loader(args: Route.LoaderArgs) {
 type Props = {
   className?: string;
   sidebar?: React.ReactNode;
+  bottomNavigation?: React.ReactNode;
 };
 
-export default function SidebarLayout({ className, sidebar }: Props) {
+export default function SidebarLayout({
+  className,
+  sidebar,
+  bottomNavigation,
+}: Props) {
   return (
     <SidebarProvider>
       {sidebar}
       <div className="flex flex-col w-full h-screen  bg-white dark:bg-gray-950">
-        <main className={`overflow-auto ${className}`}>
+        <main className={`flex-1 overflow-auto ${className}`}>
           <Outlet />
         </main>
+        {bottomNavigation}
       </div>
     </SidebarProvider>
   );
