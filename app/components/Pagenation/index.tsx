@@ -1,4 +1,4 @@
-import { useCallback, useContext } from "react";
+import { useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router";
 import {
   Pagination,
@@ -9,7 +9,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import SearchContext from "~/features/knowde/SearchContext";
+import { usePaging } from "./hooks";
 
 export type Paging = {
   page: number;
@@ -23,22 +23,19 @@ export type PagenationState = {
 
 type PaginationProps = {
   total: number;
+  state: PagenationState;
 };
 
-export default function PageNavi({ total }: PaginationProps) {
-  const searchContext = useContext(SearchContext);
+export function getStartIndex(paging: Paging) {
+  return (paging.size ?? 0) * ((paging.page ?? 1) - 1) + 1;
+}
+
+export default function PageNavi({ total, state }: PaginationProps) {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  if (!searchContext) {
-    throw new Error("SearchPagination must be used within a SearchProvider");
-  }
-
-  const { pagenationState } = searchContext;
-  const { paging, setPaging } = pagenationState;
-  const currentPage = paging.page || 1;
-  const pageSize = paging.size || 100;
-  const totalPages = Math.ceil(total / pageSize);
+  const { paging, setPaging } = state;
+  const { totalPages, pages, start } = usePaging(paging, total);
 
   const createPageUrl = useCallback(
     (page: number) => {
@@ -60,45 +57,6 @@ export default function PageNavi({ total }: PaginationProps) {
     [paging, setPaging, searchParams, navigate],
   );
 
-  const generatePagination = () => {
-    const pages: (number | null)[] = [];
-    pages.push(1); // Always add page 1
-
-    // Add null if there's a gap after page 1
-    if (currentPage > 3) {
-      pages.push(null);
-    }
-
-    // Add page before current if not page 1
-    if (currentPage > 2) {
-      pages.push(currentPage - 1);
-    }
-
-    // Add current page if not page 1
-    if (currentPage !== 1) {
-      pages.push(currentPage);
-    }
-
-    // Add page after current if not last page
-    if (currentPage < totalPages - 1) {
-      pages.push(currentPage + 1);
-    }
-
-    // Add null if there's a gap before last page
-    if (currentPage < totalPages - 2) {
-      pages.push(null);
-    }
-
-    // Add last page if not page 1
-    if (totalPages > 1) {
-      pages.push(totalPages);
-    }
-
-    return pages;
-  };
-
-  const pages = generatePagination();
-
   if (totalPages <= 1) {
     return null;
   }
@@ -108,11 +66,11 @@ export default function PageNavi({ total }: PaginationProps) {
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious
-            href={createPageUrl(Math.max(1, currentPage - 1))}
+            href={createPageUrl(Math.max(1, paging.page - 1))}
             onClick={(e) => {
-              if (currentPage > 1) {
+              if (paging.page > 1) {
                 e.preventDefault();
-                handlePageChange(currentPage - 1);
+                handlePageChange(paging.page - 1);
               }
             }}
           />
@@ -127,7 +85,7 @@ export default function PageNavi({ total }: PaginationProps) {
             <PaginationItem key={`page-${page}`}>
               <PaginationLink
                 href={createPageUrl(page)}
-                isActive={page === currentPage}
+                isActive={page === paging.page}
                 onClick={(e) => {
                   e.preventDefault();
                   handlePageChange(page);
@@ -141,11 +99,11 @@ export default function PageNavi({ total }: PaginationProps) {
 
         <PaginationItem>
           <PaginationNext
-            href={createPageUrl(Math.min(totalPages, currentPage + 1))}
+            href={createPageUrl(Math.min(totalPages, paging.page + 1))}
             onClick={(e) => {
-              if (currentPage < totalPages) {
+              if (paging.page < totalPages) {
                 e.preventDefault();
-                handlePageChange(currentPage + 1);
+                handlePageChange(paging.page + 1);
               }
             }}
           />

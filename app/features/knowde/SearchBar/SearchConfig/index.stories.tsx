@@ -14,9 +14,7 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   // @ts-ignore
   args: {
-    // @ts-ignore
     setPaging: () => {},
-    // @ts-ignore
     setOrderBy: () => {},
     order: defaultOrderBy,
   },
