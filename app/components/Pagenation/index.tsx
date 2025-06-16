@@ -9,13 +9,23 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "~/components/ui/pagination";
-import SearchContext from "../SearchContext";
+import SearchContext from "~/features/knowde/SearchContext";
 
-type PaginationProps = {
-  totalItems: number;
+export type Paging = {
+  page: number;
+  size: number;
 };
 
-export default function SearchPagination({ totalItems }: PaginationProps) {
+export type PagenationState = {
+  paging: Paging;
+  setPaging: React.Dispatch<React.SetStateAction<Paging>>;
+};
+
+type PaginationProps = {
+  total: number;
+};
+
+export default function PageNavi({ total }: PaginationProps) {
   const searchContext = useContext(SearchContext);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -24,10 +34,11 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
     throw new Error("SearchPagination must be used within a SearchProvider");
   }
 
-  const { paging, setPaging } = searchContext;
+  const { pagenationState } = searchContext;
+  const { paging, setPaging } = pagenationState;
   const currentPage = paging.page || 1;
   const pageSize = paging.size || 100;
-  const totalPages = Math.ceil(totalItems / pageSize);
+  const totalPages = Math.ceil(total / pageSize);
 
   const createPageUrl = useCallback(
     (page: number) => {
@@ -41,7 +52,6 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
   const handlePageChange = useCallback(
     (page: number) => {
       setPaging({ ...paging, page });
-
       // Update URL with new page parameter
       const newParams = new URLSearchParams(searchParams);
       newParams.set("page", page.toString());
@@ -108,7 +118,7 @@ export default function SearchPagination({ totalItems }: PaginationProps) {
           />
         </PaginationItem>
 
-        {pages.map((page, i) => {
+        {pages.map((page) => {
           if (page === null) {
             return <PaginationEllipsis />;
           }

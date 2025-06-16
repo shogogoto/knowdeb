@@ -18,7 +18,6 @@ export const Default: Story = {
     setPaging: () => {},
     // @ts-ignore
     setOrderBy: () => {},
-    paging: {},
     order: defaultOrderBy,
   },
 };

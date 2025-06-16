@@ -1,8 +1,3 @@
-export type Paging = {
-  page?: number;
-  size?: number;
-};
-
 export type OrderBy = {
   n_detail?: number;
   n_premise?: number;

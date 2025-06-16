@@ -1,10 +1,10 @@
 import { LoaderCircle } from "lucide-react";
 import { useContext } from "react";
 import { useNavigation } from "react-router";
+import PageNavi from "~/components/Pagenation";
 import type { KAdjacency } from "~/generated/fastAPI.schemas";
-import SearchPagination from "./Pagenation";
-import ResultRow from "./ResultRow";
 import SearchContext from "./SearchContext";
+import ResultRow from "./components/ResultRow";
 
 type Props = {
   data: {
@@ -15,7 +15,11 @@ type Props = {
 
 export default function SearchResults({ data }: Props) {
   const ctx = useContext(SearchContext);
-  const start = (ctx?.paging?.size ?? 0) * ((ctx?.paging?.page ?? 1) - 1) + 1;
+  const ps = ctx?.pagenationState || {
+    paging: { page: 1, size: 50 },
+    setPaging: () => null,
+  };
+  const start = (ps?.paging.size ?? 0) * ((ps?.paging?.page ?? 1) - 1) + 1;
   const navigation = useNavigation();
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
@@ -26,7 +30,7 @@ export default function SearchResults({ data }: Props) {
         {data.total > 0 ? (
           <div>
             <h2 className="text-xl font-semibold">検索結果 ({data.total}件)</h2>
-            <SearchPagination totalItems={data.total} />
+            <PageNavi total={data.total} />
 
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -46,7 +50,7 @@ export default function SearchResults({ data }: Props) {
 
             {/* Bottom pagination for easier navigation on long results */}
             <div className="mt-6">
-              <SearchPagination totalItems={data.total} />
+              <PageNavi total={data.total} />
             </div>
           </div>
         ) : (

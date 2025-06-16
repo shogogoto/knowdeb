@@ -1,10 +1,11 @@
 import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
+import type { Paging } from "~/components/Pagenation";
 import {
   type SearchByTextKnowdeGetParams,
   SearchByTextKnowdeGetType,
 } from "~/generated/fastAPI.schemas";
-import type { OrderBy, Paging } from "../types";
+import type { OrderBy } from "../types";
 import WeightRange from "./WeightRange";
 
 type SearchOptionProps = {

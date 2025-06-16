@@ -5,18 +5,18 @@ import {
   useState,
 } from "react";
 import { useSearchParams } from "react-router";
+import type { PagenationState, Paging } from "~/components/Pagenation";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import { type OrderBy, type Paging, defaultOrderBy } from "./SearchBar/types";
+import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
   q: string;
   setQ: Dispatch<SetStateAction<string>>;
   searchOption: SearchByTextKnowdeGetType;
   setSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-  paging: Paging;
-  setPaging: Dispatch<SetStateAction<Paging>>;
   order: OrderBy;
   setOrderBy: Dispatch<SetStateAction<OrderBy>>;
+  pagenationState: PagenationState;
 };
 
 const SearchContext = createContext<SearchContextType | null>(null);
@@ -40,6 +40,7 @@ export function SearchProvider({ children }: Props) {
     (searchParams.get("search_type") as SearchByTextKnowdeGetType) ||
       SearchByTextKnowdeGetType.CONTAINS,
   );
+
   const [paging, setPaging] = useState<Paging>({
     page: initialPage,
     size: initialSize,
@@ -51,10 +52,12 @@ export function SearchProvider({ children }: Props) {
     setQ,
     searchOption,
     setSearchOption,
-    paging,
-    setPaging,
     order,
     setOrderBy,
+    pagenationState: {
+      paging,
+      setPaging,
+    },
   };
 
   return (

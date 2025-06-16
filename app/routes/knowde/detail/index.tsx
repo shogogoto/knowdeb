@@ -1,5 +1,5 @@
+import DefLine from "~/features/knowde/components/ResultRow/DefLine";
 import { detailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
-import DefLine from "~/routes/search/ResultRow/DefLine";
 import type { Route } from "./+types";
 
 export async function loader({ params }: Route.LoaderArgs) {

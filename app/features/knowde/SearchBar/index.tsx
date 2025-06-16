@@ -19,10 +19,9 @@ export default function SearchBar() {
     setQ,
     searchOption,
     setSearchOption,
-    paging,
-    setPaging,
     order,
     setOrderBy,
+    pagenationState,
   } = searchContext;
 
   const isLoading =
@@ -62,9 +61,9 @@ export default function SearchBar() {
       </div>
       {isShown && (
         <SearchConfig
-          paging={paging}
+          paging={pagenationState.paging}
           order={order}
-          setPaging={setPaging}
+          setPaging={pagenationState.setPaging}
           setOrderBy={setOrderBy}
           searchOption={searchOption}
           setSearchOption={setSearchOption}
@@ -72,11 +71,15 @@ export default function SearchBar() {
       )}
 
       {/* Hidden inputs to ensure all parameters are included in form submission */}
-      <input type="hidden" name="page" value={paging.page?.toString() || "1"} />
+      <input
+        type="hidden"
+        name="page"
+        value={pagenationState.paging.page?.toString() || "1"}
+      />
       <input
         type="hidden"
         name="size"
-        value={paging.size?.toString() || "100"}
+        value={pagenationState.paging.size?.toString() || "100"}
       />
       <input type="hidden" name="search_type" value={searchOption} />
 

@@ -1,10 +1,10 @@
 import { LoaderCircle } from "lucide-react";
+import SearchBar from "~/features/knowde/SearchBar";
+import { SearchProvider } from "~/features/knowde/SearchContext";
+import SearchResults from "~/features/knowde/SearchResults";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import type { Route } from "./+types";
-import SearchBar from "./SearchBar";
-import { SearchProvider } from "./SearchContext";
-import SearchResults from "./SearchResults";
 
 export function meta() {
   return [
