@@ -4,6 +4,7 @@ import {
   MoreHorizontalIcon,
 } from "lucide-react";
 import type * as React from "react";
+import { Link, type LinkProps } from "react-router";
 
 import { type Button, buttonVariants } from "~/components/ui/button";
 import { cn } from "~/lib/utils";
@@ -39,7 +40,8 @@ function PaginationItem({ ...props }: React.ComponentProps<"li">) {
 type PaginationLinkProps = {
   isActive?: boolean;
 } & Pick<React.ComponentProps<typeof Button>, "size"> &
-  React.ComponentProps<"a">;
+  LinkProps;
+// React.ComponentProps<"a">;
 
 function PaginationLink({
   className,
@@ -48,7 +50,7 @@ function PaginationLink({
   ...props
 }: PaginationLinkProps) {
   return (
-    <a
+    <Link
       aria-current={isActive ? "page" : undefined}
       data-slot="pagination-link"
       data-active={isActive}

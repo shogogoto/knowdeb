@@ -2,7 +2,6 @@ import type { Paging } from ".";
 
 export function usePaging(paging: Paging, total: number) {
   const totalPages = Math.ceil(total / paging.size);
-  const start = (paging.size ?? 0) * ((paging.page ?? 1) - 1) + 1;
   const generatePagination = () => {
     const pages: (number | null)[] = [];
     pages.push(1); // Always add page 1
@@ -42,5 +41,5 @@ export function usePaging(paging: Paging, total: number) {
 
   const pages = generatePagination();
 
-  return { totalPages, pages, start };
+  return { totalPages, pages };
 }

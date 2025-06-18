@@ -1,11 +1,13 @@
 import { LoaderCircle } from "lucide-react";
 import { useContext, useState } from "react";
 import { Form, useNavigation, useSubmit } from "react-router";
+import { PageContext } from "~/components/Pagenation/PageProvider";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
 export default function SearchBar() {
   const searchContext = useContext(SearchContext);
+  const { paging, setPaging } = useContext(PageContext);
   const navigation = useNavigation();
   const submit = useSubmit();
   const [isShown, setShown] = useState(false);
@@ -14,15 +16,8 @@ export default function SearchBar() {
     throw new Error("SearchBar must be used within a SearchProvider");
   }
 
-  const {
-    q,
-    setQ,
-    searchOption,
-    setSearchOption,
-    order,
-    setOrderBy,
-    pagenationState,
-  } = searchContext;
+  const { q, setQ, searchOption, setSearchOption, order, setOrderBy } =
+    searchContext;
 
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
@@ -61,9 +56,9 @@ export default function SearchBar() {
       </div>
       {isShown && (
         <SearchConfig
-          paging={pagenationState.paging}
+          paging={paging}
           order={order}
-          setPaging={pagenationState.setPaging}
+          setPaging={setPaging}
           setOrderBy={setOrderBy}
           searchOption={searchOption}
           setSearchOption={setSearchOption}
@@ -71,15 +66,11 @@ export default function SearchBar() {
       )}
 
       {/* Hidden inputs to ensure all parameters are included in form submission */}
-      <input
-        type="hidden"
-        name="page"
-        value={pagenationState.paging.page?.toString() || "1"}
-      />
+      <input type="hidden" name="page" value={paging.page?.toString() || "1"} />
       <input
         type="hidden"
         name="size"
-        value={pagenationState.paging.size?.toString() || "100"}
+        value={paging.size?.toString() || "100"}
       />
       <input type="hidden" name="search_type" value={searchOption} />
 
@@ -98,8 +89,3 @@ export default function SearchBar() {
     </Form>
   );
 }
-
-// export function CommandDemo() {
-//   return (
-//   );
-// }
