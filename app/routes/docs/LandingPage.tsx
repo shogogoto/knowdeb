@@ -229,13 +229,13 @@ export default function LandingPage() {
           </p>
 
           <div className="grid md:grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
-            <button
+            <Link
               type="button"
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-              onClick={() => handleNavigation("/register")}
+              to="user/register"
             >
               新規登録してみよう！
-            </button>
+            </Link>
             <Link
               type="button"
               className="px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl text-lg font-medium hover:from-green-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 shadow-lg"

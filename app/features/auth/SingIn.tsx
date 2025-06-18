@@ -1,12 +1,12 @@
 import type React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { useSignIn } from "./hooks";
+import { useAuth } from "./AuthContext";
 
 const SignIn: React.FC = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const signIn = useSignIn();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/sidebar";
 import { NavUser } from "./NavUser";
 
-export function AppSidebar() {
+export default function UserSidebar() {
   // Menu items.
   const items = [
     {

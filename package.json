@@ -41,6 +41,7 @@
     "isbot": "^5.1.17",
     "lucide-react": "^0.492.0",
     "react": "^19.0.0",
+    "react-cookie": "^8.0.1",
     "react-dom": "^19.0.0",
     "react-router": "^7.6.2",
     "rehype-mermaid": "^3.0.0",

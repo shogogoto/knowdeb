@@ -1,3 +1,4 @@
+import { CookiesProvider } from "react-cookie";
 import {
   Links,
   Meta,
@@ -6,7 +7,6 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
 } from "react-router";
-
 import type { Route } from "./+types/root";
 import "./app.css";
 import { jaJP } from "@clerk/localizations";
@@ -14,7 +14,7 @@ import { ClerkProvider } from "@clerk/react-router";
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import ThemeScript from "./components/theme/ThemeScript";
-
+import { AuthProvider } from "./features/auth/AuthProvider";
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -52,17 +52,21 @@ export async function loader(args: Route.LoaderArgs) {
 
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <ThemeProvider>
-      <ClerkProvider
-        publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-        loaderData={loaderData}
-        signUpFallbackRedirectUrl="/home"
-        signInFallbackRedirectUrl="/home"
-        localization={jaJP}
-      >
-        <Outlet />
-      </ClerkProvider>
-    </ThemeProvider>
+    <CookiesProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <ClerkProvider
+            publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+            loaderData={loaderData}
+            signUpFallbackRedirectUrl="/home"
+            signInFallbackRedirectUrl="/home"
+            localization={jaJP}
+          >
+            <Outlet />
+          </ClerkProvider>
+        </AuthProvider>
+      </ThemeProvider>
+    </CookiesProvider>
   );
 }
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

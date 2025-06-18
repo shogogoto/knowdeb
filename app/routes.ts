@@ -13,7 +13,6 @@ export const config = {
 export default [
   layout("layouts/GuestLayout/index.tsx", [
     index("routes/docs/LandingPage.tsx"),
-    route("home", "routes/home.tsx"),
     route("search", "routes/search/index.tsx"),
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
   ]),
@@ -26,6 +25,8 @@ export default [
     route("docs/features", "routes/docs/features.mdx"),
   ]),
 
+  route("user/register", "routes/user/register.tsx"),
+  layout("layouts/UserLayout/index.tsx", [route("home", "routes/home.tsx")]),
   // route("login", "routes/Login/index.tsx"),
   // route("auth/google/callback", "routes/auth/google/callback.tsx"),
 ] satisfies RouteConfig;
