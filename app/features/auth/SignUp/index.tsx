@@ -11,18 +11,17 @@ import {
 } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import useShowToggle from "~/hooks/useShowToggle";
 
-export default function SignUp() {
+export default function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   // const signUp = useSignUp(); // useSignUpフックを使用
   const navigate = useNavigate();
-
   const handleSubmit = async (e: React.FormEvent) => {
     // e.preventDefault();
-    console.log("hello");
-    // navigate("/login");
-    // const success = await signUp(email, password);
+    // console.log("hello");
+    // const success = await signU(email, password);
     // if (success) {
     //   alert("Registration successful! You can now log in.");
     //   navigate("/login"); // 成功後にログインページへリダイレクト
@@ -30,6 +29,7 @@ export default function SignUp() {
     //   alert("Registration failed. Please try again.");
     // }
   };
+  const { show, ShowToggleIcon } = useShowToggle();
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -53,15 +53,19 @@ export default function SignUp() {
                 required
               />
             </div>
+
             <div className="grid gap-2">
               <Label htmlFor="password">パスワード</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              <div className="relative flex items-center">
+                <Input
+                  id="password"
+                  type={show ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+                {ShowToggleIcon}
+              </div>
             </div>
             <Button type="submit" className="w-full">
               登録
