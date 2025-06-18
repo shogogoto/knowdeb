@@ -6,15 +6,13 @@ import {
 } from "react";
 import { useSearchParams } from "react-router";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import { type OrderBy, type Paging, defaultOrderBy } from "./SearchBar/types";
+import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
   q: string;
   setQ: Dispatch<SetStateAction<string>>;
   searchOption: SearchByTextKnowdeGetType;
   setSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-  paging: Paging;
-  setPaging: Dispatch<SetStateAction<Paging>>;
   order: OrderBy;
   setOrderBy: Dispatch<SetStateAction<OrderBy>>;
 };
@@ -30,20 +28,11 @@ type Props = {
 export function SearchProvider({ children }: Props) {
   const [searchParams] = useSearchParams();
 
-  const pageParam = searchParams.get("page");
-  const sizeParam = searchParams.get("size");
-  const initialPage = pageParam ? Number.parseInt(pageParam, 10) : 1;
-  const initialSize = sizeParam ? Number.parseInt(sizeParam, 10) : 50;
-
   const [q, setQ] = useState(searchParams.get("q") || "");
   const [searchOption, setSearchOption] = useState<SearchByTextKnowdeGetType>(
     (searchParams.get("search_type") as SearchByTextKnowdeGetType) ||
       SearchByTextKnowdeGetType.CONTAINS,
   );
-  const [paging, setPaging] = useState<Paging>({
-    page: initialPage,
-    size: initialSize,
-  });
   const [order, setOrderBy] = useState<OrderBy>(defaultOrderBy);
 
   const value = {
@@ -51,8 +40,6 @@ export function SearchProvider({ children }: Props) {
     setQ,
     searchOption,
     setSearchOption,
-    paging,
-    setPaging,
     order,
     setOrderBy,
   };

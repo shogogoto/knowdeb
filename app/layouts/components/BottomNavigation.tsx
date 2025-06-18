@@ -10,7 +10,7 @@ import { BookOpen, Crown, Home, PanelLeftIcon, Search } from "lucide-react";
 import { Link } from "react-router";
 import { useSidebar } from "~/components/ui/sidebar";
 
-export default function ButtonNavigation() {
+export default function BottomNavigation() {
   const { toggleSidebar } = useSidebar();
   const size = 24;
 

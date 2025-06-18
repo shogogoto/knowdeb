@@ -8,7 +8,8 @@ import reactVitest from "@vitejs/plugin-react";
 import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
 import tsconfigPaths from "vite-tsconfig-paths";
-
+// import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+//
 const dirname =
   typeof __dirname !== "undefined"
     ? __dirname
@@ -41,28 +42,28 @@ export default defineConfig({
   ],
   test: {
     globals: true, // テスト関数のインポート省略
-    // environment: "jsdom",
-    // setupFiles: ["vitest.setup.ts"],
-    projects: [
-      "vite.config.ts",
-      {
-        extends: "vite.config.ts",
-        plugins: [
-          // The plugin will run tests for the stories defined in your Storybook config
-          // See options at: https://storybook.js.org/docs/writing-tests/test-addon#storybooktest
-          // storybookTest({ configDir: path.join(dirname, ".storybook") }),
-        ],
-        test: {
-          name: "storybook",
-          browser: {
-            enabled: true,
-            headless: true,
-            provider: "playwright",
-            instances: [{ browser: "chromium" }],
-          },
-          setupFiles: [".storybook/vitest.setup.ts"],
-        },
-      },
-    ],
+    environment: "jsdom",
+    setupFiles: ["./vitest.setup.ts"],
+    // projects: [
+    //   "vite.config.ts",
+    //   {
+    //     extends: "vite.config.ts",
+    //     plugins: [
+    //       // The plugin will run tests for the stories defined in your Storybook config
+    //       // See options at: https://storybook.js.org/docs/writing-tests/test-addon#storybooktest
+    //       // storybookTest({ configDir: path.join(dirname, ".storybook") }),
+    //     ],
+    //     test: {
+    //       name: "storybook",
+    //       browser: {
+    //         enabled: true,
+    //         headless: true,
+    //         provider: "playwright",
+    //         instances: [{ browser: "chromium" }],
+    //       },
+    //       setupFiles: [".storybook/vitest.setup.ts"],
+    //     },
+    //   },
+    // ],
   },
 });

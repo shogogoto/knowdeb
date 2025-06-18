@@ -1,31 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
-
-type Theme = "dark" | "light" | "system";
-
-type ThemeProviderProps = {
-  children: React.ReactNode;
-  defaultTheme?: Theme;
-  storageKey?: string;
-};
-
-type ThemeProviderState = {
-  theme: Theme;
-  setTheme: (theme: Theme) => void;
-};
+import type { Theme, ThemeProviderState } from "./types";
 
 const initialState: ThemeProviderState = {
   theme: "system",
   setTheme: () => null,
 };
 
-const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+export const ThemeProviderContext =
+  createContext<ThemeProviderState>(initialState);
 
-// Function to apply theme to document
 const applyThemeClass = (theme: Theme) => {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined") return; // SSR対応
 
   const root = window.document.documentElement;
-  root.classList.remove("light", "dark");
+  root.classList.remove("light", "dark"); // 既存のテーマクラスを削除
 
   let appliedTheme = theme;
   if (theme === "system") {
@@ -33,8 +21,13 @@ const applyThemeClass = (theme: Theme) => {
       ? "dark"
       : "light";
   }
+  root.classList.add(appliedTheme); // 新しいテーマクラスを追加
+};
 
-  root.classList.add(appliedTheme);
+type Props = {
+  children: React.ReactNode;
+  defaultTheme?: Theme;
+  storageKey?: string;
 };
 
 export function ThemeProvider({
@@ -42,35 +35,37 @@ export function ThemeProvider({
   defaultTheme = "system",
   storageKey = "vite-ui-theme",
   ...props
-}: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme);
+}: Props) {
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window !== "undefined" && window.localStorage) {
+      const savedTheme = localStorage.getItem(storageKey) as Theme | null;
+      if (savedTheme) {
+        return savedTheme;
+      }
+    }
+    return defaultTheme;
+  });
+
   const [mounted, setMounted] = useState(false);
 
-  // Initial theme setup when component mounts
-  useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage?.getItem(storageKey) as Theme | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else {
-      setTheme(defaultTheme);
-    }
-  }, [defaultTheme, storageKey]);
+  // useEffect の中で localStorage を使うのが安全 (hydration mismatch 防止)
+  useEffect(() => setMounted(true), []);
 
-  // Apply theme class to document element
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted) return; // マウントされるまでテーマ適用ロジックを実行しない
     applyThemeClass(theme);
   }, [theme, mounted]);
 
+  function setThemeAndPersist(newTheme: Theme) {
+    if (typeof window !== "undefined" && window.localStorage) {
+      localStorage.setItem(storageKey, newTheme);
+    }
+    setThemeState(newTheme);
+  }
+
   const value = {
     theme,
-    setTheme: (theme: Theme) => {
-      if (typeof window !== "undefined" && window.localStorage) {
-        localStorage.setItem(storageKey, theme);
-      }
-      setTheme(theme);
-    },
+    setTheme: setThemeAndPersist,
   };
 
   return (
@@ -79,13 +74,13 @@ export function ThemeProvider({
     </ThemeProviderContext.Provider>
   );
 }
-
+// --- テーマを利用するためのカスタムフック ---
+// これは ThemeProviderContext と密接に関連するため、同じファイルに置くのが一般的
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
-
   if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
+    // ThemeProvider の外で useTheme が呼ばれた場合にエラーをスロー
+    throw new Error("useTheme must be used within a ThemeProvider.");
   }
-
   return context;
 };

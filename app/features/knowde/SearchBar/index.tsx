@@ -1,11 +1,13 @@
 import { LoaderCircle } from "lucide-react";
 import { useContext, useState } from "react";
 import { Form, useNavigation, useSubmit } from "react-router";
+import { PageContext } from "~/components/Pagenation/PageProvider";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
 export default function SearchBar() {
   const searchContext = useContext(SearchContext);
+  const { paging, setPaging } = useContext(PageContext);
   const navigation = useNavigation();
   const submit = useSubmit();
   const [isShown, setShown] = useState(false);
@@ -14,16 +16,8 @@ export default function SearchBar() {
     throw new Error("SearchBar must be used within a SearchProvider");
   }
 
-  const {
-    q,
-    setQ,
-    searchOption,
-    setSearchOption,
-    paging,
-    setPaging,
-    order,
-    setOrderBy,
-  } = searchContext;
+  const { q, setQ, searchOption, setSearchOption, order, setOrderBy } =
+    searchContext;
 
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
@@ -95,8 +89,3 @@ export default function SearchBar() {
     </Form>
   );
 }
-
-// export function CommandDemo() {
-//   return (
-//   );
-// }

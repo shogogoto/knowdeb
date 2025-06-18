@@ -1,10 +1,12 @@
 import { LoaderCircle } from "lucide-react";
+import PageNavi from "~/components/Pagenation";
+import PageProvider from "~/components/Pagenation/PageProvider";
+import SearchBar from "~/features/knowde/SearchBar";
+import { SearchProvider } from "~/features/knowde/SearchContext";
+import SearchResults from "~/features/knowde/SearchResults";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import type { Route } from "./+types";
-import SearchBar from "./SearchBar";
-import { SearchProvider } from "./SearchContext";
-import SearchResults from "./SearchResults";
 
 export function meta() {
   return [
@@ -41,23 +43,31 @@ export default function Search({ loaderData }: Route.ComponentProps) {
   const { params } = loaderData;
   const { data, isLoading } = useSearchByTextKnowdeGet(params);
 
+  const total = data?.status === 200 ? data.data.total : 0;
+  const pn = <PageNavi total={total} />;
+
   return (
-    <SearchProvider>
-      <SearchBar />
-      {isLoading ? (
-        <LoaderCircle className="animate-spin" />
-      ) : (
-        data?.status === 200 && data.data && <SearchResults data={data.data} />
-      )}
-    </SearchProvider>
+    <PageProvider>
+      <SearchProvider>
+        <SearchBar />
+        {pn}
+        {isLoading ? (
+          <LoaderCircle className="animate-spin" />
+        ) : (
+          data?.status === 200 &&
+          data.data && <SearchResults data={data.data} />
+        )}
+        {pn}
+      </SearchProvider>
+    </PageProvider>
   );
 }
 
-// export function HydrateFallback() {
-//   return (
-//     <div id="loading-splash">
-//       <div id="loading-splash-spinner" />
-//       <p>読み込み中、しばらくお待ちください...</p>
-//     </div>
-//   );
-// }
+export function HydrateFallback() {
+  return (
+    <div id="loading-splash">
+      <div id="loading-splash-spinner" />
+      <p>読み込み中、しばらくお待ちください...</p>
+    </div>
+  );
+}
