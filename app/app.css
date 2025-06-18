@@ -172,3 +172,9 @@ body {
     margin-left: 1.5em;
   }
 }
+
+.active {
+  font-weight: bold;
+  color: blue;
+  /* その他のスタイル */
+}

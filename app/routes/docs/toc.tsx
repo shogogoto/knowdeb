@@ -7,7 +7,7 @@ export const documents = [
   },
   {
     title: "目次",
-    to: "/docs",
+    to: "/docs/toc",
   },
   {
     title: "コンセプト",
