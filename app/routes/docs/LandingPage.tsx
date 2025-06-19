@@ -232,7 +232,7 @@ export default function LandingPage() {
             <Link
               type="button"
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-              to="user/register"
+              to="register"
             >
               新規登録してみよう！
             </Link>

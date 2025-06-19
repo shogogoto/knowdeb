@@ -25,8 +25,10 @@ export default [
     route("docs/features", "routes/docs/features.mdx"),
   ]),
 
-  route("user/register", "routes/user/register.tsx"),
+  route("register", "routes/user/register.tsx"),
+  route("login", "routes/user/login.tsx"),
   layout("layouts/UserLayout/index.tsx", [route("home", "routes/home.tsx")]),
   // route("login", "routes/Login/index.tsx"),
   // route("auth/google/callback", "routes/auth/google/callback.tsx"),
+  route("google/authorize", "routes/sso/google/authorize.ts"),
 ] satisfies RouteConfig;
