@@ -20,6 +20,16 @@ export const authJwtLoginAuthJwtLoginPostResponse = zod.object({
 export const authJwtLogoutAuthJwtLogoutPostResponse = zod.any();
 
 /**
+ * @summary Auth:Cookie.Login
+ */
+export const authCookieLoginAuthCookieLoginPostResponse = zod.any();
+
+/**
+ * @summary Auth:Cookie.Logout
+ */
+export const authCookieLogoutAuthCookieLogoutPostResponse = zod.any();
+
+/**
  * @summary Register:Register
  */
 export const registerRegisterAuthRegisterPostBodyIsActiveDefault = true;
@@ -87,27 +97,3 @@ export const verifyVerifyAuthVerifyPostResponse = zod
     display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("読み取り.");
-
-/**
- * @summary Oauth:Google.Jwt.Authorize
- */
-export const oauthGoogleJwtAuthorizeGoogleAuthorizeGetQueryParams = zod.object({
-  scopes: zod.array(zod.string()).optional(),
-});
-
-export const oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse = zod.object({
-  authorization_url: zod.string(),
-});
-
-/**
- * The response varies based on the authentication backend used.
- * @summary Oauth:Google.Jwt.Callback
- */
-export const oauthGoogleJwtCallbackGoogleCallbackGetQueryParams = zod.object({
-  code: zod.string().or(zod.null()).optional(),
-  code_verifier: zod.string().or(zod.null()).optional(),
-  state: zod.string().or(zod.null()).optional(),
-  error: zod.string().or(zod.null()).optional(),
-});
-
-export const oauthGoogleJwtCallbackGoogleCallbackGetResponse = zod.any();

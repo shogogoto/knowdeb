@@ -25,6 +25,21 @@ export interface BearerResponse {
   token_type: string;
 }
 
+export type BodyAuthCookieLoginAuthCookieLoginPostGrantType = string | null;
+
+export type BodyAuthCookieLoginAuthCookieLoginPostClientId = string | null;
+
+export type BodyAuthCookieLoginAuthCookieLoginPostClientSecret = string | null;
+
+export interface BodyAuthCookieLoginAuthCookieLoginPost {
+  grant_type?: BodyAuthCookieLoginAuthCookieLoginPostGrantType;
+  username: string;
+  password: string;
+  scope?: string;
+  client_id?: BodyAuthCookieLoginAuthCookieLoginPostClientId;
+  client_secret?: BodyAuthCookieLoginAuthCookieLoginPostClientSecret;
+}
+
 export type BodyAuthJwtLoginAuthJwtLoginPostGrantType = string | null;
 
 export type BodyAuthJwtLoginAuthJwtLoginPostClientId = string | null;
@@ -422,6 +437,17 @@ export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams = {
 };
 
 export type OauthGoogleJwtCallbackGoogleCallbackGetParams = {
+  code?: string | null;
+  code_verifier?: string | null;
+  state?: string | null;
+  error?: string | null;
+};
+
+export type OauthGoogleCookieAuthorizeGoogleCookieAuthorizeGetParams = {
+  scopes?: string[];
+};
+
+export type OauthGoogleCookieCallbackGoogleCookieCallbackGetParams = {
   code?: string | null;
   code_verifier?: string | null;
   state?: string | null;
