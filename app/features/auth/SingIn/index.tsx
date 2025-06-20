@@ -11,18 +11,18 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
     return submission.reply();
   }
 
-  const res = await authCookieLoginAuthCookieLoginPost({
-    username: submission.value.email,
-    password: submission.value.password,
-  });
-
+  const res = await authCookieLoginAuthCookieLoginPost(
+    {
+      username: submission.value.email,
+      password: submission.value.password,
+    },
+    { credentials: "include" },
+  );
   if (res.status !== 204) {
     return submission.reply({
       formErrors: [`ログインに失敗しました: ${res.data || "不明なエラー"}`],
     });
   }
-  console.log("# sign in");
-  console.log(res);
   // return redirect("/home");
 }
 
