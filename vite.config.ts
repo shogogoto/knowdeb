@@ -7,6 +7,7 @@ import tailwindcss from "@tailwindcss/vite";
 import reactVitest from "@vitejs/plugin-react";
 import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
+import mkcert from "vite-plugin-mkcert";
 import tsconfigPaths from "vite-tsconfig-paths";
 // import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
 //
@@ -17,6 +18,7 @@ const dirname =
 
 export default defineConfig({
   plugins: [
+    mkcert(),
     tailwindcss(),
     process.env.VITEST ? reactVitest() : reactRouter(), // storybookのテスト解消
     tsconfigPaths(),
