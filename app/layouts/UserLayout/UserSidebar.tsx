@@ -47,7 +47,13 @@ export default function UserSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <NavUser user={{ name: "test", email: "test", avatar: "test" }} />
+        <NavUser
+          user={{
+            name: "test",
+            email: "test",
+            avatar_src: "https://github.com/shadcn.png",
+          }}
+        />
       </SidebarHeader>
 
       <SidebarContent>
