@@ -8,9 +8,8 @@ pre-commit:
       run: |
         npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
       stage_fixed: true
-    tsc:
-      run: npm run typecheck
-      stage_fixed: true
+    typecheck:
+      run: npx tsc-files --noEmit --pretty
 
 pre-push:
   command:

@@ -1,7 +1,7 @@
 import { ChevronRight } from "lucide-react";
 
 import type { ReactNode } from "react";
-import { Link } from "react-router";
+import { NavLink } from "react-router";
 import {
   Collapsible,
   CollapsibleContent,
@@ -47,10 +47,10 @@ export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
                 <span>{title}</span>
               </div>
             ) : (
-              <Link to={to} onClick={handleMenuClick}>
+              <NavLink to={to} onClick={handleMenuClick}>
                 {icon}
                 <span>{title}</span>
-              </Link>
+              </NavLink>
             )}
           </SidebarMenuButton>
           {subs?.length ? (
@@ -106,10 +106,10 @@ function SubMenuItem({ to, title, icon }: MenuProps) {
   return (
     <SidebarMenuSubItem>
       <SidebarMenuSubButton asChild>
-        <Link to={to} onClick={handleMenuClick}>
+        <NavLink to={to} onClick={handleMenuClick}>
           {icon}
           <span>{title}</span>
-        </Link>
+        </NavLink>
       </SidebarMenuSubButton>
     </SidebarMenuSubItem>
   );

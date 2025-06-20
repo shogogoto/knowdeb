@@ -1,7 +1,5 @@
 import {
   BookOpen,
-  ChevronRight,
-  ExternalLink,
   Mail,
   MessageCircle,
   Network,
@@ -11,6 +9,7 @@ import {
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router";
 
 export default function LandingPage() {
   const [activeFeature, setActiveFeature] = useState(0);
@@ -109,23 +108,6 @@ export default function LandingPage() {
               <br />
               知識管理プラットフォーム
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <button
-                type="button"
-                className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-                onClick={() => handleNavigation("/register")}
-              >
-                新規登録してみよう！
-                <ChevronRight className="inline-block ml-2 w-5 h-5" />
-              </button>
-              <button
-                type="button"
-                className="px-8 py-4 border border-gray-400 rounded-xl text-lg font-medium hover:bg-white/10 transition-all duration-200"
-                onClick={() => handleNavigation("/search")}
-              >
-                検索してみよう！
-              </button>
-            </div>
           </div>
         </div>
 
@@ -194,14 +176,13 @@ export default function LandingPage() {
           </div>
 
           <div className="text-center">
-            <button
+            <Link
               type="button"
               className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-400 rounded-xl text-lg font-medium hover:from-purple-600/30 hover:to-blue-600/30 transition-all duration-200"
-              onClick={() => handleNavigation("/docs/concept")}
+              to="/docs/concept"
             >
               より詳細なコンセプトの説明はこちら
-              <ExternalLink className="ml-2 w-5 h-5" />
-            </button>
+            </Link>
           </div>
         </div>
       </section>
@@ -248,37 +229,37 @@ export default function LandingPage() {
           </p>
 
           <div className="grid md:grid-cols-2 gap-4 mb-12 max-w-2xl mx-auto">
-            <button
+            <Link
               type="button"
               className="px-8 py-4 bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl text-lg font-medium hover:from-purple-700 hover:to-blue-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-              onClick={() => handleNavigation("/register")}
+              to="register"
             >
               新規登録してみよう！
-            </button>
-            <button
+            </Link>
+            <Link
               type="button"
               className="px-8 py-4 bg-gradient-to-r from-green-600 to-teal-600 rounded-xl text-lg font-medium hover:from-green-700 hover:to-teal-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-              onClick={() => handleNavigation("/search")}
+              to="/search"
             >
               検索してみよう！
-            </button>
+            </Link>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <button
+            <Link
               type="button"
               className="px-6 py-3 border border-gray-400 rounded-xl font-medium hover:bg-white/10 transition-all duration-200"
-              onClick={() => handleNavigation("/docs/getting-started")}
+              to="/docs/get-started"
             >
               始め方について
-            </button>
-            <button
+            </Link>
+            <Link
               type="button"
               className="px-6 py-3 border border-gray-400 rounded-xl font-medium hover:bg-white/10 transition-all duration-200"
-              onClick={() => handleNavigation("/contact")}
+              to="/contact"
             >
               問い合わせはこちら
-            </button>
+            </Link>
           </div>
 
           {/* Social Links */}
@@ -305,18 +286,6 @@ export default function LandingPage() {
                 src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/x.svg"
               />
             </button>
-            <button
-              type="button"
-              className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"
-            >
-              <img
-                alt="X"
-                height="32"
-                width="32"
-                src="https://cdn.jsdelivr.net/npm/simple-icons@v14/icons/google.svg"
-              />
-            </button>
-
             <button
               type="button"
               className="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all duration-200"

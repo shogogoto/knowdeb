@@ -4,14 +4,14 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
-import useSwr from "swr";
-import type { Arguments, Key, SWRConfiguration } from "swr";
+import type { Arguments, Key } from "swr";
 
 import useSWRMutation from "swr/mutation";
 import type { SWRMutationConfiguration } from "swr/mutation";
 
 import type {
   BearerResponse,
+  BodyAuthCookieLoginAuthCookieLoginPost,
   BodyAuthJwtLoginAuthJwtLoginPost,
   BodyResetForgotPasswordAuthForgotPasswordPost,
   BodyResetResetPasswordAuthResetPasswordPost,
@@ -19,9 +19,6 @@ import type {
   BodyVerifyVerifyAuthVerifyPost,
   ErrorModel,
   HTTPValidationError,
-  OAuth2AuthorizeResponse,
-  OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
-  OauthGoogleJwtCallbackGoogleCallbackGetParams,
   UserCreate,
   UserRead,
 } from "../fastAPI.schemas";
@@ -250,6 +247,261 @@ export const useAuthJwtLogoutAuthJwtLogoutPost = <
   const swrKey =
     swrOptions?.swrKey ?? getAuthJwtLogoutAuthJwtLogoutPostMutationKey();
   const swrFn = getAuthJwtLogoutAuthJwtLogoutPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * @summary Auth:Cookie.Login
+ */
+export type authCookieLoginAuthCookieLoginPostResponse200 = {
+  data: unknown;
+  status: 200;
+};
+
+export type authCookieLoginAuthCookieLoginPostResponse204 = {
+  data: undefined;
+  status: 204;
+};
+
+export type authCookieLoginAuthCookieLoginPostResponse400 = {
+  data: ErrorModel;
+  status: 400;
+};
+
+export type authCookieLoginAuthCookieLoginPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type authCookieLoginAuthCookieLoginPostResponseComposite =
+  | authCookieLoginAuthCookieLoginPostResponse200
+  | authCookieLoginAuthCookieLoginPostResponse204
+  | authCookieLoginAuthCookieLoginPostResponse400
+  | authCookieLoginAuthCookieLoginPostResponse422;
+
+export type authCookieLoginAuthCookieLoginPostResponse =
+  authCookieLoginAuthCookieLoginPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getAuthCookieLoginAuthCookieLoginPostUrl = () => {
+  return "https://knowde.onrender.com/auth/cookie/login";
+};
+
+export const authCookieLoginAuthCookieLoginPost = async (
+  bodyAuthCookieLoginAuthCookieLoginPost: BodyAuthCookieLoginAuthCookieLoginPost,
+  options?: RequestInit,
+): Promise<authCookieLoginAuthCookieLoginPostResponse> => {
+  const formUrlEncoded = new URLSearchParams();
+  if (
+    bodyAuthCookieLoginAuthCookieLoginPost.grant_type !== undefined &&
+    bodyAuthCookieLoginAuthCookieLoginPost.grant_type !== null
+  ) {
+    formUrlEncoded.append(
+      "grant_type",
+      bodyAuthCookieLoginAuthCookieLoginPost.grant_type,
+    );
+  }
+  formUrlEncoded.append(
+    "username",
+    bodyAuthCookieLoginAuthCookieLoginPost.username,
+  );
+  formUrlEncoded.append(
+    "password",
+    bodyAuthCookieLoginAuthCookieLoginPost.password,
+  );
+  if (bodyAuthCookieLoginAuthCookieLoginPost.scope !== undefined) {
+    formUrlEncoded.append(
+      "scope",
+      bodyAuthCookieLoginAuthCookieLoginPost.scope,
+    );
+  }
+  if (
+    bodyAuthCookieLoginAuthCookieLoginPost.client_id !== undefined &&
+    bodyAuthCookieLoginAuthCookieLoginPost.client_id !== null
+  ) {
+    formUrlEncoded.append(
+      "client_id",
+      bodyAuthCookieLoginAuthCookieLoginPost.client_id,
+    );
+  }
+  if (
+    bodyAuthCookieLoginAuthCookieLoginPost.client_secret !== undefined &&
+    bodyAuthCookieLoginAuthCookieLoginPost.client_secret !== null
+  ) {
+    formUrlEncoded.append(
+      "client_secret",
+      bodyAuthCookieLoginAuthCookieLoginPost.client_secret,
+    );
+  }
+
+  const res = await fetch(getAuthCookieLoginAuthCookieLoginPostUrl(), {
+    ...options,
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      ...options?.headers,
+    },
+    body: formUrlEncoded,
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: authCookieLoginAuthCookieLoginPostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as authCookieLoginAuthCookieLoginPostResponse;
+};
+
+export const getAuthCookieLoginAuthCookieLoginPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyAuthCookieLoginAuthCookieLoginPost },
+  ): Promise<authCookieLoginAuthCookieLoginPostResponse> => {
+    return authCookieLoginAuthCookieLoginPost(arg, options);
+  };
+};
+export const getAuthCookieLoginAuthCookieLoginPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/cookie/login"] as const;
+
+export type AuthCookieLoginAuthCookieLoginPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof authCookieLoginAuthCookieLoginPost>>
+>;
+export type AuthCookieLoginAuthCookieLoginPostMutationError = Promise<
+  ErrorModel | HTTPValidationError
+>;
+
+/**
+ * @summary Auth:Cookie.Login
+ */
+export const useAuthCookieLoginAuthCookieLoginPost = <
+  TError = Promise<ErrorModel | HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof authCookieLoginAuthCookieLoginPost>>,
+    TError,
+    Key,
+    BodyAuthCookieLoginAuthCookieLoginPost,
+    Awaited<ReturnType<typeof authCookieLoginAuthCookieLoginPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getAuthCookieLoginAuthCookieLoginPostMutationKey();
+  const swrFn =
+    getAuthCookieLoginAuthCookieLoginPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * @summary Auth:Cookie.Logout
+ */
+export type authCookieLogoutAuthCookieLogoutPostResponse200 = {
+  data: unknown;
+  status: 200;
+};
+
+export type authCookieLogoutAuthCookieLogoutPostResponse204 = {
+  data: undefined;
+  status: 204;
+};
+
+export type authCookieLogoutAuthCookieLogoutPostResponse401 = {
+  data: undefined;
+  status: 401;
+};
+
+export type authCookieLogoutAuthCookieLogoutPostResponseComposite =
+  | authCookieLogoutAuthCookieLogoutPostResponse200
+  | authCookieLogoutAuthCookieLogoutPostResponse204
+  | authCookieLogoutAuthCookieLogoutPostResponse401;
+
+export type authCookieLogoutAuthCookieLogoutPostResponse =
+  authCookieLogoutAuthCookieLogoutPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getAuthCookieLogoutAuthCookieLogoutPostUrl = () => {
+  return "https://knowde.onrender.com/auth/cookie/logout";
+};
+
+export const authCookieLogoutAuthCookieLogoutPost = async (
+  options?: RequestInit,
+): Promise<authCookieLogoutAuthCookieLogoutPostResponse> => {
+  const res = await fetch(getAuthCookieLogoutAuthCookieLogoutPostUrl(), {
+    ...options,
+    method: "POST",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: authCookieLogoutAuthCookieLogoutPostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as authCookieLogoutAuthCookieLogoutPostResponse;
+};
+
+export const getAuthCookieLogoutAuthCookieLogoutPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    __: { arg: Arguments },
+  ): Promise<authCookieLogoutAuthCookieLogoutPostResponse> => {
+    return authCookieLogoutAuthCookieLogoutPost(options);
+  };
+};
+export const getAuthCookieLogoutAuthCookieLogoutPostMutationKey = () =>
+  ["https://knowde.onrender.com/auth/cookie/logout"] as const;
+
+export type AuthCookieLogoutAuthCookieLogoutPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof authCookieLogoutAuthCookieLogoutPost>>
+>;
+export type AuthCookieLogoutAuthCookieLogoutPostMutationError = Promise<void>;
+
+/**
+ * @summary Auth:Cookie.Logout
+ */
+export const useAuthCookieLogoutAuthCookieLogoutPost = <
+  TError = Promise<void>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof authCookieLogoutAuthCookieLogoutPost>>,
+    TError,
+    Key,
+    Arguments,
+    Awaited<ReturnType<typeof authCookieLogoutAuthCookieLogoutPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getAuthCookieLogoutAuthCookieLogoutPostMutationKey();
+  const swrFn =
+    getAuthCookieLogoutAuthCookieLogoutPostMutationFetcher(fetchOptions);
 
   const query = useSWRMutation(swrKey, swrFn, swrOptions);
 
@@ -766,244 +1018,6 @@ export const useVerifyVerifyAuthVerifyPost = <
   const swrFn = getVerifyVerifyAuthVerifyPostMutationFetcher(fetchOptions);
 
   const query = useSWRMutation(swrKey, swrFn, swrOptions);
-
-  return {
-    swrKey,
-    ...query,
-  };
-};
-/**
- * @summary Oauth:Google.Jwt.Authorize
- */
-export type oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse200 = {
-  data: OAuth2AuthorizeResponse;
-  status: 200;
-};
-
-export type oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse422 = {
-  data: HTTPValidationError;
-  status: 422;
-};
-
-export type oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponseComposite =
-  | oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse200
-  | oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse422;
-
-export type oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse =
-  oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponseComposite & {
-    headers: Headers;
-  };
-
-export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetUrl = (
-  params?: OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `https://knowde.onrender.com/google/authorize?${stringifiedParams}`
-    : "https://knowde.onrender.com/google/authorize";
-};
-
-export const oauthGoogleJwtAuthorizeGoogleAuthorizeGet = async (
-  params?: OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
-  options?: RequestInit,
-): Promise<oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse> => {
-  const res = await fetch(
-    getOauthGoogleJwtAuthorizeGoogleAuthorizeGetUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as oauthGoogleJwtAuthorizeGoogleAuthorizeGetResponse;
-};
-
-export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetKey = (
-  params?: OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
-) =>
-  [
-    "https://knowde.onrender.com/google/authorize",
-    ...(params ? [params] : []),
-  ] as const;
-
-export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetQueryResult = NonNullable<
-  Awaited<ReturnType<typeof oauthGoogleJwtAuthorizeGoogleAuthorizeGet>>
->;
-export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetQueryError =
-  Promise<HTTPValidationError>;
-
-/**
- * @summary Oauth:Google.Jwt.Authorize
- */
-export const useOauthGoogleJwtAuthorizeGoogleAuthorizeGet = <
-  TError = Promise<HTTPValidationError>,
->(
-  params?: OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof oauthGoogleJwtAuthorizeGoogleAuthorizeGet>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    fetch?: RequestInit;
-  },
-) => {
-  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
-
-  const isEnabled = swrOptions?.enabled !== false;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() =>
-      isEnabled
-        ? getOauthGoogleJwtAuthorizeGoogleAuthorizeGetKey(params)
-        : null);
-  const swrFn = () =>
-    oauthGoogleJwtAuthorizeGoogleAuthorizeGet(params, fetchOptions);
-
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
-
-  return {
-    swrKey,
-    ...query,
-  };
-};
-/**
- * The response varies based on the authentication backend used.
- * @summary Oauth:Google.Jwt.Callback
- */
-export type oauthGoogleJwtCallbackGoogleCallbackGetResponse200 = {
-  data: unknown;
-  status: 200;
-};
-
-export type oauthGoogleJwtCallbackGoogleCallbackGetResponse400 = {
-  data: ErrorModel;
-  status: 400;
-};
-
-export type oauthGoogleJwtCallbackGoogleCallbackGetResponse422 = {
-  data: HTTPValidationError;
-  status: 422;
-};
-
-export type oauthGoogleJwtCallbackGoogleCallbackGetResponseComposite =
-  | oauthGoogleJwtCallbackGoogleCallbackGetResponse200
-  | oauthGoogleJwtCallbackGoogleCallbackGetResponse400
-  | oauthGoogleJwtCallbackGoogleCallbackGetResponse422;
-
-export type oauthGoogleJwtCallbackGoogleCallbackGetResponse =
-  oauthGoogleJwtCallbackGoogleCallbackGetResponseComposite & {
-    headers: Headers;
-  };
-
-export const getOauthGoogleJwtCallbackGoogleCallbackGetUrl = (
-  params?: OauthGoogleJwtCallbackGoogleCallbackGetParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `https://knowde.onrender.com/google/callback?${stringifiedParams}`
-    : "https://knowde.onrender.com/google/callback";
-};
-
-export const oauthGoogleJwtCallbackGoogleCallbackGet = async (
-  params?: OauthGoogleJwtCallbackGoogleCallbackGetParams,
-  options?: RequestInit,
-): Promise<oauthGoogleJwtCallbackGoogleCallbackGetResponse> => {
-  const res = await fetch(
-    getOauthGoogleJwtCallbackGoogleCallbackGetUrl(params),
-    {
-      ...options,
-      method: "GET",
-    },
-  );
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: oauthGoogleJwtCallbackGoogleCallbackGetResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as oauthGoogleJwtCallbackGoogleCallbackGetResponse;
-};
-
-export const getOauthGoogleJwtCallbackGoogleCallbackGetKey = (
-  params?: OauthGoogleJwtCallbackGoogleCallbackGetParams,
-) =>
-  [
-    "https://knowde.onrender.com/google/callback",
-    ...(params ? [params] : []),
-  ] as const;
-
-export type OauthGoogleJwtCallbackGoogleCallbackGetQueryResult = NonNullable<
-  Awaited<ReturnType<typeof oauthGoogleJwtCallbackGoogleCallbackGet>>
->;
-export type OauthGoogleJwtCallbackGoogleCallbackGetQueryError = Promise<
-  ErrorModel | HTTPValidationError
->;
-
-/**
- * @summary Oauth:Google.Jwt.Callback
- */
-export const useOauthGoogleJwtCallbackGoogleCallbackGet = <
-  TError = Promise<ErrorModel | HTTPValidationError>,
->(
-  params?: OauthGoogleJwtCallbackGoogleCallbackGetParams,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof oauthGoogleJwtCallbackGoogleCallbackGet>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    fetch?: RequestInit;
-  },
-) => {
-  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
-
-  const isEnabled = swrOptions?.enabled !== false;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() =>
-      isEnabled ? getOauthGoogleJwtCallbackGoogleCallbackGetKey(params) : null);
-  const swrFn = () =>
-    oauthGoogleJwtCallbackGoogleCallbackGet(params, fetchOptions);
-
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
 
   return {
     swrKey,

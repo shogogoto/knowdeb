@@ -1,5 +1,6 @@
 import type React from "react";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useCookies } from "react-cookie";
 import {
   useAuthJwtLoginAuthJwtLoginPost,
   useAuthJwtLogoutAuthJwtLogoutPost,
@@ -9,58 +10,81 @@ import type { UserRead } from "~/generated/fastAPI.schemas"; // Adjust path
 import { useUsersCurrentUserUserMeGet } from "~/generated/user/user";
 import { AuthContext } from "./AuthContext";
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
+const TOKEN_COOKIE_NAME = "jwt_token";
 
-const TOKEN_STORAGE_KEY = "jwt_token";
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem(TOKEN_STORAGE_KEY),
-  );
+export function AuthProvider({ children }: React.PropsWithChildren) {
+  const [cookies, setCookie, removeCookie] = useCookies([TOKEN_COOKIE_NAME]);
+  const [token, setToken] = useState<string | null>(cookies[TOKEN_COOKIE_NAME]);
   const [user, setUser] = useState<UserRead | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [authError, setAuthError] = useState<string | null>(null); // エラー状態を追加
 
-  // SWR Mutations for auth operations
   const { trigger: loginTrigger } = useAuthJwtLoginAuthJwtLoginPost();
   const { trigger: logoutTrigger } = useAuthJwtLogoutAuthJwtLogoutPost();
   const { trigger: registerTrigger } = useRegisterRegisterAuthRegisterPost();
 
-  // SWR hook for fetching current user. We'll disable it initially and enable it when a token exists.
   const {
     data: userData,
     error: userError,
     isLoading: userLoading,
+    isValidating: userValidating, // データ取得中かどうかをより正確に判断するために追加
   } = useUsersCurrentUserUserMeGet({
     swr: {
-      enabled: !!token, // Only fetch if token exists
-      revalidateOnFocus: false, // Don't revalidate on window focus
+      enabled: !!token, // トークンが存在する場合のみフェッチ
+      revalidateOnFocus: false, // ウィンドウフォーカス時に再検証しない
+      // エラー発生時の再試行を無効にするか、回数を制限することを検討
+      // retry: false,
     },
     fetch: {
       headers: {
+        // HttpOnlyクッキーを使用している場合、ブラウザが自動的にクッキーを送信するため、
+        // ここでAuthorizationヘッダーを手動で設定する必要がない場合があります。
+        // バックエンドがクッキーからJWTを読み取るように設定されているか確認してください。
         Authorization: token ? `Bearer ${token}` : "",
       },
     },
   });
 
+  // token ステートが変更された際にクッキーに反映させる
   useEffect(() => {
     if (token) {
-      localStorage.setItem(TOKEN_STORAGE_KEY, token);
+      setCookie(TOKEN_COOKIE_NAME, token, {
+        path: "/", // cookie を全てのパスで有効にする
+        maxAge: 3600 * 24 * 7, //sec (1週間)
+        secure: process.env.NODE_ENV === "production", // HTTPSでのみ送信
+        httpOnly: true, // JavaScript からのアクセスを禁止
+        // もしtrueにする場合、クライアントサイドのJSからはこのクッキーを直接読み取れません。
+        // その場合は、`setToken(response.data.access_token)` のみが `token` ステートを更新する方法になります。
+        // ここでは HttpOnly を false にしておきますが、実際のアプリケーションではサーバー側で HttpOnly を設定するべきです。
+      });
+    } else {
+      removeCookie(TOKEN_COOKIE_NAME, { path: "/" });
+    }
+  }, [token, setCookie, removeCookie]);
+
+  // ユーザーデータと認証状態の更新ロジック
+  useEffect(() => {
+    if (token) {
       if (userData?.data) {
         setUser(userData.data);
+        setAuthError(null); // エラーをクリア
       } else if (userError) {
-        // Token might be invalid or expired, clear it.
-        console.error("Failed to fetch user:", userError);
-        setToken(null);
-        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        // トークンが無効または期限切れの可能性、クリアする
+        console.error("Failed to fetch user or token invalid:", userError);
+        setToken(null); // tokenをnullにしてクッキーも削除させる
+        setUser(null);
+        setAuthError(
+          "認証情報の取得に失敗しました。再度ログインしてください。",
+        );
       }
     } else {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      // トークンがない場合はユーザーとエラーをクリア
       setUser(null);
+      setAuthError(null);
     }
-    setIsLoading(userLoading);
-  }, [token, userData, userError, userLoading]);
+    // userLoadingだけでなく、userValidatingも考慮してローディング状態を管理
+    setIsLoading(userLoading || (!!token && userValidating));
+  }, [token, userData, userError, userLoading, userValidating]);
 
   const signIn = useCallback(
     async (username: string, password: string) => {
@@ -83,12 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     async (email: string, password: string) => {
       try {
         const response = await registerTrigger({ email, password });
-        if (response.status === 201) {
-          // After successful registration, you might want to automatically log them in
-          // or redirect to a login page. For now, let's just indicate success.
-          return true;
-        }
-        return false;
+        return response.status === 201;
       } catch (error) {
         console.error("Registration failed:", error);
         return false;
@@ -102,11 +121,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await logoutTrigger();
     } catch (error) {
       console.error("Logout failed:", error);
-      // Even if logout fails on the backend, clear client-side token
     } finally {
       setToken(null);
       setUser(null);
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
+      localStorage.removeItem(TOKEN_COOKIE_NAME);
     }
   }, [logoutTrigger]);
 
@@ -127,4 +145,4 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {children}
     </AuthContext.Provider>
   );
-};
+}

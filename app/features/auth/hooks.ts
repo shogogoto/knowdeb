@@ -1,21 +1,16 @@
-import { useAuth } from "./AuthContext";
+import { useEffect } from "react";
+import { useLocation, useNavigate } from "react-router";
 
-export const useUser = () => {
-  const { user, isLoading, isAuthenticated } = useAuth();
-  return { user, isLoading, isAuthenticated };
-};
-
-export const useSignIn = () => {
-  const { signIn } = useAuth();
-  return signIn;
-};
-
-export const useSignUp = () => {
-  const { signUp } = useAuth();
-  return signUp;
-};
-
-export const useSignOut = () => {
-  const { signOut } = useAuth();
-  return signOut;
-};
+// 認証関連のクエリパラメータを削除
+export function useSSORedirect() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  useEffect(() => {
+    if (location.search) {
+      const params = new URLSearchParams(location.search);
+      if (params.has("state")) {
+        navigate(location.pathname, { replace: true });
+      }
+    }
+  }, [location, navigate]);
+}

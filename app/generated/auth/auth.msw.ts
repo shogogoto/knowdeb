@@ -8,11 +8,7 @@ import { faker } from "@faker-js/faker";
 
 import { http, HttpResponse, delay } from "msw";
 
-import type {
-  BearerResponse,
-  OAuth2AuthorizeResponse,
-  UserRead,
-} from "../fastAPI.schemas";
+import type { BearerResponse, UserRead } from "../fastAPI.schemas";
 
 export const getAuthJwtLoginAuthJwtLoginPostResponseMock = (
   overrideResponse: Partial<BearerResponse> = {},
@@ -64,13 +60,6 @@ export const getVerifyVerifyAuthVerifyPostResponseMock = (
   ...overrideResponse,
 });
 
-export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetResponseMock = (
-  overrideResponse: Partial<OAuth2AuthorizeResponse> = {},
-): OAuth2AuthorizeResponse => ({
-  authorization_url: faker.string.alpha(20),
-  ...overrideResponse,
-});
-
 export const getAuthJwtLoginAuthJwtLoginPostMockHandler = (
   overrideResponse?:
     | BearerResponse
@@ -102,6 +91,40 @@ export const getAuthJwtLogoutAuthJwtLogoutPostMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.post("*/auth/jwt/logout", async (info) => {
+    await delay(1000);
+    if (typeof overrideResponse === "function") {
+      await overrideResponse(info);
+    }
+    return new HttpResponse(null, { status: 200 });
+  });
+};
+
+export const getAuthCookieLoginAuthCookieLoginPostMockHandler = (
+  overrideResponse?:
+    | unknown
+    | undefined
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<unknown | undefined> | unknown | undefined),
+) => {
+  return http.post("*/auth/cookie/login", async (info) => {
+    await delay(1000);
+    if (typeof overrideResponse === "function") {
+      await overrideResponse(info);
+    }
+    return new HttpResponse(null, { status: 200 });
+  });
+};
+
+export const getAuthCookieLogoutAuthCookieLogoutPostMockHandler = (
+  overrideResponse?:
+    | unknown
+    | undefined
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<unknown | undefined> | unknown | undefined),
+) => {
+  return http.post("*/auth/cookie/logout", async (info) => {
     await delay(1000);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
@@ -203,53 +226,14 @@ export const getVerifyVerifyAuthVerifyPostMockHandler = (
     );
   });
 };
-
-export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetMockHandler = (
-  overrideResponse?:
-    | OAuth2AuthorizeResponse
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<OAuth2AuthorizeResponse> | OAuth2AuthorizeResponse),
-) => {
-  return http.get("*/google/authorize", async (info) => {
-    await delay(1000);
-
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === "function"
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getOauthGoogleJwtAuthorizeGoogleAuthorizeGetResponseMock(),
-      ),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
-  });
-};
-
-export const getOauthGoogleJwtCallbackGoogleCallbackGetMockHandler = (
-  overrideResponse?:
-    | unknown
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<unknown> | unknown),
-) => {
-  return http.get("*/google/callback", async (info) => {
-    await delay(1000);
-    if (typeof overrideResponse === "function") {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
 export const getAuthMock = () => [
   getAuthJwtLoginAuthJwtLoginPostMockHandler(),
   getAuthJwtLogoutAuthJwtLogoutPostMockHandler(),
+  getAuthCookieLoginAuthCookieLoginPostMockHandler(),
+  getAuthCookieLogoutAuthCookieLogoutPostMockHandler(),
   getRegisterRegisterAuthRegisterPostMockHandler(),
   getResetForgotPasswordAuthForgotPasswordPostMockHandler(),
   getResetResetPasswordAuthResetPasswordPostMockHandler(),
   getVerifyRequestTokenAuthRequestVerifyTokenPostMockHandler(),
   getVerifyVerifyAuthVerifyPostMockHandler(),
-  getOauthGoogleJwtAuthorizeGoogleAuthorizeGetMockHandler(),
-  getOauthGoogleJwtCallbackGoogleCallbackGetMockHandler(),
 ];

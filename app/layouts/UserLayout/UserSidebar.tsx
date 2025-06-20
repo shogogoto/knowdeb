@@ -14,7 +14,7 @@ import {
 } from "~/components/ui/sidebar";
 import { NavUser } from "./NavUser";
 
-export function AppSidebar() {
+export default function UserSidebar() {
   // Menu items.
   const items = [
     {
@@ -47,7 +47,13 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <NavUser user={{ name: "test", email: "test", avatar: "test" }} />
+        <NavUser
+          user={{
+            name: "test",
+            email: "test",
+            avatar_src: "https://github.com/shadcn.png",
+          }}
+        />
       </SidebarHeader>
 
       <SidebarContent>
