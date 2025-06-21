@@ -1,75 +1,69 @@
 import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
-import { Link } from "react-router";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
-import { NavUser } from "./NavUser";
+import UserNavi from "~/features/user/UserNavi";
+import SideMenu from "../components/Sidemenu";
 
 export default function UserSidebar() {
   // Menu items.
   const items = [
     {
       title: "Home",
-      url: "/home",
-      icon: Home,
+      to: "/home",
+      icon: <Home />,
     },
     {
       title: "Inbox",
-      url: "/",
-      icon: Inbox,
+      to: "/",
+      icon: <Inbox />,
     },
     {
       title: "Calendar",
-      url: "#",
-      icon: Calendar,
+      to: "#",
+      icon: <Calendar />,
     },
     {
       title: "Search",
-      url: "/search",
-      icon: Search,
+      to: "/search",
+      icon: <Search />,
     },
     {
       title: "Settings",
-      url: "#",
-      icon: Settings,
+      to: "#",
+      icon: <Settings />,
     },
   ];
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <NavUser
-          user={{
-            name: "test",
-            email: "test",
-            avatar_src: "https://github.com/shadcn.png",
-          }}
-        />
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <UserNavi
+              user={{
+                name: "test",
+                display_name: "test",
+                avatar_src: "https://github.com/shadcn.png",
+              }}
+            />
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link to={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
+              {items.map((it) => (
+                <SideMenu {...it} key={it.title} />
               ))}
             </SidebarMenu>
           </SidebarGroupContent>
