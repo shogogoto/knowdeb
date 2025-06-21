@@ -8,7 +8,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
-// side={isMobile ? "bottom" : "right"}
 
 type Props = {
   avatar: ReactNode;

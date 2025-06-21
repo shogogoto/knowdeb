@@ -1,7 +1,6 @@
-// src/components/AuthGuard.tsx
 import type React from "react";
 import { Navigate, Outlet } from "react-router";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "./AuthProvider";
 
 interface AuthGuardProps {
   children?: React.ReactNode;
