@@ -19,6 +19,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "~/components/ui/sidebar";
+import UserNavi from "~/features/user/UserNavi";
 import SideMenu from "../components/Sidemenu";
 import SiteLogo from "../components/SiteLogo";
 import GuestMenu from "./GuestMenu";
@@ -69,7 +70,9 @@ export default function GuestSidebar() {
           </SidebarMenuItem>
         </SidebarMenu>
 
-        {/* <NavUser user={{ name: "test", email: "test", avatar: "test" }} /> */}
+        <UserNavi
+          user={{ name: "test", display_name: "test", avatar_src: "test" }}
+        />
       </SidebarHeader>
       <SidebarContent>
         <GuestMenu>
