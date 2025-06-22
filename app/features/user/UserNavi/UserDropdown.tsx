@@ -8,13 +8,15 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
+import { LogoutDialog } from "~/features/auth/SignOutDialog";
 
 type Props = {
   avatar: ReactNode;
   side?: "left" | "right" | "top" | "bottom";
+  toggleOpen?: (e: Event) => void;
 };
 
-export default function UserDropdown({ avatar }: Props) {
+export default function UserDropdown({ avatar, toggleOpen }: Props) {
   return (
     <DropdownMenuContent
       side="right"
@@ -39,15 +41,28 @@ export default function UserDropdown({ avatar }: Props) {
           <UserDropdownItem icon={<Bell />} title="Notificatons" />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <UserDropdownItem icon={<LogOut />} title="Logout" />
+        <LogoutDialog>
+          <DropdownMenuItem onSelect={toggleOpen}>
+            <LogOut />
+            LogOut
+          </DropdownMenuItem>
+        </LogoutDialog>
       </DropdownMenuGroup>
     </DropdownMenuContent>
   );
 }
 
-function UserDropdownItem({ icon, title }: { icon: ReactNode; title: string }) {
+function UserDropdownItem({
+  icon,
+  title,
+  onClick,
+}: {
+  icon: ReactNode;
+  title: string;
+  onClick?: () => void;
+} & React.ComponentPropsWithoutRef<"button">) {
   return (
-    <DropdownMenuItem>
+    <DropdownMenuItem onClick={onClick}>
       {icon}
       {title}
     </DropdownMenuItem>

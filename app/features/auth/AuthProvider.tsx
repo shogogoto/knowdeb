@@ -53,7 +53,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     async (email: string, password: string) => {
       try {
         await loginTrigger({ username: email, password });
-        const res = await usersCurrentUserUserMeGet({ credentials: "include" });
+        const res = await usersCurrentUserUserMeGet();
         if (res.status === 200) {
           setUser(res.data);
         }
@@ -67,10 +67,9 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
   const signOut = useCallback(async () => {
     try {
       await logoutTrigger();
+      setUser(null);
     } catch (error) {
       console.error("Logout failed:", error);
-    } finally {
-      setUser(null);
     }
   }, [logoutTrigger]);
 

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,13 +18,19 @@ export default function UserNavi({ user }: { user: User }) {
   const avatar = <UserAvatar user={user} />;
   const isMobile = useIsMobile();
   const side = isMobile ? "bottom" : "right";
+  const [isOpen, setIsOpen] = useState(false);
+
+  function toggleOpen(e: Event) {
+    e.preventDefault();
+    setIsOpen(!isOpen);
+  }
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <SidebarMenuButton>{avatar}</SidebarMenuButton>
       </DropdownMenuTrigger>
-      <UserDropdown avatar={avatar} side={side} />
+      <UserDropdown avatar={avatar} side={side} toggleOpen={toggleOpen} />
     </DropdownMenu>
   );
 }
