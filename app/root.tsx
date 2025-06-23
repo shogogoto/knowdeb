@@ -1,4 +1,3 @@
-import { CookiesProvider } from "react-cookie";
 import {
   Links,
   Meta,
@@ -9,9 +8,6 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { jaJP } from "@clerk/localizations";
-import { ClerkProvider } from "@clerk/react-router";
-import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { ThemeProvider } from "./components/theme/ThemeProvider";
 import ThemeScript from "./components/theme/ThemeScript";
 import { AuthProvider } from "./features/auth/AuthProvider";
@@ -47,26 +43,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 export async function loader(args: Route.LoaderArgs) {
-  return rootAuthLoader(args);
+  // return rootAuthLoader(args);
+  return null;
 }
 
+//<ClerkProvider
+//  publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
+//  loaderData={loaderData}
+//  signUpFallbackRedirectUrl="/home"
+//  signInFallbackRedirectUrl="/home"
+//  localization={jaJP}
+//>
+//  <Outlet />
+//</ClerkProvider>
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
-    <CookiesProvider>
-      <ThemeProvider>
-        <AuthProvider>
-          <ClerkProvider
-            publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-            loaderData={loaderData}
-            signUpFallbackRedirectUrl="/home"
-            signInFallbackRedirectUrl="/home"
-            localization={jaJP}
-          >
-            <Outlet />
-          </ClerkProvider>
-        </AuthProvider>
-      </ThemeProvider>
-    </CookiesProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {

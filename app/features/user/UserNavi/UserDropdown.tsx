@@ -16,10 +16,10 @@ type Props = {
   toggleOpen?: (e: Event) => void;
 };
 
-export default function UserDropdown({ avatar, toggleOpen }: Props) {
+export default function UserDropdown({ avatar, side, toggleOpen }: Props) {
   return (
     <DropdownMenuContent
-      side="right"
+      side={side}
       className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
       align="end"
       sideOffset={4}
