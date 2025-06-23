@@ -6,10 +6,12 @@ import {
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
 import UserNavi from "~/features/user/UserNavi";
+import LogoSideItem from "../components/LogoSideMenu";
 import SideMenu from "../components/Sidemenu";
 
 export default function UserSidebar() {
@@ -46,14 +48,17 @@ export default function UserSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <SidebarMenu>
-          <SidebarMenuItem>
-            <UserNavi
-              user={{
-                name: "test",
-                display_name: "test",
-                avatar_src: "https://github.com/shadcn.png",
-              }}
-            />
+          <LogoSideItem />
+          <SidebarMenuItem title="ちんこ">
+            <SidebarMenuButton size="lg">
+              <UserNavi
+                user={{
+                  name: "test",
+                  display_name: "test",
+                  avatar_src: "https://github.com/shadcn.png",
+                }}
+              />
+            </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>

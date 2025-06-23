@@ -5,8 +5,6 @@ import {
   UserButton,
   useUser,
 } from "@clerk/react-router";
-import { MailQuestion } from "lucide-react";
-import { Link } from "react-router";
 import { ThemeToggle } from "~/components/theme/ThemeToggle";
 import {
   Sidebar,
@@ -19,9 +17,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "~/components/ui/sidebar";
-import UserNavi from "~/features/user/UserNavi";
-import SideMenu from "../components/Sidemenu";
-import SiteLogo from "../components/SiteLogo";
+import LogoSideItem from "../components/LogoSideMenu";
 import GuestMenu from "./GuestMenu";
 
 export default function GuestSidebar() {
@@ -38,18 +34,7 @@ export default function GuestSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip={"Landng Page"}>
-              <Link to="/" onClick={handleMenuClick}>
-                <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <SiteLogo />
-                </div>
-                <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">Knowde</span>
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          <LogoSideItem />
           <SidebarMenuItem>
             <SidebarMenuButton size="lg">
               <div className=" flex aspect-square size-8 items-center justify-center rounded-lg">
@@ -69,19 +54,9 @@ export default function GuestSidebar() {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-
-        <UserNavi
-          user={{ name: "test", display_name: "test", avatar_src: "test" }}
-        />
       </SidebarHeader>
       <SidebarContent>
-        <GuestMenu>
-          <SideMenu
-            icon={<MailQuestion />}
-            to={"/contact"}
-            title="問い合わせ"
-          />
-        </GuestMenu>
+        <GuestMenu />
       </SidebarContent>
       <SidebarFooter>
         <SidebarMenuButton size="lg" asChild tooltip={"Toggle Theme"}>
