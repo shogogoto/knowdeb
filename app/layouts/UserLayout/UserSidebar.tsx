@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
+import { useAuth } from "~/features/auth/AuthProvider";
 import UserNavi from "~/features/user/UserNavi";
 import LogoSideItem from "../components/LogoSideMenu";
 import SideMenu from "../components/Sidemenu";
@@ -44,6 +45,7 @@ export default function UserSidebar() {
     },
   ];
 
+  const { user } = useAuth();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
@@ -53,8 +55,8 @@ export default function UserSidebar() {
             <SidebarMenuButton size="lg">
               <UserNavi
                 user={{
-                  name: "test",
-                  display_name: "test",
+                  name: user?.email || "test",
+                  display_name: user?.id || "test",
                   avatar_src: "https://github.com/shadcn.png",
                 }}
               />

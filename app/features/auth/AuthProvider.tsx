@@ -1,28 +1,29 @@
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
-import { createContext, useContext } from "react";
 import {
-  useAuthCookieLoginAuthCookieLoginPost,
-  useAuthCookieLogoutAuthCookieLogoutPost,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { useNavigate } from "react-router";
+import {
+  authCookieLoginAuthCookieLoginPost,
+  authCookieLogoutAuthCookieLogoutPost,
 } from "~/generated/auth/auth";
 import type { UserRead } from "~/generated/fastAPI.schemas"; // Adjust path
-import {
-  useUsersCurrentUserUserMeGet,
-  usersCurrentUserUserMeGet,
-} from "~/generated/user/user";
+import { useUsersCurrentUserUserMeGet } from "~/generated/user/user";
 
-interface AuthContextType {
+interface AuthContextT {
   user: UserRead | null;
-  isAuthenticated: boolean;
   isLoading: boolean;
+  isValidating: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  mutate: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType | undefined>(
-  undefined,
-);
-
+export const AuthContext = createContext<AuthContextT | undefined>(undefined);
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -33,56 +34,58 @@ export const useAuth = () => {
 
 export function AuthProvider({ children }: React.PropsWithChildren) {
   const [user, setUser] = useState<UserRead | null>(null);
-  const { trigger: loginTrigger } = useAuthCookieLoginAuthCookieLoginPost({
-    fetch: { credentials: "include" },
-  });
-  useAuthCookieLoginAuthCookieLoginPost;
-  const { trigger: logoutTrigger } = useAuthCookieLogoutAuthCookieLogoutPost({
-    fetch: { credentials: "include" },
-  });
-
-  const { data, isLoading } = useUsersCurrentUserUserMeGet({
-    fetch: { credentials: "include" },
-  });
+  const navigate = useNavigate();
+  const { data, isLoading, isValidating, mutate } =
+    useUsersCurrentUserUserMeGet({
+      fetch: { credentials: "include" },
+    });
 
   useEffect(() => {
-    data?.data && setUser(data.data);
+    setUser(data?.data || null);
   }, [data]);
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
 
   const signIn = useCallback(
     async (email: string, password: string) => {
       try {
-        await loginTrigger({ username: email, password });
-        const res = await usersCurrentUserUserMeGet();
-        if (res.status === 200) {
-          setUser(res.data);
+        const res = await authCookieLoginAuthCookieLoginPost(
+          { username: email, password },
+          { credentials: "include" },
+        );
+        await mutate();
+        if (res.status === 204) {
+          navigate("/home");
+        } else {
+          console.error("signIn: Login failed with status", res.status);
         }
       } catch (error) {
-        console.error("Login failed:", error);
+        console.error("signIn: Login failed:", error);
       }
     },
-    [loginTrigger],
-  );
+    [mutate, navigate],
+  ); // 依存配列に mutate と navigate を含
 
   const signOut = useCallback(async () => {
     try {
-      await logoutTrigger();
-      setUser(null);
+      await authCookieLogoutAuthCookieLogoutPost({ credentials: "include" });
+      await mutate();
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      setUser(null);
     }
-  }, [logoutTrigger]);
-
-  const isAuthenticated = !!user;
-
+  }, [mutate]);
   return (
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated,
         isLoading,
+        isValidating,
         signIn,
         signOut,
+        mutate,
       }}
     >
       {children}
