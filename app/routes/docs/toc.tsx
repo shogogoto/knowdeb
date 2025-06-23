@@ -1,4 +1,5 @@
 import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
 
 export const documents = [
   {
@@ -31,15 +32,25 @@ export const documents = [
 
 export default function Docs() {
   return (
-    <>
-      <h1>ドキュメント一覧</h1>
-      <ol>
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">
+        ドキュメント一覧
+      </h1>
+      <ol className="space-y-4">
+        {" "}
+        {/* リストの項目間にスペースを追加 */}
         {documents.map((doc) => (
           <li key={doc.title}>
-            <Link to={doc.to}>{doc.title}</Link>
+            <Button
+              asChild
+              variant="link"
+              className="text-lg text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 p-0 h-auto"
+            >
+              <Link to={doc.to}>{doc.title}</Link>
+            </Button>
           </li>
         ))}
       </ol>
-    </>
+    </div>
   );
 }

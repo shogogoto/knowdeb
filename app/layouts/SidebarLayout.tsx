@@ -1,6 +1,7 @@
 import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { Outlet } from "react-router";
 import { SidebarProvider } from "~/components/ui/sidebar";
+import AuthGuard from "~/features/auth/AuthGuard";
 import type { Route } from "../+types/root";
 
 export async function loader(args: Route.LoaderArgs) {
@@ -19,14 +20,16 @@ export default function SidebarLayout({
   bottomNavigation,
 }: Props) {
   return (
-    <SidebarProvider>
-      {sidebar}
-      <div className="flex flex-col w-full h-screen  bg-white dark:bg-gray-950">
-        <main className={`flex-1 overflow-auto ${className}`}>
-          <Outlet />
-        </main>
-        {bottomNavigation}
-      </div>
-    </SidebarProvider>
+    <AuthGuard>
+      <SidebarProvider>
+        {sidebar}
+        <div className="flex flex-col w-full h-screen  bg-white dark:bg-gray-950">
+          <main className={`flex-1 overflow-auto ${className}`}>
+            <Outlet />
+          </main>
+          {bottomNavigation}
+        </div>
+      </SidebarProvider>
+    </AuthGuard>
   );
 }

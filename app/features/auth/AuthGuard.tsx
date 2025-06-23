@@ -1,22 +1,21 @@
-// src/components/AuthGuard.tsx
 import type React from "react";
-import { Navigate, Outlet } from "react-router";
-import { useAuth } from "./AuthContext";
+import { Outlet } from "react-router";
+import { useAuth } from "./AuthProvider";
 
 interface AuthGuardProps {
   children?: React.ReactNode;
 }
 
 const AuthGuard: React.FC<AuthGuardProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-
+  const { user, isLoading } = useAuth();
+  const isAuthenticated = !!user;
   if (isLoading) {
     return <div>Loading authentication...</div>;
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
+  // if (!isAuthenticated) {
+  //   return <Navigate to="/login" replace />;
+  // }
 
   return children ? <>{children}</> : <Outlet />;
 };

@@ -7,6 +7,7 @@ import {
   Folder,
   FolderSearch,
   LogIn,
+  MailQuestion,
   Search,
   Speech,
   TextSearch,
@@ -17,10 +18,13 @@ import {
 import { SidebarGroup, SidebarMenu } from "~/components/ui/sidebar";
 import { documents } from "~/routes/docs/toc";
 import Sidemenu from "../components/Sidemenu";
+import SideMenu from "../components/Sidemenu";
 
-export default function DocMenu({ children }: { children?: React.ReactNode }) {
+export default function DocMenu() {
   return (
     <SidebarGroup>
+      <SideMenu icon={<MailQuestion />} to={"/register"} title="新規登録" />
+      <SideMenu icon={<LogIn />} to={"/login"} title="ログイン" />
       <SidebarMenu>
         <Sidemenu
           title={"ドキュメント"}
@@ -116,7 +120,7 @@ export default function DocMenu({ children }: { children?: React.ReactNode }) {
           ]}
         />
       </SidebarMenu>
-      {children}
+      <SideMenu icon={<MailQuestion />} to={"/contact"} title="問い合わせ" />
     </SidebarGroup>
   );
 }

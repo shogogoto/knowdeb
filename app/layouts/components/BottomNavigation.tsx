@@ -34,7 +34,7 @@ export default function BottomNavigation() {
       <Link to="/ranking">
         <Crown size={size} />
       </Link>
-      <Link to="/docs">
+      <Link to="/docs/toc">
         <BookOpen size={size} />
       </Link>
     </nav>

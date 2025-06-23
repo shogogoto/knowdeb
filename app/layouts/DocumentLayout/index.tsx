@@ -1,6 +1,7 @@
 import GuestSidebar from "../GuestLayout/GuestSidebar";
 import SidebarLayout from "../SidebarLayout";
 import BottomNavigation from "../components/BottomNavigation";
+import "github-markdown-css/github-markdown.css";
 
 export default function DocumentLayout() {
   return (
