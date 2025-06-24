@@ -28,7 +28,7 @@ export default [
   route("register", "routes/user/register.tsx"),
   route("login", "routes/user/login.tsx"),
   layout("layouts/UserLayout/index.tsx", [route("home", "routes/home.tsx")]),
-  // route("login", "routes/Login/index.tsx"),
-  // route("auth/google/callback", "routes/auth/google/callback.tsx"),
+
   route("google/authorize", "routes/sso/google/authorize.ts"),
+  route("google/callback", "routes/sso/google/callback.tsx"),
 ] satisfies RouteConfig;

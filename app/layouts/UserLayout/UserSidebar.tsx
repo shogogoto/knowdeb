@@ -51,7 +51,7 @@ export default function UserSidebar() {
       <SidebarHeader>
         <SidebarMenu>
           <LogoSideItem />
-          <SidebarMenuItem title="ちんこ">
+          <SidebarMenuItem title="ユーザー">
             <SidebarMenuButton size="lg">
               <UserNavi
                 user={{
