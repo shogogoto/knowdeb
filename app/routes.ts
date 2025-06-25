@@ -29,6 +29,6 @@ export default [
   route("login", "routes/user/login.tsx"),
   layout("layouts/UserLayout/index.tsx", [route("home", "routes/home.tsx")]),
 
-  route("google/authorize", "routes/sso/google/authorize.ts"),
+  route("google/authorize", "routes/sso/google/authorize.tsx"),
   route("google/callback", "routes/sso/google/callback.tsx"),
 ] satisfies RouteConfig;

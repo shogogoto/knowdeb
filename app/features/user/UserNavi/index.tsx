@@ -1,9 +1,10 @@
+import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { useState } from "react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
-import { SidebarMenuButton } from "~/components/ui/sidebar";
+import { SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
 import { useIsMobile } from "~/hooks/use-mobile";
 import UserAvatar from "../UserAvatar";
 import type { User } from "../types";
@@ -28,7 +29,20 @@ export default function UserNavi({ user }: { user: User }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <SidebarMenuButton>{avatar}</SidebarMenuButton>
+        <SidebarMenuItem>
+          <SidebarMenuButton>
+            <div className="bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+              <Avatar>
+                <AvatarImage src={user.avatar_src} alt={user.name} />
+                <AvatarFallback className="rounded-lg">img</AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="grid flex-1 text-left text-sm leading-tight ">
+              <span className="truncate font-medium">{user.name}</span>
+              <span className="truncate text-xs">{user.display_name}</span>
+            </div>
+          </SidebarMenuButton>
+        </SidebarMenuItem>
       </DropdownMenuTrigger>
       <UserDropdown avatar={avatar} side={side} toggleOpen={toggleOpen} />
     </DropdownMenu>

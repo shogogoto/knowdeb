@@ -1,10 +1,10 @@
 import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs } from "react-router";
 import { useActionData } from "react-router";
-import { redirect } from "react-router";
+import { Navigate } from "react-router";
 import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
+import { useAuth } from "../AuthProvider";
 import AuthForm, { authSchema } from "../components/AuthForm";
-
 export async function signInAction(username: string, password: string) {
   const res = await authCookieLoginAuthCookieLoginPost(
     {
@@ -32,10 +32,15 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
       formErrors: [`ログインに失敗しました: ${res.data || "不明なエラー"}`],
     });
   }
-  return redirect("/home");
 }
 
 export default function SignInForm() {
   const lastResult = useActionData<typeof UserSignInAction>();
+  const { user } = useAuth();
+
+  if (user) {
+    return <Navigate to="/home" />;
+  }
+
   return <AuthForm lastResult={lastResult} title="ログイン" />;
 }

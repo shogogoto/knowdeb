@@ -3,6 +3,7 @@ import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
+import AuthGuardBody from "../AuthGuard/Body";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize({ request }: Route.ClientLoaderArgs) {
@@ -19,15 +20,17 @@ export async function authorize({ request }: Route.ClientLoaderArgs) {
   console.error("Google SSO failed:", res.data.detail);
   return redirect("/");
 }
+
 export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
   const urlParams = new URLSearchParams(new URL(request.url).search);
   const code = urlParams.get("code");
   const state = urlParams.get("state");
+  // const { data } = useOauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet();
   const res = await oauthGoogleCookieCallbackGoogleCookieCallbackGet(
     { state, code },
     { credentials: "include" },
   );
-  if (res.status === 200) {
+  if (res?.status === 200) {
     return redirect("/home");
   }
   console.error("Google SSO failed:", res.data.detail);
@@ -36,5 +39,7 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
 
 // clientLoaderのためにあるだけで表示されることはなさそう
 export default function CallbackDummy({ loaderData }: Route.ComponentProps) {
-  return <div>Callback</div>;
+  // const { is } = loaderData;
+
+  return <AuthGuardBody />;
 }
