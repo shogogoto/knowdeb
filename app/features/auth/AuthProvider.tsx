@@ -20,7 +20,6 @@ interface AuthContextT {
   isValidating: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  mutate: () => void;
 }
 
 export const AuthContext = createContext<AuthContextT | undefined>(undefined);
@@ -41,11 +40,16 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     });
 
   useEffect(() => {
-    setUser(data?.data || null);
+    if (data?.data === null) {
+      setUser(null);
+    } else {
+      setUser(data?.data || null);
+    }
   }, [data]);
+
   useEffect(() => {
     mutate();
-  }, [mutate]);
+  }, [mutate]); // 最初に一回ロード
 
   const signIn = useCallback(
     async (email: string, password: string) => {
@@ -85,7 +89,6 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         isValidating,
         signIn,
         signOut,
-        mutate,
       }}
     >
       {children}

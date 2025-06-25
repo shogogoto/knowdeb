@@ -1,6 +1,5 @@
-import { useEffect } from "react";
+import { Link } from "react-router";
 import { useAuth } from "~/features/auth/AuthProvider";
-import { useSSORedirect } from "~/features/auth/hooks";
 import type { Route } from "./+types/home";
 
 // export function meta({}: Route.MetaArgs) {
@@ -15,12 +14,8 @@ export function meta() {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { user, isLoading, isValidating, mutate } = useAuth();
+  const { user, isLoading, isValidating } = useAuth();
 
-  useSSORedirect();
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -30,6 +25,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   }
   return (
     <>
+      <Link to="/login">
+        <h1>ホーム</h1>
+      </Link>
       <div>{isValidating}</div>
       <div className={isLoading ? "loading" : "hidden"}>aaa</div>
       <div>{user?.id}</div>
