@@ -14,11 +14,8 @@ export function meta() {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  const { user, isLoading, isValidating, mutate } = useAuth();
+  const { user, isLoading, isValidating } = useAuth();
 
-  // useEffect(() => {
-  //   mutate();
-  // }, [mutate]);
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-screen">
