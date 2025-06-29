@@ -26,11 +26,14 @@ const CLOUDINARY_UPLOAD_URL =
 
 const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME as string;
 const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET as string;
-const FOLDER_NAME = "profile_images";
+const FOLDER_NAME = "avatar";
 
-type OnUploadSuccess = (imageUrl: string) => void;
+type Props = {
+  publicId: string;
+  onUploadSuccess: (imageUrl: string) => void;
+};
 
-export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
+export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
   const [uploadStatus, setUploadStatus] = useState<string>("");
   const [imageUrl, setImageUrl] = useState<string>("");
   const [widget, setWidget] = useState<CloudinaryUploadWidget | null>(null);
@@ -46,11 +49,21 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
         cloudName: CLOUD_NAME,
         uploadPreset: UPLOAD_PRESET,
         folder: FOLDER_NAME,
-        sources: ["local", "url", "camera"],
+        sources: [
+          "local",
+          "url",
+          "camera",
+          "image_search",
+          "google_drive",
+          "facebook",
+          "instagram",
+          "dropbox",
+        ],
         cropping: true,
         showSkipCropButton: false,
         croppingAspectRatio: 1,
         croppingShowDimensions: true,
+        publicId,
       },
       (error, result) => {
         if (
@@ -76,7 +89,7 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
     );
 
     setWidget(myWidget);
-  }, [onUploadSuccess]);
+  }, [onUploadSuccess, publicId]);
 
   useEffect(() => {
     const loadScript = (src: string): Promise<void> => {
@@ -110,4 +123,4 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
   };
 
   return { openWidget, uploadStatus, imageUrl, widget };
-};
+}
