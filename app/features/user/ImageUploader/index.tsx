@@ -5,7 +5,7 @@ import type {
   CloudinaryError,
   CloudinaryUploadResult,
   CloudinaryUploadWidget,
-} from "~/types/cloudinary";
+} from "~/features/user/types/cloudinary";
 
 // Cloudinaryの環境変数
 const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
@@ -20,13 +20,7 @@ export default function ImageUploader() {
   // Cloudinaryウィジェットインスタンスを管理するstate
   const [widget, setWidget] = useState<CloudinaryUploadWidget | null>(null);
 
-  // react-router-domのuseSubmitフック
   const submit = useSubmit();
-
-  /**
-   * CloudinaryのUpload Widgetを初期化する関数
-   * この関数は`useCallback`でメモ化され、依存配列が変更されない限り再生成されない。
-   */
   const initializeWidget = useCallback(() => {
     // Cloudinaryスクリプトがロードされているか確認
     if (!window.cloudinary) {
@@ -34,7 +28,6 @@ export default function ImageUploader() {
       return;
     }
 
-    // Cloudinary Upload Widgetのオプション
     const widgetOptions = {
       cloudName: CLOUD_NAME,
       uploadPreset: UPLOAD_PRESET,

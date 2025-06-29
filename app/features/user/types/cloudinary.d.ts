@@ -19,7 +19,7 @@ export interface CloudinaryUploadWidgetOptions {
   cloudName: string;
   uploadPreset: string;
   folder?: string;
-  sources?: (
+  sources?: readonly (
     | "local"
     | "url"
     | "camera"
@@ -35,7 +35,6 @@ export interface CloudinaryUploadWidgetOptions {
   maxImageFileSize?: number;
   // 他のオプションも必要に応じて追加
 }
-
 // アップロード結果の型
 export interface CloudinaryUploadResult {
   event:
