@@ -17,8 +17,8 @@
     "lint:fix": "npx @biomejs/biome check --write --unsafe ."
   },
   "dependencies": {
-    "@clerk/localizations": "^3.14.4",
-    "@clerk/react-router": "^1.6.0",
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.21.0",
     "@conform-to/react": "^1.6.1",
     "@conform-to/zod": "^1.6.1",
     "@mdx-js/rollup": "^3.1.0",

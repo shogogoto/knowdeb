@@ -4,7 +4,6 @@ import React from "react"; // これを追加
 import "../app/app.css";
 import "github-markdown-css/github-markdown.css";
 
-import { ClerkProvider } from "@clerk/clerk-react";
 import { withThemeByClassName } from "@storybook/addon-themes";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import {
@@ -22,11 +21,7 @@ const preview: Preview = {
   decorators: [
     (Story) => (
       <ThemeProvider>
-        <ClerkProvider
-          publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-        >
-          <Story />
-        </ClerkProvider>
+        <Story />
       </ThemeProvider>
     ),
     withRouter, // useNavigationとか解決
