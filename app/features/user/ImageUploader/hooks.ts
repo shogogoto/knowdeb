@@ -1,15 +1,31 @@
 import { useCallback, useEffect, useState } from "react";
+
 import type {
-  CloudinaryError,
-  CloudinaryUploadResult,
   CloudinaryUploadWidget,
-} from "../types/cloudinary";
+  CloudinaryUploadWidgetError,
+  CloudinaryUploadWidgetOptions,
+  CloudinaryUploadWidgetResults,
+} from "@cloudinary-util/types";
+
+declare global {
+  interface Window {
+    cloudinary: {
+      createUploadWidget: (
+        options: CloudinaryUploadWidgetOptions,
+        callback: (
+          error: CloudinaryUploadWidgetError | null,
+          result: CloudinaryUploadWidgetResults,
+        ) => void,
+      ) => CloudinaryUploadWidget;
+    };
+  }
+}
 
 const CLOUDINARY_UPLOAD_URL =
   "https://upload-widget.cloudinary.com/latest/global/all.js";
 
-const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET;
+const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME as string;
+const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET as string;
 const FOLDER_NAME = "profile_images";
 
 type OnUploadSuccess = (imageUrl: string) => void;
@@ -25,23 +41,25 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
       return;
     }
 
-    const widgetOptions = {
-      cloudName: CLOUD_NAME,
-      uploadPreset: UPLOAD_PRESET,
-      folder: FOLDER_NAME,
-      sources: ["local", "url", "camera"] as const,
-      cropping: true,
-      showSkipCropButton: false,
-      croppingAspectRatio: 1,
-      croppingShowDimensions: true,
-      multiple: false,
-      maxImageFileSize: 5000000, // 5MB
-    };
-
     const myWidget = window.cloudinary.createUploadWidget(
-      widgetOptions,
-      (error: CloudinaryError | null, result: CloudinaryUploadResult) => {
-        if (!error && result.event === "success" && result.info) {
+      {
+        cloudName: CLOUD_NAME,
+        uploadPreset: UPLOAD_PRESET,
+        folder: FOLDER_NAME,
+        sources: ["local", "url", "camera"],
+        cropping: true,
+        showSkipCropButton: false,
+        croppingAspectRatio: 1,
+        croppingShowDimensions: true,
+      },
+      (error, result) => {
+        if (
+          !error &&
+          result.event === "success" &&
+          result.info &&
+          typeof result.info === "object" &&
+          "secure_url" in result.info
+        ) {
           const uploadedImageUrl: string = result.info.secure_url;
           console.log("Upload success:", result.info);
           setUploadStatus("画像のアップロードが完了しました。");
@@ -60,11 +78,7 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
     setWidget(myWidget);
   }, [onUploadSuccess]);
 
-  /**
-   * Cloudinaryスクリプトのロードとウィジェットの初期化、そしてクリーンアップ
-   */
   useEffect(() => {
-    // スクリプトをロードするヘルパー関数
     const loadScript = (src: string): Promise<void> => {
       return new Promise((resolve, reject) => {
         const script = document.createElement("script");
@@ -75,12 +89,8 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
         document.body.appendChild(script);
       });
     };
-
-    // ウィジェットがすでに初期化されているか、スクリプトがロードされているか確認
-    if (widget) {
-      // ウィジェットが既に存在する場合は何もしない
-      return;
-    }
+    // ウィジェットが既に存在する場合は何もしない
+    if (widget) return;
 
     if (window.cloudinary) {
       initializeWidget();
@@ -89,15 +99,6 @@ export const useCloudinaryUpload = (onUploadSuccess?: OnUploadSuccess) => {
         .then(() => initializeWidget())
         .catch((err) => console.error("Failed to load Cloudinary script", err));
     }
-
-    return () => {
-      if (widget && typeof widget.close === "function") {
-        widget.close();
-        //setWidget(null); // stateをリセットして参照を解放
-        console.log("Cloudinary widget has been closed and cleaned up.");
-      }
-    };
-    // ----- ここまで -----
   }, [initializeWidget, widget]); // widgetを依存配列に追加
 
   const openWidget = () => {
