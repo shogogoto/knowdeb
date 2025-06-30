@@ -46,7 +46,6 @@ export const registerRegisterAuthRegisterPostBody = zod
       .default(registerRegisterAuthRegisterPostBodyIsActiveDefault),
     is_superuser: zod.boolean().or(zod.null()).optional(),
     is_verified: zod.boolean().or(zod.null()).optional(),
-    display_name: zod.string().or(zod.null()).optional(),
   })
   .describe("作成.");
 
@@ -84,16 +83,29 @@ export const verifyVerifyAuthVerifyPostBody = zod.object({
 export const verifyVerifyAuthVerifyPostResponseIsActiveDefault = true;
 export const verifyVerifyAuthVerifyPostResponseIsSuperuserDefault = false;
 export const verifyVerifyAuthVerifyPostResponseIsVerifiedDefault = false;
+export const verifyVerifyAuthVerifyPostResponseDisplayNameMaxOne = 32;
+export const verifyVerifyAuthVerifyPostResponseProfileMaxOne = 160;
 
 export const verifyVerifyAuthVerifyPostResponse = zod
   .object({
-    id: zod.string().uuid(),
+    id: zod.any(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
       .default(verifyVerifyAuthVerifyPostResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(verifyVerifyAuthVerifyPostResponseDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(verifyVerifyAuthVerifyPostResponseProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
+    created: zod.string().datetime({}),
   })
   .describe("読み取り.");
