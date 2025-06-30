@@ -17,8 +17,8 @@
     "lint:fix": "npx @biomejs/biome check --write --unsafe ."
   },
   "dependencies": {
-    "@clerk/localizations": "^3.14.4",
-    "@clerk/react-router": "^1.6.0",
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.21.0",
     "@conform-to/react": "^1.6.1",
     "@conform-to/zod": "^1.6.1",
     "@mdx-js/rollup": "^3.1.0",
@@ -35,6 +35,7 @@
     "@react-router/serve": "^7.4.0",
     "@storybook/builder-vite": "^9.0.8",
     "class-variance-authority": "^0.7.1",
+    "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "github-markdown-css": "^5.8.1",
@@ -55,6 +56,7 @@
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
     "@chromatic-com/storybook": "^4.0.0",
+    "@cloudinary-util/types": "^1.6.0",
     "@faker-js/faker": "^9.7.0",
     "@netlify/vite-plugin-react-router": "^1.0.0",
     "@react-router/dev": "^7.4.0",

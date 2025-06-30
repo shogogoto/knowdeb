@@ -251,8 +251,10 @@ export const detailKnowdeSentenceSentenceIdGetParams = zod.object({
   sentence_id: zod.string().uuid(),
 });
 
-export const detailKnowdeSentenceSentenceIdGetResponseLocationUserIsSuperuserDefault = false;
-export const detailKnowdeSentenceSentenceIdGetResponseLocationUserIsVerifiedDefault = false;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationUserOauthAccountsDefault =
+  [];
+export const detailKnowdeSentenceSentenceIdGetResponseLocationUserDisplayNameMaxOne = 32;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationUserProfileMaxOne = 160;
 
 export const detailKnowdeSentenceSentenceIdGetResponse = zod
   .object({
@@ -299,28 +301,45 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
       .object({
         user: zod
           .object({
-            uid: zod.string().uuid().or(zod.null()).optional(),
-            email: zod.string().email(),
-            hashed_password: zod.string(),
-            is_active: zod.boolean(),
-            is_superuser: zod.boolean().optional(),
-            is_verified: zod.boolean().optional(),
             oauth_accounts: zod
               .array(
                 zod
                   .object({
+                    id: zod.any(),
                     oauth_name: zod.string(),
                     access_token: zod.string(),
                     expires_at: zod.number().or(zod.null()).optional(),
                     refresh_token: zod.string().or(zod.null()).optional(),
                     account_id: zod.string(),
-                    account_email: zod.string().email(),
+                    account_email: zod.string(),
                   })
-                  .describe("OAuthAccountProtocol[UUID]を満たす."),
+                  .describe("Base OAuth account model."),
               )
+              .default(
+                detailKnowdeSentenceSentenceIdGetResponseLocationUserOauthAccountsDefault,
+              ),
+            display_name: zod
+              .string()
+              .max(
+                detailKnowdeSentenceSentenceIdGetResponseLocationUserDisplayNameMaxOne,
+              )
+              .or(zod.null())
               .optional(),
-            clerk_id: zod.string().or(zod.null()).optional(),
-            display_name: zod.string().or(zod.null()).optional(),
+            profile: zod
+              .string()
+              .max(
+                detailKnowdeSentenceSentenceIdGetResponseLocationUserProfileMaxOne,
+              )
+              .or(zod.null())
+              .optional(),
+            avatar_url: zod.string().or(zod.null()).optional(),
+            uid: zod.string().uuid().or(zod.null()).optional(),
+            email: zod.string().email(),
+            hashed_password: zod.string(),
+            is_active: zod.boolean(),
+            is_superuser: zod.boolean(),
+            is_verified: zod.boolean(),
+            created: zod.string().datetime({}),
           })
           .describe("UserProtocol[UUID]を満たす."),
         folders: zod.array(

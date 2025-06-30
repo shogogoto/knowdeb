@@ -7,28 +7,89 @@
 import { z as zod } from "zod";
 
 /**
+ * 認証なしユーザー検索.
+ * @summary Search User
+ */
+export const searchUserUserSearchGetQueryNameDefault = "";
+export const searchUserUserSearchGetQueryIdDefault = "";
+
+export const searchUserUserSearchGetQueryParams = zod.object({
+  name: zod.string().or(zod.null()).optional(),
+  id: zod.string().or(zod.null()).optional(),
+});
+
+export const searchUserUserSearchGetResponseIsActiveDefault = true;
+export const searchUserUserSearchGetResponseIsSuperuserDefault = false;
+export const searchUserUserSearchGetResponseIsVerifiedDefault = false;
+export const searchUserUserSearchGetResponseDisplayNameMaxOne = 32;
+export const searchUserUserSearchGetResponseProfileMaxOne = 160;
+
+export const searchUserUserSearchGetResponseItem = zod
+  .object({
+    id: zod.any(),
+    email: zod.string().email(),
+    is_active: zod
+      .boolean()
+      .default(searchUserUserSearchGetResponseIsActiveDefault),
+    is_superuser: zod.boolean().optional(),
+    is_verified: zod.boolean().optional(),
+    display_name: zod
+      .string()
+      .max(searchUserUserSearchGetResponseDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(searchUserUserSearchGetResponseProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
+    created: zod.string().datetime({}),
+  })
+  .describe("読み取り.");
+export const searchUserUserSearchGetResponse = zod.array(
+  searchUserUserSearchGetResponseItem,
+);
+
+/**
  * @summary Users:Current User
  */
 export const usersCurrentUserUserMeGetResponseIsActiveDefault = true;
 export const usersCurrentUserUserMeGetResponseIsSuperuserDefault = false;
 export const usersCurrentUserUserMeGetResponseIsVerifiedDefault = false;
+export const usersCurrentUserUserMeGetResponseDisplayNameMaxOne = 32;
+export const usersCurrentUserUserMeGetResponseProfileMaxOne = 160;
 
 export const usersCurrentUserUserMeGetResponse = zod
   .object({
-    id: zod.string().uuid(),
+    id: zod.any(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
       .default(usersCurrentUserUserMeGetResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(usersCurrentUserUserMeGetResponseDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(usersCurrentUserUserMeGetResponseProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
+    created: zod.string().datetime({}),
   })
   .describe("読み取り.");
 
 /**
  * @summary Users:Patch Current User
  */
+export const usersPatchCurrentUserUserMePatchBodyDisplayNameMaxOne = 32;
+export const usersPatchCurrentUserUserMePatchBodyProfileMaxOne = 160;
+
 export const usersPatchCurrentUserUserMePatchBody = zod
   .object({
     password: zod.string().or(zod.null()).optional(),
@@ -36,24 +97,47 @@ export const usersPatchCurrentUserUserMePatchBody = zod
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
     is_verified: zod.boolean().or(zod.null()).optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(usersPatchCurrentUserUserMePatchBodyDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(usersPatchCurrentUserUserMePatchBodyProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
   })
   .describe("更新.");
 
 export const usersPatchCurrentUserUserMePatchResponseIsActiveDefault = true;
 export const usersPatchCurrentUserUserMePatchResponseIsSuperuserDefault = false;
 export const usersPatchCurrentUserUserMePatchResponseIsVerifiedDefault = false;
+export const usersPatchCurrentUserUserMePatchResponseDisplayNameMaxOne = 32;
+export const usersPatchCurrentUserUserMePatchResponseProfileMaxOne = 160;
 
 export const usersPatchCurrentUserUserMePatchResponse = zod
   .object({
-    id: zod.string().uuid(),
+    id: zod.any(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
       .default(usersPatchCurrentUserUserMePatchResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(usersPatchCurrentUserUserMePatchResponseDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(usersPatchCurrentUserUserMePatchResponseProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
+    created: zod.string().datetime({}),
   })
   .describe("読み取り.");
 
@@ -67,15 +151,28 @@ export const usersUserUserIdGetParams = zod.object({
 export const usersUserUserIdGetResponseIsActiveDefault = true;
 export const usersUserUserIdGetResponseIsSuperuserDefault = false;
 export const usersUserUserIdGetResponseIsVerifiedDefault = false;
+export const usersUserUserIdGetResponseDisplayNameMaxOne = 32;
+export const usersUserUserIdGetResponseProfileMaxOne = 160;
 
 export const usersUserUserIdGetResponse = zod
   .object({
-    id: zod.string().uuid(),
+    id: zod.any(),
     email: zod.string().email(),
     is_active: zod.boolean().default(usersUserUserIdGetResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(usersUserUserIdGetResponseDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(usersUserUserIdGetResponseProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
+    created: zod.string().datetime({}),
   })
   .describe("読み取り.");
 
@@ -86,6 +183,9 @@ export const usersPatchUserUserIdPatchParams = zod.object({
   id: zod.string(),
 });
 
+export const usersPatchUserUserIdPatchBodyDisplayNameMaxOne = 32;
+export const usersPatchUserUserIdPatchBodyProfileMaxOne = 160;
+
 export const usersPatchUserUserIdPatchBody = zod
   .object({
     password: zod.string().or(zod.null()).optional(),
@@ -93,24 +193,47 @@ export const usersPatchUserUserIdPatchBody = zod
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
     is_verified: zod.boolean().or(zod.null()).optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(usersPatchUserUserIdPatchBodyDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(usersPatchUserUserIdPatchBodyProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
   })
   .describe("更新.");
 
 export const usersPatchUserUserIdPatchResponseIsActiveDefault = true;
 export const usersPatchUserUserIdPatchResponseIsSuperuserDefault = false;
 export const usersPatchUserUserIdPatchResponseIsVerifiedDefault = false;
+export const usersPatchUserUserIdPatchResponseDisplayNameMaxOne = 32;
+export const usersPatchUserUserIdPatchResponseProfileMaxOne = 160;
 
 export const usersPatchUserUserIdPatchResponse = zod
   .object({
-    id: zod.string().uuid(),
+    id: zod.any(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
       .default(usersPatchUserUserIdPatchResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
     is_verified: zod.boolean().optional(),
-    display_name: zod.string().or(zod.null()).optional(),
+    display_name: zod
+      .string()
+      .max(usersPatchUserUserIdPatchResponseDisplayNameMaxOne)
+      .or(zod.null())
+      .optional(),
+    profile: zod
+      .string()
+      .max(usersPatchUserUserIdPatchResponseProfileMaxOne)
+      .or(zod.null())
+      .optional(),
+    avatar_url: zod.string().or(zod.null()).optional(),
+    created: zod.string().datetime({}),
   })
   .describe("読み取り.");
 

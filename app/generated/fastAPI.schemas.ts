@@ -4,18 +4,19 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
-export type AccountExpiresAt = number | null;
+export type BaseOAuthAccountExpiresAt = number | null;
 
-export type AccountRefreshToken = string | null;
+export type BaseOAuthAccountRefreshToken = string | null;
 
 /**
- * OAuthAccountProtocol[UUID]を満たす.
+ * Base OAuth account model.
  */
-export interface Account {
+export interface BaseOAuthAccount {
+  id: unknown;
   oauth_name: string;
   access_token: string;
-  expires_at?: AccountExpiresAt;
-  refresh_token?: AccountRefreshToken;
+  expires_at?: BaseOAuthAccountExpiresAt;
+  refresh_token?: BaseOAuthAccountRefreshToken;
   account_id: string;
   account_email: string;
 }
@@ -74,30 +75,6 @@ export interface BodyVerifyRequestTokenAuthRequestVerifyTokenPost {
 
 export interface BodyVerifyVerifyAuthVerifyPost {
   token: string;
-}
-
-/**
- * Webhook sent event.
- */
-export type ClerkEventType =
-  (typeof ClerkEventType)[keyof typeof ClerkEventType];
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const ClerkEventType = {
-  usercreated: "user.created",
-  userupdated: "user.updated",
-  userdeleted: "user.deleted",
-  emailcreated: "email.created",
-} as const;
-
-export type ClerkPayloadData = { [key: string]: unknown };
-
-/**
- * webhook request json.
- */
-export interface ClerkPayload {
-  data: ClerkPayloadData;
-  type: ClerkEventType;
 }
 
 /**
@@ -345,25 +322,29 @@ export interface UidStr {
   uid: string;
 }
 
-export type UserUid = string | null;
-
-export type UserClerkId = string | null;
-
 export type UserDisplayName = string | null;
+
+export type UserProfile = string | null;
+
+export type UserAvatarUrl = string | null;
+
+export type UserUid = string | null;
 
 /**
  * UserProtocol[UUID]を満たす.
  */
 export interface User {
+  oauth_accounts?: BaseOAuthAccount[];
+  display_name?: UserDisplayName;
+  profile?: UserProfile;
+  avatar_url?: UserAvatarUrl;
   uid?: UserUid;
   email: string;
   hashed_password: string;
   is_active: boolean;
-  is_superuser?: boolean;
-  is_verified?: boolean;
-  oauth_accounts?: Account[];
-  clerk_id?: UserClerkId;
-  display_name?: UserDisplayName;
+  is_superuser: boolean;
+  is_verified: boolean;
+  created: string;
 }
 
 export type UserCreateIsActive = boolean | null;
@@ -371,8 +352,6 @@ export type UserCreateIsActive = boolean | null;
 export type UserCreateIsSuperuser = boolean | null;
 
 export type UserCreateIsVerified = boolean | null;
-
-export type UserCreateDisplayName = string | null;
 
 /**
  * 作成.
@@ -383,21 +362,27 @@ export interface UserCreate {
   is_active?: UserCreateIsActive;
   is_superuser?: UserCreateIsSuperuser;
   is_verified?: UserCreateIsVerified;
-  display_name?: UserCreateDisplayName;
 }
 
 export type UserReadDisplayName = string | null;
+
+export type UserReadProfile = string | null;
+
+export type UserReadAvatarUrl = string | null;
 
 /**
  * 読み取り.
  */
 export interface UserRead {
-  id: string;
+  id: unknown;
   email: string;
   is_active?: boolean;
   is_superuser?: boolean;
   is_verified?: boolean;
   display_name?: UserReadDisplayName;
+  profile?: UserReadProfile;
+  avatar_url?: UserReadAvatarUrl;
+  created: string;
 }
 
 export type UserUpdatePassword = string | null;
@@ -412,6 +397,10 @@ export type UserUpdateIsVerified = boolean | null;
 
 export type UserUpdateDisplayName = string | null;
 
+export type UserUpdateProfile = string | null;
+
+export type UserUpdateAvatarUrl = string | null;
+
 /**
  * 更新.
  */
@@ -422,6 +411,8 @@ export interface UserUpdate {
   is_superuser?: UserUpdateIsSuperuser;
   is_verified?: UserUpdateIsVerified;
   display_name?: UserUpdateDisplayName;
+  profile?: UserUpdateProfile;
+  avatar_url?: UserUpdateAvatarUrl;
 }
 
 export type ValidationErrorLocItem = string | number;
@@ -454,6 +445,11 @@ export type OauthGoogleCookieCallbackGoogleCookieCallbackGetParams = {
   error?: string | null;
 };
 
+export type SearchUserUserSearchGetParams = {
+  name?: string | null;
+  id?: string | null;
+};
+
 export type SearchByTextKnowdeGetParams = {
   q?: string;
   type?: SearchByTextKnowdeGetType;
@@ -480,5 +476,3 @@ export const SearchByTextKnowdeGetType = {
   REGEX: "REGEX",
   EQUAL: "EQUAL",
 } as const;
-
-export type ClerkWebhookWebhookClerkPost200 = User | null;

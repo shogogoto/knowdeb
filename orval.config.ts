@@ -16,7 +16,7 @@ export default defineConfig({
       target: "http://localhost:8000/openapi.json",
     },
     hooks: {
-      afterAllFilesWrite: "biome check --fix --unsafe",
+      afterAllFilesWrite: "npm run lint:fix",
     },
   },
   petstoreZod: {

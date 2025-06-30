@@ -10,10 +10,44 @@ import { http, HttpResponse, delay } from "msw";
 
 import type { UserRead } from "../fastAPI.schemas";
 
+export const getSearchUserUserSearchGetResponseMock = (): UserRead[] =>
+  Array.from(
+    { length: faker.number.int({ min: 1, max: 10 }) },
+    (_, i) => i + 1,
+  ).map(() => ({
+    id: {},
+    email: faker.internet.email(),
+    is_active: faker.helpers.arrayElement([
+      faker.datatype.boolean(),
+      undefined,
+    ]),
+    is_superuser: faker.helpers.arrayElement([
+      faker.datatype.boolean(),
+      undefined,
+    ]),
+    is_verified: faker.helpers.arrayElement([
+      faker.datatype.boolean(),
+      undefined,
+    ]),
+    display_name: faker.helpers.arrayElement([
+      faker.helpers.arrayElement([faker.string.alpha(20), null]),
+      undefined,
+    ]),
+    profile: faker.helpers.arrayElement([
+      faker.helpers.arrayElement([faker.string.alpha(20), null]),
+      undefined,
+    ]),
+    avatar_url: faker.helpers.arrayElement([
+      faker.helpers.arrayElement([faker.string.alpha(20), null]),
+      undefined,
+    ]),
+    created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+  }));
+
 export const getUsersCurrentUserUserMeGetResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.uuid(),
+  id: {},
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -28,13 +62,22 @@ export const getUsersCurrentUserUserMeGetResponseMock = (
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
+  profile: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  avatar_url: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });
 
 export const getUsersPatchCurrentUserUserMePatchResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.uuid(),
+  id: {},
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -49,13 +92,22 @@ export const getUsersPatchCurrentUserUserMePatchResponseMock = (
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
+  profile: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  avatar_url: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });
 
 export const getUsersUserUserIdGetResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.uuid(),
+  id: {},
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -70,13 +122,22 @@ export const getUsersUserUserIdGetResponseMock = (
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
+  profile: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  avatar_url: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });
 
 export const getUsersPatchUserUserIdPatchResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.uuid(),
+  id: {},
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -91,8 +152,40 @@ export const getUsersPatchUserUserIdPatchResponseMock = (
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
+  profile: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  avatar_url: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });
+
+export const getSearchUserUserSearchGetMockHandler = (
+  overrideResponse?:
+    | UserRead[]
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<UserRead[]> | UserRead[]),
+) => {
+  return http.get("*/user/search", async (info) => {
+    await delay(1000);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSearchUserUserSearchGetResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 
 export const getUsersCurrentUserUserMeGetMockHandler = (
   overrideResponse?:
@@ -202,6 +295,7 @@ export const getUsersDeleteUserUserIdDeleteMockHandler = (
   });
 };
 export const getUserMock = () => [
+  getSearchUserUserSearchGetMockHandler(),
   getUsersCurrentUserUserMeGetMockHandler(),
   getUsersPatchCurrentUserUserMePatchMockHandler(),
   getUsersUserUserIdGetMockHandler(),

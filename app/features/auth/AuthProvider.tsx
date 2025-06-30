@@ -20,6 +20,7 @@ interface AuthContextT {
   isValidating: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
+  isAuthorized: boolean;
 }
 
 export const AuthContext = createContext<AuthContextT | undefined>(undefined);
@@ -38,7 +39,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     useUsersCurrentUserUserMeGet({
       fetch: { credentials: "include" },
     });
-
+  const isAuthorized = data?.status === 200;
   useEffect(() => {
     if (data?.data === null) {
       setUser(null);
@@ -89,6 +90,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         isValidating,
         signIn,
         signOut,
+        isAuthorized,
       }}
     >
       {children}

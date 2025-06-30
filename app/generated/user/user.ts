@@ -13,10 +13,120 @@ import type { SWRMutationConfiguration } from "swr/mutation";
 import type {
   ErrorModel,
   HTTPValidationError,
+  SearchUserUserSearchGetParams,
   UserRead,
   UserUpdate,
 } from "../fastAPI.schemas";
 
+/**
+ * 認証なしユーザー検索.
+ * @summary Search User
+ */
+export type searchUserUserSearchGetResponse200 = {
+  data: UserRead[];
+  status: 200;
+};
+
+export type searchUserUserSearchGetResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type searchUserUserSearchGetResponseComposite =
+  | searchUserUserSearchGetResponse200
+  | searchUserUserSearchGetResponse422;
+
+export type searchUserUserSearchGetResponse =
+  searchUserUserSearchGetResponseComposite & {
+    headers: Headers;
+  };
+
+export const getSearchUserUserSearchGetUrl = (
+  params?: SearchUserUserSearchGetParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `https://knowde.onrender.com/user/search?${stringifiedParams}`
+    : "https://knowde.onrender.com/user/search";
+};
+
+export const searchUserUserSearchGet = async (
+  params?: SearchUserUserSearchGetParams,
+  options?: RequestInit,
+): Promise<searchUserUserSearchGetResponse> => {
+  const res = await fetch(getSearchUserUserSearchGetUrl(params), {
+    ...options,
+    method: "GET",
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: searchUserUserSearchGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as searchUserUserSearchGetResponse;
+};
+
+export const getSearchUserUserSearchGetKey = (
+  params?: SearchUserUserSearchGetParams,
+) =>
+  [
+    "https://knowde.onrender.com/user/search",
+    ...(params ? [params] : []),
+  ] as const;
+
+export type SearchUserUserSearchGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof searchUserUserSearchGet>>
+>;
+export type SearchUserUserSearchGetQueryError = Promise<HTTPValidationError>;
+
+/**
+ * @summary Search User
+ */
+export const useSearchUserUserSearchGet = <
+  TError = Promise<HTTPValidationError>,
+>(
+  params?: SearchUserUserSearchGetParams,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof searchUserUserSearchGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() => (isEnabled ? getSearchUserUserSearchGetKey(params) : null));
+  const swrFn = () => searchUserUserSearchGet(params, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
 /**
  * @summary Users:Current User
  */
