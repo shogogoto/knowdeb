@@ -30,7 +30,7 @@ export default function ImageUploader() {
   return (
     <>
       <Button onClick={openWidget} disabled={!widget}>
-        画像を選択・加工してアップロード
+        画像アップロード
       </Button>
       <p>{uploadStatus}</p>
       {imageUrl && <UploadedPreview url={imageUrl} />}

@@ -63,7 +63,32 @@ export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
         showSkipCropButton: false,
         croppingAspectRatio: 1,
         croppingShowDimensions: true,
+        maxImageFileSize: 5000000, // 5MB
         publicId,
+        // biome-ignore lint/suspicious/noExplicitAny:
+        uploadSignature: async (callback: any, params_to_sign: any) => {
+          try {
+            // サーバーサイドの署名APIを呼び出す
+            console.log("Fetching upload signature:", params_to_sign);
+            const response = await fetch("/api/cloudinary-sign-upload", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(params_to_sign),
+            });
+
+            if (!response.ok) {
+              throw new Error("Failed to fetch upload signature");
+            }
+
+            const { signature, timestamp } = await response.json();
+            callback(null, { signature, timestamp });
+          } catch (error) {
+            console.error("Error fetching upload signature:", error);
+            callback(error, null);
+          }
+        },
       },
       (error, result) => {
         if (
