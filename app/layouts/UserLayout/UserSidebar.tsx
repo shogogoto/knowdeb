@@ -53,13 +53,7 @@ export default function UserSidebar() {
           <LogoSideItem />
           <SidebarMenuItem title="ユーザー">
             <SidebarMenuButton size="lg">
-              <UserNavi
-                user={{
-                  name: user?.email || "test",
-                  display_name: user?.id || "test",
-                  avatar_src: "https://github.com/shadcn.png",
-                }}
-              />
+              <UserNavi user={user} />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

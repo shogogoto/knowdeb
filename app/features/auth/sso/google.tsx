@@ -25,7 +25,6 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
   const urlParams = new URLSearchParams(new URL(request.url).search);
   const code = urlParams.get("code");
   const state = urlParams.get("state");
-  // const { data } = useOauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet();
   const res = await oauthGoogleCookieCallbackGoogleCookieCallbackGet(
     { state, code },
     { credentials: "include" },

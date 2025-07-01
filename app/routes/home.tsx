@@ -1,5 +1,7 @@
 import { Link } from "react-router";
+import { Button } from "~/components/ui/button";
 import { useAuth } from "~/features/auth/AuthProvider";
+import { uploadImage } from "~/features/user/ImageUploader";
 import type { Route } from "./+types/home";
 
 // export function meta({}: Route.MetaArgs) {
@@ -12,6 +14,8 @@ export function meta() {
     },
   ];
 }
+
+export const clientAction = uploadImage;
 
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { user, isLoading, isValidating } = useAuth();
@@ -30,9 +34,13 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </Link>
       <div>{isValidating}</div>
       <div className={isLoading ? "loading" : "hidden"}>aaa</div>
-      <div>{user?.id}</div>
+      <div>{user?.id as string}</div>
       <div>{user?.email}</div>
       <div>{user?.display_name}</div>
+      <div>{user?.profile}</div>
+      <Button>
+        <Link to="/user/edit">プロフ編集</Link>
+      </Button>
     </>
   );
 }

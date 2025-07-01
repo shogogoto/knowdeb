@@ -5,6 +5,7 @@ import { Navigate } from "react-router";
 import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
 import { useAuth } from "../AuthProvider";
 import AuthForm, { authSchema } from "../components/AuthForm";
+
 export async function signInAction(username: string, password: string) {
   const res = await authCookieLoginAuthCookieLoginPost(
     {

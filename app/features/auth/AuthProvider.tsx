@@ -21,6 +21,7 @@ interface AuthContextT {
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   isAuthorized: boolean;
+  mutate: () => void;
 }
 
 export const AuthContext = createContext<AuthContextT | undefined>(undefined);
@@ -91,6 +92,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         signIn,
         signOut,
         isAuthorized,
+        mutate,
       }}
     >
       {children}

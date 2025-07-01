@@ -15,6 +15,8 @@ export default [
     index("routes/docs/LandingPage.tsx"),
     route("search", "routes/search/index.tsx"),
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
+    route("register", "routes/user/register.tsx"),
+    route("login", "routes/user/login.tsx"),
   ]),
 
   layout("layouts/DocumentLayout/index.tsx", [
@@ -25,9 +27,10 @@ export default [
     route("docs/features", "routes/docs/features.mdx"),
   ]),
 
-  route("register", "routes/user/register.tsx"),
-  route("login", "routes/user/login.tsx"),
-  layout("layouts/UserLayout/index.tsx", [route("home", "routes/home.tsx")]),
+  layout("layouts/UserLayout/index.tsx", [
+    route("home", "routes/home.tsx"),
+    route("user/edit", "routes/user/edit.tsx"),
+  ]),
 
   route("/api/cloudinary-sign-upload", "routes/user/signUpload.ts"),
 

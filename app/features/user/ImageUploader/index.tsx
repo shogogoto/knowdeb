@@ -17,6 +17,11 @@ export async function uploadImage({ request }: { request: Request }) {
   return { success: false, message: "画像のURLが見つかりませんでした。" };
 }
 
+type Props = {
+  publicId: string;
+  onUploadSuccess: (imageUrl: string) => void;
+};
+
 export default function ImageUploader() {
   const submit = useSubmit();
   const { openWidget, uploadStatus, imageUrl, widget } = useCloudinaryUpload({
