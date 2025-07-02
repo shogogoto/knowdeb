@@ -22,6 +22,7 @@ interface AuthContextT {
   signOut: () => Promise<void>;
   isAuthorized: boolean;
   mutate: () => void;
+  setUser: React.Dispatch<React.SetStateAction<UserRead | null>>;
 }
 
 export const AuthContext = createContext<AuthContextT | undefined>(undefined);
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         );
         await mutate();
         if (res.status === 204) {
+          await mutate();
           navigate("/home");
         } else {
           console.error("signIn: Login failed with status", res.status);
@@ -93,6 +95,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         signOut,
         isAuthorized,
         mutate,
+        setUser,
       }}
     >
       {children}

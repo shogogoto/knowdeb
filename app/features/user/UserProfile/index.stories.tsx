@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { getUsersCurrentUserUserMeGetResponseMock } from "~/generated/user/user.msw";
+import { faker } from "@faker-js/faker";
 import Index from "./index";
 
 const meta = {
@@ -13,6 +13,12 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    user: getUsersCurrentUserUserMeGetResponseMock(),
+    user: {
+      display_name: "ナナシ",
+      email: "LjTq4@example.com",
+      profile: faker.helpers.arrayElement([faker.string.alpha(160), null]),
+      id: "0123456789",
+      created: "2023-01-01",
+    },
   },
 };

@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
+import { getUsersCurrentUserUserMeGetResponseMock } from "~/generated/user/user.msw";
 import Index from "./index";
 
 const meta = {
@@ -13,9 +14,8 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     user: {
-      name: "test",
-      display_name: "display_name",
-      avatar_src: "https://github.com/shadcn.png",
+      ...getUsersCurrentUserUserMeGetResponseMock(),
+      avatar_url: "https://github.com/shadcn.png",
     },
   },
 };

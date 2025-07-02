@@ -1,7 +1,6 @@
 import { useSubmit } from "react-router";
 import { Button } from "~/components/ui/button";
-import UploadedPreview from "./UploadedPreviw";
-import { useCloudinaryUpload } from "./hooks";
+import useCloudinaryUpload from "./hooks";
 
 export async function uploadImage({ request }: { request: Request }) {
   const formData = await request.formData();
@@ -19,26 +18,24 @@ export async function uploadImage({ request }: { request: Request }) {
 
 type Props = {
   publicId: string;
-  onUploadSuccess: (imageUrl: string) => void;
+  onUploadWith?: (imageUrl: string) => void;
 };
 
-export default function ImageUploader() {
+export default function ImageUploader({ publicId, onUploadWith }: Props) {
   const submit = useSubmit();
-  const { openWidget, uploadStatus, imageUrl, widget } = useCloudinaryUpload({
-    publicId: "aaaa",
+  const { openWidget, imageUrl, widget } = useCloudinaryUpload({
+    publicId,
     onUploadSuccess: (uploadedImageUrl) => {
       const formData = new FormData();
       formData.append("profile_image_url", uploadedImageUrl);
-      submit(formData, { method: "post" });
+      onUploadWith?.(uploadedImageUrl);
+      // submit(formData, { method: "post" });
     },
   });
   return (
-    <>
-      <Button onClick={openWidget} disabled={!widget}>
-        画像アップロード
-      </Button>
-      <p>{uploadStatus}</p>
-      {imageUrl && <UploadedPreview url={imageUrl} />}
-    </>
+    <Button onClick={openWidget} disabled={!widget}>
+      画像をアップロード
+      {imageUrl}
+    </Button>
   );
 }

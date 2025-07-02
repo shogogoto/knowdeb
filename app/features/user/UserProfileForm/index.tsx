@@ -8,8 +8,11 @@ import { Input } from "~/components/ui/input"; // Inputコンポーネントをi
 import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea"; // Textareaコンポーネントをimport
 import { useAuth } from "~/features/auth/AuthProvider";
-import { usersPatchCurrentUserUserMePatchBody } from "~/generated/user/user.zod";
-import ImageUploader from "../ImageUploader";
+import {
+  usersPatchCurrentUserUserMePatchBody,
+  usersPatchCurrentUserUserMePatchResponseProfileMaxOne,
+} from "~/generated/user/user.zod";
+import useCloudinaryUpload from "../ImageUploader/hooks";
 
 export const UserProfileSchema = usersPatchCurrentUserUserMePatchBody.pick({
   display_name: true,
@@ -20,7 +23,13 @@ export const UserProfileSchema = usersPatchCurrentUserUserMePatchBody.pick({
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
 
 export default function UserProfileForm() {
-  const { user, isAuthorized, isLoading: isUserLoading, mutate } = useAuth();
+  const {
+    user,
+    setUser,
+    isAuthorized,
+    isLoading: isUserLoading,
+    mutate,
+  } = useAuth();
   const fetcher = useFetcher();
   const lastSubmission = fetcher.data;
   const navigation = useNavigation();
@@ -38,6 +47,15 @@ export default function UserProfileForm() {
     shouldValidate: "onBlur",
     shouldRevalidate: "onInput",
     constraint: getZodConstraint(UserProfileSchema),
+  });
+  const { openWidget, imageUrl, widget } = useCloudinaryUpload({
+    publicId: user?.id as string,
+    onUploadSuccess: (imageUrl) => {
+      if (user) {
+        setUser({ ...user, avatar_url: imageUrl });
+        form.update({ name: "avatar_url", value: imageUrl });
+      }
+    },
   });
 
   // フォーム送信成功後、SWRのキャッシュを更新
@@ -90,10 +108,9 @@ export default function UserProfileForm() {
               プロフィール画像
             </Label>
             <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-border">
-              {/* フォームの現在の値から画像を表示 */}
-              {fields.avatar_url.initialValue ? (
+              {fields.avatar_url.value ? (
                 <img
-                  src={fields.avatar_url.initialValue as string}
+                  src={fields.avatar_url.value as string}
                   alt="プロフィール画像"
                   className="w-full h-full object-cover"
                 />
@@ -103,21 +120,14 @@ export default function UserProfileForm() {
                 </div>
               )}
             </div>
-
-            {/* ImageUploaderコンポーネントと隠しフィールド */}
-            <ImageUploader
-              // userがロードされた後にpublicIdを渡す
-              publicId={user?.id}
-              onUploadSuccess={(url) =>
-                form.update({ name: "avatar_url", value: url })
-              }
-            />
-            <input
+            <Button onClick={openWidget} disabled={!widget}>
+              画像アップロード
+            </Button>
+            <Input
               {...getInputProps(fields.avatar_url, { type: "hidden" })}
               name={fields.avatar_url.name}
               defaultValue={fields.avatar_url.initialValue}
             />
-
             <Button
               type="button"
               variant="ghost"
@@ -142,7 +152,6 @@ export default function UserProfileForm() {
             )}
           </div>
 
-          {/* プロフィールフィールド */}
           <div className="grid w-full max-w-sm items-center gap-1.5">
             <Label htmlFor={fields.profile.id}>プロフィール</Label>
             <Textarea
@@ -155,9 +164,12 @@ export default function UserProfileForm() {
                 {fields.profile.errors}
               </span>
             )}
+            <div className="text-right text-sm text-gray-500">
+              {fields.profile.value?.length || 0} /{" "}
+              {usersPatchCurrentUserUserMePatchResponseProfileMaxOne}
+            </div>
           </div>
 
-          {/* 更新ボタン */}
           <Button type="submit" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? "更新中..." : "更新"}
           </Button>

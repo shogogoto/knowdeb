@@ -43,7 +43,7 @@ export default defineConfig({
     },
   ],
   test: {
-    globals: true, // テスト関数のインポート省略
+    globals: true, // `describe`, `it`, `expect` テスト関数のインポート省略
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
     // projects: [

@@ -21,9 +21,6 @@ declare global {
   }
 }
 
-const CLOUDINARY_UPLOAD_URL =
-  "https://upload-widget.cloudinary.com/latest/global/all.js";
-
 const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME as string;
 const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET as string;
 const FOLDER_NAME = "avatar";
@@ -33,8 +30,10 @@ type Props = {
   onUploadSuccess: (imageUrl: string) => void;
 };
 
-export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
-  const [uploadStatus, setUploadStatus] = useState<string>("");
+export default function useCloudinaryUpload({
+  onUploadSuccess,
+  publicId,
+}: Props) {
   const [imageUrl, setImageUrl] = useState<string>("");
   const [widget, setWidget] = useState<CloudinaryUploadWidget | null>(null);
 
@@ -65,30 +64,30 @@ export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
         croppingShowDimensions: true,
         maxImageFileSize: 5000000, // 5MB
         publicId,
-        // biome-ignore lint/suspicious/noExplicitAny:
-        uploadSignature: async (callback: any, params_to_sign: any) => {
-          try {
-            // サーバーサイドの署名APIを呼び出す
-            console.log("Fetching upload signature:", params_to_sign);
-            const response = await fetch("/api/cloudinary-sign-upload", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify(params_to_sign),
-            });
-
-            if (!response.ok) {
-              throw new Error("Failed to fetch upload signature");
-            }
-
-            const { signature, timestamp } = await response.json();
-            callback(null, { signature, timestamp });
-          } catch (error) {
-            console.error("Error fetching upload signature:", error);
-            callback(error, null);
-          }
-        },
+        //// biome-ignore lint/suspicious/noExplicitAny:
+        //   uploadSignature: async (callback: any, params_to_sign: any) => {
+        //     try {
+        //       // サーバーサイドの署名APIを呼び出す
+        //       console.log("Fetching upload signature:", params_to_sign);
+        //       const response = await fetch("/api/cloudinary-sign-upload", {
+        //         method: "POST",
+        //         headers: {
+        //           "Content-Type": "application/json",
+        //         },
+        //         body: JSON.stringify(params_to_sign),
+        //       });
+        //
+        //       if (!response.ok) {
+        //         throw new Error("Failed to fetch upload signature");
+        //       }
+        //
+        //       const { signature, timestamp } = await response.json();
+        //       callback(null, { signature, timestamp });
+        //     } catch (error) {
+        //       console.error("Error fetching upload signature:", error);
+        //       callback(error, null);
+        //     }
+        //   },
       },
       (error, result) => {
         if (
@@ -99,16 +98,14 @@ export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
           "secure_url" in result.info
         ) {
           const uploadedImageUrl: string = result.info.secure_url;
-          console.log("Upload success:", result.info);
-          setUploadStatus("画像のアップロードが完了しました。");
+          console.log("画像のアップロードが完了しました。:", result.info);
           setImageUrl(uploadedImageUrl);
 
           if (onUploadSuccess) {
             onUploadSuccess(uploadedImageUrl);
           }
         } else if (error) {
-          setUploadStatus("アップロードに失敗しました。");
-          console.error("Upload error:", error);
+          console.error("アップロードに失敗しました。:", error);
         }
       },
     );
@@ -133,6 +130,8 @@ export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
     if (window.cloudinary) {
       initializeWidget();
     } else {
+      const CLOUDINARY_UPLOAD_URL =
+        "https://upload-widget.cloudinary.com/latest/global/all.js";
       loadScript(CLOUDINARY_UPLOAD_URL)
         .then(() => initializeWidget())
         .catch((err) => console.error("Failed to load Cloudinary script", err));
@@ -147,5 +146,5 @@ export function useCloudinaryUpload({ onUploadSuccess, publicId }: Props) {
     }
   };
 
-  return { openWidget, uploadStatus, imageUrl, widget };
+  return { openWidget, imageUrl, widget };
 }

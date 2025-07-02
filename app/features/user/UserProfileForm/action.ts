@@ -1,10 +1,11 @@
 import { parseWithZod } from "@conform-to/zod";
-import { type ActionFunctionArgs, redirect } from "react-router";
+import type { ActionFunctionArgs } from "react-router";
 import { usersPatchCurrentUserUserMePatch } from "~/generated/user/user"; // orvalが生成したAPIクライアント
 import { UserProfileSchema } from ".";
 
 export async function editUserProfile({ request }: ActionFunctionArgs) {
   const formData = await request.formData();
+  console.log(formData);
   const submission = parseWithZod(formData, { schema: UserProfileSchema });
   if (submission.status !== "success") {
     return submission.reply();
@@ -19,5 +20,5 @@ export async function editUserProfile({ request }: ActionFunctionArgs) {
       ],
     });
   }
-  return redirect("/home");
+  // return redirect("/home");
 }
