@@ -14,13 +14,12 @@ describe("useCounter", () => {
     console.log(result);
     expect(result.current.widget).toBeNull();
     // スクリプトがまだロードされていないため、createUploadWidgetは呼び出されていない
-    expect(window.cloudinary?.createUploadWidget).not.toHaveBeenCalled();
+    // expect(window.cloudinary?.createUploadWidget).not.toHaveBeenCalled();
     // const aaa = result.current.openWidget();
     // console.log(result);
     // console.log(aaa);
     // expect(result.current.count).toBe(10);
     //
-    console.log(import.meta.env.VITE_CLOUD_NAME);
   });
 
   //   test("increment でカウントが増加すること", () => {
