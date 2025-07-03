@@ -19,6 +19,7 @@ export const Default: Story = {
       profile: faker.helpers.arrayElement([faker.string.alpha(160), null]),
       id: "0123456789",
       created: "2023-01-01",
+      avatar_url: "https://github.com/shadcn.png",
     },
   },
 };
