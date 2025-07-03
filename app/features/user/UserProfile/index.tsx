@@ -1,7 +1,7 @@
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { UserRead } from "~/generated/fastAPI.schemas";
-import { getTransformedImageUrl } from "./libs";
+import { getTransformedImageUrl } from "../libs/image";
 
 type Props = {
   user: UserRead;

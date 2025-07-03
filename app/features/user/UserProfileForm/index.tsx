@@ -13,6 +13,7 @@ import {
   usersPatchCurrentUserUserMePatchResponseProfileMaxOne,
 } from "~/generated/user/user.zod";
 import useCloudinaryUpload from "../ImageUploader/hooks";
+import { getTransformedImageUrl } from "../libs/image";
 
 export const UserProfileSchema = usersPatchCurrentUserUserMePatchBody.pick({
   display_name: true,
@@ -82,6 +83,13 @@ export default function UserProfileForm() {
     );
   }
 
+  const avatarDisplayUrl = getTransformedImageUrl(
+    fields.avatar_url.value,
+    128,
+    128,
+    "fill",
+  );
+
   return (
     <div className="">
       <div className="p-6 bg-card rounded-lg shadow-lg">
@@ -108,9 +116,9 @@ export default function UserProfileForm() {
               プロフィール画像
             </Label>
             <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-border">
-              {fields.avatar_url.value ? (
+              {avatarDisplayUrl ? (
                 <img
-                  src={fields.avatar_url.value as string}
+                  src={avatarDisplayUrl}
                   alt="プロフィール画像"
                   className="w-full h-full object-cover"
                 />
