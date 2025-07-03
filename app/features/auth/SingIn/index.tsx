@@ -5,6 +5,7 @@ import { Navigate } from "react-router";
 import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
 import { useAuth } from "../AuthProvider";
 import AuthForm, { authSchema } from "../components/AuthForm";
+
 export async function signInAction(username: string, password: string) {
   const res = await authCookieLoginAuthCookieLoginPost(
     {
@@ -36,9 +37,9 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
 
 export default function SignInForm() {
   const lastResult = useActionData<typeof UserSignInAction>();
-  const { user } = useAuth();
+  const { isAuthorized } = useAuth();
 
-  if (user) {
+  if (isAuthorized) {
     return <Navigate to="/home" />;
   }
 

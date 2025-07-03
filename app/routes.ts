@@ -11,12 +11,6 @@ export const config = {
 };
 
 export default [
-  layout("layouts/GuestLayout/index.tsx", [
-    index("routes/docs/LandingPage.tsx"),
-    route("search", "routes/search/index.tsx"),
-    route("knowde/:id", "routes/knowde/detail/index.tsx"),
-  ]),
-
   layout("layouts/DocumentLayout/index.tsx", [
     route("docs/toc", "routes/docs/toc.tsx"),
     route("docs/get-started", "routes/docs/get-started.mdx"),
@@ -25,9 +19,21 @@ export default [
     route("docs/features", "routes/docs/features.mdx"),
   ]),
 
-  route("register", "routes/user/register.tsx"),
-  route("login", "routes/user/login.tsx"),
-  layout("layouts/UserLayout/index.tsx", [route("home", "routes/home.tsx")]),
+  layout("layouts/GuestLayout/index.tsx", [
+    index("routes/docs/LandingPage.tsx"),
+    route("search", "routes/search/index.tsx"),
+    route("knowde/:id", "routes/knowde/detail/index.tsx"),
+    route("register", "routes/user/register.tsx"),
+    route("login", "routes/user/login.tsx"),
+  ]),
+
+  layout("layouts/UserLayout/index.tsx", [
+    route("home", "routes/home.tsx"),
+    route("user/edit", "routes/user/edit.tsx"),
+    route("user/:userId", "routes/user/search.tsx"),
+  ]),
+
+  route("/api/cloudinary-sign-upload", "routes/user/signUpload.ts"),
 
   route("google/authorize", "routes/sso/google/authorize.tsx"),
   route("google/callback", "routes/sso/google/callback.tsx"),

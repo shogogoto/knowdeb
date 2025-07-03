@@ -21,7 +21,7 @@ export const getAuthJwtLoginAuthJwtLoginPostResponseMock = (
 export const getRegisterRegisterAuthRegisterPostResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.uuid(),
+  id: {},
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -36,13 +36,22 @@ export const getRegisterRegisterAuthRegisterPostResponseMock = (
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
+  profile: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  avatar_url: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });
 
 export const getVerifyVerifyAuthVerifyPostResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.uuid(),
+  id: {},
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -57,6 +66,15 @@ export const getVerifyVerifyAuthVerifyPostResponseMock = (
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
     undefined,
   ]),
+  profile: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  avatar_url: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });
 

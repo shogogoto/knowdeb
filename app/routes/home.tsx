@@ -1,8 +1,7 @@
-import { Link } from "react-router";
 import { useAuth } from "~/features/auth/AuthProvider";
+import UserProfile from "~/features/user/UserProfile";
 import type { Route } from "./+types/home";
 
-// export function meta({}: Route.MetaArgs) {
 export function meta() {
   return [
     { title: "Knowde" },
@@ -16,23 +15,18 @@ export function meta() {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const { user, isLoading, isValidating } = useAuth();
 
-  if (isLoading) {
+  if (user === null)
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="text-xl font-semibold">ユーザー情報を読み込み中...</div>
+      <div className="text-center p-8 bg-card rounded-lg shadow-lg">
+        <p className="text-destructive font-bold">認証されていません。</p>
+        <p className="text-muted-foreground mt-2">ログインしてしてください。</p>
       </div>
     );
-  }
+
   return (
     <>
-      <Link to="/login">
-        <h1>ホーム</h1>
-      </Link>
-      <div>{isValidating}</div>
-      <div className={isLoading ? "loading" : "hidden"}>aaa</div>
-      <div>{user?.id}</div>
-      <div>{user?.email}</div>
-      <div>{user?.display_name}</div>
+      <UserProfile user={user} />
+      <div className="mt-8">namespace</div>
     </>
   );
 }

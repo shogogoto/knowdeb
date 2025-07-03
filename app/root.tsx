@@ -65,6 +65,14 @@ export default function App({ loaderData }: Route.ComponentProps) {
     </ThemeProvider>
   );
 }
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./components/ui/card";
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";
@@ -82,14 +90,20 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="flex items-center justify-center min-h-screen p-4">
+      <Card className="w-full max-w-lg">
+        <CardHeader>
+          <CardTitle>{message}</CardTitle>
+          <CardDescription>{details}</CardDescription>
+        </CardHeader>
+        {stack && (
+          <CardContent>
+            <pre className="w-full p-4 overflow-x-auto bg-gray-100 dark:bg-gray-800 rounded-md">
+              <code>{stack}</code>
+            </pre>
+          </CardContent>
+        )}
+      </Card>
     </main>
   );
 }

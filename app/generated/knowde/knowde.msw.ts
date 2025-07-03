@@ -278,26 +278,12 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
   },
   location: {
     user: {
-      uid: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.uuid(), null]),
-        undefined,
-      ]),
-      email: faker.internet.email(),
-      hashed_password: faker.string.alpha(20),
-      is_active: faker.datatype.boolean(),
-      is_superuser: faker.helpers.arrayElement([
-        faker.datatype.boolean(),
-        undefined,
-      ]),
-      is_verified: faker.helpers.arrayElement([
-        faker.datatype.boolean(),
-        undefined,
-      ]),
       oauth_accounts: faker.helpers.arrayElement([
         Array.from(
           { length: faker.number.int({ min: 1, max: 10 }) },
           (_, i) => i + 1,
         ).map(() => ({
+          id: {},
           oauth_name: faker.string.alpha(20),
           access_token: faker.string.alpha(20),
           expires_at: faker.helpers.arrayElement([
@@ -312,18 +298,32 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
             undefined,
           ]),
           account_id: faker.string.alpha(20),
-          account_email: faker.internet.email(),
+          account_email: faker.string.alpha(20),
         })),
-        undefined,
-      ]),
-      clerk_id: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
         undefined,
       ]),
       display_name: faker.helpers.arrayElement([
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
         undefined,
       ]),
+      profile: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      avatar_url: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      uid: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.uuid(), null]),
+        undefined,
+      ]),
+      email: faker.internet.email(),
+      hashed_password: faker.string.alpha(20),
+      is_active: faker.datatype.boolean(),
+      is_superuser: faker.datatype.boolean(),
+      is_verified: faker.datatype.boolean(),
+      created: `${faker.date.past().toISOString().split(".")[0]}Z`,
     },
     folders: Array.from(
       { length: faker.number.int({ min: 1, max: 10 }) },
