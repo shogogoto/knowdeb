@@ -16,7 +16,7 @@ export default function UserProfile({ user }: Props) {
   );
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+    <div className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
       <div className="flex items-center space-x-4 pt-4">
         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-400 shadow-md flex items-center justify-center bg-gray-200 dark:bg-gray-700">
           {avatarDisplayUrl ? (

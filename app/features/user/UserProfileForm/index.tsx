@@ -1,7 +1,7 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { useEffect } from "react";
-import { useFetcher, useNavigation } from "react-router";
+import { Link, useFetcher, useNavigation } from "react-router";
 import type { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input"; // Inputコンポーネントをimport
@@ -84,7 +84,7 @@ export default function UserProfileForm() {
 
   return (
     <div className="">
-      <div className="max-w-md mx-auto p-6 bg-card rounded-lg shadow-lg">
+      <div className="p-6 bg-card rounded-lg shadow-lg">
         <h2 className="text-2xl font-bold text-center mb-6 text-card-foreground">
           プロフィール編集
         </h2>
@@ -100,7 +100,7 @@ export default function UserProfileForm() {
         <fetcher.Form
           method="post"
           {...getFormProps(form)}
-          className="space-y-6"
+          className="space-y-6 flex flex-col items-center"
         >
           {/* プロフィール画像のセクション */}
           <div className="flex flex-col items-center space-y-4">
@@ -170,9 +170,14 @@ export default function UserProfileForm() {
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? "更新中..." : "更新"}
-          </Button>
+          <div className="flex flex-col w-full max-w-sm gap-2">
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting ? "更新中..." : "更新"}
+            </Button>
+            <Button asChild variant="outline" className="w-full">
+              <Link to="/home">ホームに戻る</Link>
+            </Button>
+          </div>
         </fetcher.Form>
       </div>
     </div>
