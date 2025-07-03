@@ -23,5 +23,10 @@ export default function Home({ loaderData }: Route.ComponentProps) {
       </div>
     );
 
-  return <UserProfile user={user} />;
+  return (
+    <>
+      <UserProfile user={user} />
+      <div className="mt-8">namespace</div>
+    </>
+  );
 }

@@ -1,5 +1,4 @@
 import { renderHook } from "@testing-library/react";
-import { describe } from "vitest";
 import useCloudinaryUpload from "./hooks";
 
 describe("useCounter", () => {
@@ -22,7 +21,7 @@ describe("useCounter", () => {
     //
   });
 
-  //   test("increment でカウントが増加すること", () => {
+  //   test("increment でカウントが増加す���こと", () => {
   //     const { result } = renderHook(() => useCounter(0));
   //
   //     // act()内で状態の更新を行うことで、Reactの状態の更新を待つことができる
