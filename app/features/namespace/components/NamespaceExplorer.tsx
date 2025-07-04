@@ -62,13 +62,11 @@ export default function NamespaceExplorer() {
     error,
     isLoading,
   } = useGetNamaspaceNamespaceGet({ fetch: { credentials: "include" } });
-
   const data = fetchedData?.data;
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  console.log(error);
   if (!data) {
     return <div>no entries.</div>;
   }

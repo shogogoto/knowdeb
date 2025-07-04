@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { http, HttpResponse, delay } from "msw";
+import type { NameSpace } from "~/generated/fastAPI.schemas";
 import NamespaceExplorer from "./NamespaceExplorer";
 
 const mockData = {
@@ -245,10 +247,26 @@ const mockData = {
   user_id: "4ef5b023-01a3-4b5a-bf09-c736fff18547",
 };
 
+const mock = (
+  overrideResponse?:
+    | NameSpace
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<NameSpace> | NameSpace),
+) => {
+  return http.get("*/namespace", async (info) => {
+    await delay(1000);
+    return new HttpResponse(JSON.stringify(mockData), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  });
+};
+
 const meta = {
   component: NamespaceExplorer,
-  args: {
-    data: mockData,
+  parameters: {
+    msw: { handlers: [mock()] },
   },
 } satisfies Meta<typeof NamespaceExplorer>;
 
