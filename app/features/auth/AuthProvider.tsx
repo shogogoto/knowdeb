@@ -61,7 +61,6 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
           { username: email, password },
           { credentials: "include" },
         );
-        await mutate();
         if (res.status === 204) {
           await mutate();
           navigate("/home");
@@ -73,7 +72,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       }
     },
     [mutate, navigate],
-  ); // 依存配列に mutate と navigate を含
+  );
 
   const signOut = useCallback(async () => {
     try {

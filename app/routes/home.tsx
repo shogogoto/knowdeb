@@ -1,4 +1,5 @@
 import { useAuth } from "~/features/auth/AuthProvider";
+import NamespaceExplorer from "~/features/namespace/components/NamespaceExplorer";
 import UserProfile from "~/features/user/UserProfile";
 import type { Route } from "./+types/home";
 
@@ -26,7 +27,9 @@ export default function Home({ loaderData }: Route.ComponentProps) {
   return (
     <>
       <UserProfile user={user} />
-      <div className="mt-8">namespace</div>
+      <div className="mt-8">
+        <NamespaceExplorer />
+      </div>
     </>
   );
 }

@@ -128,12 +128,12 @@ export default function useCloudinaryUpload({
     if (widget) return;
 
     if (window.cloudinary) {
-      initializeWidget();
+      setTimeout(() => initializeWidget(), 100);
     } else {
       const CLOUDINARY_UPLOAD_URL =
         "https://upload-widget.cloudinary.com/latest/global/all.js";
       loadScript(CLOUDINARY_UPLOAD_URL)
-        .then(() => initializeWidget())
+        .then(() => setTimeout(() => initializeWidget(), 100))
         .catch((err) => console.error("Failed to load Cloudinary script", err));
     }
   }, [initializeWidget, widget]); // widgetを依存配列に追加
