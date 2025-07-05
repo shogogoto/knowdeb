@@ -10,15 +10,13 @@ interface NamespaceExplorerProps {
   data?: NameSpace; // Make data optional for Storybook
 }
 
-function EntryItem({ node, level }: { node: NamespaceNode; level: number }) {
-  const indent = level * 20;
-
+function EntryItem({ node }: { node: NamespaceNode }) {
   return (
-    <div style={{ paddingLeft: `${indent}px` }} className="flex items-center">
+    <div className="flex items-center p-1 rounded-md hover:bg-accent hover:text-accent-foreground cursor-pointer">
       {node.type === "folder" ? (
-        <Folder className="w-4 h-4 mr-2" />
+        <Folder className="w-4 h-4 mr-2 text-yellow-600 fill-yellow-400 dark:text-yellow-500 dark:fill-yellow-300" />
       ) : (
-        <File className="w-4 h-4 mr-2" />
+        <File className="w-4 h-4 mr-2 text-gray-600 fill-gray-300 dark:text-gray-400 dark:fill-gray-600" />
       )}
       <span>{node.name}</span>
       {node.type === "resource" && node.authors && node.authors.length > 0 && (
@@ -42,17 +40,19 @@ function NamespaceEntries({
   nodes: NamespaceNode[];
   level: number;
 }) {
+  const listClasses = level === 0 ? "space-y-1" : "pl-5 space-y-1 mt-1";
+
   return (
-    <div>
+    <ul className={listClasses}>
       {nodes.map((node) => (
-        <div key={node.uid}>
-          <EntryItem node={node} level={level} />
+        <li key={node.uid}>
+          <EntryItem node={node} />
           {node.type === "folder" && node.children.length > 0 && (
             <NamespaceEntries nodes={node.children} level={level + 1} />
           )}
-        </div>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
 
