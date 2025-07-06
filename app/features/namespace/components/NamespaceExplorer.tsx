@@ -1,13 +1,79 @@
 import { File, Folder } from "lucide-react";
 import { useGetNamaspaceNamespaceGet } from "~/generated/entry/entry";
-import type { NameSpace } from "~/generated/fastAPI.schemas";
-import {
-  type NamespaceNode,
-  buildNamespaceTree,
-} from "../libs/namespace-utils";
+import type { Entry, MResource, NameSpace } from "~/generated/fastAPI.schemas";
 
-interface NamespaceExplorerProps {
-  data?: NameSpace; // Make data optional for Storybook
+type FolderNode = Entry & {
+  type: "folder";
+  children: NamespaceNode[];
+};
+
+type ResourceNode = MResource & {
+  type: "resource";
+};
+
+type NamespaceNode = FolderNode | ResourceNode;
+
+function isResourceNode(node: Entry | MResource): node is MResource {
+  return "authors" in node && "published" in node;
+}
+
+function buildNamespaceTree(data: NameSpace): NamespaceNode[] {
+  const nodesMap = new Map<string, NamespaceNode>();
+  const rootNodes: NamespaceNode[] = [];
+
+  if (!data.g?.nodes) {
+    return [];
+  }
+
+  // 1. Create a map of all nodes
+  // biome-ignore lint/suspicious/noExplicitAny: The actual type from the API seems to be { id: Entry | MResource }
+  data.g.nodes.forEach((graphNode: any) => {
+    const entryData = graphNode.id;
+    if (isResourceNode(entryData)) {
+      nodesMap.set(entryData.uid, {
+        ...entryData,
+        type: "resource",
+      });
+    } else {
+      nodesMap.set(entryData.uid, {
+        ...entryData,
+        type: "folder",
+        children: [],
+      });
+    }
+  });
+
+  if (!data.g.edges) {
+    return Array.from(nodesMap.values());
+  }
+
+  // 2. Build the tree structure
+  // biome-ignore lint/suspicious/noExplicitAny: The actual edge type from the API seems to be { source: { uid: string }, target: { uid: string } }
+  data.g.edges.forEach((edge: any) => {
+    // The type definition from orval might be incorrect. Accessing .uid based on the old working code.
+    const sourceNode = nodesMap.get(edge.source.uid);
+    const targetNode = nodesMap.get(edge.target.uid);
+
+    if (
+      sourceNode &&
+      targetNode &&
+      "type" in sourceNode &&
+      sourceNode.type === "folder"
+    ) {
+      sourceNode.children.push(targetNode);
+    }
+  });
+
+  // 3. Determine root nodes (any node that is not a child of another node)
+  // biome-ignore lint/suspicious/noExplicitAny: See above
+  const childUids = new Set(data.g.edges.map((edge: any) => edge.target.uid));
+  nodesMap.forEach((node) => {
+    if (!childUids.has(node.uid)) {
+      rootNodes.push(node);
+    }
+  });
+
+  return rootNodes;
 }
 
 function EntryItem({ node }: { node: NamespaceNode }) {
@@ -66,6 +132,9 @@ export default function NamespaceExplorer() {
 
   if (isLoading) {
     return <div>Loading...</div>;
+  }
+  if (error) {
+    return <div>Error fetching data.</div>;
   }
   if (!data) {
     return <div>no entries.</div>;
