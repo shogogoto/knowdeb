@@ -33,6 +33,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
         <ThemeScript />
+        <script
+          src="https://upload-widget.cloudinary.com/latest/global/all.js"
+          type="text/javascript"
+          async
+        />
       </head>
       <body>
         {children}
@@ -47,15 +52,6 @@ export async function loader(args: Route.LoaderArgs) {
   return null;
 }
 
-//<ClerkProvider
-//  publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}
-//  loaderData={loaderData}
-//  signUpFallbackRedirectUrl="/home"
-//  signInFallbackRedirectUrl="/home"
-//  localization={jaJP}
-//>
-//  <Outlet />
-//</ClerkProvider>
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <ThemeProvider>
