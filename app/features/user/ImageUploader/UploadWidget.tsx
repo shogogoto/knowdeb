@@ -38,26 +38,42 @@ const uwConfig: CloudinaryUploadWidgetOptions = {
     "instagram",
     "dropbox",
   ],
-  theme: "purple",
+  theme: "minimal",
   showAdvancedOptions: true,
   // multiple: false,
   // tags: ['users', 'profile'],
   // context: { alt: 'user_uploaded' },
-  clientAllowedFormats: [
-    "image/jpeg",
-    "image/png",
-    "image/gif",
-    "image/webp",
-    "image/svg+xml",
-    "image/bmp",
-  ],
+  clientAllowedFormats: ["jpeg", "jpg", "png", "gif", "webp", "svg", "bmp"],
   cropping: true,
   // showSkipCropButton: false,
-  // croppingAspectRatio: 1,
-  // croppingShowBackButton: true,
-  // croppingShowDimensions: true,
+  croppingShowBackButton: true,
+  croppingShowDimensions: true,
   // maxImageFileSize: 5000000, // 5MB
   // maxImageWidth: 2000,
+  //// biome-ignore lint/suspicious/noExplicitAny:
+  //   uploadSignature: async (callback: any, params_to_sign: any) => {
+  //     try {
+  //       // サーバーサイドの署名APIを呼び出す
+  //       console.log("Fetching upload signature:", params_to_sign);
+  //       const response = await fetch("/api/cloudinary-sign-upload", {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify(params_to_sign),
+  //       });
+  //
+  //       if (!response.ok) {
+  //         throw new Error("Failed to fetch upload signature");
+  //       }
+  //
+  //       const { signature, timestamp } = await response.json();
+  //       callback(null, { signature, timestamp });
+  //     } catch (error) {
+  //       console.error("Error fetching upload signature:", error);
+  //       callback(error, null);
+  //     }
+  //   },
 };
 
 type Props = {
@@ -65,10 +81,7 @@ type Props = {
   onUploadSuccess: (imageUrl: string) => void;
 };
 
-export default function CloudinaryUploadWidget2({
-  publicId,
-  onUploadSuccess,
-}: Props) {
+export default function UploadWidget({ publicId, onUploadSuccess }: Props) {
   const uploadWidgetRef = useRef<CloudinaryUploadWidget | null>(null);
   const uploadButtonRef = useRef<HTMLButtonElement>(null);
 
@@ -82,6 +95,8 @@ export default function CloudinaryUploadWidget2({
               const uploadedImageUrl = result.info.secure_url;
               onUploadSuccess(uploadedImageUrl);
               console.log("Upload successful:", result.info);
+              console.log(result.info);
+              console.log(uploadedImageUrl);
             } else if (error) {
               console.error("アップロードに失敗しました。:", error);
             }

@@ -11,7 +11,7 @@ import {
   usersPatchCurrentUserUserMePatchBody,
   usersPatchCurrentUserUserMePatchResponseProfileMaxOne,
 } from "~/generated/user/user.zod";
-import CloudinaryUploadWidget2 from "../ImageUploader/example";
+import UploadWidget from "../ImageUploader";
 import { getTransformedImageUrl } from "../libs/image";
 
 export const UserProfileSchema = usersPatchCurrentUserUserMePatchBody.pick({
@@ -127,7 +127,7 @@ export default function UserProfileForm() {
                 </div>
               )}
             </div>
-            <CloudinaryUploadWidget2
+            <UploadWidget
               publicId={user?.id as string}
               onUploadSuccess={(imageUrl) => {
                 if (user) {
