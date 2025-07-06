@@ -1,9 +1,6 @@
-import { Cloudinary } from "@cloudinary/url-gen";
-import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
 import type { UserRead } from "~/generated/fastAPI.schemas";
-import CloudinaryUploadWidget2 from "../ImageUploader/example";
 import { getTransformedImageUrl } from "../libs/image";
 type Props = {
   user: UserRead;
@@ -17,37 +14,8 @@ export default function UserProfile({ user }: Props) {
     "fill",
   );
 
-  const cloudName = "hzxyensd5";
-  const uploadPreset = "aoh4fpwm";
-
-  const [publicId, setPublicId] = useState("");
-
-  const cld = new Cloudinary({
-    cloud: {
-      cloudName,
-    },
-  });
-
-  const uwConfig = {
-    cloudName,
-    uploadPreset,
-    // Uncomment and modify as needed:
-    // cropping: true,
-    // showAdvancedOptions: true,
-    // sources: ['local', 'url'],
-    // multiple: false,
-    // folder: 'user_images',
-    // tags: ['users', 'profile'],
-    // context: { alt: 'user_uploaded' },
-    // clientAllowedFormats: ['images'],
-    // maxImageFileSize: 2000000,
-    // maxImageWidth: 2000,
-    // theme: 'purple',
-  };
-
   return (
     <div className="space-y-6 bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-      <CloudinaryUploadWidget2 uwConfig={uwConfig} setPublicId={setPublicId} />
       <div className="flex items-center space-x-4 pt-4">
         <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-blue-400 shadow-md flex items-center justify-center bg-gray-200 dark:bg-gray-700">
           {avatarDisplayUrl ? (

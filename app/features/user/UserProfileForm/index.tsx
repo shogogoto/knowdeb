@@ -1,6 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { useEffect } from "react";
 import { Link, useFetcher, useNavigation } from "react-router";
 import type { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -12,7 +11,7 @@ import {
   usersPatchCurrentUserUserMePatchBody,
   usersPatchCurrentUserUserMePatchResponseProfileMaxOne,
 } from "~/generated/user/user.zod";
-import useCloudinaryUpload from "../ImageUploader/hooks";
+import CloudinaryUploadWidget2 from "../ImageUploader/example";
 import { getTransformedImageUrl } from "../libs/image";
 
 export const UserProfileSchema = usersPatchCurrentUserUserMePatchBody.pick({
@@ -49,22 +48,22 @@ export default function UserProfileForm() {
     shouldRevalidate: "onInput",
     constraint: getZodConstraint(UserProfileSchema),
   });
-  const { openWidget, imageUrl, widget } = useCloudinaryUpload({
-    publicId: user?.id as string,
-    onUploadSuccess: (imageUrl) => {
-      if (user) {
-        setUser({ ...user, avatar_url: imageUrl });
-        form.update({ name: "avatar_url", value: imageUrl });
-      }
-    },
-  });
+  // const { openWidget, imageUrl, widget } = useCloudinaryUpload({
+  //   publicId: user?.id as string,
+  // onUploadSuccess: (imageUrl) => {
+  //   if (user) {
+  //     setUser({ ...user, avatar_url: imageUrl });
+  //     form.update({ name: "avatar_url", value: imageUrl });
+  //   }
+  //   },
+  // });
 
   // フォーム送信成功後、SWRのキャッシュを更新
-  useEffect(() => {
-    if (lastSubmission?.message) {
-      mutate();
-    }
-  }, [lastSubmission, mutate]);
+  // useEffect(() => {
+  //   if (lastSubmission?.message) {
+  //     mutate();
+  //   }
+  // }, [lastSubmission, mutate]);
 
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
@@ -128,9 +127,15 @@ export default function UserProfileForm() {
                 </div>
               )}
             </div>
-            <Button onClick={openWidget} disabled={!widget}>
-              画像アップロード
-            </Button>
+            <CloudinaryUploadWidget2
+              publicId={user?.id as string}
+              onUploadSuccess={(imageUrl) => {
+                if (user) {
+                  setUser({ ...user, avatar_url: imageUrl });
+                  form.update({ name: "avatar_url", value: imageUrl });
+                }
+              }}
+            />
             <Input
               {...getInputProps(fields.avatar_url, { type: "hidden" })}
               name={fields.avatar_url.name}
