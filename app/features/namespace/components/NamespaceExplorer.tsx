@@ -24,7 +24,7 @@ function isResourceNode(node: Entry | MResource): node is MResource {
   return "authors" in node && "published" in node;
 }
 
-function buildNamespaceTree(data: NameSpace): NamespaceNode[] {
+export function buildNamespaceTree(data: NameSpace): NamespaceNode[] {
   const nodesMap = new Map<string, NamespaceNode>();
   const rootNodes: NamespaceNode[] = [];
 
@@ -54,7 +54,9 @@ function buildNamespaceTree(data: NameSpace): NamespaceNode[] {
     return Array.from(nodesMap.values());
   }
 
-  // 2. Build the tree structure
+  const childUids = new Set<string>();
+
+  // 2. Build the tree structure and identify true children
   // biome-ignore lint/suspicious/noExplicitAny: The actual edge type from the API seems to be { source: { uid: string }, target: { uid: string } }
   data.g.edges.forEach((edge: any) => {
     // The type definition from orval might be incorrect. Accessing .uid based on the old working code.
@@ -68,12 +70,11 @@ function buildNamespaceTree(data: NameSpace): NamespaceNode[] {
       sourceNode.type === "folder"
     ) {
       sourceNode.children.push(targetNode);
+      childUids.add(targetNode.uid); // Only mark as child if parent folder exists
     }
   });
 
   // 3. Determine root nodes (any node that is not a child of another node)
-  // biome-ignore lint/suspicious/noExplicitAny: See above
-  const childUids = new Set(data.g.edges.map((edge: any) => edge.target.uid));
   nodesMap.forEach((node) => {
     if (!childUids.has(node.uid)) {
       rootNodes.push(node);
