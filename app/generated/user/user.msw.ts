@@ -15,7 +15,10 @@ export const getSearchUserUserSearchGetResponseMock = (): UserRead[] =>
     { length: faker.number.int({ min: 1, max: 10 }) },
     (_, i) => i + 1,
   ).map(() => ({
-    id: {},
+    id: faker.helpers.arrayElement([
+      faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+      undefined,
+    ]),
     email: faker.internet.email(),
     is_active: faker.helpers.arrayElement([
       faker.datatype.boolean(),
@@ -47,7 +50,10 @@ export const getSearchUserUserSearchGetResponseMock = (): UserRead[] =>
 export const getUsersCurrentUserUserMeGetResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  id: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    undefined,
+  ]),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -77,7 +83,10 @@ export const getUsersCurrentUserUserMeGetResponseMock = (
 export const getUsersPatchCurrentUserUserMePatchResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  id: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    undefined,
+  ]),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -107,7 +116,10 @@ export const getUsersPatchCurrentUserUserMePatchResponseMock = (
 export const getUsersUserUserIdGetResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  id: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    undefined,
+  ]),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -137,7 +149,10 @@ export const getUsersUserUserIdGetResponseMock = (
 export const getUsersPatchUserUserIdPatchResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  id: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    undefined,
+  ]),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([

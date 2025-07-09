@@ -364,6 +364,8 @@ export interface UserCreate {
   is_verified?: UserCreateIsVerified;
 }
 
+export type UserReadId = string | null;
+
 export type UserReadDisplayName = string | null;
 
 export type UserReadProfile = string | null;
@@ -374,7 +376,7 @@ export type UserReadAvatarUrl = string | null;
  * 読み取り.
  */
 export interface UserRead {
-  id: unknown;
+  id?: UserReadId;
   email: string;
   is_active?: boolean;
   is_superuser?: boolean;
@@ -401,6 +403,8 @@ export type UserUpdateProfile = string | null;
 
 export type UserUpdateAvatarUrl = string | null;
 
+export type UserUpdateId = string | null;
+
 /**
  * 更新.
  */
@@ -413,6 +417,7 @@ export interface UserUpdate {
   display_name?: UserUpdateDisplayName;
   profile?: UserUpdateProfile;
   avatar_url?: UserUpdateAvatarUrl;
+  id?: UserUpdateId;
 }
 
 export type ValidationErrorLocItem = string | number;
