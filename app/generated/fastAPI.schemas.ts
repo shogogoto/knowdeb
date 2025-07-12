@@ -77,14 +77,6 @@ export interface BodyVerifyVerifyAuthVerifyPost {
   token: string;
 }
 
-/**
- * for fastapi schema.
- */
-export interface EdgeData {
-  source: string;
-  target: string;
-}
-
 export type EntryElementIdProperty = string | null;
 
 /**
@@ -104,41 +96,8 @@ export interface ErrorModel {
   detail: ErrorModelDetail;
 }
 
-export type GraphDataGraph = { [key: string]: unknown };
-
-export type GraphDataNodesItem = { [key: string]: string };
-
-/**
- * for fastapi schema.
- */
-export interface GraphData {
-  directed: boolean;
-  edges: EdgeData[];
-  graph: GraphDataGraph;
-  multigraph: boolean;
-  nodes: GraphDataNodesItem[];
-}
-
 export interface HTTPValidationError {
   detail?: ValidationError[];
-}
-
-export type KAdjacencyWhen = string | null;
-
-export type KAdjacencyStats = KStats | null;
-
-/**
- * 周辺情報も含める.
- */
-export interface KAdjacency {
-  center: Knowde;
-  when?: KAdjacencyWhen;
-  details: Knowde[];
-  premises: Knowde[];
-  conclusions: Knowde[];
-  refers: Knowde[];
-  referreds: Knowde[];
-  stats?: KAdjacencyStats;
 }
 
 export type KStatsScore = number | null;
@@ -199,14 +158,16 @@ export interface Knowde {
   when?: KnowdeWhen;
 }
 
-export type KnowdeDetailKnowdes = { [key: string]: Knowde };
+export type KnowdeDetailG = { [key: string]: unknown };
+
+export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
 
 /**
  * 詳細.
  */
 export interface KnowdeDetail {
   uid: string;
-  g: GraphData;
+  g: KnowdeDetailG;
   knowdes: KnowdeDetailKnowdes;
   location: KnowdeLocation;
 }
@@ -219,7 +180,7 @@ export interface KnowdeLocation {
   folders: UidStr[];
   resource: MResource;
   headers: UidStr[];
-  parents: Knowde[];
+  parents: KnowdeWithStats[];
 }
 
 /**
@@ -227,7 +188,15 @@ export interface KnowdeLocation {
  */
 export interface KnowdeSearchResult {
   total: number;
-  data: KAdjacency[];
+  data: KnowdeWithStats[];
+}
+
+/**
+ * 統計情報付きknowde.
+ */
+export interface KnowdeWithStats {
+  knowde: Knowde;
+  stats: KStats;
 }
 
 export type MResourceElementIdProperty = string | null;
@@ -259,13 +228,15 @@ export interface MResource {
   txt_hash?: MResourceTxtHash;
 }
 
+export type NameSpaceG = { [key: string]: unknown };
+
 export type NameSpaceRoots = { [key: string]: Entry };
 
 /**
  * リソースの分類.
  */
 export interface NameSpace {
-  g?: GraphData;
+  g?: NameSpaceG;
   roots_: NameSpaceRoots;
   user_id: string;
 }

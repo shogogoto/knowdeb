@@ -72,7 +72,7 @@ export const searchByTextKnowdeGetResponse = zod
     data: zod.array(
       zod
         .object({
-          center: zod
+          knowde: zod
             .object({
               sentence: zod.string(),
               uid: zod.string().uuid(),
@@ -91,112 +91,6 @@ export const searchByTextKnowdeGetResponse = zod
               when: zod.string().or(zod.null()).optional(),
             })
             .describe("知識の最小単位."),
-          when: zod.string().or(zod.null()).optional(),
-          details: zod.array(
-            zod
-              .object({
-                sentence: zod.string(),
-                uid: zod.string().uuid(),
-                term: zod
-                  .object({
-                    names: zod.array(zod.string()).optional(),
-                    alias: zod
-                      .string()
-                      .or(zod.null())
-                      .optional()
-                      .describe("参照用の無意味な記号(参照を持たない)"),
-                  })
-                  .describe("用語.")
-                  .or(zod.null())
-                  .optional(),
-                when: zod.string().or(zod.null()).optional(),
-              })
-              .describe("知識の最小単位."),
-          ),
-          premises: zod.array(
-            zod
-              .object({
-                sentence: zod.string(),
-                uid: zod.string().uuid(),
-                term: zod
-                  .object({
-                    names: zod.array(zod.string()).optional(),
-                    alias: zod
-                      .string()
-                      .or(zod.null())
-                      .optional()
-                      .describe("参照用の無意味な記号(参照を持たない)"),
-                  })
-                  .describe("用語.")
-                  .or(zod.null())
-                  .optional(),
-                when: zod.string().or(zod.null()).optional(),
-              })
-              .describe("知識の最小単位."),
-          ),
-          conclusions: zod.array(
-            zod
-              .object({
-                sentence: zod.string(),
-                uid: zod.string().uuid(),
-                term: zod
-                  .object({
-                    names: zod.array(zod.string()).optional(),
-                    alias: zod
-                      .string()
-                      .or(zod.null())
-                      .optional()
-                      .describe("参照用の無意味な記号(参照を持たない)"),
-                  })
-                  .describe("用語.")
-                  .or(zod.null())
-                  .optional(),
-                when: zod.string().or(zod.null()).optional(),
-              })
-              .describe("知識の最小単位."),
-          ),
-          refers: zod.array(
-            zod
-              .object({
-                sentence: zod.string(),
-                uid: zod.string().uuid(),
-                term: zod
-                  .object({
-                    names: zod.array(zod.string()).optional(),
-                    alias: zod
-                      .string()
-                      .or(zod.null())
-                      .optional()
-                      .describe("参照用の無意味な記号(参照を持たない)"),
-                  })
-                  .describe("用語.")
-                  .or(zod.null())
-                  .optional(),
-                when: zod.string().or(zod.null()).optional(),
-              })
-              .describe("知識の最小単位."),
-          ),
-          referreds: zod.array(
-            zod
-              .object({
-                sentence: zod.string(),
-                uid: zod.string().uuid(),
-                term: zod
-                  .object({
-                    names: zod.array(zod.string()).optional(),
-                    alias: zod
-                      .string()
-                      .or(zod.null())
-                      .optional()
-                      .describe("参照用の無意味な記号(参照を持たない)"),
-                  })
-                  .describe("用語.")
-                  .or(zod.null())
-                  .optional(),
-                when: zod.string().or(zod.null()).optional(),
-              })
-              .describe("知識の最小単位."),
-          ),
           stats: zod
             .object({
               n_detail: zod
@@ -234,11 +128,9 @@ export const searchByTextKnowdeGetResponse = zod
                 .or(zod.null())
                 .optional(),
             })
-            .describe("知識の関係統計.")
-            .or(zod.null())
-            .optional(),
+            .describe("知識の関係統計."),
         })
-        .describe("周辺情報も含める."),
+        .describe("統計情報付きknowde."),
     ),
   })
   .describe("knowde検索結果.");
@@ -251,51 +143,172 @@ export const detailKnowdeSentenceSentenceIdGetParams = zod.object({
   sentence_id: zod.string().uuid(),
 });
 
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNDetailMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNDetailMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNPremiseMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNPremiseMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNConclusionMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNConclusionMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferredMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferredMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistAxiomMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistAxiomMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistLeafMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistLeafMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsScoreMinOne =
+  -100;
+export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsScoreMaxOne = 1000;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserOauthAccountsDefault =
   [];
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserDisplayNameMaxOne = 32;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserProfileMaxOne = 160;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNDetailMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNDetailMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNPremiseMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNPremiseMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNConclusionMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNConclusionMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferredMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferredMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistAxiomMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistAxiomMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistLeafMin =
+  -100;
+
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistLeafMax = 1000;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsScoreMinOne =
+  -100;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsScoreMaxOne = 1000;
 
 export const detailKnowdeSentenceSentenceIdGetResponse = zod
   .object({
     uid: zod.string().uuid(),
-    g: zod
-      .object({
-        directed: zod.boolean(),
-        edges: zod.array(
-          zod
-            .object({
-              source: zod.string(),
-              target: zod.string(),
-            })
-            .describe("for fastapi schema."),
-        ),
-        graph: zod.record(zod.string(), zod.any()),
-        multigraph: zod.boolean(),
-        nodes: zod.array(zod.record(zod.string(), zod.string())),
-      })
-      .describe("for fastapi schema."),
+    g: zod.record(zod.string(), zod.any()),
     knowdes: zod.record(
       zod.string(),
       zod
         .object({
-          sentence: zod.string(),
-          uid: zod.string().uuid(),
-          term: zod
+          knowde: zod
             .object({
-              names: zod.array(zod.string()).optional(),
-              alias: zod
-                .string()
+              sentence: zod.string(),
+              uid: zod.string().uuid(),
+              term: zod
+                .object({
+                  names: zod.array(zod.string()).optional(),
+                  alias: zod
+                    .string()
+                    .or(zod.null())
+                    .optional()
+                    .describe("参照用の無意味な記号(参照を持たない)"),
+                })
+                .describe("用語.")
                 .or(zod.null())
-                .optional()
-                .describe("参照用の無意味な記号(参照を持たない)"),
+                .optional(),
+              when: zod.string().or(zod.null()).optional(),
             })
-            .describe("用語.")
-            .or(zod.null())
-            .optional(),
-          when: zod.string().or(zod.null()).optional(),
+            .describe("知識の最小単位."),
+          stats: zod
+            .object({
+              n_detail: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNDetailMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNDetailMax,
+                ),
+              n_premise: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNPremiseMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNPremiseMax,
+                ),
+              n_conclusion: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNConclusionMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNConclusionMax,
+                ),
+              n_refer: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferMax,
+                ),
+              n_referred: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferredMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNReferredMax,
+                ),
+              dist_axiom: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistAxiomMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistAxiomMax,
+                ),
+              dist_leaf: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistLeafMin,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistLeafMax,
+                ),
+              score: zod
+                .number()
+                .min(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsScoreMinOne,
+                )
+                .max(
+                  detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsScoreMaxOne,
+                )
+                .or(zod.null())
+                .optional(),
+            })
+            .describe("知識の関係統計."),
         })
-        .describe("知識の最小単位."),
+        .describe("統計情報付きknowde."),
     ),
     location: zod
       .object({
@@ -377,23 +390,97 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
         parents: zod.array(
           zod
             .object({
-              sentence: zod.string(),
-              uid: zod.string().uuid(),
-              term: zod
+              knowde: zod
                 .object({
-                  names: zod.array(zod.string()).optional(),
-                  alias: zod
-                    .string()
+                  sentence: zod.string(),
+                  uid: zod.string().uuid(),
+                  term: zod
+                    .object({
+                      names: zod.array(zod.string()).optional(),
+                      alias: zod
+                        .string()
+                        .or(zod.null())
+                        .optional()
+                        .describe("参照用の無意味な記号(参照を持たない)"),
+                    })
+                    .describe("用語.")
                     .or(zod.null())
-                    .optional()
-                    .describe("参照用の無意味な記号(参照を持たない)"),
+                    .optional(),
+                  when: zod.string().or(zod.null()).optional(),
                 })
-                .describe("用語.")
-                .or(zod.null())
-                .optional(),
-              when: zod.string().or(zod.null()).optional(),
+                .describe("知識の最小単位."),
+              stats: zod
+                .object({
+                  n_detail: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNDetailMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNDetailMax,
+                    ),
+                  n_premise: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNPremiseMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNPremiseMax,
+                    ),
+                  n_conclusion: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNConclusionMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNConclusionMax,
+                    ),
+                  n_refer: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferMax,
+                    ),
+                  n_referred: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferredMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNReferredMax,
+                    ),
+                  dist_axiom: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistAxiomMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistAxiomMax,
+                    ),
+                  dist_leaf: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistLeafMin,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsDistLeafMax,
+                    ),
+                  score: zod
+                    .number()
+                    .min(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsScoreMinOne,
+                    )
+                    .max(
+                      detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsScoreMaxOne,
+                    )
+                    .or(zod.null())
+                    .optional(),
+                })
+                .describe("知識の関係統計."),
             })
-            .describe("知識の最小単位."),
+            .describe("統計情報付きknowde."),
         ),
       })
       .describe("knowdeの位置情報."),
