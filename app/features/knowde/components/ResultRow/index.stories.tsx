@@ -16,19 +16,23 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     row: {
-      center: {
+      knowde: {
         sentence: "aaaa".repeat(20),
         uid: faker.string.uuid(),
         term: {
           names: ["Sample Name", "Sample Name2"],
         },
+        when: "2025-04-28",
       },
-      when: "2025-04-28",
-      details: [],
-      premises: [],
-      conclusions: [],
-      refers: [],
-      referreds: [],
+      stats: {
+        n_detail: 0,
+        n_premise: 0,
+        n_conclusion: 0,
+        n_refer: 0,
+        n_referred: 0,
+        dist_axiom: 0,
+        dist_leaf: 0,
+      },
     },
     index: 1,
   },
@@ -37,16 +41,20 @@ export const Default: Story = {
 export const NoName: Story = {
   args: {
     row: {
-      center: {
+      knowde: {
         sentence: "A".repeat(120),
         uid: faker.string.uuid(),
         when: "2025-04-28",
       },
-      details: [],
-      premises: [],
-      conclusions: [],
-      refers: [],
-      referreds: [],
+      stats: {
+        n_detail: 0,
+        n_premise: 0,
+        n_conclusion: 0,
+        n_refer: 0,
+        n_referred: 0,
+        dist_axiom: 0,
+        dist_leaf: 0,
+      },
     },
     index: 1,
   },
@@ -55,18 +63,22 @@ export const NoName: Story = {
 export const LongName: Story = {
   args: {
     row: {
-      center: {
+      knowde: {
         sentence: "x".repeat(80),
         uid: faker.string.uuid(),
         term: {
           names: Array.from({ length: 3 }, () => "n".repeat(30)),
         },
       },
-      details: [],
-      premises: [],
-      conclusions: [],
-      refers: [],
-      referreds: [],
+      stats: {
+        n_detail: 0,
+        n_premise: 0,
+        n_conclusion: 0,
+        n_refer: 0,
+        n_referred: 0,
+        dist_axiom: 0,
+        dist_leaf: 0,
+      },
     },
     index: 1,
   },

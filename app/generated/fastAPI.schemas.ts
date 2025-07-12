@@ -123,24 +123,6 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
-export type KAdjacencyWhen = string | null;
-
-export type KAdjacencyStats = KStats | null;
-
-/**
- * 周辺情報も含める.
- */
-export interface KAdjacency {
-  center: Knowde;
-  when?: KAdjacencyWhen;
-  details: Knowde[];
-  premises: Knowde[];
-  conclusions: Knowde[];
-  refers: Knowde[];
-  referreds: Knowde[];
-  stats?: KAdjacencyStats;
-}
-
 export type KStatsScore = number | null;
 
 /**
@@ -199,7 +181,7 @@ export interface Knowde {
   when?: KnowdeWhen;
 }
 
-export type KnowdeDetailKnowdes = { [key: string]: Knowde };
+export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
 
 /**
  * 詳細.
@@ -219,7 +201,7 @@ export interface KnowdeLocation {
   folders: UidStr[];
   resource: MResource;
   headers: UidStr[];
-  parents: Knowde[];
+  parents: KnowdeWithStats[];
 }
 
 /**
@@ -227,7 +209,15 @@ export interface KnowdeLocation {
  */
 export interface KnowdeSearchResult {
   total: number;
-  data: KAdjacency[];
+  data: KnowdeWithStats[];
+}
+
+/**
+ * 統計情報付きknowde.
+ */
+export interface KnowdeWithStats {
+  knowde: Knowde;
+  stats: KStats;
 }
 
 export type MResourceElementIdProperty = string | null;
@@ -364,6 +354,8 @@ export interface UserCreate {
   is_verified?: UserCreateIsVerified;
 }
 
+export type UserReadId = string | null;
+
 export type UserReadDisplayName = string | null;
 
 export type UserReadProfile = string | null;
@@ -374,7 +366,7 @@ export type UserReadAvatarUrl = string | null;
  * 読み取り.
  */
 export interface UserRead {
-  id: unknown;
+  id?: UserReadId;
   email: string;
   is_active?: boolean;
   is_superuser?: boolean;
@@ -401,6 +393,8 @@ export type UserUpdateProfile = string | null;
 
 export type UserUpdateAvatarUrl = string | null;
 
+export type UserUpdateId = string | null;
+
 /**
  * 更新.
  */
@@ -413,6 +407,7 @@ export interface UserUpdate {
   display_name?: UserUpdateDisplayName;
   profile?: UserUpdateProfile;
   avatar_url?: UserUpdateAvatarUrl;
+  id?: UserUpdateId;
 }
 
 export type ValidationErrorLocItem = string | number;

@@ -12,12 +12,11 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function Contact({ loaderData }: Route.ComponentProps) {
   const { id, data } = loaderData;
-  data.knowdes;
   return (
     <div id="contact">
       <div>{id}</div>
       {Object.values(data.knowdes).map((v) => {
-        return <DefLine key={v.uid} kn={v} />;
+        return <DefLine key={v.knowde.uid} kn={v} />;
       })}
     </div>
   );

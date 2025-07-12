@@ -80,6 +80,7 @@ export const verifyVerifyAuthVerifyPostBody = zod.object({
   token: zod.string(),
 });
 
+export const verifyVerifyAuthVerifyPostResponseIdRegExpOne = /^[^-]*$/;
 export const verifyVerifyAuthVerifyPostResponseIsActiveDefault = true;
 export const verifyVerifyAuthVerifyPostResponseIsSuperuserDefault = false;
 export const verifyVerifyAuthVerifyPostResponseIsVerifiedDefault = false;
@@ -88,7 +89,11 @@ export const verifyVerifyAuthVerifyPostResponseProfileMaxOne = 160;
 
 export const verifyVerifyAuthVerifyPostResponse = zod
   .object({
-    id: zod.any(),
+    id: zod
+      .string()
+      .regex(verifyVerifyAuthVerifyPostResponseIdRegExpOne)
+      .or(zod.null())
+      .optional(),
     email: zod.string().email(),
     is_active: zod
       .boolean()

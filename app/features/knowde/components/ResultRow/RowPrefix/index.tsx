@@ -3,11 +3,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
-import type { KAdjacencyStats } from "~/generated/fastAPI.schemas";
+import type { KStats } from "~/generated/fastAPI.schemas";
 
 type Props = {
   index: number;
-  stats?: KAdjacencyStats;
+  stats?: KStats;
 };
 
 export default function RowPrefix({ index, stats }: Props) {

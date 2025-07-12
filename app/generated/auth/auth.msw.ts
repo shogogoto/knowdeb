@@ -21,7 +21,10 @@ export const getAuthJwtLoginAuthJwtLoginPostResponseMock = (
 export const getRegisterRegisterAuthRegisterPostResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  id: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    undefined,
+  ]),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -51,7 +54,10 @@ export const getRegisterRegisterAuthRegisterPostResponseMock = (
 export const getVerifyVerifyAuthVerifyPostResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  id: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    undefined,
+  ]),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
