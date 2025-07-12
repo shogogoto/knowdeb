@@ -1,13 +1,13 @@
 import { useContext } from "react";
 import { useNavigation } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
-import type { KAdjacency } from "~/generated/fastAPI.schemas";
+import type { KnowdeWithStats } from "~/generated/fastAPI.schemas";
 import ResultRow from "./components/ResultRow";
 
 type Props = {
   data: {
     total: number;
-    data: KAdjacency[];
+    data: KnowdeWithStats[];
   };
 };
 
@@ -28,7 +28,7 @@ export default function SearchResults({ data }: Props) {
                 <ResultRow
                   row={row}
                   index={index + startIndex}
-                  key={row.center.uid}
+                  key={row.knowde.uid}
                 />
               ))}
             </div>

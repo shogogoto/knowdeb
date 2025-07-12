@@ -1,10 +1,10 @@
-import type { KAdjacency } from "~/generated/fastAPI.schemas";
+import type { KAdjacency, KnowdeWithStats } from "~/generated/fastAPI.schemas";
 import DefLine from "./DefLine";
 import RowPrefix from "./RowPrefix";
 import RowSuffix from "./RowSuffix";
 
 type Props = {
-  row: KAdjacency;
+  row: KnowdeWithStats;
   index: number;
   isOpen?: boolean;
 };
@@ -13,14 +13,14 @@ export default function ResultRow({ row, index }: Props) {
   const [summary, total] = adjToSummary(row);
   return (
     <div
-      key={row.center.uid}
+      key={row.knowde.uid}
       className="p-4 border border-gray-200 rounded-md dark:border-gray-700"
     >
       <div className="flex gap-2">
         <RowPrefix index={index} stats={row.stats} />
-        <DefLine kn={row.center} />
+        <DefLine kn={row.knowde} />
         <div className="ml-auto">
-          <RowSuffix knowde={row.center} />
+          <RowSuffix knowde={row.knowde} />
         </div>
       </div>
       {/* {total > 0 && ( */}
