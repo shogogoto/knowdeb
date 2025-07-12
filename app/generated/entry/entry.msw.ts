@@ -13,7 +13,27 @@ import type { NameSpace } from "../fastAPI.schemas";
 export const getGetNamaspaceNamespaceGetResponseMock = (
   overrideResponse: Partial<NameSpace> = {},
 ): NameSpace => ({
-  g: faker.helpers.arrayElement([{}, undefined]),
+  g: faker.helpers.arrayElement([
+    {
+      directed: faker.datatype.boolean(),
+      edges: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => ({
+        source: faker.string.alpha(20),
+        target: faker.string.alpha(20),
+      })),
+      graph: {},
+      multigraph: faker.datatype.boolean(),
+      nodes: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => ({
+        [faker.string.alphanumeric(5)]: faker.string.alpha(20),
+      })),
+    },
+    undefined,
+  ]),
   roots_: {
     [faker.string.alphanumeric(5)]: {
       name: faker.string.alpha(20),

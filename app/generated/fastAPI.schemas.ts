@@ -77,6 +77,14 @@ export interface BodyVerifyVerifyAuthVerifyPost {
   token: string;
 }
 
+/**
+ * for fastapi schema.
+ */
+export interface EdgeData {
+  source: string;
+  target: string;
+}
+
 export type EntryElementIdProperty = string | null;
 
 /**
@@ -94,6 +102,21 @@ export type ErrorModelDetail = string | ErrorModelDetailAnyOf;
 
 export interface ErrorModel {
   detail: ErrorModelDetail;
+}
+
+export type GraphDataGraph = { [key: string]: unknown };
+
+export type GraphDataNodesItem = { [key: string]: string };
+
+/**
+ * for fastapi schema.
+ */
+export interface GraphData {
+  directed: boolean;
+  edges: EdgeData[];
+  graph: GraphDataGraph;
+  multigraph: boolean;
+  nodes: GraphDataNodesItem[];
 }
 
 export interface HTTPValidationError {
@@ -158,8 +181,6 @@ export interface Knowde {
   when?: KnowdeWhen;
 }
 
-export type KnowdeDetailG = { [key: string]: unknown };
-
 export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
 
 /**
@@ -167,7 +188,7 @@ export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
  */
 export interface KnowdeDetail {
   uid: string;
-  g: KnowdeDetailG;
+  g: GraphData;
   knowdes: KnowdeDetailKnowdes;
   location: KnowdeLocation;
 }
@@ -228,15 +249,13 @@ export interface MResource {
   txt_hash?: MResourceTxtHash;
 }
 
-export type NameSpaceG = { [key: string]: unknown };
-
 export type NameSpaceRoots = { [key: string]: Entry };
 
 /**
  * リソースの分類.
  */
 export interface NameSpace {
-  g?: NameSpaceG;
+  g?: GraphData;
   roots_: NameSpaceRoots;
   user_id: string;
 }

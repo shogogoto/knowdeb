@@ -28,9 +28,7 @@ export function buildNamespaceTree(data: NameSpace): NamespaceNode[] {
   const nodesMap = new Map<string, NamespaceNode>();
   const rootNodes: NamespaceNode[] = [];
 
-  if (!data.g?.nodes) {
-    return [];
-  }
+  if (!data.g?.nodes) return [];
 
   // 1. Create a map of all nodes
   // biome-ignore lint/suspicious/noExplicitAny: The actual type from the API seems to be { id: Entry | MResource }

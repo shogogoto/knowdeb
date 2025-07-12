@@ -69,7 +69,24 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
   overrideResponse: Partial<KnowdeDetail> = {},
 ): KnowdeDetail => ({
   uid: faker.string.uuid(),
-  g: {},
+  g: {
+    directed: faker.datatype.boolean(),
+    edges: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      source: faker.string.alpha(20),
+      target: faker.string.alpha(20),
+    })),
+    graph: {},
+    multigraph: faker.datatype.boolean(),
+    nodes: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      [faker.string.alphanumeric(5)]: faker.string.alpha(20),
+    })),
+  },
   knowdes: {
     [faker.string.alphanumeric(5)]: {
       knowde: {

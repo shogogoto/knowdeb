@@ -213,7 +213,22 @@ export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsSc
 export const detailKnowdeSentenceSentenceIdGetResponse = zod
   .object({
     uid: zod.string().uuid(),
-    g: zod.record(zod.string(), zod.any()),
+    g: zod
+      .object({
+        directed: zod.boolean(),
+        edges: zod.array(
+          zod
+            .object({
+              source: zod.string(),
+              target: zod.string(),
+            })
+            .describe("for fastapi schema."),
+        ),
+        graph: zod.record(zod.string(), zod.any()),
+        multigraph: zod.boolean(),
+        nodes: zod.array(zod.record(zod.string(), zod.string())),
+      })
+      .describe("for fastapi schema."),
     knowdes: zod.record(
       zod.string(),
       zod
