@@ -171,6 +171,10 @@ export type KnowdeTerm = Term | null;
 
 export type KnowdeWhen = string | null;
 
+export type KnowdeWhere = string | null;
+
+export type KnowdeBy = string | null;
+
 /**
  * 知識の最小単位.
  */
@@ -179,6 +183,8 @@ export interface Knowde {
   uid: string;
   term?: KnowdeTerm;
   when?: KnowdeWhen;
+  where?: KnowdeWhere;
+  by?: KnowdeBy;
 }
 
 export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
@@ -304,6 +310,8 @@ export interface Term {
   alias?: TermAlias;
 }
 
+export type TrackUser = User | null;
+
 /**
  * UUID付き文章.
  */
@@ -318,6 +326,8 @@ export type UserProfile = string | null;
 
 export type UserAvatarUrl = string | null;
 
+export type UserUsername = string | null;
+
 export type UserUid = string | null;
 
 /**
@@ -328,6 +338,7 @@ export interface User {
   display_name?: UserDisplayName;
   profile?: UserProfile;
   avatar_url?: UserAvatarUrl;
+  username?: UserUsername;
   uid?: UserUid;
   email: string;
   hashed_password: string;
@@ -354,19 +365,19 @@ export interface UserCreate {
   is_verified?: UserCreateIsVerified;
 }
 
-export type UserReadId = string | null;
-
 export type UserReadDisplayName = string | null;
 
 export type UserReadProfile = string | null;
 
 export type UserReadAvatarUrl = string | null;
 
+export type UserReadUsername = string | null;
+
 /**
  * 読み取り.
  */
 export interface UserRead {
-  id?: UserReadId;
+  id: string;
   email: string;
   is_active?: boolean;
   is_superuser?: boolean;
@@ -374,6 +385,26 @@ export interface UserRead {
   display_name?: UserReadDisplayName;
   profile?: UserReadProfile;
   avatar_url?: UserReadAvatarUrl;
+  username?: UserReadUsername;
+  created: string;
+}
+
+export type UserReadPublicDisplayName = string | null;
+
+export type UserReadPublicProfile = string | null;
+
+export type UserReadPublicAvatarUrl = string | null;
+
+export type UserReadPublicUsername = string | null;
+
+/**
+ * 公開ユーザー情報.
+ */
+export interface UserReadPublic {
+  display_name?: UserReadPublicDisplayName;
+  profile?: UserReadPublicProfile;
+  avatar_url?: UserReadPublicAvatarUrl;
+  username?: UserReadPublicUsername;
   created: string;
 }
 
@@ -393,7 +424,7 @@ export type UserUpdateProfile = string | null;
 
 export type UserUpdateAvatarUrl = string | null;
 
-export type UserUpdateId = string | null;
+export type UserUpdateUsername = string | null;
 
 /**
  * 更新.
@@ -407,7 +438,7 @@ export interface UserUpdate {
   display_name?: UserUpdateDisplayName;
   profile?: UserUpdateProfile;
   avatar_url?: UserUpdateAvatarUrl;
-  id?: UserUpdateId;
+  username?: UserUpdateUsername;
 }
 
 export type ValidationErrorLocItem = string | number;
@@ -441,11 +472,17 @@ export type OauthGoogleCookieCallbackGoogleCookieCallbackGetParams = {
 };
 
 export type SearchUserUserSearchGetParams = {
-  name?: string | null;
-  id?: string | null;
+  display_name?: string;
+  id?: string;
+  user?: TrackUser;
+};
+
+export type UserProfileUserProfileUsernameGetParams = {
+  user?: TrackUser;
 };
 
 export type SearchByTextKnowdeGetParams = {
+  user?: TrackUser;
   q?: string;
   type?: SearchByTextKnowdeGetType;
   page?: number;
@@ -471,3 +508,7 @@ export const SearchByTextKnowdeGetType = {
   REGEX: "REGEX",
   EQUAL: "EQUAL",
 } as const;
+
+export type DetailKnowdeSentenceSentenceIdGetParams = {
+  user?: TrackUser;
+};

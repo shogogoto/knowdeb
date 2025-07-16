@@ -44,6 +44,14 @@ export const getSearchByTextKnowdeGetResponseMock = (
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
         undefined,
       ]),
+      where: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      by: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
     },
     stats: {
       n_detail: faker.number.int({ min: -100, max: 1000 }),
@@ -115,6 +123,14 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
           faker.helpers.arrayElement([faker.string.alpha(20), null]),
           undefined,
         ]),
+        where: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        by: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
       },
       stats: {
         n_detail: faker.number.int({ min: -100, max: 1000 }),
@@ -170,6 +186,10 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
       ]),
       avatar_url: faker.helpers.arrayElement([
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      username: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
         undefined,
       ]),
       uid: faker.helpers.arrayElement([
@@ -277,6 +297,14 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
           undefined,
         ]),
         when: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        where: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        by: faker.helpers.arrayElement([
           faker.helpers.arrayElement([faker.string.alpha(20), null]),
           undefined,
         ]),

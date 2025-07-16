@@ -7,72 +7,19 @@
 import { z as zod } from "zod";
 
 /**
- * 認証なしユーザー検索.
- * @summary Search User
- */
-export const searchUserUserSearchGetQueryNameDefault = "";
-export const searchUserUserSearchGetQueryIdDefault = "";
-
-export const searchUserUserSearchGetQueryParams = zod.object({
-  name: zod.string().or(zod.null()).optional(),
-  id: zod.string().or(zod.null()).optional(),
-});
-
-export const searchUserUserSearchGetResponseIdRegExpOne = /^[^-]*$/;
-export const searchUserUserSearchGetResponseIsActiveDefault = true;
-export const searchUserUserSearchGetResponseIsSuperuserDefault = false;
-export const searchUserUserSearchGetResponseIsVerifiedDefault = false;
-export const searchUserUserSearchGetResponseDisplayNameMaxOne = 32;
-export const searchUserUserSearchGetResponseProfileMaxOne = 160;
-
-export const searchUserUserSearchGetResponseItem = zod
-  .object({
-    id: zod
-      .string()
-      .regex(searchUserUserSearchGetResponseIdRegExpOne)
-      .or(zod.null())
-      .optional(),
-    email: zod.string().email(),
-    is_active: zod
-      .boolean()
-      .default(searchUserUserSearchGetResponseIsActiveDefault),
-    is_superuser: zod.boolean().optional(),
-    is_verified: zod.boolean().optional(),
-    display_name: zod
-      .string()
-      .max(searchUserUserSearchGetResponseDisplayNameMaxOne)
-      .or(zod.null())
-      .optional(),
-    profile: zod
-      .string()
-      .max(searchUserUserSearchGetResponseProfileMaxOne)
-      .or(zod.null())
-      .optional(),
-    avatar_url: zod.string().or(zod.null()).optional(),
-    created: zod.string().datetime({}),
-  })
-  .describe("読み取り.");
-export const searchUserUserSearchGetResponse = zod.array(
-  searchUserUserSearchGetResponseItem,
-);
-
-/**
  * @summary Users:Current User
  */
-export const usersCurrentUserUserMeGetResponseIdRegExpOne = /^[^-]*$/;
 export const usersCurrentUserUserMeGetResponseIsActiveDefault = true;
 export const usersCurrentUserUserMeGetResponseIsSuperuserDefault = false;
 export const usersCurrentUserUserMeGetResponseIsVerifiedDefault = false;
 export const usersCurrentUserUserMeGetResponseDisplayNameMaxOne = 32;
 export const usersCurrentUserUserMeGetResponseProfileMaxOne = 160;
+export const usersCurrentUserUserMeGetResponseUsernameMaxOne = 16;
+export const usersCurrentUserUserMeGetResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const usersCurrentUserUserMeGetResponse = zod
   .object({
-    id: zod
-      .string()
-      .regex(usersCurrentUserUserMeGetResponseIdRegExpOne)
-      .or(zod.null())
-      .optional(),
+    id: zod.string(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -90,6 +37,12 @@ export const usersCurrentUserUserMeGetResponse = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
+    username: zod
+      .string()
+      .max(usersCurrentUserUserMeGetResponseUsernameMaxOne)
+      .regex(usersCurrentUserUserMeGetResponseUsernameRegExpOne)
+      .or(zod.null())
+      .optional(),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
@@ -99,7 +52,8 @@ export const usersCurrentUserUserMeGetResponse = zod
  */
 export const usersPatchCurrentUserUserMePatchBodyDisplayNameMaxOne = 32;
 export const usersPatchCurrentUserUserMePatchBodyProfileMaxOne = 160;
-export const usersPatchCurrentUserUserMePatchBodyIdRegExpOne = /^[^-]*$/;
+export const usersPatchCurrentUserUserMePatchBodyUsernameMaxOne = 16;
+export const usersPatchCurrentUserUserMePatchBodyUsernameRegExpOne = /^[^-]*$/;
 
 export const usersPatchCurrentUserUserMePatchBody = zod
   .object({
@@ -119,28 +73,27 @@ export const usersPatchCurrentUserUserMePatchBody = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
-    id: zod
+    username: zod
       .string()
-      .regex(usersPatchCurrentUserUserMePatchBodyIdRegExpOne)
+      .max(usersPatchCurrentUserUserMePatchBodyUsernameMaxOne)
+      .regex(usersPatchCurrentUserUserMePatchBodyUsernameRegExpOne)
       .or(zod.null())
       .optional(),
   })
   .describe("更新.");
 
-export const usersPatchCurrentUserUserMePatchResponseIdRegExpOne = /^[^-]*$/;
 export const usersPatchCurrentUserUserMePatchResponseIsActiveDefault = true;
 export const usersPatchCurrentUserUserMePatchResponseIsSuperuserDefault = false;
 export const usersPatchCurrentUserUserMePatchResponseIsVerifiedDefault = false;
 export const usersPatchCurrentUserUserMePatchResponseDisplayNameMaxOne = 32;
 export const usersPatchCurrentUserUserMePatchResponseProfileMaxOne = 160;
+export const usersPatchCurrentUserUserMePatchResponseUsernameMaxOne = 16;
+export const usersPatchCurrentUserUserMePatchResponseUsernameRegExpOne =
+  /^[^-]*$/;
 
 export const usersPatchCurrentUserUserMePatchResponse = zod
   .object({
-    id: zod
-      .string()
-      .regex(usersPatchCurrentUserUserMePatchResponseIdRegExpOne)
-      .or(zod.null())
-      .optional(),
+    id: zod.string(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -158,6 +111,12 @@ export const usersPatchCurrentUserUserMePatchResponse = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
+    username: zod
+      .string()
+      .max(usersPatchCurrentUserUserMePatchResponseUsernameMaxOne)
+      .regex(usersPatchCurrentUserUserMePatchResponseUsernameRegExpOne)
+      .or(zod.null())
+      .optional(),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
@@ -169,20 +128,17 @@ export const usersUserUserIdGetParams = zod.object({
   id: zod.string(),
 });
 
-export const usersUserUserIdGetResponseIdRegExpOne = /^[^-]*$/;
 export const usersUserUserIdGetResponseIsActiveDefault = true;
 export const usersUserUserIdGetResponseIsSuperuserDefault = false;
 export const usersUserUserIdGetResponseIsVerifiedDefault = false;
 export const usersUserUserIdGetResponseDisplayNameMaxOne = 32;
 export const usersUserUserIdGetResponseProfileMaxOne = 160;
+export const usersUserUserIdGetResponseUsernameMaxOne = 16;
+export const usersUserUserIdGetResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const usersUserUserIdGetResponse = zod
   .object({
-    id: zod
-      .string()
-      .regex(usersUserUserIdGetResponseIdRegExpOne)
-      .or(zod.null())
-      .optional(),
+    id: zod.string(),
     email: zod.string().email(),
     is_active: zod.boolean().default(usersUserUserIdGetResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
@@ -198,6 +154,12 @@ export const usersUserUserIdGetResponse = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
+    username: zod
+      .string()
+      .max(usersUserUserIdGetResponseUsernameMaxOne)
+      .regex(usersUserUserIdGetResponseUsernameRegExpOne)
+      .or(zod.null())
+      .optional(),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
@@ -211,7 +173,8 @@ export const usersPatchUserUserIdPatchParams = zod.object({
 
 export const usersPatchUserUserIdPatchBodyDisplayNameMaxOne = 32;
 export const usersPatchUserUserIdPatchBodyProfileMaxOne = 160;
-export const usersPatchUserUserIdPatchBodyIdRegExpOne = /^[^-]*$/;
+export const usersPatchUserUserIdPatchBodyUsernameMaxOne = 16;
+export const usersPatchUserUserIdPatchBodyUsernameRegExpOne = /^[^-]*$/;
 
 export const usersPatchUserUserIdPatchBody = zod
   .object({
@@ -231,28 +194,26 @@ export const usersPatchUserUserIdPatchBody = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
-    id: zod
+    username: zod
       .string()
-      .regex(usersPatchUserUserIdPatchBodyIdRegExpOne)
+      .max(usersPatchUserUserIdPatchBodyUsernameMaxOne)
+      .regex(usersPatchUserUserIdPatchBodyUsernameRegExpOne)
       .or(zod.null())
       .optional(),
   })
   .describe("更新.");
 
-export const usersPatchUserUserIdPatchResponseIdRegExpOne = /^[^-]*$/;
 export const usersPatchUserUserIdPatchResponseIsActiveDefault = true;
 export const usersPatchUserUserIdPatchResponseIsSuperuserDefault = false;
 export const usersPatchUserUserIdPatchResponseIsVerifiedDefault = false;
 export const usersPatchUserUserIdPatchResponseDisplayNameMaxOne = 32;
 export const usersPatchUserUserIdPatchResponseProfileMaxOne = 160;
+export const usersPatchUserUserIdPatchResponseUsernameMaxOne = 16;
+export const usersPatchUserUserIdPatchResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const usersPatchUserUserIdPatchResponse = zod
   .object({
-    id: zod
-      .string()
-      .regex(usersPatchUserUserIdPatchResponseIdRegExpOne)
-      .or(zod.null())
-      .optional(),
+    id: zod.string(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -270,6 +231,12 @@ export const usersPatchUserUserIdPatchResponse = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
+    username: zod
+      .string()
+      .max(usersPatchUserUserIdPatchResponseUsernameMaxOne)
+      .regex(usersPatchUserUserIdPatchResponseUsernameRegExpOne)
+      .or(zod.null())
+      .optional(),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");

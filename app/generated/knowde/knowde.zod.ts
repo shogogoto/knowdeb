@@ -10,6 +10,11 @@ import { z as zod } from "zod";
  * 文字列検索.
  * @summary Search By Text
  */
+export const searchByTextKnowdeGetQueryUserOauthAccountsDefault = [];
+export const searchByTextKnowdeGetQueryUserDisplayNameMaxOne = 32;
+export const searchByTextKnowdeGetQueryUserProfileMaxOne = 160;
+export const searchByTextKnowdeGetQueryUserUsernameMaxOne = 16;
+export const searchByTextKnowdeGetQueryUserUsernameRegExpOne = /^[^-]*$/;
 export const searchByTextKnowdeGetQueryQDefault = "";
 export const searchByTextKnowdeGetQueryTypeDefault = "CONTAINS";
 export const searchByTextKnowdeGetQueryPageDefault = 1;
@@ -24,6 +29,51 @@ export const searchByTextKnowdeGetQueryDistLeafDefault = 1;
 export const searchByTextKnowdeGetQueryDescDefault = true;
 
 export const searchByTextKnowdeGetQueryParams = zod.object({
+  user: zod
+    .object({
+      oauth_accounts: zod
+        .array(
+          zod
+            .object({
+              id: zod.any(),
+              oauth_name: zod.string(),
+              access_token: zod.string(),
+              expires_at: zod.number().or(zod.null()).optional(),
+              refresh_token: zod.string().or(zod.null()).optional(),
+              account_id: zod.string(),
+              account_email: zod.string(),
+            })
+            .describe("Base OAuth account model."),
+        )
+        .default(searchByTextKnowdeGetQueryUserOauthAccountsDefault),
+      display_name: zod
+        .string()
+        .max(searchByTextKnowdeGetQueryUserDisplayNameMaxOne)
+        .or(zod.null())
+        .optional(),
+      profile: zod
+        .string()
+        .max(searchByTextKnowdeGetQueryUserProfileMaxOne)
+        .or(zod.null())
+        .optional(),
+      avatar_url: zod.string().or(zod.null()).optional(),
+      username: zod
+        .string()
+        .max(searchByTextKnowdeGetQueryUserUsernameMaxOne)
+        .regex(searchByTextKnowdeGetQueryUserUsernameRegExpOne)
+        .or(zod.null())
+        .optional(),
+      uid: zod.string().uuid().or(zod.null()).optional(),
+      email: zod.string().email(),
+      hashed_password: zod.string(),
+      is_active: zod.boolean(),
+      is_superuser: zod.boolean(),
+      is_verified: zod.boolean(),
+      created: zod.string().datetime({}),
+    })
+    .describe("UserProtocol[UUID]を満たす.")
+    .or(zod.null())
+    .optional(),
   q: zod.string().optional(),
   type: zod
     .enum(["CONTAINS", "STARTS_WITH", "ENDS_WITH", "REGEX", "EQUAL"])
@@ -89,6 +139,8 @@ export const searchByTextKnowdeGetResponse = zod
                 .or(zod.null())
                 .optional(),
               when: zod.string().or(zod.null()).optional(),
+              where: zod.string().or(zod.null()).optional(),
+              by: zod.string().or(zod.null()).optional(),
             })
             .describe("知識の最小単位."),
           stats: zod
@@ -143,6 +195,64 @@ export const detailKnowdeSentenceSentenceIdGetParams = zod.object({
   sentence_id: zod.string().uuid(),
 });
 
+export const detailKnowdeSentenceSentenceIdGetQueryUserOauthAccountsDefault =
+  [];
+export const detailKnowdeSentenceSentenceIdGetQueryUserDisplayNameMaxOne = 32;
+export const detailKnowdeSentenceSentenceIdGetQueryUserProfileMaxOne = 160;
+export const detailKnowdeSentenceSentenceIdGetQueryUserUsernameMaxOne = 16;
+export const detailKnowdeSentenceSentenceIdGetQueryUserUsernameRegExpOne =
+  /^[^-]*$/;
+
+export const detailKnowdeSentenceSentenceIdGetQueryParams = zod.object({
+  user: zod
+    .object({
+      oauth_accounts: zod
+        .array(
+          zod
+            .object({
+              id: zod.any(),
+              oauth_name: zod.string(),
+              access_token: zod.string(),
+              expires_at: zod.number().or(zod.null()).optional(),
+              refresh_token: zod.string().or(zod.null()).optional(),
+              account_id: zod.string(),
+              account_email: zod.string(),
+            })
+            .describe("Base OAuth account model."),
+        )
+        .default(
+          detailKnowdeSentenceSentenceIdGetQueryUserOauthAccountsDefault,
+        ),
+      display_name: zod
+        .string()
+        .max(detailKnowdeSentenceSentenceIdGetQueryUserDisplayNameMaxOne)
+        .or(zod.null())
+        .optional(),
+      profile: zod
+        .string()
+        .max(detailKnowdeSentenceSentenceIdGetQueryUserProfileMaxOne)
+        .or(zod.null())
+        .optional(),
+      avatar_url: zod.string().or(zod.null()).optional(),
+      username: zod
+        .string()
+        .max(detailKnowdeSentenceSentenceIdGetQueryUserUsernameMaxOne)
+        .regex(detailKnowdeSentenceSentenceIdGetQueryUserUsernameRegExpOne)
+        .or(zod.null())
+        .optional(),
+      uid: zod.string().uuid().or(zod.null()).optional(),
+      email: zod.string().email(),
+      hashed_password: zod.string(),
+      is_active: zod.boolean(),
+      is_superuser: zod.boolean(),
+      is_verified: zod.boolean(),
+      created: zod.string().datetime({}),
+    })
+    .describe("UserProtocol[UUID]を満たす.")
+    .or(zod.null())
+    .optional(),
+});
+
 export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsNDetailMin =
   -100;
 
@@ -178,6 +288,9 @@ export const detailKnowdeSentenceSentenceIdGetResponseLocationUserOauthAccountsD
   [];
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserDisplayNameMaxOne = 32;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserProfileMaxOne = 160;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameMaxOne = 16;
+export const detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameRegExpOne =
+  /^[^-]*$/;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNDetailMin =
   -100;
 
@@ -250,6 +363,8 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
                 .or(zod.null())
                 .optional(),
               when: zod.string().or(zod.null()).optional(),
+              where: zod.string().or(zod.null()).optional(),
+              by: zod.string().or(zod.null()).optional(),
             })
             .describe("知識の最小単位."),
           stats: zod
@@ -361,6 +476,16 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
               .or(zod.null())
               .optional(),
             avatar_url: zod.string().or(zod.null()).optional(),
+            username: zod
+              .string()
+              .max(
+                detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameMaxOne,
+              )
+              .regex(
+                detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameRegExpOne,
+              )
+              .or(zod.null())
+              .optional(),
             uid: zod.string().uuid().or(zod.null()).optional(),
             email: zod.string().email(),
             hashed_password: zod.string(),
@@ -422,6 +547,8 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
                     .or(zod.null())
                     .optional(),
                   when: zod.string().or(zod.null()).optional(),
+                  where: zod.string().or(zod.null()).optional(),
+                  by: zod.string().or(zod.null()).optional(),
                 })
                 .describe("知識の最小単位."),
               stats: zod

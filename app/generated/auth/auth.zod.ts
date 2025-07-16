@@ -80,20 +80,17 @@ export const verifyVerifyAuthVerifyPostBody = zod.object({
   token: zod.string(),
 });
 
-export const verifyVerifyAuthVerifyPostResponseIdRegExpOne = /^[^-]*$/;
 export const verifyVerifyAuthVerifyPostResponseIsActiveDefault = true;
 export const verifyVerifyAuthVerifyPostResponseIsSuperuserDefault = false;
 export const verifyVerifyAuthVerifyPostResponseIsVerifiedDefault = false;
 export const verifyVerifyAuthVerifyPostResponseDisplayNameMaxOne = 32;
 export const verifyVerifyAuthVerifyPostResponseProfileMaxOne = 160;
+export const verifyVerifyAuthVerifyPostResponseUsernameMaxOne = 16;
+export const verifyVerifyAuthVerifyPostResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const verifyVerifyAuthVerifyPostResponse = zod
   .object({
-    id: zod
-      .string()
-      .regex(verifyVerifyAuthVerifyPostResponseIdRegExpOne)
-      .or(zod.null())
-      .optional(),
+    id: zod.string(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -111,6 +108,12 @@ export const verifyVerifyAuthVerifyPostResponse = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
+    username: zod
+      .string()
+      .max(verifyVerifyAuthVerifyPostResponseUsernameMaxOne)
+      .regex(verifyVerifyAuthVerifyPostResponseUsernameRegExpOne)
+      .or(zod.null())
+      .optional(),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
