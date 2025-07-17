@@ -377,7 +377,7 @@ export type UserReadUsername = string | null;
  * 読み取り.
  */
 export interface UserRead {
-  id: string;
+  uid: string;
   email: string;
   is_active?: boolean;
   is_superuser?: boolean;
@@ -405,6 +405,7 @@ export interface UserReadPublic {
   profile?: UserReadPublicProfile;
   avatar_url?: UserReadPublicAvatarUrl;
   username?: UserReadPublicUsername;
+  uid: string;
   created: string;
 }
 

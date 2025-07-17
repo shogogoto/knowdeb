@@ -31,6 +31,7 @@ export const getSearchUserUserSearchGetResponseMock = (): UserReadPublic[] =>
       faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
       undefined,
     ]),
+    uid: faker.string.uuid(),
     created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   }));
 
@@ -53,6 +54,7 @@ export const getUserProfileUserProfileUsernameGetResponseMock = (
     faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
     undefined,
   ]),
+  uid: faker.string.uuid(),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
   ...overrideResponse,
 });

@@ -90,7 +90,7 @@ export const verifyVerifyAuthVerifyPostResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const verifyVerifyAuthVerifyPostResponse = zod
   .object({
-    id: zod.string(),
+    uid: zod.string().uuid(),
     email: zod.string().email(),
     is_active: zod
       .boolean()

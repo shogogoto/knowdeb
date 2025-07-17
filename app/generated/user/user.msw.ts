@@ -13,7 +13,7 @@ import type { UserRead } from "../fastAPI.schemas";
 export const getUsersCurrentUserUserMeGetResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.alpha(20),
+  uid: faker.string.uuid(),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -47,7 +47,7 @@ export const getUsersCurrentUserUserMeGetResponseMock = (
 export const getUsersPatchCurrentUserUserMePatchResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.alpha(20),
+  uid: faker.string.uuid(),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -81,7 +81,7 @@ export const getUsersPatchCurrentUserUserMePatchResponseMock = (
 export const getUsersUserUserIdGetResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.alpha(20),
+  uid: faker.string.uuid(),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -115,7 +115,7 @@ export const getUsersUserUserIdGetResponseMock = (
 export const getUsersPatchUserUserIdPatchResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: faker.string.alpha(20),
+  uid: faker.string.uuid(),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([

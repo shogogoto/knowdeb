@@ -10,6 +10,7 @@ export async function editUserProfile({ request }: ActionFunctionArgs) {
   if (submission.status !== "success") {
     return submission.reply();
   }
+  console.log(submission.value);
   const res = await usersPatchCurrentUserUserMePatch(submission.value, {
     credentials: "include",
   });

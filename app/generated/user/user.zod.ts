@@ -19,7 +19,7 @@ export const usersCurrentUserUserMeGetResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const usersCurrentUserUserMeGetResponse = zod
   .object({
-    id: zod.string(),
+    uid: zod.string().uuid(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -93,7 +93,7 @@ export const usersPatchCurrentUserUserMePatchResponseUsernameRegExpOne =
 
 export const usersPatchCurrentUserUserMePatchResponse = zod
   .object({
-    id: zod.string(),
+    uid: zod.string().uuid(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -138,7 +138,7 @@ export const usersUserUserIdGetResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const usersUserUserIdGetResponse = zod
   .object({
-    id: zod.string(),
+    uid: zod.string().uuid(),
     email: zod.string().email(),
     is_active: zod.boolean().default(usersUserUserIdGetResponseIsActiveDefault),
     is_superuser: zod.boolean().optional(),
@@ -213,7 +213,7 @@ export const usersPatchUserUserIdPatchResponseUsernameRegExpOne = /^[^-]*$/;
 
 export const usersPatchUserUserIdPatchResponse = zod
   .object({
-    id: zod.string(),
+    uid: zod.string().uuid(),
     email: zod.string().email(),
     is_active: zod
       .boolean()

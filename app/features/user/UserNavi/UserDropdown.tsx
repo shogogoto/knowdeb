@@ -5,7 +5,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
 import { LogoutDialog } from "~/features/auth/SignOutDialog";
@@ -24,11 +23,6 @@ export default function UserDropdown({ avatar, side, toggleOpen }: Props) {
       align="end"
       sideOffset={4}
     >
-      <DropdownMenuLabel className="p-0 font-normal">
-        <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-          {avatar}
-        </div>
-      </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <DropdownMenuGroup>
         <DropdownMenuGroup>
@@ -38,7 +32,7 @@ export default function UserDropdown({ avatar, side, toggleOpen }: Props) {
         <DropdownMenuGroup>
           <UserDropdownItem icon={<BadgeCheck />} title="Account" />
           <UserDropdownItem icon={<CreditCard />} title="Billing" />
-          <UserDropdownItem icon={<Bell />} title="Notificatons" />
+          <UserDropdownItem icon={<Bell />} title="Notifications" />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <LogoutDialog>

@@ -1,9 +1,10 @@
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
-import type { UserRead } from "~/generated/fastAPI.schemas";
+import type { UserReadPublic } from "~/generated/fastAPI.schemas";
 import { getTransformedImageUrl } from "../libs/image";
+
 type Props = {
-  user: UserRead;
+  user: UserReadPublic;
 };
 
 export default function UserProfile({ user }: Props) {
@@ -35,7 +36,7 @@ export default function UserProfile({ user }: Props) {
             {user?.display_name || "名無しさん"}
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-sm break-words">
-            {`@${user.id || "userId"}`}
+            {`@${user.uid || "userId"}`}
           </p>
         </div>
         <Button asChild className="px-4 py-2 text-md">
@@ -53,8 +54,7 @@ export default function UserProfile({ user }: Props) {
       {/* デバッグ情報（必要に応じて削除してください） */}
       <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700 text-sm text-gray-500 dark:text-gray-400 space-y-2">
         <h3 className="font-semibold">デバッグ情報:</h3>
-        <p>ID: {user?.id as string}</p>
-        <p>Email: {user?.email}</p>
+        <p>ID: {user?.uid as string}</p>
         <p>Display Name: {user?.display_name}</p>
         <p>Profile: {user?.profile}</p>
         <p>Avatar URL: {user?.avatar_url}</p>

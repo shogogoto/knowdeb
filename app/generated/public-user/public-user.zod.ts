@@ -92,6 +92,7 @@ export const searchUserUserSearchGetResponseItem = zod
       .regex(searchUserUserSearchGetResponseUsernameRegExpOne)
       .or(zod.null())
       .optional(),
+    uid: zod.string().uuid(),
     created: zod.string().datetime({}),
   })
   .describe("公開ユーザー情報.");
@@ -190,6 +191,7 @@ export const userProfileUserProfileUsernameGetResponse = zod
       .regex(userProfileUserProfileUsernameGetResponseUsernameRegExpOne)
       .or(zod.null())
       .optional(),
+    uid: zod.string().uuid(),
     created: zod.string().datetime({}),
   })
   .describe("公開ユーザー情報.");
