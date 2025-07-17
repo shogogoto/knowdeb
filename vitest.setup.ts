@@ -1,5 +1,6 @@
 import { URLSearchParams } from "node:url";
 import { cleanup } from "@testing-library/react";
+import "@testing-library/jest-dom/vitest";
 // import fetch, { Request, Response, Headers } from "node-fetch";
 
 // @ts-ignore
