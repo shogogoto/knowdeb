@@ -1,9 +1,10 @@
-import { redirect } from "react-router";
+import { Navigate, redirect } from "react-router";
 import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
-import AuthGuardBody from "../AuthGuard/Body";
+import AuthGuard from "../AuthGuard";
+import { useAuth } from "../AuthProvider";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize({ request }: Route.ClientLoaderArgs) {
@@ -37,8 +38,12 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
 }
 
 // clientLoaderのためにあるだけで表示されることはなさそう
-export default function CallbackDummy({ loaderData }: Route.ComponentProps) {
+export default function GoogleCallback({ loaderData }: Route.ComponentProps) {
   // const { is } = loaderData;
+  const { isAuthorized } = useAuth();
 
-  return <AuthGuardBody />;
+  if (isAuthorized) {
+    return <Navigate to="/home" />;
+  }
+  return <AuthGuard />;
 }

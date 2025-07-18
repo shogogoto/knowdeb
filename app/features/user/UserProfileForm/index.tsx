@@ -56,20 +56,6 @@ export default function UserProfileForm() {
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
 
-  if (isLoading || user === undefined) {
-    return <div className="text-center p-4">ユーザー情報を読み込み中...</div>;
-  }
-  if (!isAuthorized) {
-    return (
-      <div className="text-center p-8 bg-card rounded-lg shadow-lg">
-        <p className="text-destructive font-bold">認証されていません。</p>
-        <p className="text-muted-foreground mt-2">
-          ログインしてプロフィールを編集してください。
-        </p>
-      </div>
-    );
-  }
-
   const avatarDisplayUrl = getTransformedImageUrl(
     fields.avatar_url.value,
     128,
