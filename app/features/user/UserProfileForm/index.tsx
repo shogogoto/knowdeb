@@ -1,6 +1,5 @@
 import { getFormProps, getInputProps, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { useEffect } from "react";
 import { Link, useFetcher, useNavigation } from "react-router";
 import type { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -27,7 +26,7 @@ export const UserProfileSchema = userProfileUserProfileUsernameGetResponse.pick(
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
 
 export default function UserProfileForm() {
-  const { user, mutate, isAuthorized, isLoading: isUserLoading } = useAuth();
+  const { user, isAuthorized, isLoading } = useAuth();
   const fetcher = useFetcher();
   const lastSubmission = fetcher.data;
   const navigation = useNavigation();
@@ -38,7 +37,6 @@ export default function UserProfileForm() {
       display_name: user?.display_name,
       profile: user?.profile,
       avatar_url: user?.avatar_url,
-      created: user?.created,
     },
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: UserProfileSchema });
@@ -49,16 +47,16 @@ export default function UserProfileForm() {
     constraint: getZodConstraint(UserProfileSchema),
   });
 
-  useEffect(() => {
-    if (lastSubmission?.message) {
-      mutate();
-    }
-  }, [lastSubmission, mutate]);
+  // useEffect(() => {
+  //   if (lastSubmission?.message) {
+  //     mutate();
+  //   }
+  // }, [lastSubmission, mutate]);
 
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
 
-  if (isUserLoading || user === undefined) {
+  if (isLoading || user === undefined) {
     return <div className="text-center p-4">ユーザー情報を読み込み中...</div>;
   }
   if (!isAuthorized) {
@@ -136,7 +134,6 @@ export default function UserProfileForm() {
               画像を削除
             </Button>
           </div>
-
           <InputFormControl
             label="ユーザーID"
             field={fields.username}
@@ -154,7 +151,6 @@ export default function UserProfileForm() {
             rows={4}
             maxLength={usersPatchCurrentUserUserMePatchResponseProfileMaxOne}
           />
-
           <div className="flex flex-col w-full max-w-sm gap-2">
             <Button type="submit" className="w-full" disabled={isSubmitting}>
               {isSubmitting ? "更新中..." : "更新"}
