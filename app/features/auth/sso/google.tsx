@@ -1,21 +1,20 @@
-import { Navigate, redirect } from "react-router";
+import { Link, Navigate, redirect } from "react-router";
+import GoogleIcon from "~/components/icons/Google";
+import { Button } from "~/components/ui/button";
 import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
-import AuthGuard from "../AuthGuard";
 import { useAuth } from "../AuthProvider";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
-export async function authorize({ request }: Route.ClientLoaderArgs) {
+export async function authorize() {
+  console.log("authorize");
   const res = await oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet(
     {},
-    {
-      credentials: "include",
-    },
+    { credentials: "include" },
   );
   if (res.status === 200) {
-    console.log(res.data.authorization_url);
     return redirect(res.data.authorization_url);
   }
   console.error("Google SSO failed:", res.data.detail);
@@ -39,11 +38,20 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
 
 // clientLoaderのためにあるだけで表示されることはなさそう
 export default function GoogleCallback({ loaderData }: Route.ComponentProps) {
-  // const { is } = loaderData;
   const { isAuthorized } = useAuth();
 
   if (isAuthorized) {
     return <Navigate to="/home" />;
   }
-  return <AuthGuard />;
+  return <div />;
+}
+
+export function GoogleAuthButton({ title }: { title: string }) {
+  return (
+    <Link to="/google/authorize">
+      <Button variant="outline" className="w-full">
+        <GoogleIcon className="mr-2 h-4 w-4" /> {title}
+      </Button>
+    </Link>
+  );
 }

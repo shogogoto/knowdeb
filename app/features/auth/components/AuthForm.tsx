@@ -1,15 +1,14 @@
 import { type SubmissionResult, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { Link } from "react-router";
 import { Form, useNavigation } from "react-router";
 import { z } from "zod";
-import GoogleIcon from "~/components/icons/Google";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { registerRegisterAuthRegisterPostBody } from "~/generated/auth/auth.zod";
 import useShowToggle from "~/hooks/useShowToggle";
+import { GoogleAuthButton } from "../sso/google";
 
 export const authSchema = registerRegisterAuthRegisterPostBody
   .pick({
@@ -52,11 +51,7 @@ export default function AuthForm({ lastResult, title }: Props) {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            <Link to="/google/authorize">
-              <Button variant="outline" className="w-full">
-                <GoogleIcon className="mr-2 h-4 w-4" /> Googleで{title}
-              </Button>
-            </Link>
+            <GoogleAuthButton title={`Googleで${title}`} />
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
