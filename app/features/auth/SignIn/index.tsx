@@ -1,7 +1,6 @@
 import { parseWithZod } from "@conform-to/zod";
-import { useEffect } from "react";
 import type { ActionFunctionArgs } from "react-router";
-import { useActionData, useNavigate } from "react-router";
+import { useActionData } from "react-router";
 import { Navigate } from "react-router";
 import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
 import { useAuth } from "../AuthProvider";
@@ -39,13 +38,6 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
 export default function SignInForm() {
   const lastResult = useActionData<typeof UserSignInAction>();
   const { isAuthorized } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    console.log(lastResult);
-    if (isAuthorized) {
-      navigate("/home");
-    }
-  }, [isAuthorized, navigate, lastResult]);
 
   if (isAuthorized) {
     return <Navigate to="/home" />;

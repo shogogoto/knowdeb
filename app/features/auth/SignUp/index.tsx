@@ -2,7 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { useActionData } from "react-router";
 import { registerRegisterAuthRegisterPost } from "~/generated/auth/auth";
-import { signInAction } from "../SingIn";
+import { signInAction } from "../SignIn";
 import AuthForm, { authSchema } from "../components/AuthForm";
 
 export async function UserRegisterAction({ request }: ActionFunctionArgs) {
