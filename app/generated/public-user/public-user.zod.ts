@@ -55,7 +55,7 @@ export const searchUserUserSearchGetQueryParams = zod.object({
         .regex(searchUserUserSearchGetQueryUserUsernameRegExpOne)
         .or(zod.null())
         .optional(),
-      uid: zod.string().uuid().or(zod.null()).optional(),
+      uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
       is_active: zod.boolean(),
@@ -153,7 +153,7 @@ export const userProfileUserProfileUsernameGetQueryParams = zod.object({
         .regex(userProfileUserProfileUsernameGetQueryUserUsernameRegExpOne)
         .or(zod.null())
         .optional(),
-      uid: zod.string().uuid().or(zod.null()).optional(),
+      uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
       is_active: zod.boolean(),

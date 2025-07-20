@@ -192,10 +192,7 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
         faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
         undefined,
       ]),
-      uid: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.uuid(), null]),
-        undefined,
-      ]),
+      uid: faker.string.uuid(),
       email: faker.internet.email(),
       hashed_password: faker.string.alpha(20),
       is_active: faker.datatype.boolean(),

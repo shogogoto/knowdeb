@@ -63,7 +63,7 @@ export const searchByTextKnowdeGetQueryParams = zod.object({
         .regex(searchByTextKnowdeGetQueryUserUsernameRegExpOne)
         .or(zod.null())
         .optional(),
-      uid: zod.string().uuid().or(zod.null()).optional(),
+      uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
       is_active: zod.boolean(),
@@ -240,7 +240,7 @@ export const detailKnowdeSentenceSentenceIdGetQueryParams = zod.object({
         .regex(detailKnowdeSentenceSentenceIdGetQueryUserUsernameRegExpOne)
         .or(zod.null())
         .optional(),
-      uid: zod.string().uuid().or(zod.null()).optional(),
+      uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
       is_active: zod.boolean(),
@@ -486,7 +486,7 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
               )
               .or(zod.null())
               .optional(),
-            uid: zod.string().uuid().or(zod.null()).optional(),
+            uid: zod.string().uuid(),
             email: zod.string().email(),
             hashed_password: zod.string(),
             is_active: zod.boolean(),

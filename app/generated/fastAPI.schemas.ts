@@ -328,8 +328,6 @@ export type UserAvatarUrl = string | null;
 
 export type UserUsername = string | null;
 
-export type UserUid = string | null;
-
 /**
  * UserProtocol[UUID]を満たす.
  */
@@ -339,7 +337,7 @@ export interface User {
   profile?: UserProfile;
   avatar_url?: UserAvatarUrl;
   username?: UserUsername;
-  uid?: UserUid;
+  uid: string;
   email: string;
   hashed_password: string;
   is_active: boolean;
