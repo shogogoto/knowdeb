@@ -33,7 +33,7 @@ export default function UserProfile() {
             {user?.display_name || "名無しさん"}
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-sm break-words">
-            {`@${user.uid || "userId"}`}
+            {`@${user?.username || user?.uid || "userId"}`}
           </p>
         </div>
         <Button asChild className="px-4 py-2 text-md">

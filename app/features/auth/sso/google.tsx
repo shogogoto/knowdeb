@@ -35,7 +35,7 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
 }
 
 // clientLoaderのためにあるだけで表示されることはなさそう
-export default function GoogleCallback({ loaderData }: Route.ComponentProps) {
+export default function GoogleCallback() {
   const { isAuthorized } = useAuth();
 
   if (isAuthorized) {
