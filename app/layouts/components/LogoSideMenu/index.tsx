@@ -1,7 +1,8 @@
 import { Link } from "react-router";
 import { SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
+import useToggleSidebar from "~/layouts/hooks";
 import favicon from "/favicon.svg";
-import useToggleSidebar from "../hooks";
+
 export function SiteLogo() {
   return <img src={favicon} alt="Logo" className="inline" />;
 }

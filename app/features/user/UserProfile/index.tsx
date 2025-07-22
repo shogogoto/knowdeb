@@ -1,13 +1,10 @@
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
-import type { UserReadPublic } from "~/generated/fastAPI.schemas";
+import { useAuth } from "~/features/auth/AuthProvider";
 import { getTransformedImageUrl } from "../libs/image";
 
-type Props = {
-  user: UserReadPublic;
-};
-
-export default function UserProfile({ user }: Props) {
+export default function UserProfile() {
+  const { user } = useAuth();
   const avatarDisplayUrl = getTransformedImageUrl(
     user?.avatar_url,
     100,

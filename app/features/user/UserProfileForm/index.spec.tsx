@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRoutesStub } from "react-router";
-import { afterEach, beforeEach, describe, it, vi } from "vitest";
+import { beforeEach, describe, it, vi } from "vitest";
 import { useAuth } from "~/features/auth/AuthProvider";
 import UserProfileForm from ".";
 import { editUserProfile } from "./action";
@@ -34,6 +34,42 @@ vi.mock("../ImageUploader", () => ({
     avatar_url
     created
 
+  AuthGuard
+    auth cache
+
+
+  新規作成
+  ログイン
+    SSOログイン
+      成功時に /home へリダイレクト して　「新規作成に成功しました」と表示
+      失敗時に / へリダイレクト して　「新規作成に失敗しました」と表示
+
+  ユーザープロフィール更新
+    更新ボタン推す
+      通信中に通信中と出る
+      inputや画像ボタンなどdisableになる
+
+    更新成功
+      authを更新
+      成功時に /home へリダイレクト して　「更新に成功しました」と表示
+    更新失敗
+      失敗理由を表示
+      編集disable から enableへ変更
+
+    auth未取得
+
+
+
+  entry一覧表示
+
+  knowde search
+  knowde detail 遷移
+
+
+  user edit のテストケース
+    useAuthでundefinedのとき、 / へリダイレクト (AuthGuardの役目)
+    画像アップロード
+
 
 
  */
@@ -65,12 +101,12 @@ describe("UserProfileForm (Integration Test)", () => {
       signIn: vi.fn(async () => {}),
     });
   });
+  //
+  // afterEach(() => {
+  //   vi.clearAllMocks();
+  // });
 
-  afterEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("ユーザー情報がフォームの初期値として正しく表示される", async () => {
+  it("ユーザー情報がフォーム初期値へ", async () => {
     const Stub = createRoutesStub([
       {
         path: "/user/edit",

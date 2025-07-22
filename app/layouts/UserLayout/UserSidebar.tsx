@@ -45,7 +45,7 @@ export default function UserSidebar() {
     },
   ];
 
-  const { user } = useAuth();
+  const { user, isAuthorized } = useAuth();
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
