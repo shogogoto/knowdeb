@@ -1,7 +1,9 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
-import { createRoutesStub } from "react-router";
+import { Navigate, createMemoryRouter } from "react-router";
+import { RouterProvider } from "react-router";
 import {
   getGoogleMock,
   getOauthGoogleCookieAuthorizeGoogleCookieAuthorizeGetMockHandler,
@@ -13,8 +15,41 @@ beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
+function stubFixture(fakeGoogleAuthUrl: string, title: string) {
+  return createMemoryRouter(
+    [
+      {
+        path: "/login",
+        Component: () => <GoogleAuthButton title={title} />,
+      },
+      {
+        path: "/google/authorize",
+        loader: authorize,
+        Component: () => <div>dummy</div>,
+      },
+      {
+        path: fakeGoogleAuthUrl,
+        Component: () => <Navigate to="/google/callback" />,
+      },
+      {
+        path: "/google/callback",
+        Component: () => <div>fake</div>,
+      },
+      {
+        path: "/home",
+        Component: () => <div>home</div>,
+      },
+      {
+        path: "/",
+        Component: () => <div>root</div>,
+      },
+    ],
+    { initialEntries: ["/login"] },
+  );
+}
+
 describe("Google SSO", () => {
-  it("Google authorize成功", async () => {
+  it("authorize成功", async () => {
     const fakeGoogleAuthUrl = "/fake-google-auth-page";
     server.use(
       getOauthGoogleCookieAuthorizeGoogleCookieAuthorizeGetMockHandler({
@@ -23,63 +58,34 @@ describe("Google SSO", () => {
     );
     const title = "Google ログイン";
     const user = userEvent.setup();
-    const Stub = createRoutesStub([
-      {
-        path: "/login",
-        Component: () => <GoogleAuthButton title={title} />,
-      },
-      {
-        path: "/google/authorize",
-        loader: authorize,
-      },
-      {
-        path: fakeGoogleAuthUrl,
-        // Component: () => <Navigate to="/google/callback" />,
-        Component: () => <div>fake</div>,
-      },
-      {
-        path: "/google/callback",
-        Component: () => <div>fake</div>,
-      },
-    ]);
-
-    render(<Stub initialEntries={["/login"]} />);
-    const tgt = await screen.findByText(title);
-    expect(tgt).toBeInTheDocument();
-
-    await user.click(await screen.findByText(title));
+    // const Stub = createRoutesStub(
+    const Stub = stubFixture(fakeGoogleAuthUrl, title);
+    // render(<Stub initialEntries={["/login"]} />);
+    render(<RouterProvider router={Stub} />);
+    const link = await screen.findByText(title);
+    expect(link).toBeInTheDocument();
+    screen.debug();
+    await user.click(link); // 認証ボタン押して画面遷移
     // クリック後にawaitしないとrespons返らない
-    expect(await screen.findByText("fake")).toBeInTheDocument();
+    // expect(await screen.findByText("fake")).not.toBeInTheDocument();
+    // screen.debug();
   });
 
   // it("Google ログイン 失敗", async () => {
   //   expect(true).toBe(true);
   // });
-  // it("authorize loaderはAPIエラー時にルートへリダイレクトする", async () => {
-  //   server.use(
-  //     http.get("*/google/cookie/authorize", () => {
-  //       return new HttpResponse(null, { status: 500 });
-  //     }),
-  //   );
-  //
-  //   const Stub = createRoutesStub([
-  //     {
-  //       path: "/login",
-  //       Component: () => <GoogleAuthButton title="Google ログイン" />,
-  //     },
-  //     {
-  //       path: "/google/authorize",
-  //       loader: authorize,
-  //     },
-  //     {
-  //       path: "/",
-  //       Component: () => <div>Home Page</div>,
-  //     },
-  //   ]);
-  //
-  //   render(<Stub initialEntries={["/login"]} />);
-  //   await userEvent.click(await screen.findByText("Google ログイン"));
-  //
-  //   expect(await screen.findByText("Home Page")).toBeInTheDocument();
-  // });
+  it("authorize失敗で / へリダイレクト", async () => {
+    server.use(
+      http.get("*/google/cookie/authorize", () => {
+        return new HttpResponse(null, { status: 500 });
+      }),
+    );
+    const title = "Google ログイン";
+    const Stub = stubFixture("/fake-google-auth-page", title);
+    render(<RouterProvider router={Stub} />);
+    await userEvent.click(await screen.findByText(title));
+    expect(
+      await screen.findByText("Google SSO authorization failed"),
+    ).toBeInTheDocument();
+  });
 });

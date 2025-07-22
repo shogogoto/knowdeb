@@ -42,10 +42,10 @@ jobs:
           npm ci
           npx playwright install
 
-      - name: Run TypeScript check
-        run: npm run typecheck
       - name: Run Vitest
         run: npm run test
+      - name: Run TypeScript check
+        run: npm run typecheck
       - name: Run Biome check
         run: npm run lint
 

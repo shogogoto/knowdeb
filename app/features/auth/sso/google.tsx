@@ -9,7 +9,6 @@ import { useAuth } from "../AuthProvider";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize() {
-  console.log("authorize");
   const res = await oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet(
     {},
     { credentials: "include" },
@@ -17,8 +16,7 @@ export async function authorize() {
   if (res.status === 200) {
     return redirect(res.data.authorization_url);
   }
-  console.error("Google SSO failed:", res.data.detail);
-  return redirect("/");
+  throw new Error("Google SSO authorization failed");
 }
 
 export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
@@ -48,10 +46,10 @@ export default function GoogleCallback({ loaderData }: Route.ComponentProps) {
 
 export function GoogleAuthButton({ title }: { title: string }) {
   return (
-    <Link to="/google/authorize">
-      <Button variant="outline" className="w-full">
+    <Button variant="outline" className="w-full" asChild>
+      <Link to="/google/authorize">
         <GoogleIcon className="mr-2 h-4 w-4" /> {title}
-      </Button>
-    </Link>
+      </Link>
+    </Button>
   );
 }
