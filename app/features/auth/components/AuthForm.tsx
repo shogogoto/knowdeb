@@ -33,6 +33,7 @@ type Props = {
 export default function AuthForm({ lastResult, title }: Props) {
   const { show, ShowToggleIcon } = useShowToggle();
   const navigation = useNavigation();
+  const isSending = navigation.state === "submitting";
   const [form, fields] = useForm({
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: authSchema });
@@ -77,6 +78,7 @@ export default function AuthForm({ lastResult, title }: Props) {
                 id={fields.email.id}
                 placeholder="user@example.com"
                 type="email"
+                disabled={isSending}
               />
               <div
                 className="h-5 text-sm text-red-500"
@@ -92,6 +94,7 @@ export default function AuthForm({ lastResult, title }: Props) {
                   name={fields.password.name}
                   id={fields.password.id}
                   type={show ? "text" : "password"}
+                  disabled={isSending}
                 />
                 {ShowToggleIcon}
               </div>
@@ -102,8 +105,8 @@ export default function AuthForm({ lastResult, title }: Props) {
                 {fields.password.errors?.[0]}
               </div>
             </div>
-            <Button type="submit" className="w-full">
-              {navigation.state === "submitting" ? "送信中..." : "送信"}
+            <Button type="submit" className="w-full" disabled={isSending}>
+              {isSending ? "送信中..." : "送信"}
             </Button>
             <div className="text-sm text-red-500" id={fields.password.errorId}>
               {form.errors?.[0]}

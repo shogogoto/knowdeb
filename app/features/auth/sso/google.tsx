@@ -5,7 +5,6 @@ import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
-import { useAuth } from "../AuthProvider";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize() {
@@ -16,7 +15,8 @@ export async function authorize() {
   if (res.status === 200) {
     return redirect(res.data.authorization_url);
   }
-  throw new Error("Google SSO authorization failed");
+  console.error("Google SSO authorization failed", { cause: res });
+  return redirect("/");
 }
 
 export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
@@ -27,21 +27,17 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
     { state, code },
     { credentials: "include" },
   );
-  if (res?.status === 200) {
+  // @ts-ignore なぜか 200が期待されてる
+  if (res?.status === 204) {
     return redirect("/home");
   }
-  console.error("Google SSO failed:", res.data.detail);
+  console.error("Google SSO callback failed:", res.status);
   return redirect("/");
 }
 
 // clientLoaderのためにあるだけで表示されることはなさそう
 export default function GoogleCallback() {
-  const { isAuthorized } = useAuth();
-
-  if (isAuthorized) {
-    return <Navigate to="/home" />;
-  }
-  return <div />;
+  return <Navigate to="/home" />;
 }
 
 export function GoogleAuthButton({ title }: { title: string }) {
