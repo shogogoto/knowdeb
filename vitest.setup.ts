@@ -1,20 +1,20 @@
 import { cleanup } from "@testing-library/react";
 // これがないと screenのメソッドにアクセスできない
 import "@testing-library/jest-dom/vitest";
-// import fetch, { Request, Response, Headers } from "node-fetch";
+import fetch, { Request, Response, Headers } from "node-fetch";
 
 // nodejsはブラウザのfetchを模擬しているため予期しない動作をすることがある
 // テストでは上書きする必要があるかも
-// // @ts-ignore
-// globalThis.URLSearchParams = URLSearchParams;
-// // @ts-ignore
-// globalThis.fetch = fetch;
-// // @ts-ignore
-// globalThis.Request = Request;
-// // @ts-ignore
-// globalThis.Response = Response;
-// // @ts-ignore
-// globalThis.Headers = Headers;
+// @ts-ignore
+globalThis.URLSearchParams = URLSearchParams;
+// @ts-ignore
+globalThis.fetch = fetch;
+// @ts-ignore
+globalThis.Request = Request;
+// @ts-ignore
+globalThis.Response = Response;
+// @ts-ignore
+globalThis.Headers = Headers;
 
 // ここで環境変数をモックする
 import.meta.env.VITE_CLOUD_NAME = "test_cloud_name";
