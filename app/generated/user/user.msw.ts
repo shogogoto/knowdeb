@@ -37,7 +37,10 @@ export const getUsersCurrentUserUserMeGetResponseMock = (
     undefined,
   ]),
   username: faker.helpers.arrayElement([
-    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
@@ -71,7 +74,10 @@ export const getUsersPatchCurrentUserUserMePatchResponseMock = (
     undefined,
   ]),
   username: faker.helpers.arrayElement([
-    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
@@ -105,7 +111,10 @@ export const getUsersUserUserIdGetResponseMock = (
     undefined,
   ]),
   username: faker.helpers.arrayElement([
-    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
@@ -139,7 +148,10 @@ export const getUsersPatchUserUserIdPatchResponseMock = (
     undefined,
   ]),
   username: faker.helpers.arrayElement([
-    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,

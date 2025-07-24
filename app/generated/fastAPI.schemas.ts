@@ -326,6 +326,9 @@ export type UserProfile = string | null;
 
 export type UserAvatarUrl = string | null;
 
+/**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
 export type UserUsername = string | null;
 
 /**
@@ -336,6 +339,7 @@ export interface User {
   display_name?: UserDisplayName;
   profile?: UserProfile;
   avatar_url?: UserAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
   username?: UserUsername;
   uid: string;
   email: string;
@@ -357,6 +361,11 @@ export type UserCreateIsVerified = boolean | null;
  */
 export interface UserCreate {
   email: string;
+  /**
+   * 8文字以上100文字以内で入力してください
+   * @minLength 8
+   * @maxLength 100
+   */
   password: string;
   is_active?: UserCreateIsActive;
   is_superuser?: UserCreateIsSuperuser;
@@ -369,6 +378,9 @@ export type UserReadProfile = string | null;
 
 export type UserReadAvatarUrl = string | null;
 
+/**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
 export type UserReadUsername = string | null;
 
 /**
@@ -383,6 +395,7 @@ export interface UserRead {
   display_name?: UserReadDisplayName;
   profile?: UserReadProfile;
   avatar_url?: UserReadAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
   username?: UserReadUsername;
   created: string;
 }
@@ -393,6 +406,9 @@ export type UserReadPublicProfile = string | null;
 
 export type UserReadPublicAvatarUrl = string | null;
 
+/**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
 export type UserReadPublicUsername = string | null;
 
 /**
@@ -402,12 +418,17 @@ export interface UserReadPublic {
   display_name?: UserReadPublicDisplayName;
   profile?: UserReadPublicProfile;
   avatar_url?: UserReadPublicAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
   username?: UserReadPublicUsername;
   uid: string;
   created: string;
 }
 
-export type UserUpdatePassword = string | null;
+/**
+ * 8文字以上100文字以内で入力してください
+ * @nullable
+ */
+export type UserUpdatePassword = string | null | null;
 
 export type UserUpdateEmail = string | null;
 
@@ -423,12 +444,19 @@ export type UserUpdateProfile = string | null;
 
 export type UserUpdateAvatarUrl = string | null;
 
+/**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
 export type UserUpdateUsername = string | null;
 
 /**
  * 更新.
  */
 export interface UserUpdate {
+  /**
+   * 8文字以上100文字以内で入力してください
+   * @nullable
+   */
   password?: UserUpdatePassword;
   email?: UserUpdateEmail;
   is_active?: UserUpdateIsActive;
@@ -437,6 +465,7 @@ export interface UserUpdate {
   display_name?: UserUpdateDisplayName;
   profile?: UserUpdateProfile;
   avatar_url?: UserUpdateAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
   username?: UserUpdateUsername;
 }
 

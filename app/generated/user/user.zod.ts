@@ -15,7 +15,8 @@ export const usersCurrentUserUserMeGetResponseIsVerifiedDefault = false;
 export const usersCurrentUserUserMeGetResponseDisplayNameMaxOne = 32;
 export const usersCurrentUserUserMeGetResponseProfileMaxOne = 160;
 export const usersCurrentUserUserMeGetResponseUsernameMaxOne = 16;
-export const usersCurrentUserUserMeGetResponseUsernameRegExpOne = /^[^-]*$/;
+export const usersCurrentUserUserMeGetResponseUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const usersCurrentUserUserMeGetResponse = zod
   .object({
@@ -42,7 +43,8 @@ export const usersCurrentUserUserMeGetResponse = zod
       .max(usersCurrentUserUserMeGetResponseUsernameMaxOne)
       .regex(usersCurrentUserUserMeGetResponseUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
@@ -53,11 +55,16 @@ export const usersCurrentUserUserMeGetResponse = zod
 export const usersPatchCurrentUserUserMePatchBodyDisplayNameMaxOne = 32;
 export const usersPatchCurrentUserUserMePatchBodyProfileMaxOne = 160;
 export const usersPatchCurrentUserUserMePatchBodyUsernameMaxOne = 16;
-export const usersPatchCurrentUserUserMePatchBodyUsernameRegExpOne = /^[^-]*$/;
+export const usersPatchCurrentUserUserMePatchBodyUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const usersPatchCurrentUserUserMePatchBody = zod
   .object({
-    password: zod.string().or(zod.null()).optional(),
+    password: zod
+      .string()
+      .or(zod.null())
+      .nullish()
+      .describe("8文字以上100文字以内で入力してください"),
     email: zod.string().email().or(zod.null()).optional(),
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
@@ -78,7 +85,8 @@ export const usersPatchCurrentUserUserMePatchBody = zod
       .max(usersPatchCurrentUserUserMePatchBodyUsernameMaxOne)
       .regex(usersPatchCurrentUserUserMePatchBodyUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
   })
   .describe("更新.");
 
@@ -89,7 +97,7 @@ export const usersPatchCurrentUserUserMePatchResponseDisplayNameMaxOne = 32;
 export const usersPatchCurrentUserUserMePatchResponseProfileMaxOne = 160;
 export const usersPatchCurrentUserUserMePatchResponseUsernameMaxOne = 16;
 export const usersPatchCurrentUserUserMePatchResponseUsernameRegExpOne =
-  /^[^-]*$/;
+  /^[a-zA-Z0-9_-]+$/;
 
 export const usersPatchCurrentUserUserMePatchResponse = zod
   .object({
@@ -116,7 +124,8 @@ export const usersPatchCurrentUserUserMePatchResponse = zod
       .max(usersPatchCurrentUserUserMePatchResponseUsernameMaxOne)
       .regex(usersPatchCurrentUserUserMePatchResponseUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
@@ -134,7 +143,7 @@ export const usersUserUserIdGetResponseIsVerifiedDefault = false;
 export const usersUserUserIdGetResponseDisplayNameMaxOne = 32;
 export const usersUserUserIdGetResponseProfileMaxOne = 160;
 export const usersUserUserIdGetResponseUsernameMaxOne = 16;
-export const usersUserUserIdGetResponseUsernameRegExpOne = /^[^-]*$/;
+export const usersUserUserIdGetResponseUsernameRegExpOne = /^[a-zA-Z0-9_-]+$/;
 
 export const usersUserUserIdGetResponse = zod
   .object({
@@ -159,7 +168,8 @@ export const usersUserUserIdGetResponse = zod
       .max(usersUserUserIdGetResponseUsernameMaxOne)
       .regex(usersUserUserIdGetResponseUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");
@@ -174,11 +184,16 @@ export const usersPatchUserUserIdPatchParams = zod.object({
 export const usersPatchUserUserIdPatchBodyDisplayNameMaxOne = 32;
 export const usersPatchUserUserIdPatchBodyProfileMaxOne = 160;
 export const usersPatchUserUserIdPatchBodyUsernameMaxOne = 16;
-export const usersPatchUserUserIdPatchBodyUsernameRegExpOne = /^[^-]*$/;
+export const usersPatchUserUserIdPatchBodyUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const usersPatchUserUserIdPatchBody = zod
   .object({
-    password: zod.string().or(zod.null()).optional(),
+    password: zod
+      .string()
+      .or(zod.null())
+      .nullish()
+      .describe("8文字以上100文字以内で入力してください"),
     email: zod.string().email().or(zod.null()).optional(),
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
@@ -199,7 +214,8 @@ export const usersPatchUserUserIdPatchBody = zod
       .max(usersPatchUserUserIdPatchBodyUsernameMaxOne)
       .regex(usersPatchUserUserIdPatchBodyUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
   })
   .describe("更新.");
 
@@ -209,7 +225,8 @@ export const usersPatchUserUserIdPatchResponseIsVerifiedDefault = false;
 export const usersPatchUserUserIdPatchResponseDisplayNameMaxOne = 32;
 export const usersPatchUserUserIdPatchResponseProfileMaxOne = 160;
 export const usersPatchUserUserIdPatchResponseUsernameMaxOne = 16;
-export const usersPatchUserUserIdPatchResponseUsernameRegExpOne = /^[^-]*$/;
+export const usersPatchUserUserIdPatchResponseUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const usersPatchUserUserIdPatchResponse = zod
   .object({
@@ -236,7 +253,8 @@ export const usersPatchUserUserIdPatchResponse = zod
       .max(usersPatchUserUserIdPatchResponseUsernameMaxOne)
       .regex(usersPatchUserUserIdPatchResponseUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");

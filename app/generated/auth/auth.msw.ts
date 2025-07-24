@@ -45,7 +45,10 @@ export const getRegisterRegisterAuthRegisterPostResponseMock = (
     undefined,
   ]),
   username: faker.helpers.arrayElement([
-    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
@@ -79,7 +82,10 @@ export const getVerifyVerifyAuthVerifyPostResponseMock = (
     undefined,
   ]),
   username: faker.helpers.arrayElement([
-    faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,

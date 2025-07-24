@@ -189,7 +189,10 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
         undefined,
       ]),
       username: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.helpers.fromRegExp("^[^-]*$"), null]),
+        faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+          null,
+        ]),
         undefined,
       ]),
       uid: faker.string.uuid(),

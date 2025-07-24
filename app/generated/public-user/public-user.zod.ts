@@ -16,7 +16,8 @@ export const searchUserUserSearchGetQueryUserOauthAccountsDefault = [];
 export const searchUserUserSearchGetQueryUserDisplayNameMaxOne = 32;
 export const searchUserUserSearchGetQueryUserProfileMaxOne = 160;
 export const searchUserUserSearchGetQueryUserUsernameMaxOne = 16;
-export const searchUserUserSearchGetQueryUserUsernameRegExpOne = /^[^-]*$/;
+export const searchUserUserSearchGetQueryUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const searchUserUserSearchGetQueryParams = zod.object({
   display_name: zod.string().optional(),
@@ -54,7 +55,8 @@ export const searchUserUserSearchGetQueryParams = zod.object({
         .max(searchUserUserSearchGetQueryUserUsernameMaxOne)
         .regex(searchUserUserSearchGetQueryUserUsernameRegExpOne)
         .or(zod.null())
-        .optional(),
+        .optional()
+        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
       uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
@@ -71,7 +73,8 @@ export const searchUserUserSearchGetQueryParams = zod.object({
 export const searchUserUserSearchGetResponseDisplayNameMaxOne = 32;
 export const searchUserUserSearchGetResponseProfileMaxOne = 160;
 export const searchUserUserSearchGetResponseUsernameMaxOne = 16;
-export const searchUserUserSearchGetResponseUsernameRegExpOne = /^[^-]*$/;
+export const searchUserUserSearchGetResponseUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const searchUserUserSearchGetResponseItem = zod
   .object({
@@ -91,7 +94,8 @@ export const searchUserUserSearchGetResponseItem = zod
       .max(searchUserUserSearchGetResponseUsernameMaxOne)
       .regex(searchUserUserSearchGetResponseUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     uid: zod.string().uuid(),
     created: zod.string().datetime({}),
   })
@@ -114,7 +118,7 @@ export const userProfileUserProfileUsernameGetQueryUserDisplayNameMaxOne = 32;
 export const userProfileUserProfileUsernameGetQueryUserProfileMaxOne = 160;
 export const userProfileUserProfileUsernameGetQueryUserUsernameMaxOne = 16;
 export const userProfileUserProfileUsernameGetQueryUserUsernameRegExpOne =
-  /^[^-]*$/;
+  /^[a-zA-Z0-9_-]+$/;
 
 export const userProfileUserProfileUsernameGetQueryParams = zod.object({
   user: zod
@@ -152,7 +156,8 @@ export const userProfileUserProfileUsernameGetQueryParams = zod.object({
         .max(userProfileUserProfileUsernameGetQueryUserUsernameMaxOne)
         .regex(userProfileUserProfileUsernameGetQueryUserUsernameRegExpOne)
         .or(zod.null())
-        .optional(),
+        .optional()
+        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
       uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
@@ -170,7 +175,7 @@ export const userProfileUserProfileUsernameGetResponseDisplayNameMaxOne = 32;
 export const userProfileUserProfileUsernameGetResponseProfileMaxOne = 160;
 export const userProfileUserProfileUsernameGetResponseUsernameMaxOne = 16;
 export const userProfileUserProfileUsernameGetResponseUsernameRegExpOne =
-  /^[^-]*$/;
+  /^[a-zA-Z0-9_-]+$/;
 
 export const userProfileUserProfileUsernameGetResponse = zod
   .object({
@@ -190,7 +195,8 @@ export const userProfileUserProfileUsernameGetResponse = zod
       .max(userProfileUserProfileUsernameGetResponseUsernameMaxOne)
       .regex(userProfileUserProfileUsernameGetResponseUsernameRegExpOne)
       .or(zod.null())
-      .optional(),
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     uid: zod.string().uuid(),
     created: zod.string().datetime({}),
   })

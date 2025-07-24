@@ -14,7 +14,8 @@ export const searchByTextKnowdeGetQueryUserOauthAccountsDefault = [];
 export const searchByTextKnowdeGetQueryUserDisplayNameMaxOne = 32;
 export const searchByTextKnowdeGetQueryUserProfileMaxOne = 160;
 export const searchByTextKnowdeGetQueryUserUsernameMaxOne = 16;
-export const searchByTextKnowdeGetQueryUserUsernameRegExpOne = /^[^-]*$/;
+export const searchByTextKnowdeGetQueryUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 export const searchByTextKnowdeGetQueryQDefault = "";
 export const searchByTextKnowdeGetQueryTypeDefault = "CONTAINS";
 export const searchByTextKnowdeGetQueryPageDefault = 1;
@@ -62,7 +63,8 @@ export const searchByTextKnowdeGetQueryParams = zod.object({
         .max(searchByTextKnowdeGetQueryUserUsernameMaxOne)
         .regex(searchByTextKnowdeGetQueryUserUsernameRegExpOne)
         .or(zod.null())
-        .optional(),
+        .optional()
+        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
       uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
@@ -201,7 +203,7 @@ export const detailKnowdeSentenceSentenceIdGetQueryUserDisplayNameMaxOne = 32;
 export const detailKnowdeSentenceSentenceIdGetQueryUserProfileMaxOne = 160;
 export const detailKnowdeSentenceSentenceIdGetQueryUserUsernameMaxOne = 16;
 export const detailKnowdeSentenceSentenceIdGetQueryUserUsernameRegExpOne =
-  /^[^-]*$/;
+  /^[a-zA-Z0-9_-]+$/;
 
 export const detailKnowdeSentenceSentenceIdGetQueryParams = zod.object({
   user: zod
@@ -239,7 +241,8 @@ export const detailKnowdeSentenceSentenceIdGetQueryParams = zod.object({
         .max(detailKnowdeSentenceSentenceIdGetQueryUserUsernameMaxOne)
         .regex(detailKnowdeSentenceSentenceIdGetQueryUserUsernameRegExpOne)
         .or(zod.null())
-        .optional(),
+        .optional()
+        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
       uid: zod.string().uuid(),
       email: zod.string().email(),
       hashed_password: zod.string(),
@@ -290,7 +293,7 @@ export const detailKnowdeSentenceSentenceIdGetResponseLocationUserDisplayNameMax
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserProfileMaxOne = 160;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameMaxOne = 16;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameRegExpOne =
-  /^[^-]*$/;
+  /^[a-zA-Z0-9_-]+$/;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationParentsItemStatsNDetailMin =
   -100;
 
@@ -485,7 +488,10 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
                 detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameRegExpOne,
               )
               .or(zod.null())
-              .optional(),
+              .optional()
+              .describe(
+                "半角英数字とハイフン、アンダースコアのみが使用できます。",
+              ),
             uid: zod.string().uuid(),
             email: zod.string().email(),
             hashed_password: zod.string(),
