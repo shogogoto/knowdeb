@@ -11,16 +11,15 @@ export const config = {
 };
 
 export default [
-  layout("layouts/DocumentLayout/index.tsx", [
+  layout("layouts/GuestLayout/index.tsx", [
+    // Docs
+    index("routes/docs/LandingPage.tsx"),
     route("docs/toc", "routes/docs/toc.tsx"),
     route("docs/get-started", "routes/docs/get-started.mdx"),
     route("docs/concept", "routes/docs/concept.mdx"),
     route("docs/cli", "routes/docs/cli.mdx"),
     route("docs/features", "routes/docs/features.mdx"),
-  ]),
 
-  layout("layouts/GuestLayout/index.tsx", [
-    index("routes/docs/LandingPage.tsx"),
     route("search", "routes/search/index.tsx"),
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
     route("register", "routes/user/register.tsx"),
