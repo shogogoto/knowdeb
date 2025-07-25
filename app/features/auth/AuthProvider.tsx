@@ -6,9 +6,13 @@ import {
   useEffect,
   useState,
 } from "react";
+import type { KeyedMutator } from "swr";
 import { authCookieLogoutAuthCookieLogoutPost } from "~/generated/auth/auth";
 import type { UserRead } from "~/generated/fastAPI.schemas"; // Adjust path
-import { useUsersCurrentUserUserMeGet } from "~/generated/user/user";
+import {
+  useUsersCurrentUserUserMeGet,
+  type usersCurrentUserUserMeGetResponse,
+} from "~/generated/user/user";
 
 interface AuthContextT {
   user: UserRead | null;
@@ -16,7 +20,7 @@ interface AuthContextT {
   isValidating: boolean;
   signOut: () => Promise<void>;
   isAuthenticated: boolean | undefined;
-  mutate: () => void;
+  mutate: KeyedMutator<usersCurrentUserUserMeGetResponse>;
   setUser: React.Dispatch<React.SetStateAction<UserRead | null>>;
 }
 
@@ -37,7 +41,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       swr: {
         // revalidateIfStale: true,
         // revalidateOnReconnect: true,
-        revalidateOnMount: true,
+        // revalidateOnMount: true,
         errorRetryCount: 3,
       },
     });
