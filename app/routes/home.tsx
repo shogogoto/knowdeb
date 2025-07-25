@@ -1,7 +1,4 @@
-import AuthGuard from "~/features/auth/AuthGuard";
-import NamespaceExplorer from "~/features/namespace/components/NamespaceExplorer";
-import UserProfile from "~/features/user/UserProfile";
-import type { Route } from "./+types/home";
+import Home from "~/features/home";
 
 export function meta() {
   return [
@@ -13,13 +10,4 @@ export function meta() {
   ];
 }
 
-export default function Home({ loaderData }: Route.ComponentProps) {
-  return (
-    <AuthGuard>
-      <UserProfile />
-      <div className="mt-8">
-        <NamespaceExplorer />
-      </div>
-    </AuthGuard>
-  );
-}
+export default Home;

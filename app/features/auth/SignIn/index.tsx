@@ -37,8 +37,8 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
 
 export default function SignInForm() {
   const lastResult = useActionData<typeof UserSignInAction>();
-  const { isAuthorized } = useAuth();
-  if (isAuthorized) {
+  const { isAuthenticated } = useAuth();
+  if (isAuthenticated) {
     return <Navigate to="/home" />;
   }
 

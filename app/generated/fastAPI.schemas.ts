@@ -362,8 +362,8 @@ export type UserCreateIsVerified = boolean | null;
 export interface UserCreate {
   email: string;
   /**
-   * 8文字以上100文字以内で入力してください
-   * @minLength 8
+   * 3文字以上100文字以内で入力してください
+   * @minLength 3
    * @maxLength 100
    */
   password: string;
@@ -425,7 +425,7 @@ export interface UserReadPublic {
 }
 
 /**
- * 8文字以上100文字以内で入力してください
+ * 3文字以上100文字以内で入力してください
  * @nullable
  */
 export type UserUpdatePassword = string | null | null;
@@ -454,7 +454,7 @@ export type UserUpdateUsername = string | null;
  */
 export interface UserUpdate {
   /**
-   * 8文字以上100文字以内で入力してください
+   * 3文字以上100文字以内で入力してください
    * @nullable
    */
   password?: UserUpdatePassword;

@@ -11,7 +11,7 @@ export const config = {
 };
 
 export default [
-  layout("layouts/GuestLayout/index.tsx", [
+  layout("layouts/SidebarLayout.tsx", [
     // Docs
     index("routes/docs/LandingPage.tsx"),
     route("docs/toc", "routes/docs/toc.tsx"),
@@ -24,9 +24,7 @@ export default [
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
     route("register", "routes/user/register.tsx"),
     route("login", "routes/user/login.tsx"),
-  ]),
 
-  layout("layouts/UserLayout/index.tsx", [
     route("home", "routes/home.tsx"),
     route("user/edit", "routes/user/edit.tsx"),
     route("user/:userId", "routes/user/search.tsx"),

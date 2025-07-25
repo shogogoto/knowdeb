@@ -1,5 +1,6 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse, delay } from "msw";
 import { setupServer } from "msw/node";
 import { RouterProvider, createMemoryRouter } from "react-router";
 import { getAuthMock } from "~/generated/auth/auth.msw";
@@ -41,7 +42,7 @@ describe("ログイン", () => {
     const useAuthSpy = vi
       .spyOn(AuthMock, "useAuth")
       // @ts-ignore
-      .mockReturnValue({ isAuthorized: true });
+      .mockReturnValue({ isAuthenticated: true });
     const router = createMemoryRouter(routesFixture, {
       initialEntries: ["/login"],
     });
@@ -51,6 +52,13 @@ describe("ログイン", () => {
     useAuthSpy.mockRestore();
   });
   it("ログイン成功でhomeにリダイレクト", async () => {
+    server.use(
+      http.post("*/auth/cookie/login", async () => {
+        await delay(200);
+        return new HttpResponse(null, { status: 204 });
+      }),
+    );
+
     const router = createMemoryRouter(routesFixture, {
       initialEntries: ["/login"],
     });
@@ -62,23 +70,29 @@ describe("ログイン", () => {
 
     await user.type(emailInput, "test@example.com");
     await user.type(passwordInput, "password123");
-    await user.click(submitButton);
-    expect(
-      screen.getByRole("button", { name: "送信中..." }),
-    ).toBeInTheDocument();
-    // 送信中はdisable
-    expect(submitButton).toBeDisabled();
-    expect(emailInput).toBeDisabled();
-    expect(passwordInput).toBeDisabled();
+    act(() => {
+      user.click(submitButton);
+    });
+    waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "送信中..." }),
+      ).toBeInTheDocument();
+      // 送信中はdisable
+      expect(submitButton).toBeDisabled();
+      expect(emailInput).toBeDisabled();
+      expect(passwordInput).toBeDisabled();
+    });
 
-    await screen.findByText("home"); // homeへのリダイレクトを待つ
-    expect(router.state.location.pathname).toBe("/home");
+    waitFor(() => {
+      expect(screen.getByText("home")).toBeInTheDocument();
+      expect(router.state.location.pathname).toBe("/home");
+    });
   });
 
   describe("フォームバリデーション", () => {
     beforeEach(() => {
       // @ts-ignore
-      vi.spyOn(AuthMock, "useAuth").mockReturnValue({ isAuthorized: false });
+      vi.spyOn(AuthMock, "useAuth").mockReturnValue({ isAuthenticated: false });
     });
 
     it("入力ないところを赤文字で注意", async () => {

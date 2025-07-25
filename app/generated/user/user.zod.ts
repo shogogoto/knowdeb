@@ -64,7 +64,7 @@ export const usersPatchCurrentUserUserMePatchBody = zod
       .string()
       .or(zod.null())
       .nullish()
-      .describe("8文字以上100文字以内で入力してください"),
+      .describe("3文字以上100文字以内で入力してください"),
     email: zod.string().email().or(zod.null()).optional(),
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),
@@ -193,7 +193,7 @@ export const usersPatchUserUserIdPatchBody = zod
       .string()
       .or(zod.null())
       .nullish()
-      .describe("8文字以上100文字以内で入力してください"),
+      .describe("3文字以上100文字以内で入力してください"),
     email: zod.string().email().or(zod.null()).optional(),
     is_active: zod.boolean().or(zod.null()).optional(),
     is_superuser: zod.boolean().or(zod.null()).optional(),

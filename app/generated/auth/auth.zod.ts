@@ -32,7 +32,7 @@ export const authCookieLogoutAuthCookieLogoutPostResponse = zod.any();
 /**
  * @summary Register:Register
  */
-export const registerRegisterAuthRegisterPostBodyPasswordMin = 8;
+export const registerRegisterAuthRegisterPostBodyPasswordMin = 3;
 
 export const registerRegisterAuthRegisterPostBodyPasswordMax = 100;
 export const registerRegisterAuthRegisterPostBodyIsActiveDefault = true;
@@ -46,7 +46,7 @@ export const registerRegisterAuthRegisterPostBody = zod
       .string()
       .min(registerRegisterAuthRegisterPostBodyPasswordMin)
       .max(registerRegisterAuthRegisterPostBodyPasswordMax)
-      .describe("8文字以上100文字以内で入力してください"),
+      .describe("3文字以上100文字以内で入力してください"),
     is_active: zod
       .boolean()
       .or(zod.null())

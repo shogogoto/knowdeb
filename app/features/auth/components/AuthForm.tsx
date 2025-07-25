@@ -21,7 +21,7 @@ export const authSchema = registerRegisterAuthRegisterPostBody
       .email("有効なメールアドレスを入力してください"),
     password: z
       .string({ required_error: "パスワードは必須です" })
-      .min(8, "パスワードは8文字以上で入力してください")
+      .min(3, "パスワードは3文字以上で入力してください")
       .max(100, "パスワードは100文字以下で入力してください"),
   });
 

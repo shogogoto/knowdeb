@@ -26,7 +26,7 @@ export const UserProfileSchema = userProfileUserProfileUsernameGetResponse.pick(
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
 
 export default function UserProfileForm() {
-  const { user, isAuthorized, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const fetcher = useFetcher();
   const lastSubmission = fetcher.data;
   const navigation = useNavigation();

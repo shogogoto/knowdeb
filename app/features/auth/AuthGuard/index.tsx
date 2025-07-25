@@ -4,12 +4,14 @@ import AuthGuardLoading from "./Loading";
 import Unauth from "./Unauth";
 
 export default function AuthGuard({ children }: React.PropsWithChildren) {
-  const { user, isAuthorized, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, user, mutate } = useAuth();
 
-  if (isLoading || user === undefined) {
+  mutate();
+  console.log({ isAuthenticated, isLoading, user });
+  if (isLoading || isAuthenticated === undefined) {
     return <AuthGuardLoading />;
   }
-  if (!isAuthorized) {
+  if (!isAuthenticated) {
     return <Unauth />;
   }
 
