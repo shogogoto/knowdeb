@@ -166,7 +166,7 @@ export const getUsersCurrentUserUserMeGetMockHandler = (
       ) => Promise<UserRead> | UserRead),
 ) => {
   return http.get("*/user/me", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -189,7 +189,7 @@ export const getUsersPatchCurrentUserUserMePatchMockHandler = (
       ) => Promise<UserRead> | UserRead),
 ) => {
   return http.patch("*/user/me", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -212,7 +212,7 @@ export const getUsersUserUserIdGetMockHandler = (
       ) => Promise<UserRead> | UserRead),
 ) => {
   return http.get("*/user/:id", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -235,7 +235,7 @@ export const getUsersPatchUserUserIdPatchMockHandler = (
       ) => Promise<UserRead> | UserRead),
 ) => {
   return http.patch("*/user/:id", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -258,7 +258,7 @@ export const getUsersDeleteUserUserIdDeleteMockHandler = (
       ) => Promise<void> | void),
 ) => {
   return http.delete("*/user/:id", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }

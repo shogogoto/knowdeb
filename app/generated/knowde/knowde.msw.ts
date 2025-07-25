@@ -338,7 +338,7 @@ export const getSearchByTextKnowdeGetMockHandler = (
       ) => Promise<KnowdeSearchResult> | KnowdeSearchResult),
 ) => {
   return http.get("*/knowde/", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -361,7 +361,7 @@ export const getDetailKnowdeSentenceSentenceIdGetMockHandler = (
       ) => Promise<KnowdeDetail> | KnowdeDetail),
 ) => {
   return http.get("*/knowde/sentence/:sentenceId", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(

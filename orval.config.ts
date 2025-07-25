@@ -10,7 +10,11 @@ export default defineConfig({
       // baseUrl: "https://toucan-renewing-jackal.ngrok-free.app",
       client: "swr",
       httpClient: "fetch",
-      mock: true,
+      mock: {
+        type: "msw",
+        delay: 200,
+        useExamples: true,
+      },
     },
     input: {
       target: "http://localhost:8000/openapi.json",

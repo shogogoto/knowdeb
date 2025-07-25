@@ -46,6 +46,7 @@ export default defineConfig({
     globals: true, // `describe`, `it`, `expect` テスト関数のインポート省略
     environment: "jsdom",
     setupFiles: ["./vitest.setup.ts"],
+    reporters: ["verbose"],
     // projects: [
     //   "vite.config.ts",
     //   {

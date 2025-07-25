@@ -73,7 +73,7 @@ export const getSearchUserUserSearchGetMockHandler = (
       ) => Promise<UserReadPublic[]> | UserReadPublic[]),
 ) => {
   return http.get("*/user/search", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -96,7 +96,7 @@ export const getUserProfileUserProfileUsernameGetMockHandler = (
       ) => Promise<UserReadPublic> | UserReadPublic),
 ) => {
   return http.get("*/user/profile/:username", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(

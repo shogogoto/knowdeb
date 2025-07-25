@@ -18,11 +18,11 @@ export const authSchema = registerRegisterAuthRegisterPostBody
   .extend({
     email: z
       .string({ required_error: "メールアドレスは必須です" })
-      .email("有効なメールアドレスを入力してください")
-      .min(1, "メールアドレスは必須です"),
+      .email("有効なメールアドレスを入力してください"),
     password: z
       .string({ required_error: "パスワードは必須です" })
-      .min(3, "パスワードは3文字以上で入力してください"),
+      .min(8, "パスワードは8文字以上で入力してください")
+      .max(100, "パスワードは100文字以下で入力してください"),
   });
 
 type Props = {

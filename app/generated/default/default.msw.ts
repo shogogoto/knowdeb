@@ -19,7 +19,7 @@ export const getReadFileUploadPostMockHandler = (
       ) => Promise<null> | null),
 ) => {
   return http.post("*/upload", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -35,7 +35,7 @@ export const getCheckHealthHealthGetMockHandler = (
       ) => Promise<string> | string),
 ) => {
   return http.get("*/health", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
