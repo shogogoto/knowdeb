@@ -1,8 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { setupServer } from "msw/node";
 import { createRoutesStub } from "react-router";
 import { beforeEach, describe, it, vi } from "vitest";
 import { useAuth } from "~/features/auth/AuthProvider";
+import { getAuthMock } from "~/generated/auth/auth.msw";
+import { getUserMock } from "~/generated/user/user.msw";
 import UserProfileForm from ".";
 import { editUserProfile } from "./action";
 
@@ -73,6 +76,13 @@ vi.mock("../ImageUploader", () => ({
 
 
  */
+const server = setupServer(...getUserMock(), ...getAuthMock());
+beforeAll(() => server.listen());
+afterEach(() => {
+  server.resetHandlers();
+  vi.restoreAllMocks();
+});
+afterAll(() => server.close());
 
 const mockUser = {
   uid: "test-uid",
@@ -86,19 +96,18 @@ const mockUser = {
   avatar_url: "https://example.com/avatar.png",
   created: "2023-01-01",
 };
-
 describe("UserProfileForm (Integration Test)", () => {
   beforeEach(() => {
     const mockedUseAuth = vi.mocked(useAuth);
     mockedUseAuth.mockReturnValue({
       user: mockUser,
-      isAuthorized: true,
+      isAuthenticated: true,
       isLoading: false,
       isValidating: false,
       setUser: () => {},
       mutate: vi.fn(async () => {}),
       signOut: vi.fn(async () => {}),
-      signIn: vi.fn(async () => {}),
+      // signIn: vi.fn(async () => {}),
     });
   });
   //
