@@ -6,5 +6,7 @@ routes/配下には基本的に実装は書かない。featuresなどで書か�
 試行錯誤や実行に大量のトークンを消費することが見込まれる場合にその旨を私に伝えて実行許可の判断を仰いでほしい
 orvalで生成した/generated配下をいじらない方針で修正して
 変更の方針を考えたら、それを実施する前に確認して
+変更箇所を全て表示して確認させてほしい
 react-router-domを使わないで react-routerを使ってください
 react-router-domのjsonではなくResponse.json()を使ってください
+

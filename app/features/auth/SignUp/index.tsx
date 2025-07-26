@@ -23,7 +23,9 @@ export async function UserRegisterAction({ request }: ActionFunctionArgs) {
   );
   if (res2.status !== 204) {
     return submission.reply({
-      formErrors: [`ログインに失敗しました: ${res2.data || "不明なエラー"}`],
+      formErrors: [
+        `ログインに失敗しました: ${JSON.stringify(res2.data) || "不明なエラー"}`,
+      ],
     });
   }
   return redirect("/home");
