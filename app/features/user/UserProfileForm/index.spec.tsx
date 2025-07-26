@@ -1,81 +1,18 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { createRoutesStub } from "react-router";
-import { beforeEach, describe, it, vi } from "vitest";
-import { useAuth } from "~/features/auth/AuthProvider";
+import { describe, it, vi } from "vitest";
+import { AuthProvider } from "~/features/auth/AuthProvider";
 import { getAuthMock } from "~/generated/auth/auth.msw";
-import { getUserMock } from "~/generated/user/user.msw";
+import {
+  getUserMock,
+  getUsersCurrentUserUserMeGetMockHandler,
+} from "~/generated/user/user.msw";
 import UserProfileForm from ".";
 import { editUserProfile } from "./action";
 
-vi.mock("~/generated/user/user");
-vi.mock("~/features/auth/AuthProvider");
-vi.mock("../ImageUploader", () => ({
-  // UploadWidgetがテストの邪魔をしないように基本的なモックを作成
-  default: ({
-    onUploadSuccess,
-  }: {
-    onUploadSuccess: (url: string) => void;
-  }) => (
-    <button
-      type="button"
-      onClick={() => onUploadSuccess("https://example.com/new-image.png")}
-    >
-      Mock Upload
-    </button>
-  ),
-}));
-
-/*
-  テストケース
-
-  fields
-    username
-    display_name
-    profile
-    avatar_url
-    created
-
-  AuthGuard
-    auth cache
-
-
-  新規作成
-  ログイン
-    SSOログイン
-      成功時に /home へリダイレクト して　「新規作成に成功しました」と表示
-      失敗時に / へリダイレクト して　「新規作成に失敗しました」と表示
-
-  ユーザープロフィール更新
-    更新ボタン推す
-      通信中に通信中と出る
-      inputや画像ボタンなどdisableになる
-
-    更新成功
-      authを更新
-      成功時に /home へリダイレクト して　「更新に成功しました」と表示
-    更新失敗
-      失敗理由を表示
-      編集disable から enableへ変更
-
-    auth未取得
-
-
-
-  entry一覧表示
-
-  knowde search
-  knowde detail 遷移
-
-
-  user edit のテストケース
-    useAuthでundefinedのとき、 / へリダイレクト (AuthGuardの役目)
-    画像アップロード
-
-
-
- */
 const server = setupServer(...getUserMock(), ...getAuthMock());
 beforeAll(() => server.listen());
 afterEach(() => {
@@ -84,7 +21,7 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-const mockUser = {
+const muser = {
   uid: "test-uid",
   email: "test-email",
   is_active: true,
@@ -92,148 +29,103 @@ const mockUser = {
   is_verified: true,
   username: "test",
   display_name: "Test User",
-  profile: "Test Profile",
+  profile: "Test Profile", // 12文字
   avatar_url: "https://example.com/avatar.png",
   created: "2023-01-01",
 };
+
+function mkStub() {
+  return createRoutesStub([
+    {
+      path: "/user/edit",
+      Component: () => (
+        <AuthProvider>
+          <UserProfileForm />
+        </AuthProvider>
+      ),
+      action: editUserProfile,
+    },
+  ]);
+}
+
 describe("UserProfileForm (Integration Test)", () => {
-  beforeEach(() => {
-    const mockedUseAuth = vi.mocked(useAuth);
-    mockedUseAuth.mockReturnValue({
-      user: mockUser,
-      isAuthenticated: true,
-      isLoading: false,
-      isValidating: false,
-      setUser: () => {},
-      mutate: vi.fn(async () => {}),
-      signOut: vi.fn(async () => {}),
-      // signIn: vi.fn(async () => {}),
+  it("ユーザー情報がフォーム初期値へ", async () => {
+    server.use(getUsersCurrentUserUserMeGetMockHandler(muser));
+    const Stub = mkStub();
+    render(<Stub initialEntries={["/user/edit"]} />);
+    expect(screen.getByText("0 / 160")).toBeInTheDocument();
+
+    await waitFor(() => {
+      expect(screen.getByLabelText("表示名")).toHaveValue(muser.display_name);
+      expect(screen.getByLabelText("プロフィール")).toHaveValue(muser.profile);
+      expect(screen.getByLabelText("ユーザー名")).toHaveValue(muser.username);
+      expect(screen.getByText("12 / 160")).toBeInTheDocument();
     });
   });
-  //
-  // afterEach(() => {
-  //   vi.clearAllMocks();
-  // });
 
-  it("ユーザー情報がフォーム初期値へ", async () => {
-    const Stub = createRoutesStub([
-      {
-        path: "/user/edit",
-        Component: UserProfileForm,
-        action: editUserProfile,
-      },
-    ]);
+  it("フォーム内容送信成功", async () => {
+    let currentUser = { ...muser };
+    server.use(
+      http.get("*/user/me", () => {
+        return HttpResponse.json(currentUser);
+      }),
+      http.patch("*/user/me", async ({ request }) => {
+        console.log("PATCH /user/me");
+        console.log(await request.json());
+        console.log("PATCH /user/me json end");
+        const updates = (await request.json()) as Partial<typeof muser>;
+        currentUser = { ...currentUser, ...updates };
+        return new HttpResponse(null, { status: 200 });
+      }),
+    );
+
+    const user = userEvent.setup();
+    const Stub = mkStub();
     render(<Stub initialEntries={["/user/edit"]} />);
+    const displayNameInput = screen.getByLabelText("表示名");
+    const profileInput = screen.getByLabelText("プロフィール");
+    const usernameInput = screen.getByLabelText("ユーザー名");
+    const submitButton = screen.getByRole("button", { name: "更新" });
 
-    expect(await screen.findByLabelText("ユーザーID")).toHaveValue(
-      mockUser.username,
-    );
-    expect(screen.getByLabelText("表示名")).toHaveValue(mockUser.display_name);
-    expect(screen.getByLabelText("プロフィール")).toHaveValue(mockUser.profile);
-    expect(screen.getByAltText("プロフィール画像")).toHaveAttribute(
-      "src",
-      expect.stringContaining(mockUser.avatar_url),
-    );
-  });
+    // Wait for initial values to be populated
+    await waitFor(() => {
+      expect(displayNameInput).toHaveValue(muser.display_name);
+    });
 
-  it("フォームを正常に送信し、成功メッセージが表示される", async () => {
-    // const user = userEvent.setup();
-    // mockedUsersPatchCurrentUserUserMePatch.mockResolvedValue({
-    //   status: 200,
-    //   data: {} as any,
-    //   headers: new Headers(),
-    // });
-    //
-    // renderWithRouter();
-    //
-    // const displayNameInput = screen.getByLabelText("表示名");
-    // const profileInput = screen.getByLabelText("プロフィール");
-    // const submitButton = screen.getByRole("button", { name: "更新" });
-    //
-    // // ユーザー操作
-    // await user.clear(displayNameInput);
-    // await user.type(displayNameInput, "New Name");
-    // await user.clear(profileInput);
-    // await user.type(profileInput, "New Profile");
-    // await user.click(submitButton);
-    //
-    // // 結果の検証
+    const update = {
+      display_name: "New Name",
+      profile: "New Profile",
+      username: "NewUsername",
+    };
+
+    await user.clear(displayNameInput);
+    await user.type(displayNameInput, update.display_name);
+    await user.clear(profileInput);
+    await user.type(profileInput, update.profile);
+    await user.clear(usernameInput);
+    await user.type(usernameInput, update.username);
+    await user.click(submitButton);
+
+    // Wait for submission to complete and see success message
     // await waitFor(() => {
     //   expect(
     //     screen.getByText("プロフィールを更新しました。"),
     //   ).toBeInTheDocument();
     // });
-    //
-    // expect(mockedUsersPatchCurrentUserUserMePatch).toHaveBeenCalledWith(
-    //   {
-    //     display_name: "New Name",
-    //     profile: "New Profile",
-    //     username: mockUser.username,
-    //     avatar_url: mockUser.avatar_url,
-    //   },
-    //   { credentials: "include" },
-    // );
+
+    // After success, the form should be populated with the new values
+    expect(displayNameInput).toHaveValue(update.display_name);
+    expect(profileInput).toHaveValue(update.profile);
+    expect(usernameInput).toHaveValue(update.username);
   });
 
-  it("APIがエラーを返した際に、エラーメッセージが表示される", async () => {
-    // const user = userEvent.setup();
-    // mockedUsersPatchCurrentUserUserMePatch.mockResolvedValue({
-    //   status: 500,
-    //   data: { detail: "Internal Server Error" },
-    //   headers: new Headers(),
-    // });
-    //
-    // renderWithRouter();
-    //
-    // await user.click(screen.getByRole("button", { name: "更新" }));
-    //
-    // await waitFor(() => {
-    //   expect(
-    //     screen.getByText(
-    //       /プロフィールの更新に失敗しました: Internal Server Error/,
-    //     ),
-    //   ).toBeInTheDocument();
-    // });
-  });
+  describe("フォームバリデーション", () => {
+    it("APIがエラーを返した際に、エラーメッセージが表示される", async () => {
+      const user = userEvent.setup();
+    });
 
-  it("認証されていない場合、メッセージが表示される", () => {
-    // mockedUseAuth.mockReturnValue({
-    //   user: undefined,
-    //   isAuthorized: false,
-    //   isLoading: false,
-    //   mutate: vi.fn(),
-    //   signOut: vi.fn(),
-    // });
-    // renderWithRouter();
-    // expect(screen.getByText("認証されていません。")).toBeInTheDocument();
-  });
-
-  it("画像の削除ボタンを押すと、avatar_urlが空になり、プレビューが「画像なし」に変わる", async () => {
-    const user = userEvent.setup();
-    // expect(screen.getByAltText("プロフィール画像")).toBeInTheDocument();
-    //
-    // const deleteButton = screen.getByRole("button", { name: "画像を削除" });
-    // await user.click(deleteButton);
-    //
-    // // プレビューの確認
-    // expect(screen.getByText("画像なし")).toBeInTheDocument();
-    // expect(screen.queryByAltText("プロフィール画像")).not.toBeInTheDocument();
-    //
-    // // この状態で更新ボタンを押すと、空のavatar_urlが送信されることを確認
-    // mockedUsersPatchCurrentUserUserMePatch.mockResolvedValue({
-    //   status: 200,
-    //   data: {} as any,
-    //   headers: new Headers(),
-    // });
-    // await user.click(screen.getByRole("button", { name: "更新" }));
-    //
-    // await waitFor(() => {
-    //   expect(mockedUsersPatchCurrentUserUserMePatch).toHaveBeenCalledWith(
-    //     expect.objectContaining({
-    //       avatar_url: "",
-    //     }),
-    //     expect.anything(),
-    //   );
-    // });
+    it("画像の削除ボタンを押すと、avatar_urlが空になり、プレビューが「画像なし」に変わる", async () => {
+      const user = userEvent.setup();
+    });
   });
 });

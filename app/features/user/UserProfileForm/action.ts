@@ -5,6 +5,9 @@ import { usersPatchCurrentUserUserMePatch } from "~/generated/user/user"; // orv
 import { UserProfileSchema } from ".";
 
 export async function editUserProfile({ request }: ActionFunctionArgs) {
+  console.log("#".repeat(100));
+  console.log("#".repeat(100));
+  console.log("#".repeat(100));
   const formData = await request.formData();
   const submission = parseWithZod(formData, { schema: UserProfileSchema });
   if (submission.status !== "success") {
@@ -14,7 +17,6 @@ export async function editUserProfile({ request }: ActionFunctionArgs) {
   const userUpdate: UserUpdate = {
     display_name: submission.value.display_name,
     profile: submission.value.profile,
-    avatar_url: submission.value.avatar_url,
     username: submission.value.username,
   };
 
