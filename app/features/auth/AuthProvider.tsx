@@ -39,7 +39,6 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
     useUsersCurrentUserUserMeGet({
       fetch: { credentials: "include" },
       swr: {
-        // revalidateIfStale: true,
         // revalidateOnReconnect: true,
         // revalidateOnMount: true,
         errorRetryCount: 3,

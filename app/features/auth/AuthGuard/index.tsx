@@ -6,17 +6,16 @@ import Unauth from "./Unauth";
 
 export default function AuthGuard({ children }: React.PropsWithChildren) {
   const { isAuthenticated, isLoading, isValidating, mutate } = useAuth();
-
   useEffect(() => {
+    if (isAuthenticated) return;
     mutate();
-  }, [mutate]);
+  }, [mutate, isAuthenticated]);
 
+  if (isAuthenticated) {
+    return <>{children}</>;
+  }
   if (isLoading || isValidating) {
     return <AuthGuardLoading />;
   }
-  if (!isAuthenticated) {
-    return <Unauth />;
-  }
-
-  return <>{children}</>;
+  return <Unauth />;
 }
