@@ -62,11 +62,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
       <AuthProvider>
         <Outlet />
       </AuthProvider>
-      <Toaster richColors expand closeButton />
     </ThemeProvider>
   );
 }
-import { Toaster } from "sonner";
 import {
   Card,
   CardContent,

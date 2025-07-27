@@ -2,6 +2,7 @@ import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -14,6 +15,7 @@ import { useAuth } from "~/features/auth/AuthProvider";
 import UserNavi from "~/features/user/UserNavi";
 import LogoSideItem from "../components/LogoSideMenu";
 import SideMenu from "../components/Sidemenu";
+import GuestMenu from "./GuestMenu";
 
 export default function UserSidebar() {
   // Menu items.
@@ -48,18 +50,15 @@ export default function UserSidebar() {
   const { user, isAuthenticated } = useAuth();
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader>
+      <SidebarHeader className="border">
         <SidebarMenu>
           <LogoSideItem />
-          <SidebarMenuItem title="ユーザー">
-            <SidebarMenuButton size="lg">
-              <UserNavi user={user} />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
 
       <SidebarContent>
+        <GuestMenu />
+
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -70,6 +69,15 @@ export default function UserSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem title="ユーザー">
+            <SidebarMenuButton size="lg">
+              <UserNavi user={user} />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

@@ -4,29 +4,34 @@ import { useMatch } from "react-router";
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { useAuth } from "~/features/auth/AuthProvider";
 import GuestSidebar from "./GuestLayout/GuestSidebar";
-import UserSidebar from "./UserLayout/UserSidebar";
+import UserSidebar from "./GuestLayout/UserSidebar";
 import BottomNavigation from "./components/BottomNavigation";
-
-// export async function loader(args: Route.LoaderArgs) {
-//   return rootAuthLoader(args);
-// }
+import "github-markdown-css/github-markdown.css";
+import { Toaster } from "~/components/ui/sonner";
+import { useIsMobile } from "~/hooks/use-mobile";
 
 type Props = { className?: string };
 
 export default function SidebarLayout({ className }: Props) {
+  const isMobile = useIsMobile();
   const isDocMode = useMatch("/docs/*");
-  const { isAuthenticated } = useAuth();
-
-  const sidebar = isAuthenticated ? <UserSidebar /> : <GuestSidebar />;
   const docStyle = isDocMode ? "markdown-body p-4 list-md" : "";
+  const { isAuthenticated } = useAuth();
+  const sidebar = isAuthenticated ? <UserSidebar /> : <GuestSidebar />;
   return (
     <SidebarProvider>
       {sidebar}
       <div
-        className={`flex flex-col w-full h-screen  bg-white dark:bg-gray-950 ${docStyle}`}
+        className={"flex flex-col w-full h-screen  bg-white dark:bg-gray-950"}
       >
-        <main className={`flex-1 overflow-auto ${className}`}>
+        <main className={`flex-1 overflow-auto ${className} ${docStyle}`}>
           <Outlet />
+          <Toaster
+            richColors
+            expand
+            closeButton
+            position={isMobile ? "top-right" : "bottom-right"}
+          />
         </main>
         <BottomNavigation />
       </div>
