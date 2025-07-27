@@ -1,5 +1,10 @@
 import { Link } from "react-router";
-import { SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
+import { ThemeToggle } from "~/components/theme/ThemeToggle";
+import {
+  SidebarMenuAction,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "~/components/ui/sidebar";
 import favicon from "/favicon.svg";
 
 export function SiteLogo() {
@@ -9,13 +14,17 @@ export function SiteLogo() {
 export default function LogoSideItem() {
   return (
     <SidebarMenuItem>
-      <SidebarMenuButton>
+      <SidebarMenuButton asChild tooltip="Landing Page">
         <Link to="/">
           <SiteLogo />
           <span>Knowde</span>
         </Link>
       </SidebarMenuButton>
-      {/* <ThemeToggle /> */}
+      <SidebarMenuAction>
+        <div className="flex justify-center">
+          <ThemeToggle />
+        </div>
+      </SidebarMenuAction>
     </SidebarMenuItem>
   );
 }

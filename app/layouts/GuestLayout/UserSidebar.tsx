@@ -69,7 +69,7 @@ export default function UserSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border">
         <SidebarMenu>
           <SidebarMenuItem title="ユーザー">
             <SidebarMenuButton size="lg">
