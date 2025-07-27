@@ -38,9 +38,9 @@ export function SearchSideMenu() {
   return (
     <SideMenu
       title={"検索"}
-      to={"#"}
+      to={"/search"}
       icon={<Search />}
-      subs={_list.map((v) => ({ ...v, title: `${v.title}検索` }))}
+      // subs={_list.map((v) => ({ ...v, title: `${v.title}検索` }))}
     />
   );
 }
@@ -49,9 +49,9 @@ export function RankingSideMenu() {
   return (
     <SideMenu
       title={"ランキング"}
-      to={"#"}
+      to={"/search"}
       icon={<Crown />}
-      subs={_list.map((v) => ({ ...v, title: `${v.title}ランキング` }))}
+      // subs={_list.map((v) => ({ ...v, title: `${v.title}ランキング` }))}
     />
   );
 }

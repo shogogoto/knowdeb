@@ -2,9 +2,7 @@
 import { Outlet } from "react-router";
 import { useMatch } from "react-router";
 import { SidebarProvider } from "~/components/ui/sidebar";
-import { useAuth } from "~/features/auth/AuthProvider";
-import GuestSidebar from "./GuestLayout/GuestSidebar";
-import UserSidebar from "./GuestLayout/UserSidebar";
+import MySidebar from "./MySidebar";
 import BottomNavigation from "./components/BottomNavigation";
 import "github-markdown-css/github-markdown.css";
 import { Toaster } from "~/components/ui/sonner";
@@ -16,11 +14,9 @@ export default function SidebarLayout({ className }: Props) {
   const isMobile = useIsMobile();
   const isDocMode = useMatch("/docs/*");
   const docStyle = isDocMode ? "markdown-body p-4 list-md" : "";
-  const { isAuthenticated } = useAuth();
-  const sidebar = isAuthenticated ? <UserSidebar /> : <GuestSidebar />;
   return (
     <SidebarProvider>
-      {sidebar}
+      <MySidebar />
       <div
         className={"flex flex-col w-full h-screen  bg-white dark:bg-gray-950"}
       >
