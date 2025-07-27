@@ -173,6 +173,14 @@ body {
   }
 }
 
+.caret-black {
+  caret-color: black;
+}
+
+.dark .caret-white {
+  caret-color: white;
+}
+
 .active {
   font-weight: bold;
   color: blue;
