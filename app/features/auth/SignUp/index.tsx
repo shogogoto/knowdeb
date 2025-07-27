@@ -1,6 +1,7 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { useActionData } from "react-router";
+import { toast } from "sonner";
 import { registerRegisterAuthRegisterPost } from "~/generated/auth/auth";
 import { signInAction } from "../SignIn";
 import AuthForm, { authSchema } from "../components/AuthForm";
@@ -28,6 +29,7 @@ export async function UserRegisterAction({ request }: ActionFunctionArgs) {
       ],
     });
   }
+  toast.success("登録に成功しました");
   return redirect("/home");
 }
 

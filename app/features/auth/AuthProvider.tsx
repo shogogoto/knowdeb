@@ -6,6 +6,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { toast } from "sonner";
 import type { KeyedMutator } from "swr";
 import { authCookieLogoutAuthCookieLogoutPost } from "~/generated/auth/auth";
 import type { UserRead } from "~/generated/fastAPI.schemas"; // Adjust path
@@ -62,6 +63,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
       console.error("Logout failed:", error);
     } finally {
       setUser(null);
+      toast.success("ロクアウトしました");
     }
   }, [mutate]);
   return (

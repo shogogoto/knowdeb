@@ -5,7 +5,8 @@ import {
 } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { useEffect } from "react";
-import { Link, useFetcher, useNavigation } from "react-router";
+import { Link, useFetcher, useNavigate, useNavigation } from "react-router";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { useAuth } from "~/features/auth/AuthProvider";
@@ -13,11 +14,14 @@ import type { UserRead } from "~/generated/fastAPI.schemas";
 import {
   userProfileUserProfileUsernameGetResponse,
   userProfileUserProfileUsernameGetResponseDisplayNameMaxOne,
+  userProfileUserProfileUsernameGetResponseUsernameMaxOne,
 } from "~/generated/public-user/public-user.zod";
 import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
 import { InputFormControl, TextareaFormControl } from "./controls";
 
 const MAX_DN = userProfileUserProfileUsernameGetResponseDisplayNameMaxOne;
+const MAX_UN = userProfileUserProfileUsernameGetResponseUsernameMaxOne;
+
 export const UserProfileSchema = userProfileUserProfileUsernameGetResponse
   .pick({
     display_name: true,
@@ -35,6 +39,9 @@ export const UserProfileSchema = userProfileUserProfileUsernameGetResponse
     username: z
       .string({ required_error: "ユーザー名を入力してください。" })
       .min(3, { message: "ユーザー名は3文字以上で入力してください。" })
+      .max(MAX_UN, {
+        message: `ユーザー名は${MAX_UN}文字以下で入力してください。`,
+      })
       .regex(/^[a-zA-Z0-9_]+$/, {
         message: "半角英数字とハイフン、アンダースコアのみが使用できます。",
       }),
@@ -74,15 +81,17 @@ export default function UserProfileForm() {
     },
   });
 
+  const navigate = useNavigate();
   useEffect(() => {
     if (lastSubmission?.user) {
-      const { user } = lastSubmission;
       mutate(
-        { data: user, status: 200, headers: new Headers() },
+        { data: lastSubmission.user, status: 200, headers: new Headers() },
         { revalidate: false },
       );
+      toast.success(lastSubmission.message);
+      navigate("/home");
     }
-  }, [lastSubmission, mutate]);
+  }, [lastSubmission, mutate, navigate]);
 
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
@@ -124,11 +133,6 @@ export default function UserProfileForm() {
           <div className="text-sm text-red-500">{form.errors?.[0]}</div>
         </div>
       </fetcher.Form>
-      {lastSubmission?.message && (
-        <div className="bg-green-100 text-green-700 p-3 rounded-md mb-4 text-center">
-          {lastSubmission.message}
-        </div>
-      )}
     </div>
   );
 }

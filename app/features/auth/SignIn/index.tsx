@@ -2,6 +2,7 @@ import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs } from "react-router";
 import { redirect, useActionData } from "react-router";
 import { Navigate } from "react-router";
+import { toast } from "sonner";
 import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
 import { useAuth } from "../AuthProvider";
 import AuthForm, { authSchema } from "../components/AuthForm";
@@ -34,6 +35,7 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
       ],
     });
   }
+  toast.success("ロクインしました");
   return redirect("/home");
 }
 

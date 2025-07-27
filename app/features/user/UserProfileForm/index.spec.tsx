@@ -2,7 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse, delay } from "msw";
 import { setupServer } from "msw/node";
-import { createRoutesStub } from "react-router";
+import { createMemoryRouter } from "react-router";
+import { RouterProvider } from "react-router";
+import { Toaster } from "sonner";
 import { describe, it, vi } from "vitest";
 import { AuthProvider } from "~/features/auth/AuthProvider";
 import { getAuthMock } from "~/generated/auth/auth.msw";
@@ -34,18 +36,28 @@ const muser = {
   created: "2023-01-01",
 };
 
-function mkStub() {
-  return createRoutesStub([
+function mkrouter() {
+  return createMemoryRouter(
+    [
+      {
+        path: "/user/edit",
+        Component: () => (
+          <AuthProvider>
+            <UserProfileForm />
+            <Toaster />
+          </AuthProvider>
+        ),
+        action: editUserProfile,
+      },
+      {
+        path: "/home",
+        Component: () => <div>home</div>,
+      },
+    ],
     {
-      path: "/user/edit",
-      Component: () => (
-        <AuthProvider>
-          <UserProfileForm />
-        </AuthProvider>
-      ),
-      action: editUserProfile,
+      initialEntries: ["/user/edit"],
     },
-  ]);
+  );
 }
 
 function _setmock() {
@@ -67,8 +79,8 @@ describe("UserProfileForm (Integration Test)", () => {
   });
   it("ユーザー情報がフォーム初期値へ", async () => {
     server.use(getUsersCurrentUserUserMeGetMockHandler(muser));
-    const Stub = mkStub();
-    render(<Stub initialEntries={["/user/edit"]} />);
+    const router = mkrouter();
+    render(<RouterProvider router={router} />);
     expect(screen.getByText("0 / 160")).toBeInTheDocument();
 
     await waitFor(() => {
@@ -81,8 +93,8 @@ describe("UserProfileForm (Integration Test)", () => {
 
   it("フォーム内容送信成功", async () => {
     const user = userEvent.setup();
-    const Stub = mkStub();
-    render(<Stub initialEntries={["/user/edit"]} />);
+    const router = mkrouter();
+    render(<RouterProvider router={router} />);
     const displayNameInput = screen.getByLabelText("表示名");
     const profileInput = screen.getByLabelText("プロフィール");
     const usernameInput = screen.getByLabelText("ユーザー名");
@@ -118,6 +130,9 @@ describe("UserProfileForm (Integration Test)", () => {
       expect(profileInput).toHaveValue(update.profile);
       expect(usernameInput).toHaveValue(update.username);
     });
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe("/home");
+    });
   });
 
   describe("フォームバリデーション", () => {
@@ -128,8 +143,8 @@ describe("UserProfileForm (Integration Test)", () => {
     it("username invalid", async () => {
       _setmock();
       const user = userEvent.setup();
-      const Stub = mkStub();
-      render(<Stub initialEntries={["/user/edit"]} />);
+      const router = mkrouter();
+      render(<RouterProvider router={router} />);
       const usernameInput = screen.getByLabelText("ユーザー名");
       const submitButton = screen.getByRole("button", { name: "更新" });
 
