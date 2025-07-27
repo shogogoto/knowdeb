@@ -1,6 +1,7 @@
 import { Link } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
 import { useAuth } from "~/features/auth/AuthProvider";
 
 export default function UserProfile() {
@@ -9,15 +10,26 @@ export default function UserProfile() {
   return (
     <div className="space-y-4 bg-white dark:bg-gray-800 p-6 shadow-md">
       <div className="flex justify-between items-start">
-        <Avatar className="h-24 w-24">
-          <AvatarImage
-            src={user?.avatar_url ?? undefined}
-            alt={user?.display_name ?? undefined}
-          />
-          <AvatarFallback>
-            {user?.display_name?.charAt(0) || "N"}
-          </AvatarFallback>
-        </Avatar>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Avatar className="h-24 w-24 cursor-pointer">
+              <AvatarImage
+                src={user?.avatar_url ?? undefined}
+                alt={user?.display_name ?? undefined}
+              />
+              <AvatarFallback>
+                {user?.display_name?.charAt(0) || "N"}
+              </AvatarFallback>
+            </Avatar>
+          </DialogTrigger>
+          <DialogContent className="p-0 border-0 max-w-md w-full">
+            <img
+              src={user?.avatar_url ?? undefined}
+              alt={user?.display_name ?? undefined}
+              className="w-full h-auto rounded-lg"
+            />
+          </DialogContent>
+        </Dialog>
         <Button asChild className="px-4 py-2 text-md">
           <Link to="/user/edit">編集</Link>
         </Button>
