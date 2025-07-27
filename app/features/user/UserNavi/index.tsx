@@ -1,4 +1,4 @@
-import { Dialog } from "@radix-ui/react-dialog";
+import { Dialog } from "~/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
