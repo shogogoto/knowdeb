@@ -5,12 +5,12 @@ import {
   Crown,
   Folder,
   FolderSearch,
+  Home,
   LogIn,
   Search,
   SearchCode,
   Speech,
   TextSearch,
-  UserPen,
   UserSearch,
   Users,
 } from "lucide-react";
@@ -63,13 +63,13 @@ export function FeaturesMenu() {
       to={"#"}
       icon={<LogIn />}
       subs={[
-        { to: "#", title: "通知", icon: <BellRing /> },
-        { to: "#", title: "エントリー管理", icon: <Folder /> },
-        { to: "#", title: "ブックマーク", icon: <Bookmark /> },
-        { to: "#", title: "検索パラメータ", icon: <SearchCode /> },
-        { to: "#", title: "参加中ディスカッション", icon: <Speech /> },
-        { to: "#", title: "加入グループ", icon: <Users /> },
-        { to: "#", title: "プロフィール", icon: <UserPen /> },
+        { to: "/home", title: "ホーム", icon: <Home /> },
+        { to: "/", title: "通知", icon: <BellRing /> },
+        { to: "/", title: "エントリー管理", icon: <Folder /> },
+        { to: "/", title: "ブックマーク", icon: <Bookmark /> },
+        { to: "/", title: "検索パラメータ", icon: <SearchCode /> },
+        { to: "/", title: "参加中ディスカッション", icon: <Speech /> },
+        { to: "/", title: "加入グループ", icon: <Users /> },
       ]}
     />
   );

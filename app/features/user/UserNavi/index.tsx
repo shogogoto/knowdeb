@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { Dialog } from "@radix-ui/react-dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
 } from "~/components/ui/dropdown-menu";
 import { SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
+import LogoutDialogContent from "~/features/auth/SignOutDialog";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 import { useIsMobile } from "~/hooks/use-mobile";
 import UserAvatar from "../UserAvatar";
@@ -15,26 +16,22 @@ type Props = {
 };
 
 export default function UserNavi({ user }: Props) {
-  const avatar = <UserAvatar user={user} />;
   const isMobile = useIsMobile();
   const side = isMobile ? "bottom" : "right";
-  const [isOpen, setIsOpen] = useState(false);
-
-  function toggleOpen(e: Event) {
-    e.preventDefault();
-    setIsOpen(!isOpen);
-  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <SidebarMenuItem>
-          <SidebarMenuButton>
-            <UserAvatar user={user} />
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </DropdownMenuTrigger>
-      <UserDropdown avatar={avatar} side={side} toggleOpen={toggleOpen} />
-    </DropdownMenu>
+    <Dialog>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <SidebarMenuItem>
+            <SidebarMenuButton>
+              <UserAvatar user={user} />
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </DropdownMenuTrigger>
+        <UserDropdown side={side} />
+      </DropdownMenu>
+      <LogoutDialogContent />
+    </Dialog>
   );
 }
