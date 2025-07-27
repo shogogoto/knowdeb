@@ -1,5 +1,4 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
 import { SidebarProvider } from "~/components/ui/sidebar";
 import { AuthProvider } from "~/features/auth/AuthProvider";
 import { getUsersCurrentUserUserMeGetResponseMock } from "~/generated/user/user.msw";

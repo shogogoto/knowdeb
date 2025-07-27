@@ -25,7 +25,15 @@ export default function UserNavi({ user }: Props) {
         <DropdownMenuTrigger asChild>
           <SidebarMenuItem>
             <SidebarMenuButton>
-              <UserAvatar user={user} />
+              <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
+                <UserAvatar user={user} />
+              </div>
+              <div className="grid flex-1 text-left text-sm leading-tight ">
+                <span className="truncate font-medium">
+                  {user?.display_name}
+                </span>
+                <span className="truncate text-xs">{`@${user?.uid || user?.username || "userId"}`}</span>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </DropdownMenuTrigger>
