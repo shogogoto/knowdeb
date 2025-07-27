@@ -36,46 +36,44 @@ export default function SideMenu({ title, to, icon, subs }: SideMenuProps) {
     }
   };
 
+  if (!subs || subs.length === 0) {
+    return (
+      <SidebarMenuItem>
+        <SidebarMenuButton asChild tooltip={title}>
+          <NavLink to={to} onClick={handleMenuClick}>
+            {icon}
+            <span>{title}</span>
+          </NavLink>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
+    );
+  }
+
   return (
     <Collapsible defaultOpen={true}>
-      <CollapsibleTrigger asChild>
+      <CollapsibleTrigger asChild className="group">
         <SidebarMenuItem>
           <SidebarMenuButton asChild tooltip={title}>
-            {subs?.length ? (
-              <div>
-                {icon}
-                <span>{title}</span>
-              </div>
-            ) : (
-              <NavLink to={to} onClick={handleMenuClick}>
-                {icon}
-                <span>{title}</span>
-              </NavLink>
-            )}
+            <div>
+              {icon}
+              <span>{title}</span>
+            </div>
           </SidebarMenuButton>
-          {subs?.length ? (
-            <>
-              <CollapseToggle />
-              <CollapsibleContent>
-                <SubMenu items={subs} />
-              </CollapsibleContent>
-            </>
-          ) : null}
+          <CollapseToggle />
         </SidebarMenuItem>
       </CollapsibleTrigger>
+      <CollapsibleContent>
+        <SubMenu items={subs} />
+      </CollapsibleContent>
     </Collapsible>
   );
 }
 
 function CollapseToggle() {
   return (
-    <CollapsibleTrigger asChild>
-      <SidebarMenuAction className="data-[state=open]:rotate-90">
-        <ChevronRight />
-        {/* ↓ これが必要な理由が謎 */}
-        <span className="sr-only">Toggle</span>
-      </SidebarMenuAction>
-    </CollapsibleTrigger>
+    <SidebarMenuAction className="transition-transform duration-200 group-data-[state=open]:rotate-90">
+      <ChevronRight />
+    </SidebarMenuAction>
   );
 }
 

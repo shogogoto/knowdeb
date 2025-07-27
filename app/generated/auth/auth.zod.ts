@@ -32,6 +32,9 @@ export const authCookieLogoutAuthCookieLogoutPostResponse = zod.any();
 /**
  * @summary Register:Register
  */
+export const registerRegisterAuthRegisterPostBodyPasswordMin = 3;
+
+export const registerRegisterAuthRegisterPostBodyPasswordMax = 100;
 export const registerRegisterAuthRegisterPostBodyIsActiveDefault = true;
 export const registerRegisterAuthRegisterPostBodyIsSuperuserDefault = false;
 export const registerRegisterAuthRegisterPostBodyIsVerifiedDefault = false;
@@ -39,7 +42,11 @@ export const registerRegisterAuthRegisterPostBodyIsVerifiedDefault = false;
 export const registerRegisterAuthRegisterPostBody = zod
   .object({
     email: zod.string().email(),
-    password: zod.string(),
+    password: zod
+      .string()
+      .min(registerRegisterAuthRegisterPostBodyPasswordMin)
+      .max(registerRegisterAuthRegisterPostBodyPasswordMax)
+      .describe("3文字以上100文字以内で入力してください"),
     is_active: zod
       .boolean()
       .or(zod.null())
@@ -85,10 +92,13 @@ export const verifyVerifyAuthVerifyPostResponseIsSuperuserDefault = false;
 export const verifyVerifyAuthVerifyPostResponseIsVerifiedDefault = false;
 export const verifyVerifyAuthVerifyPostResponseDisplayNameMaxOne = 32;
 export const verifyVerifyAuthVerifyPostResponseProfileMaxOne = 160;
+export const verifyVerifyAuthVerifyPostResponseUsernameMaxOne = 16;
+export const verifyVerifyAuthVerifyPostResponseUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const verifyVerifyAuthVerifyPostResponse = zod
   .object({
-    id: zod.any(),
+    uid: zod.string().uuid(),
     email: zod.string().email(),
     is_active: zod
       .boolean()
@@ -106,6 +116,13 @@ export const verifyVerifyAuthVerifyPostResponse = zod
       .or(zod.null())
       .optional(),
     avatar_url: zod.string().or(zod.null()).optional(),
+    username: zod
+      .string()
+      .max(verifyVerifyAuthVerifyPostResponseUsernameMaxOne)
+      .regex(verifyVerifyAuthVerifyPostResponseUsernameRegExpOne)
+      .or(zod.null())
+      .optional()
+      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
     created: zod.string().datetime({}),
   })
   .describe("読み取り.");

@@ -1,8 +1,9 @@
 import { parseWithZod } from "@conform-to/zod";
 import { type ActionFunctionArgs, redirect } from "react-router";
 import { useActionData } from "react-router";
+import { toast } from "sonner";
 import { registerRegisterAuthRegisterPost } from "~/generated/auth/auth";
-import { signInAction } from "../SingIn";
+import { signInAction } from "../SignIn";
 import AuthForm, { authSchema } from "../components/AuthForm";
 
 export async function UserRegisterAction({ request }: ActionFunctionArgs) {
@@ -23,9 +24,12 @@ export async function UserRegisterAction({ request }: ActionFunctionArgs) {
   );
   if (res2.status !== 204) {
     return submission.reply({
-      formErrors: [`ログインに失敗しました: ${res2.data || "不明なエラー"}`],
+      formErrors: [
+        `ログインに失敗しました: ${JSON.stringify(res2.data) || "不明なエラー"}`,
+      ],
     });
   }
+  toast.success("登録に成功しました");
   return redirect("/home");
 }
 

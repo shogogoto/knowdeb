@@ -1,7 +1,7 @@
-import type { KAdjacencyStats } from "~/generated/fastAPI.schemas";
+import type { KStats } from "~/generated/fastAPI.schemas";
 
 type Props = {
-  stats: KAdjacencyStats | undefined;
+  stats: KStats | undefined;
 };
 
 //<div>スコア: {props.stats.score}</div>

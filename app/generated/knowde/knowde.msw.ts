@@ -18,7 +18,7 @@ export const getSearchByTextKnowdeGetResponseMock = (
     { length: faker.number.int({ min: 1, max: 10 }) },
     (_, i) => i + 1,
   ).map(() => ({
-    center: {
+    knowde: {
       sentence: faker.string.alpha(20),
       uid: faker.string.uuid(),
       term: faker.helpers.arrayElement([
@@ -41,186 +41,34 @@ export const getSearchByTextKnowdeGetResponseMock = (
         undefined,
       ]),
       when: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      where: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      by: faker.helpers.arrayElement([
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
         undefined,
       ]),
     },
-    when: faker.helpers.arrayElement([
-      faker.helpers.arrayElement([faker.string.alpha(20), null]),
-      undefined,
-    ]),
-    details: Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
+    stats: {
+      n_detail: faker.number.int({ min: -100, max: 1000 }),
+      n_premise: faker.number.int({ min: -100, max: 1000 }),
+      n_conclusion: faker.number.int({ min: -100, max: 1000 }),
+      n_refer: faker.number.int({ min: -100, max: 1000 }),
+      n_referred: faker.number.int({ min: -100, max: 1000 }),
+      dist_axiom: faker.number.int({ min: -100, max: 1000 }),
+      dist_leaf: faker.number.int({ min: -100, max: 1000 }),
+      score: faker.helpers.arrayElement([
         faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
+          faker.number.int({ min: -100, max: 1000 }),
           null,
         ]),
         undefined,
       ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-    })),
-    premises: Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
-        ]),
-        undefined,
-      ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-    })),
-    conclusions: Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
-        ]),
-        undefined,
-      ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-    })),
-    refers: Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
-        ]),
-        undefined,
-      ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-    })),
-    referreds: Array.from(
-      { length: faker.number.int({ min: 1, max: 10 }) },
-      (_, i) => i + 1,
-    ).map(() => ({
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
-        ]),
-        undefined,
-      ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-    })),
-    stats: faker.helpers.arrayElement([
-      faker.helpers.arrayElement([
-        {
-          n_detail: faker.number.int({ min: -100, max: 1000 }),
-          n_premise: faker.number.int({ min: -100, max: 1000 }),
-          n_conclusion: faker.number.int({ min: -100, max: 1000 }),
-          n_refer: faker.number.int({ min: -100, max: 1000 }),
-          n_referred: faker.number.int({ min: -100, max: 1000 }),
-          dist_axiom: faker.number.int({ min: -100, max: 1000 }),
-          dist_leaf: faker.number.int({ min: -100, max: 1000 }),
-          score: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([
-              faker.number.int({ min: -100, max: 1000 }),
-              null,
-            ]),
-            undefined,
-          ]),
-        },
-        null,
-      ]),
-      undefined,
-    ]),
+    },
   })),
   ...overrideResponse,
 });
@@ -249,31 +97,57 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
   },
   knowdes: {
     [faker.string.alphanumeric(5)]: {
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
+      knowde: {
+        sentence: faker.string.alpha(20),
+        uid: faker.string.uuid(),
+        term: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            {
+              names: faker.helpers.arrayElement([
+                Array.from(
+                  { length: faker.number.int({ min: 1, max: 10 }) },
+                  (_, i) => i + 1,
+                ).map(() => faker.string.alpha(20)),
+                undefined,
+              ]),
+              alias: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([faker.string.alpha(20), null]),
+                undefined,
+              ]),
+            },
+            null,
+          ]),
+          undefined,
         ]),
-        undefined,
-      ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
+        when: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        where: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        by: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+      },
+      stats: {
+        n_detail: faker.number.int({ min: -100, max: 1000 }),
+        n_premise: faker.number.int({ min: -100, max: 1000 }),
+        n_conclusion: faker.number.int({ min: -100, max: 1000 }),
+        n_refer: faker.number.int({ min: -100, max: 1000 }),
+        n_referred: faker.number.int({ min: -100, max: 1000 }),
+        dist_axiom: faker.number.int({ min: -100, max: 1000 }),
+        dist_leaf: faker.number.int({ min: -100, max: 1000 }),
+        score: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: -100, max: 1000 }),
+            null,
+          ]),
+          undefined,
+        ]),
+      },
     },
   },
   location: {
@@ -314,10 +188,14 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
         undefined,
       ]),
-      uid: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.uuid(), null]),
+      username: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+          null,
+        ]),
         undefined,
       ]),
+      uid: faker.string.uuid(),
       email: faker.internet.email(),
       hashed_password: faker.string.alpha(20),
       is_active: faker.datatype.boolean(),
@@ -396,31 +274,57 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
       { length: faker.number.int({ min: 1, max: 10 }) },
       (_, i) => i + 1,
     ).map(() => ({
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
+      knowde: {
+        sentence: faker.string.alpha(20),
+        uid: faker.string.uuid(),
+        term: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            {
+              names: faker.helpers.arrayElement([
+                Array.from(
+                  { length: faker.number.int({ min: 1, max: 10 }) },
+                  (_, i) => i + 1,
+                ).map(() => faker.string.alpha(20)),
+                undefined,
+              ]),
+              alias: faker.helpers.arrayElement([
+                faker.helpers.arrayElement([faker.string.alpha(20), null]),
+                undefined,
+              ]),
+            },
+            null,
+          ]),
+          undefined,
         ]),
-        undefined,
-      ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
+        when: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        where: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        by: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+      },
+      stats: {
+        n_detail: faker.number.int({ min: -100, max: 1000 }),
+        n_premise: faker.number.int({ min: -100, max: 1000 }),
+        n_conclusion: faker.number.int({ min: -100, max: 1000 }),
+        n_refer: faker.number.int({ min: -100, max: 1000 }),
+        n_referred: faker.number.int({ min: -100, max: 1000 }),
+        dist_axiom: faker.number.int({ min: -100, max: 1000 }),
+        dist_leaf: faker.number.int({ min: -100, max: 1000 }),
+        score: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: -100, max: 1000 }),
+            null,
+          ]),
+          undefined,
+        ]),
+      },
     })),
   },
   ...overrideResponse,
@@ -434,7 +338,7 @@ export const getSearchByTextKnowdeGetMockHandler = (
       ) => Promise<KnowdeSearchResult> | KnowdeSearchResult),
 ) => {
   return http.get("*/knowde/", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -457,7 +361,7 @@ export const getDetailKnowdeSentenceSentenceIdGetMockHandler = (
       ) => Promise<KnowdeDetail> | KnowdeDetail),
 ) => {
   return http.get("*/knowde/sentence/:sentenceId", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(

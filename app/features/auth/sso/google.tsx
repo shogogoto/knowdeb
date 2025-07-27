@@ -1,23 +1,21 @@
-import { redirect } from "react-router";
+import { Link, Navigate, redirect } from "react-router";
+import GoogleIcon from "~/components/icons/Google";
+import { Button } from "~/components/ui/button";
 import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
-import AuthGuardBody from "../AuthGuard/Body";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
-export async function authorize({ request }: Route.ClientLoaderArgs) {
+export async function authorize() {
   const res = await oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet(
     {},
-    {
-      credentials: "include",
-    },
+    { credentials: "include" },
   );
   if (res.status === 200) {
-    console.log(res.data.authorization_url);
     return redirect(res.data.authorization_url);
   }
-  console.error("Google SSO failed:", res.data.detail);
+  console.error("Google SSO authorization failed", { cause: res });
   return redirect("/");
 }
 
@@ -29,16 +27,25 @@ export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
     { state, code },
     { credentials: "include" },
   );
-  if (res?.status === 200) {
+  // @ts-ignore なぜか 200が期待されてる
+  if (res?.status === 204) {
     return redirect("/home");
   }
-  console.error("Google SSO failed:", res.data.detail);
+  console.error("Google SSO callback failed:", res.status);
   return redirect("/");
 }
 
 // clientLoaderのためにあるだけで表示されることはなさそう
-export default function CallbackDummy({ loaderData }: Route.ComponentProps) {
-  // const { is } = loaderData;
+export default function GoogleCallback() {
+  return <Navigate to="/home" />;
+}
 
-  return <AuthGuardBody />;
+export function GoogleAuthButton({ title }: { title: string }) {
+  return (
+    <Button variant="outline" className="w-full" asChild>
+      <Link to="/google/authorize">
+        <GoogleIcon className="mr-2 h-4 w-4" /> {title}
+      </Link>
+    </Button>
+  );
 }

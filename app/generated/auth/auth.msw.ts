@@ -10,18 +10,17 @@ import { http, HttpResponse, delay } from "msw";
 
 import type { BearerResponse, UserRead } from "../fastAPI.schemas";
 
-export const getAuthJwtLoginAuthJwtLoginPostResponseMock = (
-  overrideResponse: Partial<BearerResponse> = {},
-): BearerResponse => ({
-  access_token: faker.string.alpha(20),
-  token_type: faker.string.alpha(20),
-  ...overrideResponse,
-});
+export const getAuthJwtLoginAuthJwtLoginPostResponseMock =
+  (): BearerResponse => ({
+    access_token:
+      "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoiOTIyMWZmYzktNjQwZi00MzcyLTg2ZDMtY2U2NDJjYmE1NjAzIiwiYXVkIjoiZmFzdGFwaS11c2VyczphdXRoIiwiZXhwIjoxNTcxNTA0MTkzfQ.M10bjOe45I5Ncu_uXvOmVV8QxnL-nZfcH96U90JaocI",
+    token_type: "bearer",
+  });
 
 export const getRegisterRegisterAuthRegisterPostResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  uid: faker.string.uuid(),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -42,6 +41,13 @@ export const getRegisterRegisterAuthRegisterPostResponseMock = (
   ]),
   avatar_url: faker.helpers.arrayElement([
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  username: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
@@ -51,7 +57,7 @@ export const getRegisterRegisterAuthRegisterPostResponseMock = (
 export const getVerifyVerifyAuthVerifyPostResponseMock = (
   overrideResponse: Partial<UserRead> = {},
 ): UserRead => ({
-  id: {},
+  uid: faker.string.uuid(),
   email: faker.internet.email(),
   is_active: faker.helpers.arrayElement([faker.datatype.boolean(), undefined]),
   is_superuser: faker.helpers.arrayElement([
@@ -72,6 +78,13 @@ export const getVerifyVerifyAuthVerifyPostResponseMock = (
   ]),
   avatar_url: faker.helpers.arrayElement([
     faker.helpers.arrayElement([faker.string.alpha(20), null]),
+    undefined,
+  ]),
+  username: faker.helpers.arrayElement([
+    faker.helpers.arrayElement([
+      faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+      null,
+    ]),
     undefined,
   ]),
   created: `${faker.date.past().toISOString().split(".")[0]}Z`,
@@ -86,7 +99,7 @@ export const getAuthJwtLoginAuthJwtLoginPostMockHandler = (
       ) => Promise<BearerResponse> | BearerResponse),
 ) => {
   return http.post("*/auth/jwt/login", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -109,7 +122,7 @@ export const getAuthJwtLogoutAuthJwtLogoutPostMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.post("*/auth/jwt/logout", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -126,7 +139,7 @@ export const getAuthCookieLoginAuthCookieLoginPostMockHandler = (
       ) => Promise<unknown | undefined> | unknown | undefined),
 ) => {
   return http.post("*/auth/cookie/login", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -143,7 +156,7 @@ export const getAuthCookieLogoutAuthCookieLogoutPostMockHandler = (
       ) => Promise<unknown | undefined> | unknown | undefined),
 ) => {
   return http.post("*/auth/cookie/logout", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -159,7 +172,7 @@ export const getRegisterRegisterAuthRegisterPostMockHandler = (
       ) => Promise<UserRead> | UserRead),
 ) => {
   return http.post("*/auth/register", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -182,7 +195,7 @@ export const getResetForgotPasswordAuthForgotPasswordPostMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.post("*/auth/forgot-password", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -198,7 +211,7 @@ export const getResetResetPasswordAuthResetPasswordPostMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.post("*/auth/reset-password", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -214,7 +227,7 @@ export const getVerifyRequestTokenAuthRequestVerifyTokenPostMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.post("*/auth/request-verify-token", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -230,7 +243,7 @@ export const getVerifyVerifyAuthVerifyPostMockHandler = (
       ) => Promise<UserRead> | UserRead),
 ) => {
   return http.post("*/auth/verify", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(

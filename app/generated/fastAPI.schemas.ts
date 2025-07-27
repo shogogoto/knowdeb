@@ -123,24 +123,6 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
-export type KAdjacencyWhen = string | null;
-
-export type KAdjacencyStats = KStats | null;
-
-/**
- * 周辺情報も含める.
- */
-export interface KAdjacency {
-  center: Knowde;
-  when?: KAdjacencyWhen;
-  details: Knowde[];
-  premises: Knowde[];
-  conclusions: Knowde[];
-  refers: Knowde[];
-  referreds: Knowde[];
-  stats?: KAdjacencyStats;
-}
-
 export type KStatsScore = number | null;
 
 /**
@@ -189,6 +171,10 @@ export type KnowdeTerm = Term | null;
 
 export type KnowdeWhen = string | null;
 
+export type KnowdeWhere = string | null;
+
+export type KnowdeBy = string | null;
+
 /**
  * 知識の最小単位.
  */
@@ -197,9 +183,11 @@ export interface Knowde {
   uid: string;
   term?: KnowdeTerm;
   when?: KnowdeWhen;
+  where?: KnowdeWhere;
+  by?: KnowdeBy;
 }
 
-export type KnowdeDetailKnowdes = { [key: string]: Knowde };
+export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
 
 /**
  * 詳細.
@@ -219,7 +207,7 @@ export interface KnowdeLocation {
   folders: UidStr[];
   resource: MResource;
   headers: UidStr[];
-  parents: Knowde[];
+  parents: KnowdeWithStats[];
 }
 
 /**
@@ -227,7 +215,15 @@ export interface KnowdeLocation {
  */
 export interface KnowdeSearchResult {
   total: number;
-  data: KAdjacency[];
+  data: KnowdeWithStats[];
+}
+
+/**
+ * 統計情報付きknowde.
+ */
+export interface KnowdeWithStats {
+  knowde: Knowde;
+  stats: KStats;
 }
 
 export type MResourceElementIdProperty = string | null;
@@ -314,6 +310,8 @@ export interface Term {
   alias?: TermAlias;
 }
 
+export type TrackUser = User | null;
+
 /**
  * UUID付き文章.
  */
@@ -328,7 +326,10 @@ export type UserProfile = string | null;
 
 export type UserAvatarUrl = string | null;
 
-export type UserUid = string | null;
+/**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
+export type UserUsername = string | null;
 
 /**
  * UserProtocol[UUID]を満たす.
@@ -338,7 +339,9 @@ export interface User {
   display_name?: UserDisplayName;
   profile?: UserProfile;
   avatar_url?: UserAvatarUrl;
-  uid?: UserUid;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
+  username?: UserUsername;
+  uid: string;
   email: string;
   hashed_password: string;
   is_active: boolean;
@@ -358,6 +361,11 @@ export type UserCreateIsVerified = boolean | null;
  */
 export interface UserCreate {
   email: string;
+  /**
+   * 3文字以上100文字以内で入力してください
+   * @minLength 3
+   * @maxLength 100
+   */
   password: string;
   is_active?: UserCreateIsActive;
   is_superuser?: UserCreateIsSuperuser;
@@ -371,10 +379,15 @@ export type UserReadProfile = string | null;
 export type UserReadAvatarUrl = string | null;
 
 /**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
+export type UserReadUsername = string | null;
+
+/**
  * 読み取り.
  */
 export interface UserRead {
-  id: unknown;
+  uid: string;
   email: string;
   is_active?: boolean;
   is_superuser?: boolean;
@@ -382,10 +395,40 @@ export interface UserRead {
   display_name?: UserReadDisplayName;
   profile?: UserReadProfile;
   avatar_url?: UserReadAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
+  username?: UserReadUsername;
   created: string;
 }
 
-export type UserUpdatePassword = string | null;
+export type UserReadPublicDisplayName = string | null;
+
+export type UserReadPublicProfile = string | null;
+
+export type UserReadPublicAvatarUrl = string | null;
+
+/**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
+export type UserReadPublicUsername = string | null;
+
+/**
+ * 公開ユーザー情報.
+ */
+export interface UserReadPublic {
+  display_name?: UserReadPublicDisplayName;
+  profile?: UserReadPublicProfile;
+  avatar_url?: UserReadPublicAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
+  username?: UserReadPublicUsername;
+  uid: string;
+  created: string;
+}
+
+/**
+ * 3文字以上100文字以内で入力してください
+ * @nullable
+ */
+export type UserUpdatePassword = string | null | null;
 
 export type UserUpdateEmail = string | null;
 
@@ -402,9 +445,18 @@ export type UserUpdateProfile = string | null;
 export type UserUpdateAvatarUrl = string | null;
 
 /**
+ * 半角英数字とハイフン、アンダースコアのみが使用できます。
+ */
+export type UserUpdateUsername = string | null;
+
+/**
  * 更新.
  */
 export interface UserUpdate {
+  /**
+   * 3文字以上100文字以内で入力してください
+   * @nullable
+   */
   password?: UserUpdatePassword;
   email?: UserUpdateEmail;
   is_active?: UserUpdateIsActive;
@@ -413,6 +465,8 @@ export interface UserUpdate {
   display_name?: UserUpdateDisplayName;
   profile?: UserUpdateProfile;
   avatar_url?: UserUpdateAvatarUrl;
+  /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
+  username?: UserUpdateUsername;
 }
 
 export type ValidationErrorLocItem = string | number;
@@ -446,11 +500,17 @@ export type OauthGoogleCookieCallbackGoogleCookieCallbackGetParams = {
 };
 
 export type SearchUserUserSearchGetParams = {
-  name?: string | null;
-  id?: string | null;
+  display_name?: string;
+  id?: string;
+  user?: TrackUser;
+};
+
+export type UserProfileUserProfileUsernameGetParams = {
+  user?: TrackUser;
 };
 
 export type SearchByTextKnowdeGetParams = {
+  user?: TrackUser;
   q?: string;
   type?: SearchByTextKnowdeGetType;
   page?: number;
@@ -476,3 +536,7 @@ export const SearchByTextKnowdeGetType = {
   REGEX: "REGEX",
   EQUAL: "EQUAL",
 } as const;
+
+export type DetailKnowdeSentenceSentenceIdGetParams = {
+  user?: TrackUser;
+};

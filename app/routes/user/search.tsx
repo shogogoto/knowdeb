@@ -1,6 +1,6 @@
 import { useLoaderData } from "react-router";
 import UserProfile from "~/features/user/UserProfile";
-import { searchUserUserSearchGet } from "~/generated/user/user";
+import { searchUserUserSearchGet } from "~/generated/public-user/public-user";
 import type { Route } from "./+types/search";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -36,5 +36,5 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function UserSearch() {
   const user = useLoaderData<typeof loader>();
-  return <UserProfile user={user} />;
+  return <UserProfile />;
 }

@@ -1,4 +1,4 @@
-import SignInForm, { UserSignInAction } from "~/features/auth/SingIn";
+import SignInForm, { UserSignInAction } from "~/features/auth/SignIn";
 
 export const clientAction = UserSignInAction;
 export default SignInForm;

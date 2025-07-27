@@ -1,198 +1,138 @@
-import { getFormProps, getInputProps, useForm } from "@conform-to/react";
-import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { Link, useFetcher, useNavigation } from "react-router";
-import type { z } from "zod";
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input"; // Inputコンポーネントをimport
-import { Label } from "~/components/ui/label";
-import { Textarea } from "~/components/ui/textarea"; // Textareaコンポーネントをimport
-import { useAuth } from "~/features/auth/AuthProvider";
 import {
-  usersPatchCurrentUserUserMePatchBody,
-  usersPatchCurrentUserUserMePatchResponseProfileMaxOne,
-} from "~/generated/user/user.zod";
-import UploadWidget from "../ImageUploader";
-import { getTransformedImageUrl } from "../libs/image";
+  type SubmissionResult,
+  getFormProps,
+  useForm,
+} from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod";
+import { useEffect } from "react";
+import { Link, useFetcher, useNavigate, useNavigation } from "react-router";
+import { toast } from "sonner";
+import { z } from "zod";
+import { Button } from "~/components/ui/button";
+import { useAuth } from "~/features/auth/AuthProvider";
+import type { UserRead } from "~/generated/fastAPI.schemas";
+import {
+  userProfileUserProfileUsernameGetResponse,
+  userProfileUserProfileUsernameGetResponseDisplayNameMaxOne,
+  userProfileUserProfileUsernameGetResponseUsernameMaxOne,
+} from "~/generated/public-user/public-user.zod";
+import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
+import { InputFormControl, TextareaFormControl } from "./controls";
 
-export const UserProfileSchema = usersPatchCurrentUserUserMePatchBody.pick({
-  display_name: true,
-  profile: true,
-  avatar_url: true,
-});
+const MAX_DN = userProfileUserProfileUsernameGetResponseDisplayNameMaxOne;
+const MAX_UN = userProfileUserProfileUsernameGetResponseUsernameMaxOne;
+
+export const UserProfileSchema = userProfileUserProfileUsernameGetResponse
+  .pick({
+    display_name: true,
+    profile: true,
+    username: true,
+  })
+  // 日本語メッセージに上書き
+  .extend({
+    display_name: z
+      .string({ required_error: "表示名を入力してください。" })
+      .min(1, { message: "表示名は1文字以上で入力してください。" })
+      .max(MAX_DN, {
+        message: `${MAX_DN}文字以下で入力してください。`,
+      }),
+    username: z
+      .string({ required_error: "ユーザー名を入力してください。" })
+      .min(3, { message: "ユーザー名は3文字以上で入力してください。" })
+      .max(MAX_UN, {
+        message: `ユーザー名は${MAX_UN}文字以下で入力してください。`,
+      })
+      .regex(/^[a-zA-Z0-9_]+$/, {
+        message: "半角英数字とハイフン、アンダースコアのみが使用できます。",
+      }),
+    profile: z
+      .string()
+      .max(usersPatchCurrentUserUserMePatchResponseProfileMaxOne, {
+        message: `プロフィールは${usersPatchCurrentUserUserMePatchResponseProfileMaxOne}文字以下で入力してください。`,
+      })
+      .nullable(),
+  });
 
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
 
+type FetcherData = {
+  submission: SubmissionResult<string[]>;
+  message?: string;
+  user?: UserRead;
+};
+
 export default function UserProfileForm() {
-  const {
-    user,
-    setUser,
-    isAuthorized,
-    isLoading: isUserLoading,
-    mutate,
-  } = useAuth();
-  const fetcher = useFetcher();
+  const { user, mutate } = useAuth();
+  const fetcher = useFetcher<FetcherData>();
   const lastSubmission = fetcher.data;
   const navigation = useNavigation();
 
   const [form, fields] = useForm<UserProfileFormType>({
+    id: user?.uid, // userの読み込み途中では全てundefinedで初期化されるのを防ぐ
     defaultValue: {
+      username: user?.username,
       display_name: user?.display_name,
       profile: user?.profile,
-      avatar_url: user?.avatar_url,
     },
+    lastResult: lastSubmission?.submission,
+    constraint: getZodConstraint(UserProfileSchema), // HTML5としても制約する
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: UserProfileSchema });
     },
-    lastResult: lastSubmission,
-    shouldValidate: "onBlur",
-    shouldRevalidate: "onInput",
-    constraint: getZodConstraint(UserProfileSchema),
   });
-  // const { openWidget, imageUrl, widget } = useCloudinaryUpload({
-  //   publicId: user?.id as string,
-  // onUploadSuccess: (imageUrl) => {
-  //   if (user) {
-  //     setUser({ ...user, avatar_url: imageUrl });
-  //     form.update({ name: "avatar_url", value: imageUrl });
-  //   }
-  //   },
-  // });
 
-  // フォーム送信成功後、SWRのキャッシュを更新
-  // useEffect(() => {
-  //   if (lastSubmission?.message) {
-  //     mutate();
-  //   }
-  // }, [lastSubmission, mutate]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (lastSubmission?.user) {
+      mutate(
+        { data: lastSubmission.user, status: 200, headers: new Headers() },
+        { revalidate: false },
+      );
+      toast.success(lastSubmission.message);
+      navigate("/home");
+    }
+  }, [lastSubmission, mutate, navigate]);
 
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
-
-  if (isUserLoading || user === undefined) {
-    return <div className="text-center p-4">ユーザー情報を読み込み中...</div>;
-  }
-  if (!isAuthorized) {
-    return (
-      <div className="text-center p-8 bg-card rounded-lg shadow-lg">
-        <p className="text-destructive font-bold">認証されていません。</p>
-        <p className="text-muted-foreground mt-2">
-          ログインしてプロフィールを編集してください。
-        </p>
-      </div>
-    );
-  }
-
-  const avatarDisplayUrl = getTransformedImageUrl(
-    fields.avatar_url.value,
-    128,
-    128,
-    "fill",
-  );
-
   return (
-    <div className="">
-      <div className="p-6 bg-card rounded-lg shadow-lg">
-        <h2 className="text-2xl font-bold text-center mb-6 text-card-foreground">
-          プロフィール編集
-        </h2>
-
-        {/* 成功メッセージの表示 */}
-        {lastSubmission?.message && (
-          <div className="bg-green-100 text-green-700 p-3 rounded-md mb-4 text-center">
-            {lastSubmission.message}
-          </div>
-        )}
-
-        {/* Conformのフォームコンポーネント */}
-        <fetcher.Form
-          method="post"
-          {...getFormProps(form)}
-          className="space-y-6 flex flex-col items-center"
-        >
-          {/* プロフィール画像のセクション */}
-          <div className="flex flex-col items-center space-y-4">
-            <Label className="block text-sm font-medium text-gray-700">
-              プロフィール画像
-            </Label>
-            <div className="w-32 h-32 rounded-full overflow-hidden border-2 border-border">
-              {avatarDisplayUrl ? (
-                <img
-                  src={avatarDisplayUrl}
-                  alt="プロフィール画像"
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">
-                  <span className="text-sm">画像なし</span>
-                </div>
-              )}
-            </div>
-            <UploadWidget
-              publicId={user?.id as string}
-              onUploadSuccess={(imageUrl) => {
-                if (user) {
-                  setUser({ ...user, avatar_url: imageUrl });
-                  form.update({ name: "avatar_url", value: imageUrl });
-                }
-              }}
-            />
-            <Input
-              {...getInputProps(fields.avatar_url, { type: "hidden" })}
-              name={fields.avatar_url.name}
-              defaultValue={fields.avatar_url.initialValue}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              className="text-destructive hover:text-destructive-foreground"
-              onClick={() => form.update({ name: "avatar_url", value: "" })}
-            >
-              画像を削除
-            </Button>
-          </div>
-
-          {/* 表示名フィールド */}
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor={fields.display_name.id}>表示名</Label>
-            <Input
-              {...getInputProps(fields.display_name, { type: "text" })}
-              placeholder="表示名を入力してください"
-            />
-            {fields.display_name.errors && (
-              <span className="text-destructive text-sm mt-1">
-                {fields.display_name.errors}
-              </span>
-            )}
-          </div>
-
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor={fields.profile.id}>プロフィール</Label>
-            <Textarea
-              {...getInputProps(fields.profile, { type: "text" })}
-              rows={4}
-              placeholder="プロフィールを入力してください"
-            />
-            {fields.profile.errors && (
-              <span className="text-destructive text-sm mt-1">
-                {fields.profile.errors}
-              </span>
-            )}
-            <div className="text-right text-sm text-gray-500">
-              {fields.profile.value?.length || 0} /{" "}
-              {usersPatchCurrentUserUserMePatchResponseProfileMaxOne}
-            </div>
-          </div>
-
-          <div className="flex flex-col w-full max-w-sm gap-2">
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "更新中..." : "更新"}
-            </Button>
-            <Button asChild variant="outline" className="w-full">
-              <Link to="/home">ホームに戻る</Link>
-            </Button>
-          </div>
-        </fetcher.Form>
-      </div>
+    <div className="p-6 bg-card rounded-lg shadow-lg">
+      <fetcher.Form
+        action="/user/edit"
+        method="patch"
+        {...getFormProps(form)}
+        className="space-y-6 flex flex-col items-center"
+      >
+        <InputFormControl
+          label="ユーザー名"
+          field={fields.username}
+          placeholder="ユーザー名"
+          disabled={isSubmitting}
+        />
+        <InputFormControl
+          label="表示名"
+          field={fields.display_name}
+          placeholder="表示名を入力してください"
+          disabled={isSubmitting}
+        />
+        <TextareaFormControl
+          label="プロフィール"
+          field={fields.profile}
+          placeholder="プロフィールを入力してください"
+          rows={4}
+          maxLength={usersPatchCurrentUserUserMePatchResponseProfileMaxOne}
+          disabled={isSubmitting}
+        />
+        <div className="flex flex-col w-full max-w-sm gap-2">
+          <Button type="submit" className="w-full">
+            {isSubmitting ? "更新中..." : "更新"}
+          </Button>
+          <Button asChild variant="outline" className="w-full">
+            <Link to="/home">ホームに戻る</Link>
+          </Button>
+          <div className="text-sm text-red-500">{form.errors?.[0]}</div>
+        </div>
+      </fetcher.Form>
     </div>
   );
 }

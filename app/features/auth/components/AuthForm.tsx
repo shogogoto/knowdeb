@@ -1,15 +1,14 @@
 import { type SubmissionResult, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
-import { Link } from "react-router";
 import { Form, useNavigation } from "react-router";
 import { z } from "zod";
-import GoogleIcon from "~/components/icons/Google";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { registerRegisterAuthRegisterPostBody } from "~/generated/auth/auth.zod";
 import useShowToggle from "~/hooks/useShowToggle";
+import { GoogleAuthButton } from "../sso/google";
 
 export const authSchema = registerRegisterAuthRegisterPostBody
   .pick({
@@ -19,11 +18,11 @@ export const authSchema = registerRegisterAuthRegisterPostBody
   .extend({
     email: z
       .string({ required_error: "メールアドレスは必須です" })
-      .email("有効なメールアドレスを入力してください")
-      .min(1, "メールアドレスは必須です"),
+      .email("有効なメールアドレスを入力してください"),
     password: z
       .string({ required_error: "パスワードは必須です" })
-      .min(3, "パスワードは3文字以上で入力してください"),
+      .min(3, "パスワードは3文字以上で入力してください")
+      .max(100, "パスワードは100文字以下で入力してください"),
   });
 
 type Props = {
@@ -34,6 +33,7 @@ type Props = {
 export default function AuthForm({ lastResult, title }: Props) {
   const { show, ShowToggleIcon } = useShowToggle();
   const navigation = useNavigation();
+  const isSending = navigation.state === "submitting";
   const [form, fields] = useForm({
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: authSchema });
@@ -52,11 +52,7 @@ export default function AuthForm({ lastResult, title }: Props) {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4">
-            <Link to="/google/authorize">
-              <Button variant="outline" className="w-full">
-                <GoogleIcon className="mr-2 h-4 w-4" /> Googleで{title}
-              </Button>
-            </Link>
+            <GoogleAuthButton title={`Googleで${title}`} />
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
@@ -82,6 +78,7 @@ export default function AuthForm({ lastResult, title }: Props) {
                 id={fields.email.id}
                 placeholder="user@example.com"
                 type="email"
+                disabled={isSending}
               />
               <div
                 className="h-5 text-sm text-red-500"
@@ -97,6 +94,7 @@ export default function AuthForm({ lastResult, title }: Props) {
                   name={fields.password.name}
                   id={fields.password.id}
                   type={show ? "text" : "password"}
+                  disabled={isSending}
                 />
                 {ShowToggleIcon}
               </div>
@@ -107,12 +105,10 @@ export default function AuthForm({ lastResult, title }: Props) {
                 {fields.password.errors?.[0]}
               </div>
             </div>
-            <Button type="submit" className="w-full">
-              {navigation.state === "submitting" ? "送信中..." : "送信"}
+            <Button type="submit" className="w-full" disabled={isSending}>
+              {isSending ? "送信中..." : "送信"}
             </Button>
-            <div className="text-sm text-red-500" id={fields.password.errorId}>
-              {form.errors?.[0]}
-            </div>
+            <div className="text-sm text-red-500">{form.errors?.[0]}</div>
           </Form>
         </CardContent>
       </Card>

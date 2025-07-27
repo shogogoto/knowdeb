@@ -33,7 +33,7 @@ export const getOauthGoogleJwtAuthorizeGoogleAuthorizeGetMockHandler = (
       ) => Promise<OAuth2AuthorizeResponse> | OAuth2AuthorizeResponse),
 ) => {
   return http.get("*/google/authorize", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -56,7 +56,7 @@ export const getOauthGoogleJwtCallbackGoogleCallbackGetMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.get("*/google/callback", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }
@@ -73,7 +73,7 @@ export const getOauthGoogleCookieAuthorizeGoogleCookieAuthorizeGetMockHandler =
         ) => Promise<OAuth2AuthorizeResponse> | OAuth2AuthorizeResponse),
   ) => {
     return http.get("*/google/cookie/authorize", async (info) => {
-      await delay(1000);
+      await delay(200);
 
       return new HttpResponse(
         JSON.stringify(
@@ -96,7 +96,7 @@ export const getOauthGoogleCookieCallbackGoogleCookieCallbackGetMockHandler = (
       ) => Promise<unknown> | unknown),
 ) => {
   return http.get("*/google/cookie/callback", async (info) => {
-    await delay(1000);
+    await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
     }

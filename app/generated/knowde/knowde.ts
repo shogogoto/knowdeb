@@ -8,6 +8,7 @@ import useSwr from "swr";
 import type { Key, SWRConfiguration } from "swr";
 
 import type {
+  DetailKnowdeSentenceSentenceIdGetParams,
   HTTPValidationError,
   KnowdeDetail,
   KnowdeSearchResult,
@@ -141,18 +142,37 @@ export type detailKnowdeSentenceSentenceIdGetResponse =
     headers: Headers;
   };
 
-export const getDetailKnowdeSentenceSentenceIdGetUrl = (sentenceId: string) => {
-  return `https://knowde.onrender.com/knowde/sentence/${sentenceId}`;
+export const getDetailKnowdeSentenceSentenceIdGetUrl = (
+  sentenceId: string,
+  params?: DetailKnowdeSentenceSentenceIdGetParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `https://knowde.onrender.com/knowde/sentence/${sentenceId}?${stringifiedParams}`
+    : `https://knowde.onrender.com/knowde/sentence/${sentenceId}`;
 };
 
 export const detailKnowdeSentenceSentenceIdGet = async (
   sentenceId: string,
+  params?: DetailKnowdeSentenceSentenceIdGetParams,
   options?: RequestInit,
 ): Promise<detailKnowdeSentenceSentenceIdGetResponse> => {
-  const res = await fetch(getDetailKnowdeSentenceSentenceIdGetUrl(sentenceId), {
-    ...options,
-    method: "GET",
-  });
+  const res = await fetch(
+    getDetailKnowdeSentenceSentenceIdGetUrl(sentenceId, params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
   const data: detailKnowdeSentenceSentenceIdGetResponse["data"] = body
@@ -166,8 +186,14 @@ export const detailKnowdeSentenceSentenceIdGet = async (
   } as detailKnowdeSentenceSentenceIdGetResponse;
 };
 
-export const getDetailKnowdeSentenceSentenceIdGetKey = (sentenceId: string) =>
-  [`https://knowde.onrender.com/knowde/sentence/${sentenceId}`] as const;
+export const getDetailKnowdeSentenceSentenceIdGetKey = (
+  sentenceId: string,
+  params?: DetailKnowdeSentenceSentenceIdGetParams,
+) =>
+  [
+    `https://knowde.onrender.com/knowde/sentence/${sentenceId}`,
+    ...(params ? [params] : []),
+  ] as const;
 
 export type DetailKnowdeSentenceSentenceIdGetQueryResult = NonNullable<
   Awaited<ReturnType<typeof detailKnowdeSentenceSentenceIdGet>>
@@ -182,6 +208,7 @@ export const useDetailKnowdeSentenceSentenceIdGet = <
   TError = Promise<HTTPValidationError>,
 >(
   sentenceId: string,
+  params?: DetailKnowdeSentenceSentenceIdGetParams,
   options?: {
     swr?: SWRConfiguration<
       Awaited<ReturnType<typeof detailKnowdeSentenceSentenceIdGet>>,
@@ -196,9 +223,11 @@ export const useDetailKnowdeSentenceSentenceIdGet = <
   const swrKey =
     swrOptions?.swrKey ??
     (() =>
-      isEnabled ? getDetailKnowdeSentenceSentenceIdGetKey(sentenceId) : null);
+      isEnabled
+        ? getDetailKnowdeSentenceSentenceIdGetKey(sentenceId, params)
+        : null);
   const swrFn = () =>
-    detailKnowdeSentenceSentenceIdGet(sentenceId, fetchOptions);
+    detailKnowdeSentenceSentenceIdGet(sentenceId, params, fetchOptions);
 
   const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
     swrKey,

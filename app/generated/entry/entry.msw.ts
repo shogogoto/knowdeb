@@ -61,7 +61,7 @@ export const getGetNamaspaceNamespaceGetMockHandler = (
       ) => Promise<NameSpace> | NameSpace),
 ) => {
   return http.get("*/namespace", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(
@@ -84,7 +84,7 @@ export const getSyncPathsNamespacePostMockHandler = (
       ) => Promise<string[]> | string[]),
 ) => {
   return http.post("*/namespace", async (info) => {
-    await delay(1000);
+    await delay(200);
 
     return new HttpResponse(
       JSON.stringify(

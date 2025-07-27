@@ -1,12 +1,12 @@
+import { useAuth } from "~/features/auth/AuthProvider";
 import SidebarLayout from "../SidebarLayout";
-import BottomNavigation from "../components/BottomNavigation";
-import GuestSidebar from "./GuestSidebar";
+import "github-markdown-css/github-markdown.css";
+import { useMatch } from "react-router";
 
 export default function GuestLayout() {
-  return (
-    <SidebarLayout
-      sidebar={<GuestSidebar />}
-      bottomNavigation={<BottomNavigation />}
-    />
-  );
+  const isDocMode = useMatch("/docs/*");
+
+  const { isAuthenticated } = useAuth();
+
+  return <SidebarLayout />;
 }

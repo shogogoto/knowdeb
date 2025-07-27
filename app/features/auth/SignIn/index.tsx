@@ -1,8 +1,8 @@
 import { parseWithZod } from "@conform-to/zod";
-import { useEffect } from "react";
 import type { ActionFunctionArgs } from "react-router";
-import { useActionData, useNavigate } from "react-router";
+import { redirect, useActionData } from "react-router";
 import { Navigate } from "react-router";
+import { toast } from "sonner";
 import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
 import { useAuth } from "../AuthProvider";
 import AuthForm, { authSchema } from "../components/AuthForm";
@@ -15,7 +15,6 @@ export async function signInAction(username: string, password: string) {
     },
     { credentials: "include" },
   );
-  console.log(res);
   return res;
 }
 
@@ -31,23 +30,19 @@ export async function UserSignInAction({ request }: ActionFunctionArgs) {
   );
   if (res.status !== 204) {
     return submission.reply({
-      formErrors: [`ログインに失敗しました: ${res.data || "不明なエラー"}`],
+      formErrors: [
+        `ログインに失敗しました: ${JSON.stringify(res.data) || "不明なエラー"}`,
+      ],
     });
   }
+  toast.success("ロクインしました");
+  return redirect("/home");
 }
 
 export default function SignInForm() {
   const lastResult = useActionData<typeof UserSignInAction>();
-  const { isAuthorized } = useAuth();
-  const navigate = useNavigate();
-  useEffect(() => {
-    console.log(lastResult);
-    if (isAuthorized) {
-      navigate("/home");
-    }
-  }, [isAuthorized, navigate, lastResult]);
-
-  if (isAuthorized) {
+  const { isAuthenticated } = useAuth();
+  if (isAuthenticated) {
     return <Navigate to="/home" />;
   }
 
