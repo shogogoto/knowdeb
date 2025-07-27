@@ -48,7 +48,23 @@ function mkStub() {
   ]);
 }
 
+function _setmock() {
+  let currentUser = { ...muser };
+  server.use(
+    getUsersCurrentUserUserMeGetMockHandler(currentUser),
+    http.patch("*/user/me", async ({ request }) => {
+      await delay(200);
+      const updates = (await request.json()) as Partial<typeof muser>;
+      currentUser = { ...currentUser, ...updates };
+      return new HttpResponse(JSON.stringify(currentUser), { status: 200 });
+    }),
+  );
+}
+
 describe("UserProfileForm (Integration Test)", () => {
+  beforeEach(() => {
+    _setmock();
+  });
   it("ユーザー情報がフォーム初期値へ", async () => {
     server.use(getUsersCurrentUserUserMeGetMockHandler(muser));
     const Stub = mkStub();
@@ -64,17 +80,6 @@ describe("UserProfileForm (Integration Test)", () => {
   });
 
   it("フォーム内容送信成功", async () => {
-    let currentUser = { ...muser };
-    server.use(
-      getUsersCurrentUserUserMeGetMockHandler(currentUser),
-      http.patch("*/user/me", async ({ request }) => {
-        await delay(200);
-        const updates = (await request.json()) as Partial<typeof muser>;
-        currentUser = { ...currentUser, ...updates };
-        return new HttpResponse(JSON.stringify(currentUser), { status: 200 });
-      }),
-    );
-
     const user = userEvent.setup();
     const Stub = mkStub();
     render(<Stub initialEntries={["/user/edit"]} />);
@@ -116,23 +121,29 @@ describe("UserProfileForm (Integration Test)", () => {
   });
 
   describe("フォームバリデーション", () => {
+    beforeEach(() => {
+      _setmock();
+    });
+
     it("username invalid", async () => {
+      _setmock();
       const user = userEvent.setup();
       const Stub = mkStub();
       render(<Stub initialEntries={["/user/edit"]} />);
-      const displayNameInput = screen.getByLabelText("表示名");
-      const profileInput = screen.getByLabelText("プロフィール");
       const usernameInput = screen.getByLabelText("ユーザー名");
       const submitButton = screen.getByRole("button", { name: "更新" });
 
-      const username = "NewUsername";
-
+      const username = "New Username";
+      await user.clear(usernameInput);
       await user.type(usernameInput, username);
       await user.click(submitButton);
 
-      // await waitFor(() => {
-      //   expect(screen.getByText(/Invalid/)).toBeValid();
-      // });
+      expect(
+        await screen.findByText(
+          /半角英数字とハイフン、アンダースコアのみが使用できます。/,
+        ),
+      ).toBeInTheDocument();
+      screen.debug();
     });
   });
 });

@@ -20,7 +20,7 @@ export default function UserProfile() {
           <Link to="/user/edit">編集</Link>
         </Button>
       </div>
-      <div className="text-gray-700 dark:text-gray-200 text-base mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden break-words">
+      <div className="text-gray-700 dark:text-gray-200 text-base mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded-md overflow-hidden break-words whitespace-pre-line">
         {user?.profile
           ? user.profile.length > 160
             ? `${user.profile.substring(0, 160)}...`

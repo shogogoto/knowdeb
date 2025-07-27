@@ -24,8 +24,26 @@ export const UserProfileSchema = userProfileUserProfileUsernameGetResponse
     profile: true,
     username: true,
   })
+  // 日本語メッセージに上書き
   .extend({
-    display_name: z.string().max(MAX_DN, `${MAX_DN}文字以下で入力してください`),
+    display_name: z
+      .string({ required_error: "表示名を入力してください。" })
+      .min(1, { message: "表示名は1文字以上で入力してください。" })
+      .max(MAX_DN, {
+        message: `${MAX_DN}文字以下で入力してください。`,
+      }),
+    username: z
+      .string({ required_error: "ユーザー名を入力してください。" })
+      .min(3, { message: "ユーザー名は3文字以上で入力してください。" })
+      .regex(/^[a-zA-Z0-9_]+$/, {
+        message: "半角英数字とハイフン、アンダースコアのみが使用できます。",
+      }),
+    profile: z
+      .string()
+      .max(usersPatchCurrentUserUserMePatchResponseProfileMaxOne, {
+        message: `プロフィールは${usersPatchCurrentUserUserMePatchResponseProfileMaxOne}文字以下で入力してください。`,
+      })
+      .nullable(),
   });
 
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
@@ -52,7 +70,6 @@ export default function UserProfileForm() {
     lastResult: lastSubmission?.submission,
     constraint: getZodConstraint(UserProfileSchema), // HTML5としても制約する
     onValidate({ formData }) {
-      console.log({ formData });
       return parseWithZod(formData, { schema: UserProfileSchema });
     },
   });
