@@ -108,9 +108,7 @@ export default function AuthForm({ lastResult, title }: Props) {
             <Button type="submit" className="w-full" disabled={isSending}>
               {isSending ? "送信中..." : "送信"}
             </Button>
-            <div className="text-sm text-red-500" id={fields.password.errorId}>
-              {form.errors?.[0]}
-            </div>
+            <div className="text-sm text-red-500">{form.errors?.[0]}</div>
           </Form>
         </CardContent>
       </Card>

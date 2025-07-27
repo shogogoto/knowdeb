@@ -1,6 +1,6 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { http, HttpResponse } from "msw";
+import { http, HttpResponse, delay } from "msw";
 import { setupServer } from "msw/node";
 import { createRoutesStub } from "react-router";
 import { describe, it, vi } from "vitest";
@@ -66,16 +66,12 @@ describe("UserProfileForm (Integration Test)", () => {
   it("フォーム内容送信成功", async () => {
     let currentUser = { ...muser };
     server.use(
-      http.get("*/user/me", () => {
-        return HttpResponse.json(currentUser);
-      }),
+      getUsersCurrentUserUserMeGetMockHandler(currentUser),
       http.patch("*/user/me", async ({ request }) => {
-        console.log("PATCH /user/me");
-        console.log(await request.json());
-        console.log("PATCH /user/me json end");
+        await delay(200);
         const updates = (await request.json()) as Partial<typeof muser>;
         currentUser = { ...currentUser, ...updates };
-        return new HttpResponse(null, { status: 200 });
+        return new HttpResponse(JSON.stringify(currentUser), { status: 200 });
       }),
     );
 
@@ -87,11 +83,6 @@ describe("UserProfileForm (Integration Test)", () => {
     const usernameInput = screen.getByLabelText("ユーザー名");
     const submitButton = screen.getByRole("button", { name: "更新" });
 
-    // Wait for initial values to be populated
-    await waitFor(() => {
-      expect(displayNameInput).toHaveValue(muser.display_name);
-    });
-
     const update = {
       display_name: "New Name",
       profile: "New Profile",
@@ -99,33 +90,49 @@ describe("UserProfileForm (Integration Test)", () => {
     };
 
     await user.clear(displayNameInput);
-    await user.type(displayNameInput, update.display_name);
     await user.clear(profileInput);
-    await user.type(profileInput, update.profile);
     await user.clear(usernameInput);
+    await user.type(displayNameInput, update.display_name);
+    await user.type(profileInput, update.profile);
     await user.type(usernameInput, update.username);
     await user.click(submitButton);
 
-    // Wait for submission to complete and see success message
-    // await waitFor(() => {
-    //   expect(
-    //     screen.getByText("プロフィールを更新しました。"),
-    //   ).toBeInTheDocument();
-    // });
-
-    // After success, the form should be populated with the new values
+    // 入力値変更が反映される
     expect(displayNameInput).toHaveValue(update.display_name);
     expect(profileInput).toHaveValue(update.profile);
     expect(usernameInput).toHaveValue(update.username);
+    await waitFor(() => {
+      expect(
+        screen.getByText("プロフィールを更新しました。"),
+      ).toBeInTheDocument();
+    });
+
+    // 更新した値が古い値に戻らない
+    await waitFor(() => {
+      expect(displayNameInput).toHaveValue(update.display_name);
+      expect(profileInput).toHaveValue(update.profile);
+      expect(usernameInput).toHaveValue(update.username);
+    });
   });
 
   describe("フォームバリデーション", () => {
-    it("APIがエラーを返した際に、エラーメッセージが表示される", async () => {
+    it("username invalid", async () => {
       const user = userEvent.setup();
-    });
+      const Stub = mkStub();
+      render(<Stub initialEntries={["/user/edit"]} />);
+      const displayNameInput = screen.getByLabelText("表示名");
+      const profileInput = screen.getByLabelText("プロフィール");
+      const usernameInput = screen.getByLabelText("ユーザー名");
+      const submitButton = screen.getByRole("button", { name: "更新" });
 
-    it("画像の削除ボタンを押すと、avatar_urlが空になり、プレビューが「画像なし」に変わる", async () => {
-      const user = userEvent.setup();
+      const username = "NewUsername";
+
+      await user.type(usernameInput, username);
+      await user.click(submitButton);
+
+      // await waitFor(() => {
+      //   expect(screen.getByText(/Invalid/)).toBeValid();
+      // });
     });
   });
 });

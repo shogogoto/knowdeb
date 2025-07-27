@@ -25,6 +25,7 @@ export function InputFormControl({
         {...getInputProps(field, { type })}
         placeholder={placeholder}
         disabled={disabled}
+        defaultValue={field.value}
       />
       {field.errors && (
         <span className="text-destructive text-sm mt-1">{field.errors}</span>

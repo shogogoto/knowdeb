@@ -96,18 +96,20 @@ describe("ログイン", () => {
     });
 
     it("入力ないところを赤文字で注意", async () => {
+      const user = userEvent.setup();
       const router = createMemoryRouter(routesFixture, {
         initialEntries: ["/login"],
       });
       render(<RouterProvider router={router} />);
 
-      const user = userEvent.setup();
       const submitButton = screen.getByRole("button", { name: "送信" });
       await user.click(submitButton);
-      const emailInvaild = screen.getByText("メールアドレスは必須です");
-      expect(emailInvaild.className).toMatch(/text-red-/);
-      const passwordInvaild = screen.getByText("パスワードは必須です");
-      expect(passwordInvaild.className).toMatch(/text-red-/);
+      await waitFor(() => {
+        const emailInvaild = screen.getByText("メールアドレスは必須です");
+        const passwordInvaild = screen.getByText("パスワードは必須です");
+        expect(emailInvaild.className).toMatch(/text-red-/);
+        expect(passwordInvaild.className).toMatch(/text-red-/);
+      });
     });
   });
 });
