@@ -13,6 +13,7 @@ npx lefthook install # setup git pre-commit
 ### Development
 Start the development server with HMR:
 ```bash
+mkcert -i # development certificate for https
 npm run dev # Your application will be available at `http://localhost:5173`.
 ```
 
