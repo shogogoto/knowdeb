@@ -1,8 +1,10 @@
 import { cleanup } from "@testing-library/react";
 // これがないと screenのメソッドにアクセスできない
 import "@testing-library/jest-dom/vitest";
+import dotenv from "dotenv";
 import fetch, { Request, Response, Headers } from "node-fetch";
 
+dotenv.config({ path: "./.env" }); // .envファイルのパスを指定
 // nodejsはブラウザのfetchを模擬しているため予期しない動作をすることがある
 // テストでは上書きする必要があるかも
 // @ts-ignore
