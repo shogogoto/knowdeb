@@ -4,7 +4,7 @@ import type {
   CloudinaryUploadWidgetOptions,
   CloudinaryUploadWidgetResults,
 } from "@cloudinary-util/types";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "~/components/ui/button";
 
 declare global {
@@ -21,12 +21,9 @@ declare global {
   }
 }
 
-const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME as string;
-const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET as string;
-
 const uwConfig: CloudinaryUploadWidgetOptions = {
-  cloudName: CLOUD_NAME,
-  uploadPreset: UPLOAD_PRESET,
+  cloudName: import.meta.env.VITE_CLOUD_NAME,
+  uploadPreset: import.meta.env.VITE_UPLOAD_PRESET,
   folder: "avatar",
   sources: [
     "local",
@@ -83,45 +80,49 @@ type Props = {
 
 export default function UploadWidget({ publicId, onUploadSuccess }: Props) {
   const uploadWidgetRef = useRef<CloudinaryUploadWidget | null>(null);
-  const uploadButtonRef = useRef<HTMLButtonElement>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   useEffect(() => {
-    const initializeUploadWidget = () => {
-      if (window.cloudinary && uploadButtonRef.current) {
-        uploadWidgetRef.current = window.cloudinary.createUploadWidget(
-          { ...uwConfig, publicId },
-          (error, result) => {
-            if (!error && result && result.event === "success") {
-              // @ts-ignore
-              const uploadedImageUrl = result.info.secure_url;
-              onUploadSuccess(uploadedImageUrl);
-              console.log("Upload successful:", result.info);
-            } else if (error) {
-              console.error("アップロードに失敗しました。:", error);
-            }
-          },
-        );
-
-        const handleUploadClick = () => {
-          if (uploadWidgetRef.current) {
-            uploadWidgetRef.current.open();
-          }
-        };
-
-        const buttonElement = uploadButtonRef.current;
-        buttonElement.addEventListener("click", handleUploadClick);
-
-        return () => {
-          buttonElement.removeEventListener("click", handleUploadClick);
-        };
-      }
+    const script = document.createElement("script");
+    script.src = "https://upload-widget.cloudinary.com/latest/global/all.js";
+    script.type = "text/javascript";
+    script.async = true;
+    script.onload = () => {
+      setIsScriptLoaded(true);
     };
+    document.body.appendChild(script);
 
-    initializeUploadWidget();
-  }, [publicId, onUploadSuccess]);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isScriptLoaded && window.cloudinary) {
+      uploadWidgetRef.current = window.cloudinary.createUploadWidget(
+        { ...uwConfig, publicId },
+        (error, result) => {
+          if (!error && result && result.event === "success") {
+            // @ts-ignore
+            const uploadedImageUrl = result.info.secure_url;
+            onUploadSuccess(uploadedImageUrl);
+            console.log("Upload successful:", result.info);
+          } else if (error) {
+            console.error("アップロードに失敗しました。:", error);
+          }
+        },
+      );
+    }
+  }, [isScriptLoaded, publicId, onUploadSuccess]);
+
+  const handleUploadClick = () => {
+    if (uploadWidgetRef.current) {
+      uploadWidgetRef.current.open();
+    }
+  };
 
   return (
-    <Button ref={uploadButtonRef} id="upload_widget">
+    <Button onClick={handleUploadClick} id="upload_widget">
       Upload
     </Button>
   );

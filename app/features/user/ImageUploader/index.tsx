@@ -1,17 +1,44 @@
-import UploadWidget from "./UploadWidget";
+import { v2 as cloudinary } from "cloudinary";
+import type { UserRead } from "~/generated/fastAPI.schemas";
 
-export async function uploadImage({ request }: { request: Request }) {
-  const formData = await request.formData();
-  const profileImageUrl = formData.get("profile_image_url");
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
 
-  if (typeof profileImageUrl === "string") {
-    console.log(
-      "Received profile image URL from clientAction:",
-      profileImageUrl,
-    );
-    return { success: true, message: "プロフィール画像が更新されました。" };
-  }
-  return { success: false, message: "画像のURLが見つかりませんでした。" };
+export const CLOUD_FOLDER = process.env.CLOUD_FOLDER || "avatar";
+
+export async function listImages() {
+  const res = await cloudinary.api.resources({
+    type: "upload",
+    prefix: CLOUD_FOLDER,
+  });
+  // console.log({ res: JSON.stringify(res) });
+  return res;
 }
 
-export default UploadWidget;
+export async function uploadImage(
+  user: Pick<UserRead, "uid" | "username" | "display_name">,
+) {
+  const res = await cloudinary.uploader.upload("./public/favicon.svg", {
+    resource_type: "image",
+    public_id: user.uid, // userのuidを設定する
+    display_name: user.display_name || user.username || user.uid, // userのdisplay_name
+    folder: CLOUD_FOLDER,
+    unique_filename: false, // default:true では末尾にランダム文字を追加して一意にする
+    overwrite: true,
+    // notification_url: "https://xxx", // cloudinaryで設定されたwebhookを上書きできる
+    // tags: ["tag1", "tag2"], 画像のグルーピング
+  });
+  return res;
+}
+
+export async function deleteImage(publicId: string) {
+  const res = await cloudinary.uploader.destroy(`${CLOUD_FOLDER}/${publicId}`, {
+    resource_type: "image",
+    invalidate: false,
+  });
+  return res;
+}
