@@ -18,10 +18,6 @@ globalThis.Response = Response;
 // @ts-ignore
 globalThis.Headers = Headers;
 
-// ここで環境変数をモックする
-import.meta.env.VITE_CLOUD_NAME = "test_cloud_name";
-import.meta.env.VITE_UPLOAD_PRESET = "test_upload_preset";
-
 // 各テストの後にDOMをクリーンアップ
 afterEach(() => {
   cleanup();

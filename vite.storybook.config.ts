@@ -11,8 +11,16 @@ export default defineConfig(({ mode }) => {
       .map(([key, val]) => [`import.meta.env.${key}`, `"${val}"`]),
   );
 
+  // process.env にも環境変数を定義する
+  const processEnv = Object.fromEntries(
+    Object.entries(env).map(([key, val]) => [`process.env.${key}`, `"${val}"`]),
+  );
+
   return {
     plugins: [tsconfigPaths(), tailwindcss()],
-    define: envWithVitePrefix,
+    define: {
+      ...envWithVitePrefix,
+      ...processEnv, // process.envの定義を追加
+    },
   };
 });
