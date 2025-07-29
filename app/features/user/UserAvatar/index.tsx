@@ -14,6 +14,7 @@ export default function UserAvatar({ user, ...props }: Props) {
   });
 
   // CLOUD_FOLDERを参照するとなぜかエラー
+  // process.envにフロントエンドからアクセスしていたからだ！
   const prefix = import.meta.env.VITE_CLOUD_FOLDER || "avatar";
   const myImage = cld.image(`${prefix}/${user?.uid}`);
   myImage.format("auto").quality("auto");
