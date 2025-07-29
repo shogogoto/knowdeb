@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-
-import { SidebarProvider } from "~/components/ui/sidebar";
+import { Sidebar, SidebarProvider } from "~/components/ui/sidebar";
 import { AuthProvider } from "~/features/auth/AuthProvider";
 import { getUsersCurrentUserUserMeGetResponseMock } from "~/generated/user/user.msw";
 import Index from "./index";
@@ -15,15 +14,20 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    user: getUsersCurrentUserUserMeGetResponseMock(),
-    side: "right",
+    user: {
+      ...getUsersCurrentUserUserMeGetResponseMock(),
+      avatar_url: "https://github.com/shadcn.png",
+    },
+    side: "bottom",
   },
   decorators: [
     (Story) => {
       return (
         <AuthProvider>
           <SidebarProvider>
-            <Story />
+            <Sidebar>
+              <Story />
+            </Sidebar>
           </SidebarProvider>
         </AuthProvider>
       );

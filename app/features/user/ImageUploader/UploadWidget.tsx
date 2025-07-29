@@ -4,8 +4,8 @@ import type {
   CloudinaryUploadWidgetOptions,
   CloudinaryUploadWidgetResults,
 } from "@cloudinary-util/types";
-import { useEffect, useRef } from "react";
-import { Button } from "~/components/ui/button";
+import type { KeyboardEvent, ReactElement } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -21,12 +21,9 @@ declare global {
   }
 }
 
-const CLOUD_NAME = import.meta.env.VITE_CLOUD_NAME as string;
-const UPLOAD_PRESET = import.meta.env.VITE_UPLOAD_PRESET as string;
-
 const uwConfig: CloudinaryUploadWidgetOptions = {
-  cloudName: CLOUD_NAME,
-  uploadPreset: UPLOAD_PRESET,
+  cloudName: import.meta.env.VITE_CLOUD_NAME,
+  uploadPreset: import.meta.env.VITE_UPLOAD_PRESET,
   folder: "avatar",
   sources: [
     "local",
@@ -48,81 +45,95 @@ const uwConfig: CloudinaryUploadWidgetOptions = {
   // showSkipCropButton: false,
   croppingShowBackButton: true,
   croppingShowDimensions: true,
+  croppingValidateDimensions: true,
+  autoMinimize: true,
   // maxImageFileSize: 5000000, // 5MB
   // maxImageWidth: 2000,
-  //// biome-ignore lint/suspicious/noExplicitAny:
-  //   uploadSignature: async (callback: any, params_to_sign: any) => {
-  //     try {
-  //       // サーバーサイドの署名APIを呼び出す
-  //       console.log("Fetching upload signature:", params_to_sign);
-  //       const response = await fetch("/api/cloudinary-sign-upload", {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify(params_to_sign),
-  //       });
   //
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch upload signature");
-  //       }
-  //
-  //       const { signature, timestamp } = await response.json();
-  //       callback(null, { signature, timestamp });
-  //     } catch (error) {
-  //       console.error("Error fetching upload signature:", error);
-  //       callback(error, null);
-  //     }
-  //   },
+  apiKey: import.meta.env.VITE_CLOUDINARY_API_KEY,
+  // biome-ignore lint/suspicious/noExplicitAny:
+  uploadSignature: async (callback: any, params_to_sign: any) => {
+    // CloudinaryのUpload設定で signed, overwrite 有効にしたら上書きできた
+    const formData = new FormData();
+    for (const key in params_to_sign) {
+      formData.append(key, params_to_sign[key]);
+    }
+    const res = await fetch("/user/signUpload", {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!res.ok) {
+      throw new Error("Failed to fetch upload signature");
+    }
+
+    const { signature } = await res.json();
+    callback(signature);
+  },
 };
 
 type Props = {
+  children: ReactElement;
   publicId: string;
   onUploadSuccess: (imageUrl: string) => void;
 };
 
-export default function UploadWidget({ publicId, onUploadSuccess }: Props) {
+export default function UploadWidget({
+  children,
+  publicId,
+  onUploadSuccess,
+}: Props) {
   const uploadWidgetRef = useRef<CloudinaryUploadWidget | null>(null);
-  const uploadButtonRef = useRef<HTMLButtonElement>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
   useEffect(() => {
-    const initializeUploadWidget = () => {
-      if (window.cloudinary && uploadButtonRef.current) {
-        uploadWidgetRef.current = window.cloudinary.createUploadWidget(
-          { ...uwConfig, publicId },
-          (error, result) => {
-            if (!error && result && result.event === "success") {
-              // @ts-ignore
-              const uploadedImageUrl = result.info.secure_url;
-              onUploadSuccess(uploadedImageUrl);
-              console.log("Upload successful:", result.info);
-            } else if (error) {
-              console.error("アップロードに失敗しました。:", error);
-            }
-          },
-        );
-
-        const handleUploadClick = () => {
-          if (uploadWidgetRef.current) {
-            uploadWidgetRef.current.open();
-          }
-        };
-
-        const buttonElement = uploadButtonRef.current;
-        buttonElement.addEventListener("click", handleUploadClick);
-
-        return () => {
-          buttonElement.removeEventListener("click", handleUploadClick);
-        };
-      }
+    const script = document.createElement("script");
+    script.src = "https://upload-widget.cloudinary.com/latest/global/all.js";
+    script.type = "text/javascript";
+    script.async = true;
+    script.onload = () => setIsScriptLoaded(true);
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
     };
+  }, []);
 
-    initializeUploadWidget();
-  }, [publicId, onUploadSuccess]);
+  const openWidget = useCallback(() => {
+    uploadWidgetRef.current?.open();
+  }, []);
+
+  useEffect(() => {
+    if (isScriptLoaded && window.cloudinary) {
+      uploadWidgetRef.current = window.cloudinary.createUploadWidget(
+        { ...uwConfig, publicId },
+        (error, result) => {
+          if (!error && result?.event === "success") {
+            const uploadedImageUrl = (result.info as { secure_url: string })
+              .secure_url;
+            onUploadSuccess(uploadedImageUrl);
+          } else if (error) {
+            console.error("Upload failed:", error);
+          }
+        },
+      );
+    }
+  }, [isScriptLoaded, publicId, onUploadSuccess]);
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openWidget();
+    }
+  };
 
   return (
-    <Button ref={uploadButtonRef} id="upload_widget">
-      Upload
-    </Button>
+    <div
+      onClick={openWidget}
+      onKeyDown={handleKeyDown}
+      id="upload_widget"
+      className="cursor-pointer"
+    >
+      {children}
+    </div>
   );
 }

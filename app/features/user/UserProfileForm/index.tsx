@@ -8,7 +8,9 @@ import { useEffect } from "react";
 import { Link, useFetcher, useNavigate, useNavigation } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
+import ConfirmDialogContent from "~/components/ConfirmDialogContent";
 import { Button } from "~/components/ui/button";
+import { Dialog, DialogTrigger } from "~/components/ui/dialog";
 import { useAuth } from "~/features/auth/AuthProvider";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 import {
@@ -17,6 +19,12 @@ import {
   userProfileUserProfileUsernameGetResponseUsernameMaxOne,
 } from "~/generated/public-user/public-user.zod";
 import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
+import UploadWidget from "../ImageUploader/UploadWidget";
+import {
+  useDeleteUploadedImage,
+  useOnUploadSuccess,
+} from "../ImageUploader/hooks";
+import ProfileImage from "../UserProfile/ProfileImage";
 import { InputFormControl, TextareaFormControl } from "./controls";
 
 const MAX_DN = userProfileUserProfileUsernameGetResponseDisplayNameMaxOne;
@@ -27,30 +35,32 @@ export const UserProfileSchema = userProfileUserProfileUsernameGetResponse
     display_name: true,
     profile: true,
     username: true,
+    avatar_url: true,
   })
   // 日本語メッセージに上書き
   .extend({
     display_name: z
-      .string({ required_error: "表示名を入力してください。" })
-      .min(1, { message: "表示名は1文字以上で入力してください。" })
+      .string()
       .max(MAX_DN, {
         message: `${MAX_DN}文字以下で入力してください。`,
-      }),
+      })
+      .optional(),
     username: z
-      .string({ required_error: "ユーザー名を入力してください。" })
+      .string()
       .min(3, { message: "ユーザー名は3文字以上で入力してください。" })
       .max(MAX_UN, {
         message: `ユーザー名は${MAX_UN}文字以下で入力してください。`,
       })
       .regex(/^[a-zA-Z0-9_]+$/, {
         message: "半角英数字とハイフン、アンダースコアのみが使用できます。",
-      }),
+      })
+      .optional(),
     profile: z
       .string()
       .max(usersPatchCurrentUserUserMePatchResponseProfileMaxOne, {
         message: `プロフィールは${usersPatchCurrentUserUserMePatchResponseProfileMaxOne}文字以下で入力してください。`,
       })
-      .nullable(),
+      .optional(),
   });
 
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
@@ -93,10 +103,38 @@ export default function UserProfileForm() {
     }
   }, [lastSubmission, mutate, navigate]);
 
+  const { onUploadSuccess } = useOnUploadSuccess();
+  const { deleteImageAndUpdateUser } = useDeleteUploadedImage();
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
   return (
     <div className="p-6 bg-card rounded-lg shadow-lg">
+      <div className="flex flex-col items-center space-y-4 mb-6">
+        <UploadWidget
+          publicId={user?.uid as string}
+          onUploadSuccess={onUploadSuccess}
+        >
+          <div>
+            <ProfileImage user={user} disableDialog={true} />
+          </div>
+        </UploadWidget>
+        <Dialog>
+          <DialogTrigger asChild disabled={!user?.avatar_url}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-destructive hover:text-destructive-foreground"
+            >
+              画像を削除
+            </Button>
+          </DialogTrigger>
+          <ConfirmDialogContent
+            title="画像を削除"
+            handleClick={deleteImageAndUpdateUser}
+          />
+        </Dialog>
+      </div>
+
       <fetcher.Form
         action="/user/edit"
         method="patch"

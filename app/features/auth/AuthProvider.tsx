@@ -14,11 +14,13 @@ import {
   useUsersCurrentUserUserMeGet,
   type usersCurrentUserUserMeGetResponse,
 } from "~/generated/user/user";
+import { getItem, removeItem, setItem } from "~/lib/storage";
 
 interface AuthContextT {
   user: UserRead | null;
   isLoading: boolean;
   isValidating: boolean;
+  isCached: boolean;
   signOut: () => Promise<void>;
   isAuthenticated: boolean | undefined;
   mutate: KeyedMutator<usersCurrentUserUserMeGetResponse>;
@@ -34,38 +36,48 @@ export const useAuth = () => {
   return context;
 };
 
+const USER_CACHE_KEY = "auth-user";
+
 export function AuthProvider({ children }: React.PropsWithChildren) {
-  const [user, setUser] = useState<UserRead | null>(null);
+  const cachedUser = getItem(USER_CACHE_KEY);
+
+  const [user, setUser] = useState<UserRead | null>(() => {
+    return cachedUser ? JSON.parse(cachedUser) : null;
+  });
+
   const { data, isLoading, isValidating, mutate } =
     useUsersCurrentUserUserMeGet({
       fetch: { credentials: "include" },
       swr: {
-        // revalidateOnReconnect: true,
-        // revalidateOnMount: true,
         errorRetryCount: 3,
       },
     });
 
   const isAuthenticated = data?.status === 200;
+
   useEffect(() => {
-    if (data?.data === null) {
+    if (data?.data) {
+      setUser(data.data);
+      setItem(USER_CACHE_KEY, JSON.stringify(data.data));
+    } else if (data?.data === null) {
       setUser(null);
-    } else {
-      setUser(data?.data || null);
+      removeItem(USER_CACHE_KEY);
     }
   }, [data]);
 
   const signOut = useCallback(async () => {
     try {
       await authCookieLogoutAuthCookieLogoutPost({ credentials: "include" });
-      await mutate();
+      await mutate(); // This will trigger the useEffect above to clear the cache
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
       setUser(null);
+      removeItem(USER_CACHE_KEY);
       toast.success("ロクアウトしました");
     }
   }, [mutate]);
+
   return (
     <AuthContext.Provider
       value={{
@@ -76,6 +88,7 @@ export function AuthProvider({ children }: React.PropsWithChildren) {
         isAuthenticated,
         mutate,
         setUser,
+        isCached: !!cachedUser,
       }}
     >
       {children}

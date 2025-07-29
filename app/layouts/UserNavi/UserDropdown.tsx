@@ -1,3 +1,4 @@
+import { DialogTrigger } from "@radix-ui/react-dialog";
 import { BadgeCheck, Bell, CreditCard, LogOut, Sparkles } from "lucide-react";
 
 import type { ReactNode } from "react";
@@ -7,15 +8,12 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "~/components/ui/dropdown-menu";
-import { LogoutDialog } from "~/features/auth/SignOutDialog";
 
 type Props = {
-  avatar: ReactNode;
   side?: "left" | "right" | "top" | "bottom";
-  toggleOpen?: (e: Event) => void;
 };
 
-export default function UserDropdown({ avatar, side, toggleOpen }: Props) {
+export default function UserDropdown({ side }: Props) {
   return (
     <DropdownMenuContent
       side={side}
@@ -35,12 +33,12 @@ export default function UserDropdown({ avatar, side, toggleOpen }: Props) {
           <UserDropdownItem icon={<Bell />} title="Notifications" />
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <LogoutDialog>
-          <DropdownMenuItem onSelect={toggleOpen}>
+        <DialogTrigger asChild>
+          <DropdownMenuItem>
             <LogOut />
             LogOut
           </DropdownMenuItem>
-        </LogoutDialog>
+        </DialogTrigger>
       </DropdownMenuGroup>
     </DropdownMenuContent>
   );

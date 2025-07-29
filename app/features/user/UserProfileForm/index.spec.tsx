@@ -158,7 +158,6 @@ describe("UserProfileForm (Integration Test)", () => {
           /半角英数字とハイフン、アンダースコアのみが使用できます。/,
         ),
       ).toBeInTheDocument();
-      screen.debug();
     });
   });
 });

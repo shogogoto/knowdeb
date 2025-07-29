@@ -1,26 +1,37 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
-import type { UserRead } from "~/generated/fastAPI.schemas";
-
+import { Cloudinary } from "@cloudinary/url-gen";
+import type { ComponentProps } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import type { UserRead, UserReadPublic } from "~/generated/fastAPI.schemas";
 type Props = {
-  user: UserRead | null;
-};
+  user: UserRead | UserReadPublic | null;
+} & ComponentProps<typeof Avatar>;
 
-export default function UserAvatar({ user }: Props) {
+export default function UserAvatar({ user, ...props }: Props) {
+  const cld = new Cloudinary({
+    cloud: {
+      cloudName: import.meta.env.VITE_CLOUD_NAME,
+    },
+  });
+
+  // CLOUD_FOLDERを参照するとなぜかエラー
+  const prefix = import.meta.env.VITE_CLOUD_FOLDER || "avatar";
+  const myImage = cld.image(`${prefix}/${user?.uid}`);
+  myImage.format("auto").quality("auto");
+
   return (
-    <>
-      <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-        <Avatar>
-          <AvatarImage
-            src={user?.avatar_url || ""}
-            alt={user?.display_name || "no name"}
-          />
-          <AvatarFallback className="rounded-lg">img</AvatarFallback>
-        </Avatar>
-      </div>
-      <div className="grid flex-1 text-left text-sm leading-tight ">
-        <span className="truncate font-medium">{user?.display_name}</span>
-        <span className="truncate text-xs">{`@${user ? (user?.uid as string) : "userId"}`}</span>
-      </div>
-    </>
+    <Avatar {...props}>
+      <AvatarImage
+        src={user?.avatar_url || undefined}
+        alt={user?.display_name || undefined}
+      />
+      <AvatarFallback>{user?.display_name?.charAt(0) || "N"}</AvatarFallback>
+    </Avatar>
   );
+
+  // return (
+  //   <AdvancedImage
+  //     cldImg={myImage}
+  //     plugins={[lazyload(), responsive(), accessibility()]}
+  //   />
+  // );
 }

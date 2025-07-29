@@ -1,6 +1,5 @@
 import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs } from "react-router";
-import type { UserUpdate } from "~/generated/fastAPI.schemas";
 import { usersPatchCurrentUserUserMePatch } from "~/generated/user/user"; // orvalが生成したAPIクライアント
 import { UserProfileSchema } from ".";
 
@@ -11,13 +10,14 @@ export async function editUserProfile({ request }: ActionFunctionArgs) {
     return Response.json({ submission: submission.reply() });
   }
 
-  const userUpdate: UserUpdate = {
-    display_name: submission.value.display_name,
-    profile: submission.value.profile,
-    username: submission.value.username,
-  };
+  const cvt = Object.fromEntries(
+    Object.entries(submission.value).map(([k, v]) => {
+      // if (k === "username") return [k, v]; // usernameは空にできない
+      return [k, v === undefined ? "" : v];
+    }),
+  );
 
-  const res = await usersPatchCurrentUserUserMePatch(userUpdate, {
+  const res = await usersPatchCurrentUserUserMePatch(cvt, {
     credentials: "include",
   });
   if (res.status !== 200) {
