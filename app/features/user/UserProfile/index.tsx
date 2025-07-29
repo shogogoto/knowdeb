@@ -12,11 +12,6 @@ export default function UserProfile() {
   async function onUploadSuccess(imageUrl: string) {
     const formData = new FormData();
     formData.append("avatar_url", imageUrl);
-
-    // editUserProfileのschemaとして必要
-    formData.append("display_name", "");
-    formData.append("username", "");
-    formData.append("profile", "");
     const request = new Request("/user/edit", {
       method: "PATCH",
       body: formData,

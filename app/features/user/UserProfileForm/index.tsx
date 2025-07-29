@@ -27,30 +27,32 @@ export const UserProfileSchema = userProfileUserProfileUsernameGetResponse
     display_name: true,
     profile: true,
     username: true,
+    avatar_url: true,
   })
   // 日本語メッセージに上書き
   .extend({
     display_name: z
-      .string({ required_error: "表示名を入力してください。" })
-      .min(1, { message: "表示名は1文字以上で入力してください。" })
+      .string()
       .max(MAX_DN, {
         message: `${MAX_DN}文字以下で入力してください。`,
-      }),
+      })
+      .optional(),
     username: z
-      .string({ required_error: "ユーザー名を入力してください。" })
+      .string()
       .min(3, { message: "ユーザー名は3文字以上で入力してください。" })
       .max(MAX_UN, {
         message: `ユーザー名は${MAX_UN}文字以下で入力してください。`,
       })
       .regex(/^[a-zA-Z0-9_]+$/, {
         message: "半角英数字とハイフン、アンダースコアのみが使用できます。",
-      }),
+      })
+      .optional(),
     profile: z
       .string()
       .max(usersPatchCurrentUserUserMePatchResponseProfileMaxOne, {
         message: `プロフィールは${usersPatchCurrentUserUserMePatchResponseProfileMaxOne}文字以下で入力してください。`,
       })
-      .nullable(),
+      .optional(),
   });
 
 type UserProfileFormType = z.infer<typeof UserProfileSchema>;
