@@ -5,7 +5,7 @@ import type { UserRead } from "~/generated/fastAPI.schemas";
 
 cloudinary.config({
   cloud_name: process.env.VITE_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
+  api_key: process.env.VITE_CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
   secure: process.env.NODE_ENV === "production",
 });
@@ -17,7 +17,7 @@ export async function listImages() {
     type: "upload",
     prefix: CLOUD_FOLDER,
   });
-  // console.log({ res: JSON.stringify(res) });
+  console.log({ res: JSON.stringify(res) });
   return res;
 }
 
@@ -38,7 +38,9 @@ export async function uploadImage(
   return res;
 }
 
-export async function deleteImage(publicId: string) {
+export async function deleteImage({ request }: ActionFunctionArgs) {
+  const formData = await request.formData();
+  const publicId = formData.get("public_id") as string;
   const res = await cloudinary.uploader.destroy(`${CLOUD_FOLDER}/${publicId}`, {
     resource_type: "image",
     invalidate: false,

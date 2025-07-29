@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { Button } from "~/components/ui/button";
 import { AuthProvider } from "~/features/auth/AuthProvider";
 import Index from "./UploadWidget";
 
@@ -21,7 +22,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    children: <div>Upload</div>,
+    children: <Button>Upload</Button>,
     publicId: "test",
     onUploadSuccess: (imageUrl: string) => {},
   },

@@ -8,7 +8,9 @@ import { useEffect } from "react";
 import { Link, useFetcher, useNavigate, useNavigation } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
+import ConfirmDialogContent from "~/components/ConfirmDialogContent";
 import { Button } from "~/components/ui/button";
+import { Dialog, DialogTrigger } from "~/components/ui/dialog";
 import { useAuth } from "~/features/auth/AuthProvider";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 import {
@@ -18,7 +20,10 @@ import {
 } from "~/generated/public-user/public-user.zod";
 import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
 import UploadWidget from "../ImageUploader/UploadWidget";
-import useOnUploadSuccess from "../ImageUploader/hooks";
+import {
+  useDeleteUploadedImage,
+  useOnUploadSuccess,
+} from "../ImageUploader/hooks";
 import ProfileImage from "../UserProfile/ProfileImage";
 import { InputFormControl, TextareaFormControl } from "./controls";
 
@@ -98,10 +103,10 @@ export default function UserProfileForm() {
     }
   }, [lastSubmission, mutate, navigate]);
 
+  const { onUploadSuccess } = useOnUploadSuccess();
+  const { deleteImageAndUpdateUser } = useDeleteUploadedImage();
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
-
-  const { onUploadSuccess } = useOnUploadSuccess();
   return (
     <div className="p-6 bg-card rounded-lg shadow-lg">
       <div className="flex flex-col items-center space-y-4 mb-6">
@@ -113,14 +118,21 @@ export default function UserProfileForm() {
             <ProfileImage user={user} disableDialog={true} />
           </div>
         </UploadWidget>
-        <Button
-          type="button"
-          variant="ghost"
-          className="text-destructive hover:text-destructive-foreground"
-          //onClick={() => form.update({ name: "avatar_url", value: "" })}
-        >
-          画像を削除
-        </Button>
+        <Dialog>
+          <DialogTrigger asChild disabled={!user?.avatar_url}>
+            <Button
+              type="button"
+              variant="ghost"
+              className="text-destructive hover:text-destructive-foreground"
+            >
+              画像を削除
+            </Button>
+          </DialogTrigger>
+          <ConfirmDialogContent
+            title="画像を削除"
+            handleClick={deleteImageAndUpdateUser}
+          />
+        </Dialog>
       </div>
 
       <fetcher.Form

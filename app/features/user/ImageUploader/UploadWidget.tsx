@@ -127,7 +127,12 @@ export default function UploadWidget({
   };
 
   return (
-    <div onClick={openWidget} onKeyDown={handleKeyDown} id="upload_widget">
+    <div
+      onClick={openWidget}
+      onKeyDown={handleKeyDown}
+      id="upload_widget"
+      className="cursor-pointer"
+    >
       {children}
     </div>
   );
