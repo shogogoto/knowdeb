@@ -30,7 +30,7 @@ export default [
     route("user/:userId", "routes/user/search.tsx"),
   ]),
 
-  route("/api/cloudinary-sign-upload", "routes/user/signUpload.ts"),
+  route("/user/signUpload", "routes/user/signUpload.ts"),
 
   route("google/authorize", "routes/sso/google/authorize.tsx"),
   route("google/callback", "routes/sso/google/callback.tsx"),
