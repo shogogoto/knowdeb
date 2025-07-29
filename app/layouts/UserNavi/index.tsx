@@ -5,9 +5,9 @@ import {
 } from "~/components/ui/dropdown-menu";
 import { SidebarMenuButton, SidebarMenuItem } from "~/components/ui/sidebar";
 import LogoutDialogContent from "~/features/auth/SignOutDialog";
+import UserAvatar from "~/features/user/UserAvatar";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 import { useIsMobile } from "~/hooks/use-mobile";
-import UserAvatar from "../UserAvatar";
 import UserDropdown from "./UserDropdown";
 
 type Props = {

@@ -18,12 +18,15 @@ import {
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { useAuth } from "~/features/auth/AuthProvider";
-import UserNavi from "~/features/user/UserNavi";
+import { useIsMobile } from "~/hooks/use-mobile";
+import UserNavi from "./UserNavi";
 import LogoSideMenu from "./components/LogoSideMenu";
 import SideMenu from "./components/Sidemenu";
 
 export default function MySidebar() {
   const { user, isAuthenticated } = useAuth();
+  const isMobile = useIsMobile();
+  const side = isMobile ? "bottom" : "right";
 
   const forGuest = (
     <>
