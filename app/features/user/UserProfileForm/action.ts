@@ -15,6 +15,7 @@ export async function editUserProfile({ request }: ActionFunctionArgs) {
     display_name: submission.value.display_name,
     profile: submission.value.profile,
     username: submission.value.username,
+    avatar_url: submission.value.avatar_url,
   };
 
   const res = await usersPatchCurrentUserUserMePatch(userUpdate, {

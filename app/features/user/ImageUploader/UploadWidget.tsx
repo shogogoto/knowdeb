@@ -101,7 +101,6 @@ export default function UploadWidget({ publicId, onUploadSuccess }: Props) {
             // @ts-ignore
             const uploadedImageUrl = result.info.secure_url;
             onUploadSuccess(uploadedImageUrl);
-            console.log("Upload successful:", result.info);
           } else if (error) {
             console.error("アップロードに失敗しました。:", error);
           }
