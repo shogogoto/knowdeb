@@ -10,7 +10,7 @@ cloudinary.config({
   secure: process.env.NODE_ENV === "production",
 });
 
-export const CLOUD_FOLDER = process.env.CLOUD_FOLDER || "avatar";
+export const CLOUD_FOLDER = process.env.VITE_CLOUD_FOLDER || "avatar";
 
 export async function listImages() {
   const res = await cloudinary.api.resources({
@@ -50,7 +50,6 @@ export async function deleteImage(publicId: string) {
 // ------------------------------------------------------------------------------
 // widget overrwrite upload に必要
 export default async function signUpload({ request }: ActionFunctionArgs) {
-  const timestamp = Math.round(new Date().getTime() / 1000);
   const apiSecret = cloudinary.config().api_secret;
   if (!apiSecret) {
     console.error("CLOUDINARY_API_SECRET is not set in environment variables.");

@@ -45,6 +45,14 @@ export default function UserProfile() {
           >
             <div>Upload</div>
           </UploadWidget>
+          <Button
+            type="button"
+            variant="ghost"
+            className="text-destructive hover:text-destructive-foreground"
+            //onClick={() => form.update({ name: "avatar_url", value: "" })}
+          >
+            画像を削除
+          </Button>
         </div>
       </div>
 
