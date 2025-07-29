@@ -1,13 +1,5 @@
 import { useNavigate } from "react-router";
-import { Button } from "~/components/ui/button";
-import {
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
+import ConfirmDialogContent from "~/components/ConfirmDialogContent";
 import { useAuth } from "../AuthProvider";
 
 export default function LogoutDialogContent() {
@@ -17,22 +9,5 @@ export default function LogoutDialogContent() {
     await signOut();
     navigate("/");
   }
-  return (
-    <DialogContent>
-      <DialogHeader>
-        <DialogTitle>ログアウトの確認</DialogTitle>
-        <DialogDescription>本当にログアウトしますか？</DialogDescription>
-      </DialogHeader>
-      <DialogFooter className="gap-2 sm:gap-0">
-        <DialogClose asChild>
-          <Button variant="outline">キャンセル</Button>
-        </DialogClose>
-        <DialogClose asChild>
-          <Button type="button" onClick={handleClick}>
-            ログアウト
-          </Button>
-        </DialogClose>
-      </DialogFooter>
-    </DialogContent>
-  );
+  return <ConfirmDialogContent title="ログアウト" handleClick={handleClick} />;
 }
