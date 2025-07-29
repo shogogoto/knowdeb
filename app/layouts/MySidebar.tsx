@@ -1,24 +1,21 @@
 import { LogIn, MailQuestion } from "lucide-react";
 import {
-  DocsSideMenu,
-  FeaturesMenu,
-  RankingSideMenu,
-  SearchSideMenu,
-} from "./SpecificSideMenu";
-
-import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
   SidebarHeader,
   SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
   SidebarRail,
 } from "~/components/ui/sidebar";
 import { useAuth } from "~/features/auth/AuthProvider";
 import { useIsMobile } from "~/hooks/use-mobile";
+import {
+  DocsSideMenu,
+  FeaturesMenu,
+  RankingSideMenu,
+  SearchSideMenu,
+} from "./SpecificSideMenu";
 import UserNavi from "./UserNavi";
 import LogoSideMenu from "./components/LogoSideMenu";
 import SideMenu from "./components/Sidemenu";
@@ -58,13 +55,7 @@ export default function MySidebar() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border">
-        <SidebarMenu>
-          <SidebarMenuItem title="ユーザー">
-            <SidebarMenuButton size="lg">
-              <UserNavi user={user} />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <UserNavi user={user} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
