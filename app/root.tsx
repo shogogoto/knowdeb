@@ -37,6 +37,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
         <ThemeScript />
+        <script
+          src="https://upload-widget.cloudinary.com/latest/global/all.js"
+          type="text/javascript"
+          async
+        />
       </head>
       <body>
         {children}

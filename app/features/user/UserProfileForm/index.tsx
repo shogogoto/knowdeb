@@ -89,6 +89,7 @@ export default function UserProfileForm() {
     onValidate({ formData }) {
       return parseWithZod(formData, { schema: UserProfileSchema });
     },
+    shouldValidate: "onBlur", // 入力中の不要な再レンダリング抑制
   });
 
   const navigate = useNavigate();
@@ -107,6 +108,7 @@ export default function UserProfileForm() {
   const { deleteImageAndUpdateUser } = useDeleteUploadedImage();
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
+
   return (
     <div className="p-6 bg-card rounded-lg shadow-lg">
       <div className="flex flex-col items-center space-y-4 mb-6">
