@@ -139,17 +139,14 @@ export default function UserProfileForm() {
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
 
-  if (isLoading) {
+  if (isLoading || !user?.uid) {
     return <UserProfileFormSkeleton />;
   }
 
   return (
     <div className="p-6 bg-card rounded-lg shadow-lg">
       <div className="flex flex-col items-center space-y-4 mb-6">
-        <UploadWidget
-          publicId={user?.uid as string}
-          onUploadSuccess={onUploadSuccess}
-        >
+        <UploadWidget publicId={user?.uid} onUploadSuccess={onUploadSuccess}>
           <div>
             <ProfileImage user={user} disableDialog={true} />
           </div>
