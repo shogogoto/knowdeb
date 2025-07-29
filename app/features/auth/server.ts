@@ -1,14 +1,13 @@
 import { jwtVerify } from "jose";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
-
 type UserJWTPayload = Pick<UserRead, "uid" | "username" | "display_name">;
 
 // 認証済みのリクエスト以外は弾く server action 用
 export default async function getAuth(
   request: Request,
 ): Promise<UserRead | null> {
+  const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
   if (!process.env.AUTH_SECRET) {
     throw new Error("AUTH_SECRET is not defined in environment variables.");
   }
