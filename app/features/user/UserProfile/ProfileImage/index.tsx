@@ -4,10 +4,12 @@ import UserAvatar from "../../UserAvatar";
 
 type Props = {
   user: UserRead | UserReadPublic | null;
+  disableDialog?: boolean;
 };
 
-export default function ProfileImage({ user }: Props) {
-  if (!user?.avatar_url) return <UserAvatar user={user} className="size-24" />;
+export default function ProfileImage({ user, disableDialog = false }: Props) {
+  if (!user?.avatar_url || disableDialog)
+    return <UserAvatar user={user} className="size-24" />;
 
   return (
     <Dialog>

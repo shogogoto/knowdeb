@@ -17,6 +17,9 @@ import {
   userProfileUserProfileUsernameGetResponseUsernameMaxOne,
 } from "~/generated/public-user/public-user.zod";
 import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
+import UploadWidget from "../ImageUploader/UploadWidget";
+import useOnUploadSuccess from "../ImageUploader/hooks";
+import ProfileImage from "../UserProfile/ProfileImage";
 import { InputFormControl, TextareaFormControl } from "./controls";
 
 const MAX_DN = userProfileUserProfileUsernameGetResponseDisplayNameMaxOne;
@@ -97,8 +100,29 @@ export default function UserProfileForm() {
 
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
+
+  const { onUploadSuccess } = useOnUploadSuccess();
   return (
     <div className="p-6 bg-card rounded-lg shadow-lg">
+      <div className="flex flex-col items-center space-y-4 mb-6">
+        <UploadWidget
+          publicId={user?.uid as string}
+          onUploadSuccess={onUploadSuccess}
+        >
+          <div>
+            <ProfileImage user={user} disableDialog={true} />
+          </div>
+        </UploadWidget>
+        <Button
+          type="button"
+          variant="ghost"
+          className="text-destructive hover:text-destructive-foreground"
+          //onClick={() => form.update({ name: "avatar_url", value: "" })}
+        >
+          画像を削除
+        </Button>
+      </div>
+
       <fetcher.Form
         action="/user/edit"
         method="patch"

@@ -4,8 +4,8 @@ import type {
   CloudinaryUploadWidgetOptions,
   CloudinaryUploadWidgetResults,
 } from "@cloudinary-util/types";
-import { useEffect, useRef, useState } from "react";
-import { Button } from "~/components/ui/button";
+import type { KeyboardEvent, ReactElement } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 declare global {
   interface Window {
@@ -67,13 +67,13 @@ const uwConfig: CloudinaryUploadWidgetOptions = {
       throw new Error("Failed to fetch upload signature");
     }
 
-    const res2 = await res.json();
-    callback(res2.signature);
+    const { signature } = await res.json();
+    callback(signature);
   },
 };
 
 type Props = {
-  children: React.ReactNode;
+  children: ReactElement;
   publicId: string;
   onUploadSuccess: (imageUrl: string) => void;
 };
@@ -85,6 +85,7 @@ export default function UploadWidget({
 }: Props) {
   const uploadWidgetRef = useRef<CloudinaryUploadWidget | null>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
   useEffect(() => {
     const script = document.createElement("script");
     script.src = "https://upload-widget.cloudinary.com/latest/global/all.js";
@@ -97,32 +98,37 @@ export default function UploadWidget({
     };
   }, []);
 
+  const openWidget = useCallback(() => {
+    uploadWidgetRef.current?.open();
+  }, []);
+
   useEffect(() => {
     if (isScriptLoaded && window.cloudinary) {
       uploadWidgetRef.current = window.cloudinary.createUploadWidget(
         { ...uwConfig, publicId },
         (error, result) => {
-          if (!error && result && result.event === "success") {
-            // @ts-ignore
-            const uploadedImageUrl = result.info.secure_url;
+          if (!error && result?.event === "success") {
+            const uploadedImageUrl = (result.info as { secure_url: string })
+              .secure_url;
             onUploadSuccess(uploadedImageUrl);
           } else if (error) {
-            console.error("アップロードに失敗しました。:", error);
+            console.error("Upload failed:", error);
           }
         },
       );
     }
   }, [isScriptLoaded, publicId, onUploadSuccess]);
 
-  const handleUploadClick = () => {
-    if (uploadWidgetRef.current) {
-      uploadWidgetRef.current.open();
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      openWidget();
     }
   };
 
   return (
-    <Button onClick={handleUploadClick} id="upload_widget" asChild>
+    <div onClick={openWidget} onKeyDown={handleKeyDown} id="upload_widget">
       {children}
-    </Button>
+    </div>
   );
 }
