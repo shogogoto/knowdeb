@@ -4,8 +4,8 @@ import { Button } from "~/components/ui/button";
 import { useAuth } from "~/features/auth/AuthProvider";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 import UploadWidget from "../ImageUploader/UploadWidget";
-import UserProfileImage from "../UserAvatar/UserProfileImage";
 import { editUserProfile } from "../UserProfileForm/action";
+import ProfileImage from "./ProfileImage";
 
 export default function UserProfile() {
   const { user, mutate } = useAuth();
@@ -34,14 +34,18 @@ export default function UserProfile() {
   return (
     <div className="space-y-4 bg-white dark:bg-gray-800 p-6 shadow-md">
       <div className="flex justify-between items-start">
-        <UserProfileImage user={user} />
-        <Button asChild className="px-4 py-2 text-md">
-          <Link to="/user/edit">編集</Link>
-        </Button>
-        <UploadWidget
-          publicId={user?.uid as string}
-          onUploadSuccess={onUploadSuccess}
-        />
+        <ProfileImage user={user} />
+        <div className="flex flex-col items-end">
+          <Button asChild className="px-4 py-2 text-md">
+            <Link to="/user/edit">編集</Link>
+          </Button>
+          <UploadWidget
+            publicId={user?.uid as string}
+            onUploadSuccess={onUploadSuccess}
+          >
+            <div>Upload</div>
+          </UploadWidget>
+        </div>
       </div>
 
       <div>

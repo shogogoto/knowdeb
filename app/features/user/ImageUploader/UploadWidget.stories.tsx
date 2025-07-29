@@ -21,6 +21,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
+    children: <div>Upload</div>,
     publicId: "test",
     onUploadSuccess: (imageUrl: string) => {},
   },

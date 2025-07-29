@@ -73,11 +73,16 @@ const uwConfig: CloudinaryUploadWidgetOptions = {
 };
 
 type Props = {
+  children: React.ReactNode;
   publicId: string;
   onUploadSuccess: (imageUrl: string) => void;
 };
 
-export default function UploadWidget({ publicId, onUploadSuccess }: Props) {
+export default function UploadWidget({
+  children,
+  publicId,
+  onUploadSuccess,
+}: Props) {
   const uploadWidgetRef = useRef<CloudinaryUploadWidget | null>(null);
   const [isScriptLoaded, setIsScriptLoaded] = useState(false);
   useEffect(() => {
@@ -116,8 +121,8 @@ export default function UploadWidget({ publicId, onUploadSuccess }: Props) {
   };
 
   return (
-    <Button onClick={handleUploadClick} id="upload_widget">
-      Upload
+    <Button onClick={handleUploadClick} id="upload_widget" asChild>
+      {children}
     </Button>
   );
 }

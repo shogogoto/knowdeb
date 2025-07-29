@@ -1,14 +1,14 @@
+import type { ComponentProps } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import type { UserRead, UserReadPublic } from "~/generated/fastAPI.schemas";
 
 type Props = {
   user: UserRead | UserReadPublic | null;
-  className?: string;
-};
+} & ComponentProps<typeof Avatar>;
 
-export default function UserAvatar({ user, className }: Props) {
+export default function UserAvatar({ user, ...props }: Props) {
   return (
-    <Avatar className={className}>
+    <Avatar {...props}>
       <AvatarImage
         src={user?.avatar_url || undefined}
         alt={user?.display_name || undefined}
