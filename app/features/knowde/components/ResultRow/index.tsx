@@ -1,7 +1,10 @@
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
 import type { KnowdeWithStats } from "~/generated/fastAPI.schemas";
 import DefLine from "./DefLine";
-import RowPrefix from "./RowPrefix";
-import RowSuffix from "./RowSuffix";
 
 type Props = {
   row: KnowdeWithStats;
@@ -16,10 +19,38 @@ export default function ResultRow({ row, index }: Props) {
       className="p-4 border border-gray-200 rounded-md dark:border-gray-700"
     >
       <div className="flex gap-2">
-        <RowPrefix index={index} stats={row.stats} />
+        <div className=" hover:bg-gray-200 hover:dark:bg-gray-800 ">
+          <Popover modal={true}>
+            <PopoverTrigger className="md:flex gap-2">
+              <div>#{index}</div>
+              {row.stats?.score}
+            </PopoverTrigger>
+            <PopoverContent>
+              {row.stats && (
+                <div className="grid grid-cols-2 p-4 border  bg-gray-200 dark:bg-gray-950">
+                  <div className="text-right">詳細数 </div>
+                  <div className="text-right">{row.stats.n_detail}</div>
+                  <div className="text-right">前提数</div>
+                  <div className="text-right">{row.stats.n_premise}</div>
+                  <div className="text-right">結論数</div>
+                  <div className="text-right">{row.stats.n_conclusion}</div>
+                  <div className="text-right">参照数</div>
+                  <div className="text-right">{row.stats.n_refer}</div>
+                  <div className="text-right">被参照数</div>
+                  <div className="text-right">{row.stats.n_referred}</div>
+                  <div className="text-right">前提距離</div>
+                  <div className="text-right">{row.stats.dist_axiom}</div>
+                  <div className="text-right">結論距離</div>
+                  <div className="text-right">{row.stats.dist_leaf}</div>
+                </div>
+              )}
+            </PopoverContent>
+          </Popover>
+        </div>
+
         <DefLine kn={row} />
         <div className="ml-auto">
-          <RowSuffix knowde={row.knowde} />
+          <div className="border">{row.knowde.when}</div>
         </div>
       </div>
       {/* {total > 0 && ( */}
