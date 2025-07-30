@@ -5,7 +5,7 @@ import type {
   CloudinaryUploadWidgetResults,
 } from "@cloudinary-util/types";
 import type { KeyboardEvent, ReactElement } from "react";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 declare global {
@@ -85,12 +85,26 @@ export default function UploadWidget({
   onUploadSuccess,
 }: Props) {
   const widgetRef = useRef<CloudinaryUploadWidget | null>(null);
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
+  useEffect(() => {
+    const script = document.createElement("script");
+    script.src = "https://upload-widget.cloudinary.com/latest/global/all.js";
+    script.type = "text/javascript";
+    script.async = true;
+    script.onload = () => setIsScriptLoaded(true);
+    document.body.appendChild(script);
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
   const openWidget = useCallback(() => {
     widgetRef.current?.open();
   }, []);
 
   useEffect(() => {
-    if (window.cloudinary && !widgetRef.current) {
+    if (isScriptLoaded && window.cloudinary && !widgetRef.current) {
       widgetRef.current = window.cloudinary.createUploadWidget(
         { ...uwConfig, publicId },
         (error, result) => {
@@ -105,7 +119,7 @@ export default function UploadWidget({
         },
       );
     }
-  }, [publicId, onUploadSuccess]);
+  }, [isScriptLoaded, publicId, onUploadSuccess]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
     if (e.key === "Enter" || e.key === " ") {
