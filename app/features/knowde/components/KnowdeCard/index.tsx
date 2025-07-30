@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
+import { Badge } from "~/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -30,7 +31,7 @@ import type { KStats, KnowdeWithStats } from "~/generated/fastAPI.schemas";
 
 type Props = {
   row: KnowdeWithStats;
-  index: number;
+  index?: number;
   isOpen?: boolean;
 };
 
@@ -41,7 +42,16 @@ export default function KnowdeCard({ row, index }: Props) {
       {k.term && (
         <CardHeader>
           <div className="flex items-start justify-between gap-4">
-            <CardTitle>{k.term?.names?.join(", ")}</CardTitle>
+            <CardTitle className="flex flex-wrap gap-2">
+              {k.term?.names?.map((name) => (
+                <span
+                  key={name}
+                  className="inline-block rounded-full bg-green-100 px-3 py-1 text-lg font-medium text-green-800 dark:bg-green-900 dark:text-green-300"
+                >
+                  {name}
+                </span>
+              ))}
+            </CardTitle>
           </div>
         </CardHeader>
       )}
@@ -76,12 +86,16 @@ export default function KnowdeCard({ row, index }: Props) {
         <TooltipProvider>
           <StatView stats={row.stats} />
         </TooltipProvider>
-        <Link
-          to={`/knowde/${k.uid}`}
-          className="text-sm text-muted-foreground underline hover:text-blue-600 hover:decoration-blue-600"
-        >
-          #{index}
-        </Link>
+        {index !== undefined && (
+          <Badge asChild>
+            <Link
+              to={`/knowde/${k.uid}`}
+              className="text-sm underline hover:text-blue-600 hover:decoration-blue-600"
+            >
+              #{index}
+            </Link>
+          </Badge>
+        )}
       </CardFooter>
     </Card>
   );

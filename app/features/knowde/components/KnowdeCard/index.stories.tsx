@@ -35,7 +35,6 @@ export const Default: Story = {
         score: 10,
       },
     },
-    index: 1,
   },
 };
 
