@@ -1,5 +1,5 @@
 import { useDetailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
-import ResultRow from "../components/ResultRow";
+import KnowdeCard from "../components/KnowdeCard";
 
 type Props = {
   id: string;
@@ -7,13 +7,6 @@ type Props = {
 
 export default function KnowdeDetailView({ id }: Props) {
   const { data, isLoading, error } = useDetailKnowdeSentenceSentenceIdGet(id);
-
-  // const [detail, setDetail] = useState<KnowdeDetail | undefined>(undefined);
-  // useEffect(() => {
-  //   if (data?.data && "knowdes" in data.data) {
-  //     setDetail(data.data);
-  //   }
-  // }, [data]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -36,7 +29,7 @@ export default function KnowdeDetailView({ id }: Props) {
     <>
       <div>{id}</div>
       {Object.values(data.data.knowdes).map((v, i) => {
-        return <ResultRow key={v.knowde.uid} row={v} index={i} />;
+        return <KnowdeCard key={v.knowde.uid} row={v} index={i} />;
       })}
     </>
   );

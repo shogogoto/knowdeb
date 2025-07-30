@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useNavigation } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
 import type { KnowdeWithStats } from "~/generated/fastAPI.schemas";
-import ResultRow from "./components/ResultRow";
+import KnowdeCard from "./components/KnowdeCard";
 
 type Props = {
   data: {
@@ -25,7 +25,7 @@ export default function SearchResults({ data }: Props) {
             <h2 className="text-xl font-semibold">検索結果 ({data.total}件)</h2>
             <div className="">
               {data.data.map((row, index) => (
-                <ResultRow
+                <KnowdeCard
                   row={row}
                   index={index + startIndex}
                   key={row.knowde.uid}

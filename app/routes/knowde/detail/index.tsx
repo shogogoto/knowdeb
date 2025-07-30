@@ -6,6 +6,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 }
 
 export default function _({ loaderData }: Route.ComponentProps) {
-  const { id } = loaderData;
+  const { id, data } = loaderData;
   return <KnowdeDetailView id={id} />;
 }
