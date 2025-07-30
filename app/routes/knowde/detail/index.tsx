@@ -1,23 +1,11 @@
-import DefLine from "~/features/knowde/components/ResultRow/DefLine";
-import { detailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
+import KnowdeDetailView from "~/features/knowde/detail";
 import type { Route } from "./+types";
 
 export async function loader({ params }: Route.LoaderArgs) {
-  const res = await detailKnowdeSentenceSentenceIdGet(params.id);
-  if (res.status !== 200) {
-    throw new Error("error");
-  }
-  return { data: res.data, id: params.id };
+  return { id: params.id };
 }
 
-export default function Contact({ loaderData }: Route.ComponentProps) {
-  const { id, data } = loaderData;
-  return (
-    <div id="contact">
-      <div>{id}</div>
-      {Object.values(data.knowdes).map((v) => {
-        return <DefLine key={v.knowde.uid} kn={v} />;
-      })}
-    </div>
-  );
+export default function _({ loaderData }: Route.ComponentProps) {
+  const { id } = loaderData;
+  return <KnowdeDetailView id={id} />;
 }
