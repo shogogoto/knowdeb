@@ -81,7 +81,6 @@ describe("UserProfileForm (Integration Test)", () => {
     server.use(getUsersCurrentUserUserMeGetMockHandler(muser));
     const router = mkrouter();
     render(<RouterProvider router={router} />);
-    expect(screen.getByText("0 / 160")).toBeInTheDocument();
 
     await waitFor(() => {
       expect(screen.getByLabelText("表示名")).toHaveValue(muser.display_name);
@@ -95,7 +94,7 @@ describe("UserProfileForm (Integration Test)", () => {
     const user = userEvent.setup();
     const router = mkrouter();
     render(<RouterProvider router={router} />);
-    const displayNameInput = screen.getByLabelText("表示名");
+    const displayNameInput = await screen.findByLabelText("表示名");
     const profileInput = screen.getByLabelText("プロフィール");
     const usernameInput = screen.getByLabelText("ユーザー名");
     const submitButton = screen.getByRole("button", { name: "更新" });

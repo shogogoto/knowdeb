@@ -20,8 +20,8 @@
   "dependencies": {
     "@cloudinary/react": "^1.14.3",
     "@cloudinary/url-gen": "^1.21.0",
-    "@conform-to/react": "^1.6.1",
-    "@conform-to/zod": "^1.6.1",
+    "@conform-to/react": "^1.8.2",
+    "@conform-to/zod": "^1.8.2",
     "@mdx-js/rollup": "^3.1.0",
     "@radix-ui/react-avatar": "^1.1.10",
     "@radix-ui/react-collapsible": "^1.1.11",

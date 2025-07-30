@@ -11,6 +11,7 @@ import { z } from "zod";
 import ConfirmDialogContent from "~/components/ConfirmDialogContent";
 import { Button } from "~/components/ui/button";
 import { Dialog, DialogTrigger } from "~/components/ui/dialog";
+import { Skeleton } from "~/components/ui/skeleton";
 import { useAuth } from "~/features/auth/AuthProvider";
 import type { UserRead } from "~/generated/fastAPI.schemas";
 import {
@@ -71,8 +72,37 @@ type FetcherData = {
   user?: UserRead;
 };
 
+function UserProfileFormSkeleton() {
+  return (
+    <div className="p-6 bg-card rounded-lg shadow-lg">
+      <div className="flex flex-col items-center space-y-4 mb-6">
+        <Skeleton className="h-24 w-24 rounded-full" />
+        <Skeleton className="h-8 w-24" />
+      </div>
+      <div className="space-y-6 flex flex-col items-center">
+        <div className="w-full max-w-sm space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="w-full max-w-sm space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+        <div className="w-full max-w-sm space-y-2">
+          <Skeleton className="h-4 w-16" />
+          <Skeleton className="h-24 w-full" />
+        </div>
+        <div className="flex flex-col w-full max-w-sm gap-2">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function UserProfileForm() {
-  const { user, mutate } = useAuth();
+  const { user, mutate, isLoading } = useAuth();
   const fetcher = useFetcher<FetcherData>();
   const lastSubmission = fetcher.data;
   const navigation = useNavigation();
@@ -109,13 +139,14 @@ export default function UserProfileForm() {
   const isSubmitting =
     navigation.state === "submitting" || fetcher.state === "submitting";
 
+  if (isLoading || !user?.uid) {
+    return <UserProfileFormSkeleton />;
+  }
+
   return (
     <div className="p-6 bg-card rounded-lg shadow-lg">
       <div className="flex flex-col items-center space-y-4 mb-6">
-        <UploadWidget
-          publicId={user?.uid as string}
-          onUploadSuccess={onUploadSuccess}
-        >
+        <UploadWidget publicId={user?.uid} onUploadSuccess={onUploadSuccess}>
           <div>
             <ProfileImage user={user} disableDialog={true} />
           </div>

@@ -6,6 +6,7 @@ import type {
 } from "@cloudinary-util/types";
 import type { KeyboardEvent, ReactElement } from "react";
 import { useCallback, useEffect, useRef } from "react";
+import { toast } from "sonner";
 
 declare global {
   interface Window {
@@ -83,14 +84,14 @@ export default function UploadWidget({
   publicId,
   onUploadSuccess,
 }: Props) {
-  const uploadWidgetRef = useRef<CloudinaryUploadWidget | null>(null);
+  const widgetRef = useRef<CloudinaryUploadWidget | null>(null);
   const openWidget = useCallback(() => {
-    uploadWidgetRef.current?.open();
+    widgetRef.current?.open();
   }, []);
 
   useEffect(() => {
-    if (window.cloudinary) {
-      uploadWidgetRef.current = window.cloudinary.createUploadWidget(
+    if (window.cloudinary && !widgetRef.current) {
+      widgetRef.current = window.cloudinary.createUploadWidget(
         { ...uwConfig, publicId },
         (error, result) => {
           if (!error && result?.event === "success") {
@@ -99,6 +100,7 @@ export default function UploadWidget({
             onUploadSuccess(uploadedImageUrl);
           } else if (error) {
             console.error("Upload failed:", error);
+            toast.error("画像のアッフロートに失敗しました");
           }
         },
       );
