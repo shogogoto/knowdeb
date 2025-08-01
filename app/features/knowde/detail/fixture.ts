@@ -2098,7 +2098,7 @@ export const fixtureDetail1: KnowdeDetail = {
   },
   location: {
     user: {
-      display_name: null,
+      display_name: "hogehoge",
       profile: null,
       avatar_url: null,
       username: null,
