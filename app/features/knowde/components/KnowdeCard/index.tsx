@@ -14,13 +14,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import { Badge } from "~/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import {
   Tooltip,
   TooltipContent,
@@ -42,30 +36,25 @@ type Props = {
 export default function KnowdeCard({ row, index }: Props) {
   const k = row;
   return (
-    <Card key={k.uid} className="w-full max-w-2xl">
-      {k.term && (
-        <CardHeader>
-          <div className="flex items-start justify-between gap-4">
-            <CardTitle className="flex flex-wrap gap-2">
-              {k.term?.names?.map((name) => (
-                <span
-                  key={name}
-                  className="inline-block rounded-full p-1
+    <Card key={k.uid} className="w-full max-w-2xl border">
+      <CardContent>
+        <div className="flex items-start gap-2">
+          {k.term?.names?.map((name) => (
+            <span
+              key={name}
+              className="inline-block rounded-full font-bold
                   text-green-800  dark:text-green-300"
-                >
-                  {name}
-                </span>
-              ))}
-            </CardTitle>
-          </div>
-        </CardHeader>
-      )}
-      {k.sentence !== "<<<not defined>>>" && (
-        <CardContent>
-          <p className="break-all">{k.sentence}</p>
-          <AdditionalItem additional={k.additional} />
-        </CardContent>
-      )}
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+
+        {k.sentence !== "<<<not defined>>>" && (
+          <span className="break-all">{k.sentence}</span>
+        )}
+        <AdditionalItem additional={k.additional} />
+      </CardContent>
       <CardFooter className="flex justify-between">
         <TooltipProvider>
           <StatView stats={row.stats} />
