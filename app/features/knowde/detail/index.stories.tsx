@@ -20,5 +20,5 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  args: { id: "ddeebd6f-8550-4839-96a4-7adf75df8622" },
+  args: { id: "d9442f16-504e-4284-bac1-cc0be01b812f" },
 };

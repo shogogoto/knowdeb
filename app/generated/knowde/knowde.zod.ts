@@ -117,6 +117,11 @@ export const searchByTextKnowdeGetResponseDataItemStatsDistLeafMin = -100;
 export const searchByTextKnowdeGetResponseDataItemStatsDistLeafMax = 1000;
 export const searchByTextKnowdeGetResponseDataItemStatsScoreMinOne = -100;
 export const searchByTextKnowdeGetResponseDataItemStatsScoreMaxOne = 1000;
+export const searchByTextKnowdeGetResponseOwnersUserDisplayNameMaxOne = 32;
+export const searchByTextKnowdeGetResponseOwnersUserProfileMaxOne = 160;
+export const searchByTextKnowdeGetResponseOwnersUserUsernameMaxOne = 16;
+export const searchByTextKnowdeGetResponseOwnersUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
 
 export const searchByTextKnowdeGetResponse = zod
   .object({
@@ -124,27 +129,29 @@ export const searchByTextKnowdeGetResponse = zod
     data: zod.array(
       zod
         .object({
-          knowde: zod
+          sentence: zod.string(),
+          uid: zod.string().uuid(),
+          term: zod
             .object({
-              sentence: zod.string(),
-              uid: zod.string().uuid(),
-              term: zod
-                .object({
-                  names: zod.array(zod.string()).optional(),
-                  alias: zod
-                    .string()
-                    .or(zod.null())
-                    .optional()
-                    .describe("参照用の無意味な記号(参照を持たない)"),
-                })
-                .describe("用語.")
+              names: zod.array(zod.string()).optional(),
+              alias: zod
+                .string()
                 .or(zod.null())
-                .optional(),
+                .optional()
+                .describe("参照用の無意味な記号(参照を持たない)"),
+            })
+            .describe("用語.")
+            .or(zod.null())
+            .optional(),
+          additional: zod
+            .object({
               when: zod.string().or(zod.null()).optional(),
               where: zod.string().or(zod.null()).optional(),
               by: zod.string().or(zod.null()).optional(),
             })
-            .describe("知識の最小単位."),
+            .describe("knowde付加情報.")
+            .or(zod.null())
+            .optional(),
           stats: zod
             .object({
               n_detail: zod
@@ -183,8 +190,58 @@ export const searchByTextKnowdeGetResponse = zod
                 .optional(),
             })
             .describe("知識の関係統計."),
+          resource_uid: zod.string().uuid(),
         })
-        .describe("統計情報付きknowde."),
+        .describe("知識の最小単位."),
+    ),
+    owners: zod.record(
+      zod.string(),
+      zod
+        .object({
+          user: zod
+            .object({
+              display_name: zod
+                .string()
+                .max(searchByTextKnowdeGetResponseOwnersUserDisplayNameMaxOne)
+                .or(zod.null())
+                .optional(),
+              profile: zod
+                .string()
+                .max(searchByTextKnowdeGetResponseOwnersUserProfileMaxOne)
+                .or(zod.null())
+                .optional(),
+              avatar_url: zod.string().or(zod.null()).optional(),
+              username: zod
+                .string()
+                .max(searchByTextKnowdeGetResponseOwnersUserUsernameMaxOne)
+                .regex(searchByTextKnowdeGetResponseOwnersUserUsernameRegExpOne)
+                .or(zod.null())
+                .optional()
+                .describe(
+                  "半角英数字とハイフン、アンダースコアのみが使用できます。",
+                ),
+              uid: zod.string().uuid(),
+              created: zod.string().datetime({}),
+            })
+            .describe("公開ユーザー情報."),
+          resource: zod
+            .object({
+              name: zod.string(),
+              element_id_property: zod.string().or(zod.null()).optional(),
+              uid: zod.string().uuid(),
+              authors: zod.array(zod.string()).or(zod.null()).optional(),
+              published: zod.string().date().or(zod.null()).optional(),
+              urls: zod
+                .array(zod.string().url().min(1))
+                .or(zod.null())
+                .optional(),
+              path: zod.array(zod.string()).or(zod.null()).optional(),
+              updated: zod.string().datetime({}).or(zod.null()).optional(),
+              txt_hash: zod.number().or(zod.null()).optional(),
+            })
+            .describe("LResourceのOGM, リソースのメタ情報."),
+        })
+        .describe("リソースの所有者."),
     ),
   })
   .describe("knowde検索結果.");
@@ -287,8 +344,6 @@ export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsDistLeafMax = 
 export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsScoreMinOne =
   -100;
 export const detailKnowdeSentenceSentenceIdGetResponseKnowdesStatsScoreMaxOne = 1000;
-export const detailKnowdeSentenceSentenceIdGetResponseLocationUserOauthAccountsDefault =
-  [];
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserDisplayNameMaxOne = 32;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserProfileMaxOne = 160;
 export const detailKnowdeSentenceSentenceIdGetResponseLocationUserUsernameMaxOne = 16;
@@ -367,27 +422,29 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
       zod.string(),
       zod
         .object({
-          knowde: zod
+          sentence: zod.string(),
+          uid: zod.string().uuid(),
+          term: zod
             .object({
-              sentence: zod.string(),
-              uid: zod.string().uuid(),
-              term: zod
-                .object({
-                  names: zod.array(zod.string()).optional(),
-                  alias: zod
-                    .string()
-                    .or(zod.null())
-                    .optional()
-                    .describe("参照用の無意味な記号(参照を持たない)"),
-                })
-                .describe("用語.")
+              names: zod.array(zod.string()).optional(),
+              alias: zod
+                .string()
                 .or(zod.null())
-                .optional(),
+                .optional()
+                .describe("参照用の無意味な記号(参照を持たない)"),
+            })
+            .describe("用語.")
+            .or(zod.null())
+            .optional(),
+          additional: zod
+            .object({
               when: zod.string().or(zod.null()).optional(),
               where: zod.string().or(zod.null()).optional(),
               by: zod.string().or(zod.null()).optional(),
             })
-            .describe("知識の最小単位."),
+            .describe("knowde付加情報.")
+            .or(zod.null())
+            .optional(),
           stats: zod
             .object({
               n_detail: zod
@@ -458,30 +515,14 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
                 .optional(),
             })
             .describe("知識の関係統計."),
+          resource_uid: zod.string().uuid(),
         })
-        .describe("統計情報付きknowde."),
+        .describe("知識の最小単位."),
     ),
     location: zod
       .object({
         user: zod
           .object({
-            oauth_accounts: zod
-              .array(
-                zod
-                  .object({
-                    id: zod.any(),
-                    oauth_name: zod.string(),
-                    access_token: zod.string(),
-                    expires_at: zod.number().or(zod.null()).optional(),
-                    refresh_token: zod.string().or(zod.null()).optional(),
-                    account_id: zod.string(),
-                    account_email: zod.string(),
-                  })
-                  .describe("Base OAuth account model."),
-              )
-              .default(
-                detailKnowdeSentenceSentenceIdGetResponseLocationUserOauthAccountsDefault,
-              ),
             display_name: zod
               .string()
               .max(
@@ -511,14 +552,9 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
                 "半角英数字とハイフン、アンダースコアのみが使用できます。",
               ),
             uid: zod.string().uuid(),
-            email: zod.string().email(),
-            hashed_password: zod.string(),
-            is_active: zod.boolean(),
-            is_superuser: zod.boolean(),
-            is_verified: zod.boolean(),
             created: zod.string().datetime({}),
           })
-          .describe("UserProtocol[UUID]を満たす."),
+          .describe("公開ユーザー情報."),
         folders: zod.array(
           zod
             .object({
@@ -554,27 +590,29 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
         parents: zod.array(
           zod
             .object({
-              knowde: zod
+              sentence: zod.string(),
+              uid: zod.string().uuid(),
+              term: zod
                 .object({
-                  sentence: zod.string(),
-                  uid: zod.string().uuid(),
-                  term: zod
-                    .object({
-                      names: zod.array(zod.string()).optional(),
-                      alias: zod
-                        .string()
-                        .or(zod.null())
-                        .optional()
-                        .describe("参照用の無意味な記号(参照を持たない)"),
-                    })
-                    .describe("用語.")
+                  names: zod.array(zod.string()).optional(),
+                  alias: zod
+                    .string()
                     .or(zod.null())
-                    .optional(),
+                    .optional()
+                    .describe("参照用の無意味な記号(参照を持たない)"),
+                })
+                .describe("用語.")
+                .or(zod.null())
+                .optional(),
+              additional: zod
+                .object({
                   when: zod.string().or(zod.null()).optional(),
                   where: zod.string().or(zod.null()).optional(),
                   by: zod.string().or(zod.null()).optional(),
                 })
-                .describe("知識の最小単位."),
+                .describe("knowde付加情報.")
+                .or(zod.null())
+                .optional(),
               stats: zod
                 .object({
                   n_detail: zod
@@ -645,8 +683,9 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
                     .optional(),
                 })
                 .describe("知識の関係統計."),
+              resource_uid: zod.string().uuid(),
             })
-            .describe("統計情報付きknowde."),
+            .describe("知識の最小単位."),
         ),
       })
       .describe("knowdeの位置情報."),

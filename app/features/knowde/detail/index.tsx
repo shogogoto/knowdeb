@@ -29,7 +29,7 @@ export default function KnowdeDetailView({ id }: Props) {
     <>
       <div>{id}</div>
       {Object.values(data.data.knowdes).map((v, i) => {
-        return <KnowdeCard key={v.knowde.uid} row={v} index={i} />;
+        return <KnowdeCard key={v.uid} row={v} index={i} />;
       })}
     </>
   );

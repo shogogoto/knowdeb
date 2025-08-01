@@ -39,6 +39,7 @@ export async function uploadImage(
 }
 
 export async function deleteImage({ request }: ActionFunctionArgs) {
+  // coockie で認証できればいいな
   const formData = await request.formData();
   const publicId = formData.get("public_id") as string;
   const res = await cloudinary.uploader.destroy(`${CLOUD_FOLDER}/${publicId}`, {

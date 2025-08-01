@@ -18,41 +18,47 @@ export const getSearchByTextKnowdeGetResponseMock = (
     { length: faker.number.int({ min: 1, max: 10 }) },
     (_, i) => i + 1,
   ).map(() => ({
-    knowde: {
-      sentence: faker.string.alpha(20),
-      uid: faker.string.uuid(),
-      term: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([
-          {
-            names: faker.helpers.arrayElement([
-              Array.from(
-                { length: faker.number.int({ min: 1, max: 10 }) },
-                (_, i) => i + 1,
-              ).map(() => faker.string.alpha(20)),
-              undefined,
-            ]),
-            alias: faker.helpers.arrayElement([
-              faker.helpers.arrayElement([faker.string.alpha(20), null]),
-              undefined,
-            ]),
-          },
-          null,
-        ]),
-        undefined,
+    sentence: faker.string.alpha(20),
+    uid: faker.string.uuid(),
+    term: faker.helpers.arrayElement([
+      faker.helpers.arrayElement([
+        {
+          names: faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.string.alpha(20)),
+            undefined,
+          ]),
+          alias: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([faker.string.alpha(20), null]),
+            undefined,
+          ]),
+        },
+        null,
       ]),
-      when: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
+      undefined,
+    ]),
+    additional: faker.helpers.arrayElement([
+      faker.helpers.arrayElement([
+        {
+          when: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([faker.string.alpha(20), null]),
+            undefined,
+          ]),
+          where: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([faker.string.alpha(20), null]),
+            undefined,
+          ]),
+          by: faker.helpers.arrayElement([
+            faker.helpers.arrayElement([faker.string.alpha(20), null]),
+            undefined,
+          ]),
+        },
+        null,
       ]),
-      where: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-      by: faker.helpers.arrayElement([
-        faker.helpers.arrayElement([faker.string.alpha(20), null]),
-        undefined,
-      ]),
-    },
+      undefined,
+    ]),
     stats: {
       n_detail: faker.number.int({ min: -100, max: 1000 }),
       n_premise: faker.number.int({ min: -100, max: 1000 }),
@@ -69,7 +75,94 @@ export const getSearchByTextKnowdeGetResponseMock = (
         undefined,
       ]),
     },
+    resource_uid: faker.string.uuid(),
   })),
+  owners: {
+    [faker.string.alphanumeric(5)]: {
+      user: {
+        display_name: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        profile: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        avatar_url: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        username: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+            null,
+          ]),
+          undefined,
+        ]),
+        uid: faker.string.uuid(),
+        created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      },
+      resource: {
+        name: faker.string.alpha(20),
+        element_id_property: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        uid: faker.string.uuid(),
+        authors: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.string.alpha(20)),
+            null,
+          ]),
+          undefined,
+        ]),
+        published: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.date.past().toISOString().split("T")[0],
+            null,
+          ]),
+          undefined,
+        ]),
+        urls: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.internet.url()),
+            null,
+          ]),
+          undefined,
+        ]),
+        path: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.string.alpha(20)),
+            null,
+          ]),
+          undefined,
+        ]),
+        updated: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+          ]),
+          undefined,
+        ]),
+        txt_hash: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+      },
+    },
+  },
   ...overrideResponse,
 });
 
@@ -101,41 +194,47 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
   },
   knowdes: {
     [faker.string.alphanumeric(5)]: {
-      knowde: {
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
+        undefined,
+      ]),
+      additional: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            when: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+            where: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+            by: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        where: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-        by: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-      },
+        undefined,
+      ]),
       stats: {
         n_detail: faker.number.int({ min: -100, max: 1000 }),
         n_premise: faker.number.int({ min: -100, max: 1000 }),
@@ -152,34 +251,11 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
           undefined,
         ]),
       },
+      resource_uid: faker.string.uuid(),
     },
   },
   location: {
     user: {
-      oauth_accounts: faker.helpers.arrayElement([
-        Array.from(
-          { length: faker.number.int({ min: 1, max: 10 }) },
-          (_, i) => i + 1,
-        ).map(() => ({
-          id: {},
-          oauth_name: faker.string.alpha(20),
-          access_token: faker.string.alpha(20),
-          expires_at: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([
-              faker.number.int({ min: undefined, max: undefined }),
-              null,
-            ]),
-            undefined,
-          ]),
-          refresh_token: faker.helpers.arrayElement([
-            faker.helpers.arrayElement([faker.string.alpha(20), null]),
-            undefined,
-          ]),
-          account_id: faker.string.alpha(20),
-          account_email: faker.string.alpha(20),
-        })),
-        undefined,
-      ]),
       display_name: faker.helpers.arrayElement([
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
         undefined,
@@ -200,11 +276,6 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
         undefined,
       ]),
       uid: faker.string.uuid(),
-      email: faker.internet.email(),
-      hashed_password: faker.string.alpha(20),
-      is_active: faker.datatype.boolean(),
-      is_superuser: faker.datatype.boolean(),
-      is_verified: faker.datatype.boolean(),
       created: `${faker.date.past().toISOString().split(".")[0]}Z`,
     },
     folders: Array.from(
@@ -278,41 +349,47 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
       { length: faker.number.int({ min: 1, max: 10 }) },
       (_, i) => i + 1,
     ).map(() => ({
-      knowde: {
-        sentence: faker.string.alpha(20),
-        uid: faker.string.uuid(),
-        term: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([
-            {
-              names: faker.helpers.arrayElement([
-                Array.from(
-                  { length: faker.number.int({ min: 1, max: 10 }) },
-                  (_, i) => i + 1,
-                ).map(() => faker.string.alpha(20)),
-                undefined,
-              ]),
-              alias: faker.helpers.arrayElement([
-                faker.helpers.arrayElement([faker.string.alpha(20), null]),
-                undefined,
-              ]),
-            },
-            null,
-          ]),
-          undefined,
+      sentence: faker.string.alpha(20),
+      uid: faker.string.uuid(),
+      term: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            names: faker.helpers.arrayElement([
+              Array.from(
+                { length: faker.number.int({ min: 1, max: 10 }) },
+                (_, i) => i + 1,
+              ).map(() => faker.string.alpha(20)),
+              undefined,
+            ]),
+            alias: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        when: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
+        undefined,
+      ]),
+      additional: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          {
+            when: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+            where: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+            by: faker.helpers.arrayElement([
+              faker.helpers.arrayElement([faker.string.alpha(20), null]),
+              undefined,
+            ]),
+          },
+          null,
         ]),
-        where: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-        by: faker.helpers.arrayElement([
-          faker.helpers.arrayElement([faker.string.alpha(20), null]),
-          undefined,
-        ]),
-      },
+        undefined,
+      ]),
       stats: {
         n_detail: faker.number.int({ min: -100, max: 1000 }),
         n_premise: faker.number.int({ min: -100, max: 1000 }),
@@ -329,6 +406,7 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
           undefined,
         ]),
       },
+      resource_uid: faker.string.uuid(),
     })),
   },
   ...overrideResponse,

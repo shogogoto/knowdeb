@@ -27,16 +27,20 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import type { KStats, KnowdeWithStats } from "~/generated/fastAPI.schemas";
+import type {
+  KStats,
+  Knowde,
+  KnowdeAdditional,
+} from "~/generated/fastAPI.schemas";
 
 type Props = {
-  row: KnowdeWithStats;
+  row: Knowde;
   index?: number;
   isOpen?: boolean;
 };
 
 export default function KnowdeCard({ row, index }: Props) {
-  const k = row.knowde;
+  const k = row;
   return (
     <Card key={k.uid} className="w-full max-w-2xl">
       {k.term && (
@@ -46,7 +50,8 @@ export default function KnowdeCard({ row, index }: Props) {
               {k.term?.names?.map((name) => (
                 <span
                   key={name}
-                  className="inline-block rounded-full bg-green-100 px-3 py-1 text-lg font-medium text-green-800 dark:bg-green-900 dark:text-green-300"
+                  className="inline-block rounded-full p-1
+                  text-green-800  dark:text-green-300"
                 >
                   {name}
                 </span>
@@ -58,28 +63,7 @@ export default function KnowdeCard({ row, index }: Props) {
       {k.sentence !== "<<<not defined>>>" && (
         <CardContent>
           <p className="break-all">{k.sentence}</p>
-          {(k.when || k.where || k.by) && (
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-sm text-muted-foreground">
-              {k.when && (
-                <span className="flex items-center gap-1">
-                  <Calendar className="size-4" />
-                  {k.when}
-                </span>
-              )}
-              {k.where && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="size-4" />
-                  {k.where}
-                </span>
-              )}
-              {k.by && (
-                <span className="flex items-center gap-1">
-                  <User className="size-4" />
-                  {k.by}
-                </span>
-              )}
-            </div>
-          )}
+          <AdditionalItem additional={k.additional} />
         </CardContent>
       )}
       <CardFooter className="flex justify-between">
@@ -151,5 +135,35 @@ function StatItem({
         <p>{label}</p>
       </TooltipContent>
     </Tooltip>
+  );
+}
+
+function AdditionalItem({
+  additional,
+}: { additional: KnowdeAdditional | undefined }) {
+  if (!additional) {
+    return null;
+  }
+  return (
+    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-sm text-muted-foreground">
+      {additional.when && (
+        <span className="flex items-center gap-1">
+          <Calendar className="size-4" />
+          {additional.when}
+        </span>
+      )}
+      {additional.where && (
+        <span className="flex items-center gap-1">
+          <MapPin className="size-4" />
+          {additional.where}
+        </span>
+      )}
+      {additional.by && (
+        <span className="flex items-center gap-1">
+          <User className="size-4" />
+          {additional.by}
+        </span>
+      )}
+    </div>
   );
 }
