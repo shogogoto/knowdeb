@@ -1,22 +1,19 @@
 import { useContext } from "react";
 import { useNavigation } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
-import type { KnowdeWithStats } from "~/generated/fastAPI.schemas";
+import type { Knowde } from "~/generated/fastAPI.schemas";
 import KnowdeCard from "./components/KnowdeCard";
 
 type Props = {
   data: {
     total: number;
-    data: KnowdeWithStats[];
+    data: Knowde[];
   };
 };
 
 export default function SearchResults({ data }: Props) {
   const { startIndex } = useContext(PageContext);
   const navigation = useNavigation();
-  const isLoading =
-    navigation.state === "submitting" || navigation.state === "loading";
-
   return (
     <div className="container mx-auto p-4">
       <div>
@@ -28,7 +25,7 @@ export default function SearchResults({ data }: Props) {
                 <KnowdeCard
                   row={row}
                   index={index + startIndex}
-                  key={row.knowde.uid}
+                  key={row.uid}
                 />
               ))}
             </div>

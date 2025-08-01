@@ -14,17 +14,11 @@ import {
   UserSearch,
   Users,
 } from "lucide-react";
-import { documents } from "~/routes/docs/toc";
 import SideMenu from "./components/Sidemenu";
 
 export function DocsSideMenu() {
   return (
-    <SideMenu
-      title={"ドキュメント"}
-      to={"/docs"}
-      icon={<BookOpen />}
-      subs={documents}
-    />
+    <SideMenu title={"ドキュメント"} to={"/docs/toc"} icon={<BookOpen />} />
   );
 }
 
