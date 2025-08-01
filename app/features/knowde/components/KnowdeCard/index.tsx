@@ -26,51 +26,74 @@ import type {
   Knowde,
   KnowdeAdditional,
 } from "~/generated/fastAPI.schemas";
+import { cn } from "~/lib/utils";
 
 type Props = {
   row: Knowde;
   index?: number;
-  isOpen?: boolean;
 };
 
 export default function KnowdeCard({ row, index }: Props) {
   const k = row;
   return (
-    <Card key={k.uid} className="w-full max-w-2xl border">
-      <CardContent>
-        <div className="flex items-start gap-2">
-          {k.term?.names?.map((name) => (
-            <span
-              key={name}
-              className="inline-block rounded-full font-bold
-                  text-green-800  dark:text-green-300"
-            >
-              {name}
-            </span>
-          ))}
-        </div>
-
-        {k.sentence !== "<<<not defined>>>" && (
-          <span className="break-all">{k.sentence}</span>
-        )}
-        <AdditionalItem additional={k.additional} />
-      </CardContent>
-      <CardFooter className="flex justify-between">
-        <TooltipProvider>
-          <StatView stats={row.stats} />
-        </TooltipProvider>
-        {index !== undefined && (
-          <Badge asChild>
-            <Link
-              to={`/knowde/${k.uid}`}
-              className="text-sm underline hover:text-blue-600 hover:decoration-blue-600"
-            >
-              #{index}
-            </Link>
-          </Badge>
-        )}
-      </CardFooter>
+    <Card key={k.uid} className="w-full max-w-2xl">
+      <KnowdeCardContent k={k} />
+      <KnowdeCardFooter k={k} index={index} />
     </Card>
+  );
+}
+
+type KProps = { k: Knowde; className?: string };
+
+export function KnowdeCardContent({ k, className }: KProps) {
+  return (
+    <CardContent>
+      <div className="flex items-start gap-2">
+        {k.term?.names?.map((name) => (
+          <span
+            key={name}
+            className={cn(
+              "inline-block rounded-full font-bold text-green-800  dark:text-green-300",
+              className,
+            )}
+          >
+            {name}
+          </span>
+        ))}
+      </div>
+
+      {k.sentence !== "<<<not defined>>>" && (
+        <span className="break-all">{k.sentence}</span>
+      )}
+      <AdditionalItem additional={k.additional} />
+    </CardContent>
+  );
+}
+
+export function KnowdeCardFooter({
+  k,
+  index,
+  className,
+}: KProps & { index?: number }) {
+  return (
+    <CardFooter className="flex justify-between">
+      <TooltipProvider>
+        <StatView stats={k.stats} />
+      </TooltipProvider>
+      {index !== undefined && (
+        <Badge asChild>
+          <Link
+            to={`/knowde/${k.uid}`}
+            className={cn(
+              "text-sm underline hover:text-blue-600 hover:decoration-blue-600",
+              className,
+            )}
+          >
+            #{index}
+          </Link>
+        </Badge>
+      )}
+    </CardFooter>
   );
 }
 
