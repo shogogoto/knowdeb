@@ -32,7 +32,7 @@ function ParentKnowdes({ parents }: { parents: Knowde[] }) {
           key={p.uid}
           //className="ml-4 border-l-2 pl-4"
         >
-          <KnowdeCard row={p} />
+          <KnowdeCard k={p} />
         </div>
       ))}
     </div>

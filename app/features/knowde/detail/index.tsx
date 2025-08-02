@@ -1,5 +1,10 @@
+import { Card } from "~/components/ui/card";
 import { useDetailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
-import KnowdeCard from "../components/KnowdeCard";
+import KnowdeCard, {
+  KnowdeCardContent,
+  KnowdeCardFooter,
+} from "../components/KnowdeCard";
+import KnowdeGroup from "./KnowdeGroup";
 
 type Props = {
   id: string;
@@ -25,12 +30,21 @@ export default function KnowdeDetailView({ id }: Props) {
     return <div>Invalid data structure.</div>;
   }
 
+  const { g, uid, location, knowdes } = data.data;
+  const excepted = Object.keys(knowdes).filter((v) => v !== uid);
+
+  const k = knowdes[uid];
   return (
     <>
-      <div>{id}</div>
-      {Object.values(data.data.knowdes).map((v, i) => {
-        return <KnowdeCard key={v.uid} row={v} index={i} />;
-      })}
+      <Card key={k.uid} className="w-full max-w-2xl border">
+        <KnowdeCardContent k={k} />
+        <KnowdeCardFooter k={k} />
+      </Card>
+      <KnowdeGroup>
+        {excepted.map((v, i) => {
+          return <KnowdeCard key={v} k={knowdes[v]} index={i} />;
+        })}
+      </KnowdeGroup>
     </>
   );
 }

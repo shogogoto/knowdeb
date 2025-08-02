@@ -29,12 +29,11 @@ import type {
 import { cn } from "~/lib/utils";
 
 type Props = {
-  row: Knowde;
+  k: Knowde;
   index?: number;
 };
 
-export default function KnowdeCard({ row, index }: Props) {
-  const k = row;
+export default function KnowdeCard({ k, index }: Props) {
   return (
     <Card key={k.uid} className="w-full max-w-2xl">
       <KnowdeCardContent k={k} />
