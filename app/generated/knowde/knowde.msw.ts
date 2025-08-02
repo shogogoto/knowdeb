@@ -8,6 +8,7 @@ import { faker } from "@faker-js/faker";
 
 import { http, HttpResponse, delay } from "msw";
 
+import { EdgeType } from "../fastAPI.schemas";
 import type { KnowdeDetail, KnowdeSearchResult } from "../fastAPI.schemas";
 
 export const getSearchByTextKnowdeGetResponseMock = (
@@ -176,9 +177,7 @@ export const getDetailKnowdeSentenceSentenceIdGetResponseMock = (
       { length: faker.number.int({ min: 1, max: 10 }) },
       (_, i) => i + 1,
     ).map(() => ({
-      type: faker.helpers.arrayElement([
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-      ] as const),
+      type: faker.helpers.arrayElement(Object.values(EdgeType)),
       source: faker.string.alpha(20),
       target: faker.string.alpha(20),
       key: faker.number.int({ min: undefined, max: undefined }),

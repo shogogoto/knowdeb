@@ -391,21 +391,23 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
           zod
             .object({
               type: zod
-                .literal(1)
-                .or(zod.literal(2))
-                .or(zod.literal(3))
-                .or(zod.literal(4))
-                .or(zod.literal(5))
-                .or(zod.literal(6))
-                .or(zod.literal(7))
-                .or(zod.literal(8))
-                .or(zod.literal(9))
-                .or(zod.literal(10))
-                .or(zod.literal(11))
-                .or(zod.literal(12))
-                .or(zod.literal(13))
-                .or(zod.literal(14))
-                .or(zod.literal(15))
+                .enum([
+                  "head",
+                  "sibling",
+                  "below",
+                  "def",
+                  "resolved",
+                  "quoterm",
+                  "to",
+                  "example",
+                  "when",
+                  "where",
+                  "num",
+                  "by",
+                  "ref",
+                  "anti",
+                  "similar",
+                ])
                 .describe("グラフ関係の種類."),
               source: zod.string(),
               target: zod.string(),

@@ -109,21 +109,21 @@ export type EdgeType = (typeof EdgeType)[keyof typeof EdgeType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EdgeType = {
-  NUMBER_1: 1,
-  NUMBER_2: 2,
-  NUMBER_3: 3,
-  NUMBER_4: 4,
-  NUMBER_5: 5,
-  NUMBER_6: 6,
-  NUMBER_7: 7,
-  NUMBER_8: 8,
-  NUMBER_9: 9,
-  NUMBER_10: 10,
-  NUMBER_11: 11,
-  NUMBER_12: 12,
-  NUMBER_13: 13,
-  NUMBER_14: 14,
-  NUMBER_15: 15,
+  head: "head",
+  sibling: "sibling",
+  below: "below",
+  def: "def",
+  resolved: "resolved",
+  quoterm: "quoterm",
+  to: "to",
+  example: "example",
+  when: "when",
+  where: "where",
+  num: "num",
+  by: "by",
+  ref: "ref",
+  anti: "anti",
+  similar: "similar",
 } as const;
 
 export type EntryElementIdProperty = string | null;
