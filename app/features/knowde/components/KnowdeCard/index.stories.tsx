@@ -36,13 +36,13 @@ const mock: Knowde = {
 
 export const Default: Story = {
   args: {
-    row: mock,
+    k: mock,
   },
 };
 
 export const NoName: Story = {
   args: {
-    row: {
+    k: {
       ...mock,
       sentence: "A".repeat(120),
     },
@@ -52,7 +52,7 @@ export const NoName: Story = {
 
 export const LongName: Story = {
   args: {
-    row: {
+    k: {
       ...mock,
       sentence: "x".repeat(80),
       term: {
