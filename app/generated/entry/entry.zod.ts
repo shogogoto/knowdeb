@@ -18,8 +18,28 @@ export const getNamaspaceNamespaceGetResponse = zod
         edges: zod.array(
           zod
             .object({
+              type: zod
+                .enum([
+                  "head",
+                  "sibling",
+                  "below",
+                  "def",
+                  "resolved",
+                  "quoterm",
+                  "to",
+                  "example",
+                  "when",
+                  "where",
+                  "num",
+                  "by",
+                  "ref",
+                  "anti",
+                  "similar",
+                ])
+                .describe("グラフ関係の種類."),
               source: zod.string(),
               target: zod.string(),
+              key: zod.number(),
             })
             .describe("for fastapi schema."),
         ),

@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { ThemeToggle } from "~/components/theme/ThemeToggle";
+import ThemeToggle from "~/components/theme/ThemeToggle";
 import {
   SidebarMenu,
   SidebarMenuAction,
@@ -15,17 +15,15 @@ export function SiteLogo() {
 export default function LogoSideMenu() {
   return (
     <SidebarMenu>
-      <SidebarMenuItem>
+      <SidebarMenuItem className="flex items-center justify-between">
         <SidebarMenuButton asChild tooltip="Landing Page">
           <Link to="/">
             <SiteLogo />
             <span>Knowde</span>
           </Link>
         </SidebarMenuButton>
-        <SidebarMenuAction>
-          <div className="flex justify-center">
-            <ThemeToggle />
-          </div>
+        <SidebarMenuAction asChild>
+          <ThemeToggle buttonClassName="border-none" iconClassName="size-4" />
         </SidebarMenuAction>
       </SidebarMenuItem>
     </SidebarMenu>

@@ -4,6 +4,21 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+export type AdditionalWhen = string | null;
+
+export type AdditionalWhere = string | null;
+
+export type AdditionalBy = string | null;
+
+/**
+ * knowde付加情報.
+ */
+export interface Additional {
+  when?: AdditionalWhen;
+  where?: AdditionalWhere;
+  by?: AdditionalBy;
+}
+
 export type BaseOAuthAccountExpiresAt = number | null;
 
 export type BaseOAuthAccountRefreshToken = string | null;
@@ -81,9 +96,35 @@ export interface BodyVerifyVerifyAuthVerifyPost {
  * for fastapi schema.
  */
 export interface EdgeData {
+  type: EdgeType;
   source: string;
   target: string;
+  key: number;
 }
+
+/**
+ * グラフ関係の種類.
+ */
+export type EdgeType = (typeof EdgeType)[keyof typeof EdgeType];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const EdgeType = {
+  head: "head",
+  sibling: "sibling",
+  below: "below",
+  def: "def",
+  resolved: "resolved",
+  quoterm: "quoterm",
+  to: "to",
+  example: "example",
+  when: "when",
+  where: "where",
+  num: "num",
+  by: "by",
+  ref: "ref",
+  anti: "anti",
+  similar: "similar",
+} as const;
 
 export type EntryElementIdProperty = string | null;
 
@@ -169,11 +210,7 @@ export interface KStats {
 
 export type KnowdeTerm = Term | null;
 
-export type KnowdeWhen = string | null;
-
-export type KnowdeWhere = string | null;
-
-export type KnowdeBy = string | null;
+export type KnowdeAdditional = Additional | null;
 
 /**
  * 知識の最小単位.
@@ -182,12 +219,12 @@ export interface Knowde {
   sentence: string;
   uid: string;
   term?: KnowdeTerm;
-  when?: KnowdeWhen;
-  where?: KnowdeWhere;
-  by?: KnowdeBy;
+  additional?: KnowdeAdditional;
+  stats: KStats;
+  resource_uid: string;
 }
 
-export type KnowdeDetailKnowdes = { [key: string]: KnowdeWithStats };
+export type KnowdeDetailKnowdes = { [key: string]: Knowde };
 
 /**
  * 詳細.
@@ -203,27 +240,22 @@ export interface KnowdeDetail {
  * knowdeの位置情報.
  */
 export interface KnowdeLocation {
-  user: User;
+  user: UserReadPublic;
   folders: UidStr[];
   resource: MResource;
   headers: UidStr[];
-  parents: KnowdeWithStats[];
+  parents: Knowde[];
 }
+
+export type KnowdeSearchResultOwners = { [key: string]: ResourceOwnsers };
 
 /**
  * knowde検索結果.
  */
 export interface KnowdeSearchResult {
   total: number;
-  data: KnowdeWithStats[];
-}
-
-/**
- * 統計情報付きknowde.
- */
-export interface KnowdeWithStats {
-  knowde: Knowde;
-  stats: KStats;
+  data: Knowde[];
+  owners: KnowdeSearchResultOwners;
 }
 
 export type MResourceElementIdProperty = string | null;
@@ -295,6 +327,14 @@ export interface ResourceMeta {
  * リクエスト用.
  */
 export type ResourceMetas = ResourceMeta[];
+
+/**
+ * リソースの所有者.
+ */
+export interface ResourceOwnsers {
+  user: UserReadPublic;
+  resource: MResource;
+}
 
 /**
  * 参照用の無意味な記号(参照を持たない)

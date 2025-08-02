@@ -20,7 +20,7 @@ export default [
     route("docs/cli", "routes/docs/cli.mdx"),
     route("docs/features", "routes/docs/features.mdx"),
 
-    route("search", "routes/search/index.tsx"),
+    route("search", "routes/knowde/search/index.tsx"),
     route("knowde/:id", "routes/knowde/detail/index.tsx"),
     route("register", "routes/user/register.tsx"),
     route("login", "routes/user/login.tsx"),
