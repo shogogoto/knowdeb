@@ -66,7 +66,8 @@ describe("Google SSO", () => {
     });
     const user = userEvent.setup();
     render(<RouterProvider router={router} />);
-    const link = screen.getByRole("button");
+    const link = screen.getByRole("link");
+    expect(link).toHaveAttribute("href", "/google/authorize");
     await user.click(link);
     await waitFor(() => {
       expect(router.state.location.pathname).toBe(fakeGoogleAuthUrl);
