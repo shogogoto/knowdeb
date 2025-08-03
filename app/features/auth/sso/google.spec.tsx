@@ -17,18 +17,6 @@ const server = setupServer(...getGoogleMock(), ...getUserMock());
 beforeAll(() => server.listen());
 afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
-/*
-  ログイン画面 これは　SignInテスト
-    ログイン済み homeへ
-    未ログイン
-
-      google認証画面 authorizeで生成したURL画面
-      callback リダイレクト
-        成功 /home
-        失敗 /
-
-
-*/
 
 const fakeGoogleAuthUrl = "/fake-google-auth-page";
 const title = "Googleログイン";
@@ -78,9 +66,7 @@ describe("Google SSO", () => {
     });
     const user = userEvent.setup();
     render(<RouterProvider router={router} />);
-
-    const link = screen.getByRole("link");
-    expect(link).toHaveAttribute("href", "/google/authorize");
+    const link = screen.getByRole("button");
     await user.click(link);
     await waitFor(() => {
       expect(router.state.location.pathname).toBe(fakeGoogleAuthUrl);

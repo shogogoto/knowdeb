@@ -1,4 +1,5 @@
-import { Link, Navigate, redirect } from "react-router";
+import { useEffect } from "react";
+import { Navigate, redirect, useFetcher, useNavigate } from "react-router";
 import GoogleIcon from "~/components/icons/Google";
 import { Button } from "~/components/ui/button";
 import {
@@ -8,17 +9,11 @@ import {
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize() {
-  const res = await oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet(
+  return await oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet(
     {},
     { credentials: "include" },
   );
-  if (res.status === 200) {
-    return redirect(res.data.authorization_url);
-  }
-  console.error("Google SSO authorization failed", { cause: res });
-  return redirect("/");
 }
-
 export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
   const urlParams = new URLSearchParams(new URL(request.url).search);
   const code = urlParams.get("code");
@@ -41,11 +36,28 @@ export default function GoogleCallback() {
 }
 
 export function GoogleAuthButton({ title }: { title: string }) {
+  const fetcher = useFetcher();
+  const res = fetcher.data;
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (!res) return;
+    if (res.status === 200) {
+      const { authorization_url } = res.data;
+      navigate(authorization_url);
+      return;
+    }
+    console.error("Google SSO authorization failed", { cause: res });
+    navigate("/");
+  }, [res, navigate]);
+
+  const handleGoogleSignIn = () => {
+    fetcher.submit({}, { method: "get", action: "/google/authorize" });
+  };
   return (
-    <Button variant="outline" className="w-full" asChild>
-      <Link to="/google/authorize">
+    <>
+      <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
         <GoogleIcon className="mr-2 h-4 w-4" /> {title}
-      </Link>
-    </Button>
+      </Button>
+    </>
   );
 }
