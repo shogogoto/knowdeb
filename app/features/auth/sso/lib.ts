@@ -2,9 +2,8 @@ import { useNavigate } from "react-router";
 import { UAParser } from "ua-parser-js";
 import { oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet } from "~/generated/google/google";
 
-const inApp = ["Line"]; // 外部ブラウザで開きたい
-
 export function shouldOpenExternal() {
+  const inApp = ["Line"]; // 外部ブラウザで開きたい
   const parser = new UAParser(navigator.userAgent);
   const browser = parser.getBrowser();
   return inApp.includes(browser.name as string);
@@ -14,23 +13,32 @@ export function shouldOpenExternal() {
 export function navigateExternal(authorization_url: string) {
   const parser = new UAParser(navigator.userAgent);
   const os = parser.getOS().name;
-  if (os === "Android") {
-    const url = new URL(authorization_url);
-    const urlWithoutScheme = authorization_url.substring(url.protocol.length);
-    const fallbackUrl = `S.browser_fallback_url=${encodeURIComponent(
-      authorization_url,
-    )}`;
-    const intentUrl = `intent:${urlWithoutScheme}#Intent;scheme=https;action=android.intent.action.VIEW;${fallbackUrl};end`;
-    location.href = intentUrl;
-  } else if (os === "iOS") {
-    window.open(authorization_url, "_blank");
+  switch (os) {
+    case "Android": {
+      const url = new URL(authorization_url);
+      const urlWithoutScheme = authorization_url.substring(url.protocol.length);
+      const fallbackUrl = `S.browser_fallback_url=${encodeURIComponent(
+        authorization_url,
+      )}`;
+      const intentUrl = `intent:${urlWithoutScheme}#Intent;scheme=https;action=android.intent.action.VIEW;${fallbackUrl};end`;
+      location.href = intentUrl;
+      break;
+    }
+    case "iOS":
+      alert(
+        "アプリ内ブラウザではGoogle認証ができない場合があるので外部ブラウザで開こうと試みます。",
+      );
+      window.open(authorization_url, "_blank");
+      break;
+    default:
+      location.href = authorization_url;
+      break;
   }
-  location.href = authorization_url;
 }
 
-export function useGoogleAuthExternal() {
+export function useHandleGoogleSSOExternal() {
   const navigate = useNavigate();
-  async function handleGoogleSignIn() {
+  async function handleGoogleSSO() {
     const res = await oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet(
       {},
       { credentials: "include" },
@@ -44,5 +52,5 @@ export function useGoogleAuthExternal() {
     navigate("/");
   }
 
-  return { handleGoogleSignIn };
+  return { handleGoogleSSO };
 }

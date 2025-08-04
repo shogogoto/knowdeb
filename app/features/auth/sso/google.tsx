@@ -5,7 +5,7 @@ import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
-import { shouldOpenExternal, useGoogleAuthExternal } from "./lib";
+import { shouldOpenExternal, useHandleGoogleSSOExternal } from "./lib";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize() {
@@ -41,7 +41,7 @@ export default function GoogleCallback() {
 }
 
 export function GoogleAuthButton({ title }: { title: string }) {
-  const { handleGoogleSignIn } = useGoogleAuthExternal();
+  const { handleGoogleSSO } = useHandleGoogleSSOExternal();
   const icon = (
     <>
       <GoogleIcon className="mr-2 h-4 w-4" /> {title}
@@ -49,7 +49,7 @@ export function GoogleAuthButton({ title }: { title: string }) {
   );
   if (shouldOpenExternal()) {
     return (
-      <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+      <Button variant="outline" className="w-full" onClick={handleGoogleSSO}>
         {icon}
       </Button>
     );
