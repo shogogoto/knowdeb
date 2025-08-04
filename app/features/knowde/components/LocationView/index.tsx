@@ -5,9 +5,9 @@ import UserInfo from "../UserInfo";
 
 type Props = {
   loc: KnowdeLocation;
-} & React.PropsWithChildren;
+};
 
-export default function LocationView({ loc, children }: Props) {
+export default function LocationView({ loc }: Props) {
   return (
     <div className="flex flex-col gap-2">
       <UserInfo user={loc.user}>
@@ -15,7 +15,6 @@ export default function LocationView({ loc, children }: Props) {
       </UserInfo>
 
       <ParentKnowdes parents={loc.parents} />
-      {children}
     </div>
   );
 }

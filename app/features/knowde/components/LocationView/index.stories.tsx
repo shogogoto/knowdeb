@@ -14,6 +14,5 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   args: {
     loc: fixtureDetail1.location,
-    children: <div>aaaa</div>,
   },
 };

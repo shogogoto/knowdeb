@@ -190,6 +190,15 @@ export default function NamespaceExplorer() {
   const namespaceTree = buildNamespaceTree(data);
   return (
     <div>
+      <input
+        type="file"
+        id="file-input"
+        //webkitdirectory=""
+        // directory=""
+        accept=".txt, .md, .kn"
+        multiple
+      />
+
       <div className="mb-2">
         <Button onClick={() => setAllOpen((prev) => !prev)} variant="outline">
           {allOpen ? "Collapse All" : "Expand All"}

@@ -10,16 +10,16 @@ type Props = {
 export default function UserInfo({ user, children }: Props) {
   return (
     <div className="flex items-center gap-2">
-      <UserAvatar user={user} />
+      <Link
+        to={`/user/${user.username}`}
+        className="text-sm text-muted-foreground"
+      >
+        <UserAvatar user={user} />
+      </Link>
       <div className="flex flex-col">
         <div>
-          <span className="font-bold">{user.display_name} </span>
-          <Link
-            to={`/user/${user.username}`}
-            className="text-sm text-muted-foreground"
-          >
-            @{user.username || user.uid}
-          </Link>
+          <span className="font-bold">{user.display_name} </span>@
+          {user.username || user.uid}
         </div>
         {children}
       </div>

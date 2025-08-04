@@ -11,8 +11,8 @@ export default function ResourcePath({ resource }: Props) {
       <Link to={`/resource/${resource.uid}`} className="hover:underline">
         {resource.name}
       </Link>
-      <span>{resource?.authors}</span>
-      <span>{resource?.published}</span>
+      {/* <span>{resource?.authors}</span> */}
+      {/* <span>{resource?.published}</span> */}
     </div>
   );
 }

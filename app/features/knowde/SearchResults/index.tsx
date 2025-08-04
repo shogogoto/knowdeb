@@ -1,4 +1,5 @@
 import { useContext } from "react";
+import { Link } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
 import { Card, CardHeader } from "~/components/ui/card";
 import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
@@ -28,7 +29,9 @@ export default function SearchResults({ data }: Props) {
                         <ResourcePath resource={resource} />
                       </UserInfo>
                     </CardHeader>
-                    <KnowdeCardContent k={k} />
+                    <Link to={`/knowde/${k.uid}`}>
+                      <KnowdeCardContent k={k} />
+                    </Link>
                     <KnowdeCardFooter k={k} index={index} />
                   </Card>
                 );

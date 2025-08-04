@@ -13,14 +13,10 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
+import HybridTooltip from "~/components/HybridTooltip";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
+import { TooltipProvider } from "~/components/ui/tooltip";
 import type {
   KStats,
   Knowde,
@@ -35,10 +31,15 @@ type Props = {
 
 export default function KnowdeCard({ k, index }: Props) {
   return (
-    <Card key={k.uid} className="w-full max-w-2xl">
-      <KnowdeCardContent k={k} />
-      <KnowdeCardFooter k={k} index={index} />
-    </Card>
+    <Link
+      to={`/knowde/${k.uid}`}
+      draggable={false} // テキストをコピペできるため
+    >
+      <Card key={k.uid} className="w-full max-w-2xl">
+        <KnowdeCardContent k={k} />
+        <KnowdeCardFooter k={k} index={index} />
+      </Card>
+    </Link>
   );
 }
 
@@ -79,19 +80,7 @@ export function KnowdeCardFooter({
       <TooltipProvider>
         <StatView stats={k.stats} />
       </TooltipProvider>
-      {index !== undefined && (
-        <Badge asChild>
-          <Link
-            to={`/knowde/${k.uid}`}
-            className={cn(
-              "text-sm underline hover:text-blue-600 hover:decoration-blue-600",
-              className,
-            )}
-          >
-            #{index}
-          </Link>
-        </Badge>
-      )}
+      {index !== undefined && <Badge>#{index}</Badge>}
     </CardFooter>
   );
 }
@@ -135,17 +124,12 @@ function StatItem({
   value: number | undefined;
 }) {
   return (
-    <Tooltip>
+    <HybridTooltip content={label}>
       <div className="flex items-center gap-1">
-        <TooltipTrigger asChild>
-          <Icon className="size-4 cursor-pointer text-muted-foreground" />
-        </TooltipTrigger>
+        <Icon className="size-4 cursor-pointer text-muted-foreground" />
         <div className="font-mono text-sm text-right">{value}</div>
       </div>
-      <TooltipContent>
-        <p>{label}</p>
-      </TooltipContent>
-    </Tooltip>
+    </HybridTooltip>
   );
 }
 

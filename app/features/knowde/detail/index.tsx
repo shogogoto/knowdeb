@@ -4,6 +4,7 @@ import KnowdeCard, {
   KnowdeCardContent,
   KnowdeCardFooter,
 } from "../components/KnowdeCard";
+import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
 
 type Props = {
@@ -36,6 +37,7 @@ export default function KnowdeDetailView({ id }: Props) {
   const k = knowdes[uid];
   return (
     <>
+      <LocationView loc={location} />
       <Card key={k.uid} className="w-full max-w-2xl border">
         <KnowdeCardContent k={k} />
         <KnowdeCardFooter k={k} />
