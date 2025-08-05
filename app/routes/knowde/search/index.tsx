@@ -1,5 +1,5 @@
-import { searchKnowde } from "~/features/knowde/search";
 import KnowdeSearch from "~/features/knowde/search/index";
+import { searchKnowde } from "~/features/knowde/search/server";
 
 export function meta() {
   return [

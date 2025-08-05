@@ -3,8 +3,8 @@ import { useLoaderData } from "react-router";
 import PageNavi from "~/components/Pagenation";
 import PageProvider from "~/components/Pagenation/PageProvider";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
-import { SearchProvider } from "../SearchContext";
 import SearchBar from "./SearchBar";
+import { SearchProvider } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
 export default function KnowdeSearch() {
