@@ -13,7 +13,7 @@ type Props = {
 export default function SearchResults({ data }: Props) {
   const { startIndex } = useContext(PageContext);
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto">
       <div>
         {data.total > 0 ? (
           <div>

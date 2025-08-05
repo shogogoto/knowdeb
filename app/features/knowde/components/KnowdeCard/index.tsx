@@ -16,6 +16,11 @@ import { Link } from "react-router";
 import HybridTooltip from "~/components/HybridTooltip";
 import { Badge } from "~/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
 import { TooltipProvider } from "~/components/ui/tooltip";
 import type {
   KStats,
@@ -24,7 +29,6 @@ import type {
   MResource,
 } from "~/generated/fastAPI.schemas";
 import { cn } from "~/lib/utils";
-import ResourcePath from "../ResourcePath";
 
 type Props = {
   k: Knowde;
@@ -67,18 +71,22 @@ export function KnowdeCardContent({ k, className, resource }: KProps) {
         <span className="break-all">{k.sentence}</span>
       )}
       <div className="flex flex-wrap items-center gap-x-4 mt-4 text-sm text-muted-foreground">
-        {resource && <ResourcePath resource={resource} />}
+        {resource && (
+          <div className="text-sm text-muted-foreground space-x-2">
+            <Link to={`/resource/${resource.uid}`} className="hover:underline">
+              {resource.name}
+            </Link>
+            {/* <span>{resource?.authors}</span> */}
+            {/* <span>{resource?.published}</span> */}
+          </div>
+        )}
         <AdditionalItem additional={k.additional} />
       </div>
     </CardContent>
   );
 }
 
-export function KnowdeCardFooter({
-  k,
-  index,
-  className,
-}: KProps & { index?: number }) {
+export function KnowdeCardFooter({ k, index }: KProps & { index?: number }) {
   return (
     <CardFooter className="flex justify-between">
       <TooltipProvider>
@@ -89,9 +97,13 @@ export function KnowdeCardFooter({
   );
 }
 
-function StatView({ stats }: { stats: KStats | undefined }) {
+function StatView({
+  stats,
+  collapsible,
+}: { stats: KStats | undefined; collapsible?: boolean }) {
+  const score_it = { Icon: Award, label: "スコア", value: stats?.score || -1 };
+
   const items = [
-    { Icon: Award, label: "スコア", value: stats?.score },
     { Icon: BookText, label: "詳細数", value: stats?.n_detail },
     { Icon: ChevronsUp, label: "前提数", value: stats?.n_premise },
     { Icon: ChevronsDown, label: "結論数", value: stats?.n_conclusion },
@@ -101,19 +113,35 @@ function StatView({ stats }: { stats: KStats | undefined }) {
     { Icon: ArrowDownToDot, label: "結論距離", value: stats?.dist_leaf },
   ];
 
+  const score_c = <StatItem {...score_it} />;
+  const items_c = items.map(
+    (stat) =>
+      stat.value != null && (
+        <StatItem
+          key={stat.label}
+          Icon={stat.Icon}
+          label={stat.label}
+          value={stat.value}
+        />
+      ),
+  );
+  const className = "flex flex-wrap items-center gap-x-2";
+  if (collapsible)
+    return (
+      <Collapsible>
+        <div className={className}>
+          <CollapsibleTrigger>{score_c}</CollapsibleTrigger>
+          <CollapsibleContent className={className}>
+            {items_c}
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    );
+
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-      {items.map(
-        (stat) =>
-          stat.value != null && (
-            <StatItem
-              key={stat.label}
-              Icon={stat.Icon}
-              label={stat.label}
-              value={stat.value}
-            />
-          ),
-      )}
+    <div className={className}>
+      {score_c}
+      {items_c}
     </div>
   );
 }

@@ -26,11 +26,11 @@ export default function HybridTooltip({
   children,
 }: HybridTooltipProps) {
   // 画面幅が768px（mdブレイクポイント）以上かどうかを判定
-  const isDesktop = !useIsMobile();
+  const isMobile = !useIsMobile();
 
-  if (isDesktop) {
+  if (!isMobile) {
     return (
-      <TooltipProvider delayDuration={300}>
+      <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>{children}</TooltipTrigger>
           <TooltipContent>{content}</TooltipContent>

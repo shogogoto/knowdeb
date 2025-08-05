@@ -2,7 +2,6 @@ import { Link } from "react-router";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { Knowde, KnowdeLocation } from "~/generated/fastAPI.schemas";
 import KnowdeCard from "../KnowdeCard";
-import ResourcePath from "../ResourcePath";
 
 type Props = {
   loc: KnowdeLocation;
@@ -24,7 +23,16 @@ export default function LocationView({ loc }: Props) {
             <span className="font-bold">{user.display_name} </span>@
             {user.username || user.uid}
           </div>
-          <ResourcePath resource={loc.resource} />
+          <div className="text-sm text-muted-foreground space-x-2">
+            <Link
+              to={`/resource/${loc.resource.uid}`}
+              className="hover:underline"
+            >
+              {loc.resource.name}
+            </Link>
+            <span>{loc.resource.authors}</span>
+            <span>{loc.resource.published}</span>
+          </div>
         </div>
       </div>
 
