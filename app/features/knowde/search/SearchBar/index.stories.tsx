@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { SearchProvider } from "../SearchContext";
+import { SearchProvider } from "../../SearchContext";
 import Index from "./index";
 
 const meta = {

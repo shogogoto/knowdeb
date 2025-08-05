@@ -6,7 +6,7 @@ import {
 } from "react";
 import { useSearchParams } from "react-router";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
+import { type OrderBy, defaultOrderBy } from "./search/SearchBar/types";
 
 type SearchContextType = {
   q: string;

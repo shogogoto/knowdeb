@@ -4,7 +4,10 @@ import { PageContext } from "~/components/Pagenation/PageProvider";
 import { Card } from "~/components/ui/card";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
-import { KnowdeCardContent, KnowdeCardFooter } from "../components/KnowdeCard";
+import {
+  KnowdeCardContent,
+  KnowdeCardFooter,
+} from "../../components/KnowdeCard";
 
 type Props = {
   data: KnowdeSearchResult;

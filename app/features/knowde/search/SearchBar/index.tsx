@@ -2,7 +2,7 @@ import { LoaderCircle } from "lucide-react";
 import { useContext, useState } from "react";
 import { Form, useNavigation, useSubmit } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
-import SearchContext from "../SearchContext";
+import SearchContext from "../../SearchContext";
 import SearchConfig from "./SearchConfig";
 
 export default function SearchBar() {
@@ -82,7 +82,7 @@ export default function SearchBar() {
               key={key}
               type="hidden"
               name={key}
-              value={value.toString()}
+              value={value?.toString()}
             />
           ),
       )}
