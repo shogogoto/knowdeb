@@ -21,8 +21,10 @@ import type {
   KStats,
   Knowde,
   KnowdeAdditional,
+  MResource,
 } from "~/generated/fastAPI.schemas";
 import { cn } from "~/lib/utils";
+import ResourcePath from "../ResourcePath";
 
 type Props = {
   k: Knowde;
@@ -43,17 +45,17 @@ export default function KnowdeCard({ k, index }: Props) {
   );
 }
 
-type KProps = { k: Knowde; className?: string };
+type KProps = { k: Knowde; className?: string; resource?: MResource };
 
-export function KnowdeCardContent({ k, className }: KProps) {
+export function KnowdeCardContent({ k, className, resource }: KProps) {
   return (
     <CardContent>
-      <div className="flex items-start gap-2">
+      <div className="flex flex-wrap items-start gap-2">
         {k.term?.names?.map((name) => (
           <span
             key={name}
             className={cn(
-              "inline-block rounded-full font-bold text-green-800  dark:text-green-300",
+              "rounded-full font-bold text-green-800  dark:text-green-300",
               className,
             )}
           >
@@ -61,11 +63,13 @@ export function KnowdeCardContent({ k, className }: KProps) {
           </span>
         ))}
       </div>
-
       {k.sentence !== "<<<not defined>>>" && (
         <span className="break-all">{k.sentence}</span>
       )}
-      <AdditionalItem additional={k.additional} />
+      <div className="flex flex-wrap items-center gap-x-4 mt-4 text-sm text-muted-foreground">
+        {resource && <ResourcePath resource={resource} />}
+        <AdditionalItem additional={k.additional} />
+      </div>
     </CardContent>
   );
 }
@@ -140,25 +144,25 @@ function AdditionalItem({
     return null;
   }
   return (
-    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-4 text-sm text-muted-foreground">
+    <>
       {additional.when && (
-        <span className="flex items-center gap-1">
+        <span className="flex items-center">
           <Calendar className="size-4" />
           {additional.when}
         </span>
       )}
       {additional.where && (
-        <span className="flex items-center gap-1">
+        <span className="flex items-center">
           <MapPin className="size-4" />
           {additional.where}
         </span>
       )}
       {additional.by && (
-        <span className="flex items-center gap-1">
+        <span className="flex items-center">
           <User className="size-4" />
           {additional.by}
         </span>
       )}
-    </div>
+    </>
   );
 }

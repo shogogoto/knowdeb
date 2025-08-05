@@ -2309,11 +2309,11 @@ export const fixtureSearchResult: KnowdeSearchResult = {
   owners: {
     "67cde8ac-66da-4a45-9028-ffd8c6146752": {
       user: {
-        display_name: null,
+        display_name: "devdevdevdev",
         profile: null,
         avatar_url:
           "https://res.cloudinary.com/dgsdrcpcs/image/upload/v1754062218/avatar/25fe8b78-9f8a-4f70-85f3-cfa28a780402.jpg",
-        username: null,
+        username: "super-developer",
         uid: "25fe8b78-9f8a-4f70-85f3-cfa28a780402",
         created: "2025-08-01T14:33:39.471053",
       },
