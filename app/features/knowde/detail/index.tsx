@@ -1,3 +1,4 @@
+"use client";
 import { Card } from "~/components/ui/card";
 import { useDetailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
 import KnowdeCard, {
@@ -6,7 +7,6 @@ import KnowdeCard, {
 } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
-import { DisplayGraph } from "./util/ui";
 
 type Props = {
   id: string;
@@ -48,7 +48,7 @@ export default function KnowdeDetailView({ id }: Props) {
           return <KnowdeCard key={v} k={knowdes[v]} index={i} />;
         })}
       </KnowdeGroup>
-      <DisplayGraph detail={data.data} />
+      {/* <DisplayGraph detail={data.data} /> */}
     </>
   );
 }

@@ -22,7 +22,7 @@ export default defineConfig({
     tailwindcss(),
     process.env.VITEST ? reactVitest() : reactRouter(), // storybookのテスト解消
     tsconfigPaths(),
-    netlifyPlugin(),
+    process.env.NETLIFY ? netlifyPlugin() : undefined,
     {
       enforce: "pre",
       ...mdx({
