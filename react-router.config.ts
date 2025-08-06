@@ -4,14 +4,14 @@ export default {
   // Config options...
   // Server-side render by default, to enable SPA mode set this to `false`
   ssr: true,
-  // async prerender() {
-  //   return [
-  //     "/",
-  //     "/docs/toc",
-  //     "/docs/get-started",
-  //     "/docs/concept",
-  //     "/docs/cli",
-  //     "/docs/features",
-  //   ];
-  // },
+  async prerender() {
+    return [
+      "/",
+      "/docs/toc",
+      "/docs/get-started",
+      "/docs/concept",
+      "/docs/cli",
+      "/docs/features",
+    ];
+  },
 } satisfies Config;
