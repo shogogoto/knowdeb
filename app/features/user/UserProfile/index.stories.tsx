@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { AuthProvider } from "~/features/auth/AuthProvider";
 import type { UserRead } from "~/generated/fastAPI.schemas";
+import { getUserProfileUserProfileUsernameGetResponseMock } from "~/generated/public-user/public-user.msw";
 import { getUsersCurrentUserUserMeGetMockHandler } from "~/generated/user/user.msw";
 import Index from "./index";
 
@@ -33,4 +34,8 @@ export default meta;
 
 type Story = StoryObj<typeof meta>;
 
-export const Default: Story = {};
+export const Default: Story = {
+  args: {
+    user: getUserProfileUserProfileUsernameGetResponseMock(),
+  },
+};

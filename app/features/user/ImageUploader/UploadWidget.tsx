@@ -109,8 +109,28 @@ export default function UploadWidget({
         { ...uwConfig, publicId },
         (error, result) => {
           if (!error && result?.event === "success") {
-            const uploadedImageUrl = (result.info as { secure_url: string })
-              .secure_url;
+            const { info } = result;
+            const {
+              coordinates,
+              public_id: newPublicId,
+              version,
+            } = info as {
+              coordinates?: { custom: number[][] };
+              public_id: string;
+              version: number;
+              secure_url: string;
+            };
+
+            let uploadedImageUrl: string;
+            if (coordinates?.custom) {
+              const [coord] = coordinates.custom;
+              const [x, y, width, height] = coord;
+              uploadedImageUrl = `https://res.cloudinary.com/${
+                import.meta.env.VITE_CLOUD_NAME
+              }/image/upload/c_crop,h_${height},w_${width},x_${x},y_${y}/v${version}/${newPublicId}`;
+            } else {
+              uploadedImageUrl = (info as { secure_url: string }).secure_url;
+            }
             onUploadSuccess(uploadedImageUrl);
           } else if (error) {
             console.error("Upload failed:", error);

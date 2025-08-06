@@ -4,7 +4,9 @@ import KnowdeCard, {
   KnowdeCardContent,
   KnowdeCardFooter,
 } from "../components/KnowdeCard";
+import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
+import { DisplayGraph } from "./util/ui";
 
 type Props = {
   id: string;
@@ -33,9 +35,10 @@ export default function KnowdeDetailView({ id }: Props) {
   const { g, uid, location, knowdes } = data.data;
   const excepted = Object.keys(knowdes).filter((v) => v !== uid);
 
-  const k = knowdes[uid];
+  const k = knowdes[uid.replaceAll(/-/g, "")];
   return (
     <>
+      <LocationView loc={location} />
       <Card key={k.uid} className="w-full max-w-2xl border">
         <KnowdeCardContent k={k} />
         <KnowdeCardFooter k={k} />
@@ -45,6 +48,7 @@ export default function KnowdeDetailView({ id }: Props) {
           return <KnowdeCard key={v} k={knowdes[v]} index={i} />;
         })}
       </KnowdeGroup>
+      <DisplayGraph detail={data.data} />
     </>
   );
 }

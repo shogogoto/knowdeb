@@ -3,9 +3,9 @@ import { useLoaderData } from "react-router";
 import PageNavi from "~/components/Pagenation";
 import PageProvider from "~/components/Pagenation/PageProvider";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
-import SearchBar from "../SearchBar";
-import { SearchProvider } from "../SearchContext";
-import SearchResults from "../SearchResults";
+import SearchBar from "./SearchBar";
+import { SearchProvider } from "./SearchContext";
+import SearchResults from "./SearchResults";
 
 export default function KnowdeSearch() {
   const loaderData = useLoaderData();

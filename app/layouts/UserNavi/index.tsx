@@ -39,7 +39,7 @@ export default function UserNavi({ user }: Props) {
                       <span className="truncate font-medium">
                         {user?.display_name}
                       </span>
-                      <span className="truncate text-xs">{`@${user?.username || user?.uid || "userId"}`}</span>
+                      <span className="truncate text-xs">{`@${user?.username || user?.uid || "none"}`}</span>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

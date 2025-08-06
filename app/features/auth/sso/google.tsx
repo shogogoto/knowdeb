@@ -5,6 +5,7 @@ import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
 } from "~/generated/google/google";
+import { shouldOpenExternal, useHandleGoogleSSOExternal } from "./lib";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 
 export async function authorize() {
@@ -18,7 +19,6 @@ export async function authorize() {
   console.error("Google SSO authorization failed", { cause: res });
   return redirect("/");
 }
-
 export async function receiveCookie({ request }: Route.ClientLoaderArgs) {
   const urlParams = new URLSearchParams(new URL(request.url).search);
   const code = urlParams.get("code");
@@ -41,11 +41,22 @@ export default function GoogleCallback() {
 }
 
 export function GoogleAuthButton({ title }: { title: string }) {
+  const { handleGoogleSSO } = useHandleGoogleSSOExternal();
+  const icon = (
+    <>
+      <GoogleIcon className="mr-2 h-4 w-4" /> {title}
+    </>
+  );
+  if (shouldOpenExternal()) {
+    return (
+      <Button variant="outline" className="w-full" onClick={handleGoogleSSO}>
+        {icon}
+      </Button>
+    );
+  }
   return (
     <Button variant="outline" className="w-full" asChild>
-      <Link to="/google/authorize">
-        <GoogleIcon className="mr-2 h-4 w-4" /> {title}
-      </Link>
+      <Link to="/google/authorize">{icon}</Link>
     </Button>
   );
 }

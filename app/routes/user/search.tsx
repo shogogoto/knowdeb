@@ -36,5 +36,5 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function UserSearch() {
   const user = useLoaderData<typeof loader>();
-  return <UserProfile />;
+  return <UserProfile user={user} />;
 }

@@ -1,21 +1,42 @@
+import { Link } from "react-router";
+import UserAvatar from "~/features/user/UserAvatar";
 import type { Knowde, KnowdeLocation } from "~/generated/fastAPI.schemas";
 import KnowdeCard from "../KnowdeCard";
-import ResourcePath from "../ResourcePath";
-import UserInfo from "../UserInfo";
 
 type Props = {
   loc: KnowdeLocation;
-} & React.PropsWithChildren;
+};
 
-export default function LocationView({ loc, children }: Props) {
+export default function LocationView({ loc }: Props) {
+  const { user } = loc;
   return (
     <div className="flex flex-col gap-2">
-      <UserInfo user={loc.user}>
-        <ResourcePath resource={loc.resource} />
-      </UserInfo>
+      <div className="flex items-center gap-2">
+        <Link
+          to={`/user/${user.username}`}
+          className="text-sm text-muted-foreground"
+        >
+          <UserAvatar user={user} />
+        </Link>
+        <div className="flex flex-col">
+          <div>
+            <span className="font-bold">{user.display_name} </span>@
+            {user.username || user.uid}
+          </div>
+          <div className="text-sm text-muted-foreground space-x-2">
+            <Link
+              to={`/resource/${loc.resource.uid}`}
+              className="hover:underline"
+            >
+              {loc.resource.name}
+            </Link>
+            <span>{loc.resource.authors}</span>
+            <span>{loc.resource.published}</span>
+          </div>
+        </div>
+      </div>
 
       <ParentKnowdes parents={loc.parents} />
-      {children}
     </div>
   );
 }

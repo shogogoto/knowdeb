@@ -82,7 +82,7 @@ export default function SearchBar() {
               key={key}
               type="hidden"
               name={key}
-              value={value.toString()}
+              value={value?.toString()}
             />
           ),
       )}
