@@ -1,7 +1,7 @@
 import KnowdeDetailView from "~/features/knowde/detail";
 import type { Route } from "./+types";
 
-export async function loader({ params }: Route.LoaderArgs) {
+export async function clientLoader({ params }: Route.LoaderArgs) {
   return { id: params.id };
 }
 

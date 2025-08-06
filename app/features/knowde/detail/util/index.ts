@@ -3,22 +3,9 @@ import type {
   EdgeData,
   EdgeType,
   GraphData,
+  KnowdeDetail,
 } from "~/generated/fastAPI.schemas";
-
-function removeHyphen(id: string) {
-  return id.replaceAll(/-/g, "");
-}
-
-function toSerializedEdge(edge: EdgeData) {
-  return {
-    attributes: {
-      etype: edge.type, // type属性はsigma.jsで使われていた
-    },
-    source: edge.source,
-    target: edge.target,
-    key: [edge.source, edge.target].sort().join("->"),
-  };
-}
+import { pathsToEnd, succ } from "./network";
 
 export function toGraph(g: GraphData) {
   const { nodes, edges } = g;
@@ -26,6 +13,16 @@ export function toGraph(g: GraphData) {
     multi: true,
     type: "directed",
   });
+  function toSerializedEdge(edge: EdgeData) {
+    return {
+      attributes: {
+        etype: edge.type, // type属性はsigma.jsで使われていた
+      },
+      source: edge.source,
+      target: edge.target,
+      key: [edge.source, edge.target].sort().join("->"),
+    };
+  }
 
   graph.import({
     nodes: nodes.map((node) => ({ key: node.id })),
@@ -35,41 +32,67 @@ export function toGraph(g: GraphData) {
   return graph;
 }
 
-type Accessor = (g: Graph, n: string, et: EdgeType) => string[];
-export const succ: Accessor = (g, n, et) => {
-  return g
-    .filterOutEdges(n, (_, attr) => attr.etype === et)
-    .map((e) => g.target(e));
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+const EdgeColors: Partial<Record<EdgeType, string>> = {
+  below: "darkorange",
+  sibling: "orange",
+  to: "gray",
+  resolved: "darkgreen",
 };
 
-// predecessor
-export const pred: Accessor = (g, n, et) => {
-  return g
-    .filterInEdges(n, (_, attr) => attr.etype === et)
-    .map((e) => g.source(e));
-};
+export function toDisplayGraph(kd: KnowdeDetail) {
+  const { uid, g, knowdes } = kd;
+  const id = uid.replaceAll(/-/g, "");
+  const graph = toGraph(g);
 
-// n から 同じtypeのedgeを末まで辿る
-export function pathsToEnd(
-  g: Graph,
-  n: string,
-  t: EdgeType,
-  accessor: Accessor,
-) {
-  const ls: string[][] = [];
+  graph.setNodeAttribute(id, "x", 0);
+  graph.setNodeAttribute(id, "y", 0);
+  // graph.setNodeAttribute(id, "size", );
 
-  function _f(ns: string[]) {
-    const last = ns.at(-1);
-    if (!last) throw new Error();
-    const accs = accessor(g, last, t);
-    if (accs.length === 0 && ns.length !== 1) {
-      // 自身のみのpathは除外
-      ls.push(ns);
-    }
-    for (const a of accs) {
-      _f([...ns, a]);
-    }
+  function toLabel(n: string) {
+    const k = knowdes[n];
+    return `${k.term?.names?.join(" ") || ""}: ${k.sentence}`;
   }
-  _f([n]);
-  return ls;
+
+  console.log({ id });
+
+  const paths = pathsToEnd(
+    graph,
+    id,
+    (attr) => ["below", "sibling"].includes(attr.etype),
+    succ,
+  );
+  // succ(graph, id, "to").forEach((n) => {
+  //   console.log(n, toLabel(n));
+  // });
+  //
+  // succ(graph, id, "resolved").forEach((n) => {
+  //   console.log(n, toLabel(n));
+  // });
+
+  graph.edges().forEach((e) => {
+    const et = graph.getEdgeAttribute(e, "etype") as EdgeType;
+    graph.setEdgeAttribute(e, "label", et);
+
+    const color = EdgeColors[et] ?? "";
+    graph.setEdgeAttribute(e, "color", color);
+    // graph.setEdgeAttribute(e, "size", 5);
+    // console.log(graph.source(e));
+  });
+  graph.nodes().forEach((n, i) => {
+    const k = knowdes[n];
+    const label = `${k.term?.names?.join(" ") || ""}: ${k.sentence}`;
+    graph.setNodeAttribute(n, "label", label);
+    graph.setNodeAttribute(n, "size", k.stats.score);
+
+    graph.setNodeAttribute(n, "x", randomInt(0, 10));
+    graph.setNodeAttribute(n, "y", -i);
+    // graph.setnodeattribute(n, "x", k.stats.n_premise);
+    // graph.setnodeattribute(n, "y", k.stats.n_conclusion);
+  });
+
+  return { id, graph };
 }
