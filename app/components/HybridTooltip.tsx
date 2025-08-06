@@ -26,23 +26,23 @@ export default function HybridTooltip({
   children,
 }: HybridTooltipProps) {
   // 画面幅が768px（mdブレイクポイント）以上かどうかを判定
-  const isMobile = !useIsMobile();
+  const isMobile = useIsMobile();
 
-  if (!isMobile) {
+  if (isMobile) {
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>{children}</TooltipTrigger>
-          <TooltipContent>{content}</TooltipContent>
-        </Tooltip>
-      </TooltipProvider>
+      <Popover>
+        <PopoverTrigger asChild>{children}</PopoverTrigger>
+        <PopoverContent className="w-auto">{content}</PopoverContent>
+      </Popover>
     );
   }
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-auto">{content}</PopoverContent>
-    </Popover>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent>{content}</TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
