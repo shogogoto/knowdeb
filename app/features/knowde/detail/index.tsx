@@ -1,4 +1,5 @@
 "use client";
+import { Suspense, lazy } from "react";
 import { Card } from "~/components/ui/card";
 import { useDetailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
 import KnowdeCard, {
@@ -7,6 +8,8 @@ import KnowdeCard, {
 } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
+
+const DisplayGraph = lazy(() => import("./util/ui"));
 
 type Props = {
   id: string;
@@ -48,7 +51,9 @@ export default function KnowdeDetailView({ id }: Props) {
           return <KnowdeCard key={v} k={knowdes[v]} index={i} />;
         })}
       </KnowdeGroup>
-      {/* <DisplayGraph detail={data.data} /> */}
+      <Suspense fallback={<div>Loading Graph...</div>}>
+        <DisplayGraph detail={data.data} />
+      </Suspense>
     </>
   );
 }
