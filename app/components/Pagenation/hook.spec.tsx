@@ -9,10 +9,10 @@ url との同期
 import { act, renderHook } from "@testing-library/react";
 import { MemoryRouter, Routes } from "react-router";
 import { Route } from "react-router";
-import type { PageHookProps } from "./rephook";
 import usePagingNeo from "./rephook";
+import type { PaginationProps } from "./replace";
 
-function renderHook_(props: PageHookProps) {
+function renderHook_(props: PaginationProps) {
   const wrapper = ({ children }: React.PropsWithChildren) => (
     <MemoryRouter initialEntries={["/some/0"]}>
       <Routes>
@@ -60,13 +60,5 @@ describe("PagenationHook", () => {
       expect(result.current.location.search).toBe("?page=100");
       console.log(result.current);
     });
-  });
-
-  describe("currentPage更新 n_page=10", () => {
-    it("nextへ移動", async () => {});
-    it("prevへ移動", async () => {
-      // headまで行ったらdisable
-    });
-    it("aaaa", async () => {});
   });
 });

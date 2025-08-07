@@ -12,16 +12,21 @@ import {
   PaginationPrevious,
 } from "../ui/pagination";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import usePagingNeo from "./rephook";
 
-const PagingNaviProps = z.object({
-  n_page: z.number().int().nonnegative(),
-  current: z.number().int().nonnegative().optional(),
+const _PagingNaviProps = z.object({
+  total: z.number().int().nonnegative(),
+  pageSize: z.number().int().positive(),
+  initial: z.number().int().positive().optional(),
 });
 
-type Props = z.infer<typeof PagingNaviProps>;
+export type PaginationProps = z.infer<typeof _PagingNaviProps>;
 
-export default function PagingNavi(props: Props) {
-  const { n_page, current } = PagingNaviProps.parse(props);
+export default function PagingNavi(props: PaginationProps) {
+  const parsed = _PagingNaviProps.parse(props);
+  const { n_page, current, currentNext, currentPrev, updateCurrent } =
+    usePagingNeo(parsed);
+
   if (current && (current < 1 || current > n_page)) {
     throw new Error("現在ページが有効範囲外");
   }

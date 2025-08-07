@@ -1,24 +1,19 @@
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router";
+import type { PaginationProps } from "./replace";
 
-export type PageHookProps = {
-  total: number;
-  pageSize: number;
-  currentPage?: number;
-};
-
-export default function usePagingNeo(props: PageHookProps) {
-  const { total, pageSize, currentPage } = props;
+export default function usePagingNeo(props: PaginationProps) {
+  const { total, pageSize, initial } = props;
   if (total < 0 || pageSize <= 0) {
     throw new Error(
       "total must be non-negative and pageSize must be positive.",
     );
   }
   const nPage = Math.ceil(total / pageSize);
-  if (currentPage !== undefined && (currentPage < 1 || currentPage > nPage)) {
-    throw new Error("currentPage must be between 1 and nPage.");
+  if (initial !== undefined && (initial < 1 || initial > nPage)) {
+    throw new Error("initial must be between 1 and nPage.");
   }
-  const [current, setCurrent] = useState(currentPage ?? 1);
+  const [current, setCurrent] = useState(initial);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -29,11 +24,11 @@ export default function usePagingNeo(props: PageHookProps) {
   }
   // ------------------------------------- methods
   function currentNext() {
-    if (current === nPage) return;
+    if (!current || current === nPage) return;
     setCurrent(current + 1);
   }
   function currentPrev() {
-    if (current === 1) return;
+    if (!current || current === 1) return;
     setCurrent(current - 1);
   }
   function updateCurrent(val: number) {
