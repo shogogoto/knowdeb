@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import _ from "lodash";
 import { MemoryRouter } from "react-router";
 import PagingNavi from "./replace";
@@ -87,10 +88,42 @@ describe("Pagination 作り直し", () => {
     });
   });
 
-  describe("currentPage更新 n_page=10", () => {
-    it("nextへ移動", async () => {});
+  describe("currentPage更新", () => {
+    it("nextへ移動", async () => {
+      const user = userEvent.setup();
+      render_(5, 4);
+
+      // 4番目がアクティブ
+      expect(screen.getByRole("link", { name: "4" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+
+      // Nextを押すと5番目がアクティブになり、Nextがdisableになる
+      await user.click(screen.getByText("Next"));
+      expect(screen.getByRole("link", { name: "5" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+      expect(screen.getByText("Next").closest("button")).toBeDisabled();
+    });
     it("prevへ移動", async () => {
-      // headまで行ったらdisable
+      const user = userEvent.setup();
+      render_(5, 2);
+
+      // 2番目がアクティブ
+      expect(screen.getByRole("link", { name: "2" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+
+      // Prevを押すと1番目がアクティブになり、Prevがdisableになる
+      await user.click(screen.getByText("Previous"));
+      expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
+        "aria-current",
+        "page",
+      );
+      expect(screen.getByText("Previous").closest("button")).toBeDisabled();
     });
     it("aaaa", async () => {});
   });

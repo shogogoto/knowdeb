@@ -1,5 +1,6 @@
 import _ from "lodash";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { z } from "zod";
 import { Button } from "../ui/button";
 import {
@@ -24,8 +25,7 @@ export type PaginationProps = z.infer<typeof _PagingNaviProps>;
 
 export default function PagingNavi(props: PaginationProps) {
   const parsed = _PagingNaviProps.parse(props);
-  const { n_page, current, currentNext, currentPrev, updateCurrent } =
-    usePagingNeo(parsed);
+  const { n_page, current, currentNext, currentPrev } = usePagingNeo(parsed);
 
   if (current && (current < 1 || current > n_page)) {
     throw new Error("現在ページが有効範囲外");
@@ -48,7 +48,7 @@ export default function PagingNavi(props: PaginationProps) {
           {isFirst ? (
             <DisabledPrevNext isPrev />
           ) : (
-            <PaginationPrevious to="#" />
+            <PaginationPrevious to="#" onClick={currentPrev} />
           )}
         </PaginationItem>
         {n_page > 5 ? (
@@ -72,7 +72,11 @@ export default function PagingNavi(props: PaginationProps) {
           </div>
         )}
         <PaginationItem>
-          {isLast ? <DisabledPrevNext /> : <PaginationNext to="#" />}
+          {isLast ? (
+            <DisabledPrevNext />
+          ) : (
+            <PaginationNext to="#" onClick={currentNext} />
+          )}
         </PaginationItem>
       </PaginationContent>
     </Pagination>
@@ -84,17 +88,23 @@ type PageIndexProps = {
 } & PaginationLinkProps;
 
 function PageIndex({ page, ...props }: PageIndexProps) {
+  const ref = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    // isActiveがtrueの場合にスクロール位置を調整する
+    if (props.isActive && ref.current) {
+      ref.current.scrollIntoView({
+        behavior: "smooth", // スムーズなスクロール効果
+        inline: "center", // 横方向の中央に表示
+      });
+    }
+  }, [props.isActive]);
+
   return (
-    <PaginationItem>
-      {props.isActive ? (
-        <Button variant="outline" size="icon" disabled>
-          {page}
-        </Button>
-      ) : (
-        <PaginationLink {...props} size="icon">
-          {page}
-        </PaginationLink>
-      )}
+    <PaginationItem ref={ref}>
+      <PaginationLink {...props} size="icon">
+        {page}
+      </PaginationLink>
     </PaginationItem>
   );
 }
