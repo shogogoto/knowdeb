@@ -91,7 +91,6 @@ function PageIndex({ page, ...props }: PageIndexProps) {
   const ref = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
-    // isActiveがtrueの場合にスクロール位置を調整する
     if (props.isActive && ref.current) {
       ref.current.scrollIntoView({
         behavior: "smooth", // スムーズなスクロール効果

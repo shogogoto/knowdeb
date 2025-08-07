@@ -18,6 +18,9 @@ globalThis.Response = Response;
 // @ts-ignore
 globalThis.Headers = Headers;
 
+// node.js 環境にはないからモック
+window.HTMLElement.prototype.scrollIntoView = () => {};
+
 // 各テストの後にDOMをクリーンアップ
 afterEach(() => {
   cleanup();
