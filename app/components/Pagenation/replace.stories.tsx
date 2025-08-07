@@ -26,6 +26,20 @@ export const Default: Story = {
   args: fixProps({ n_page: 20 }),
 };
 
+export const Mobile: Story = {
+  args: fixProps({ n_page: 20 }),
+  globals: {
+    viewport: { value: "mobile1" },
+  },
+};
+
+export const Tablet: Story = {
+  args: fixProps({ n_page: 20 }),
+  globals: {
+    viewport: { value: "tablet" },
+  },
+};
+
 export const Zero: Story = {
   args: fixProps({ n_page: 0 }),
 };

@@ -34,11 +34,11 @@ export default function usePagingNeo(props: PaginationProps) {
   function updateCurrent(val: number) {
     if (val < 1) {
       setCurrent(1);
-    }
-    if (val > nPage) {
+    } else if (val > nPage) {
       setCurrent(nPage);
+    } else {
+      setCurrent(val);
     }
-    setCurrent(val);
   }
   return {
     n_page: nPage,

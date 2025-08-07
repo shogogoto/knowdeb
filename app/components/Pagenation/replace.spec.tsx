@@ -88,43 +88,50 @@ describe("Pagination 作り直し", () => {
     });
   });
 
+  function assert_current(page: number) {
+    expect(screen.getByRole("link", { name: `${page}` })).toHaveAttribute(
+      "aria-current",
+      "page",
+    );
+  }
   describe("currentPage更新", () => {
     it("nextへ移動", async () => {
       const user = userEvent.setup();
-      render_(5, 4);
-
-      // 4番目がアクティブ
-      expect(screen.getByRole("link", { name: "4" })).toHaveAttribute(
-        "aria-current",
-        "page",
-      );
-
-      // Nextを押すと5番目がアクティブになり、Nextがdisableになる
+      render_(5, 4); // 4番目がアクティブ
+      assert_current(4);
       await user.click(screen.getByText("Next"));
-      expect(screen.getByRole("link", { name: "5" })).toHaveAttribute(
-        "aria-current",
-        "page",
-      );
+      assert_current(5);
       expect(screen.getByText("Next").closest("button")).toBeDisabled();
     });
+
     it("prevへ移動", async () => {
       const user = userEvent.setup();
-      render_(5, 2);
-
-      // 2番目がアクティブ
-      expect(screen.getByRole("link", { name: "2" })).toHaveAttribute(
-        "aria-current",
-        "page",
-      );
-
-      // Prevを押すと1番目がアクティブになり、Prevがdisableになる
+      render_(5, 2); // 2番目がアクティブ
+      assert_current(2);
       await user.click(screen.getByText("Previous"));
-      expect(screen.getByRole("link", { name: "1" })).toHaveAttribute(
-        "aria-current",
-        "page",
-      );
+      assert_current(1);
       expect(screen.getByText("Previous").closest("button")).toBeDisabled();
     });
-    it("aaaa", async () => {});
+    it("項目をクリック", async () => {
+      const user = userEvent.setup();
+      render_(5, 2); // 2番目がアクティブ
+      await user.click(screen.getByText("3"));
+      assert_current(3);
+      await user.click(screen.getByText("1"));
+      assert_current(1);
+      await user.click(screen.getByText("5"));
+      assert_current(5);
+    });
+
+    it("項目をクリック scroll", async () => {
+      const user = userEvent.setup();
+      render_(10, 2); // 2番目がアクティブ
+      await user.click(screen.getByText("3"));
+      assert_current(3);
+      await user.click(screen.getByText("1"));
+      assert_current(1);
+      await user.click(screen.getByText("10"));
+      assert_current(10);
+    });
   });
 });
