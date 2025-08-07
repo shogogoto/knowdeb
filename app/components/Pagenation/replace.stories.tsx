@@ -26,14 +26,6 @@ export const Two: Story = {
   args: { n_page: 2 },
 };
 
-export const Three: Story = {
-  args: { n_page: 3 },
-};
-
-export const Four: Story = {
-  args: { n_page: 4 },
-};
-
 export const Five: Story = {
   args: { n_page: 5 },
 };
@@ -47,5 +39,13 @@ export const Ten: Story = {
 };
 
 export const Fifteen: Story = {
-  args: { n_page: 15 },
+  args: { n_page: 15, current: 10 },
+};
+
+export const FifteenFirst: Story = {
+  args: { n_page: 15, current: 1 },
+};
+
+export const FifteenLast: Story = {
+  args: { n_page: 15, current: 15 },
 };

@@ -1,4 +1,7 @@
 import _ from "lodash";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { z } from "zod";
+import { Button } from "../ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -10,12 +13,19 @@ import {
 } from "../ui/pagination";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 
-type Props = {
-  n_page: number;
-  current?: number;
-};
+const PagingNaviProps = z.object({
+  n_page: z.number().int().nonnegative(),
+  current: z.number().int().nonnegative().optional(),
+});
 
-export default function PagingNavi({ n_page, current }: Props) {
+type Props = z.infer<typeof PagingNaviProps>;
+
+export default function PagingNavi(props: Props) {
+  const { n_page, current } = PagingNaviProps.parse(props);
+  if (current && (current < 1 || current > n_page)) {
+    throw new Error("現在ページが有効範囲外");
+  }
+
   function iprops(page: number) {
     return {
       page,
@@ -23,16 +33,23 @@ export default function PagingNavi({ n_page, current }: Props) {
     };
   }
 
+  const isFirst = current === 1;
+  const isLast = current === n_page;
+
   return (
     <Pagination>
       <PaginationContent className="item-center">
         <PaginationItem>
-          <PaginationPrevious to="#" />
+          {isFirst ? (
+            <DisabledPrevNext isPrev />
+          ) : (
+            <PaginationPrevious to="#" />
+          )}
         </PaginationItem>
         {n_page > 5 ? (
           <>
             <PageIndex to="#" {...iprops(1)} />
-            <ScrollArea className="rounded-md border whitespace-nowrap">
+            <ScrollArea className="rounded-md whitespace-nowrap">
               <div className="flex max-w-xs">
                 {_.range(2, n_page).map((i) => (
                   <PageIndex key={`page-${i}`} to="#" {...iprops(i)} />
@@ -50,7 +67,7 @@ export default function PagingNavi({ n_page, current }: Props) {
           </div>
         )}
         <PaginationItem>
-          <PaginationNext to="#" />
+          {isLast ? <DisabledPrevNext /> : <PaginationNext to="#" />}
         </PaginationItem>
       </PaginationContent>
     </Pagination>
@@ -64,7 +81,33 @@ type PageIndexProps = {
 function PageIndex({ page, ...props }: PageIndexProps) {
   return (
     <PaginationItem>
-      <PaginationLink {...props}>{page}</PaginationLink>
+      {props.isActive ? (
+        <Button variant="outline" size="icon" disabled>
+          {page}
+        </Button>
+      ) : (
+        <PaginationLink {...props} size="icon">
+          {page}
+        </PaginationLink>
+      )}
     </PaginationItem>
+  );
+}
+
+function DisabledPrevNext({ isPrev }: { isPrev?: boolean }) {
+  const icon = isPrev ? <ChevronLeftIcon /> : <ChevronRightIcon />;
+  const txt = (
+    <span className="hidden sm:block">{isPrev ? "Previous" : "Next"}</span>
+  );
+
+  return (
+    <Button
+      disabled
+      variant="ghost"
+      size="default"
+      className="gap-1 px-2.5 sm:pl-2.5"
+    >
+      {isPrev ? [icon, txt] : [txt, icon]}
+    </Button>
   );
 }

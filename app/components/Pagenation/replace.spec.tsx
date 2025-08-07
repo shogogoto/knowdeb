@@ -12,45 +12,71 @@ function undisplayed_expect(first: number, last: number) {
   const end = last + 1;
   [..._.range(0 - 2, first), ..._.range(end, end + 2)].forEach((i) => {
     expect(screen.queryByText(`${i}`)).not.toBeInTheDocument();
-    console.log(i);
   });
+}
+
+function render_(n_page: number, current?: number) {
+  return render(
+    <MemoryRouter>
+      <PagingNavi n_page={n_page} current={current} />
+    </MemoryRouter>,
+  );
 }
 
 describe("Pagination 作り直し", () => {
   describe("current なし", () => {
-    it("n_page<0 エラー", async () => {});
+    it("n_page<0 エラー", async () => {
+      expect(() => render_(-1)).toThrow();
+    });
     it("n_page=0 prev next のみ表示", async () => {
-      render(
-        <MemoryRouter>
-          <PagingNavi n_page={0} />
-        </MemoryRouter>,
-      );
+      render_(0);
       common_expect();
       expect(screen.queryByText("0")).not.toBeInTheDocument();
       undisplayed_expect(0, 0);
     });
-    it("n_page=1 prev 1 next", async () => {
-      render(
-        <MemoryRouter>
-          <PagingNavi n_page={1} />
-        </MemoryRouter>,
-      );
-      common_expect();
-
-      expect(screen.queryByText("1")).toBeInTheDocument();
-      undisplayed_expect(1, 1);
+    describe("n_page=1~5 まで増加 prev 1, ..., 5 next", async () => {
+      it.each([1, 2, 3, 4, 5])("n_page=%i", async (n_page) => {
+        render_(n_page);
+        common_expect();
+        _.range(1, n_page + 1).forEach((i) => {
+          expect(screen.getByText(`${i}`)).toBeInTheDocument();
+        });
+        undisplayed_expect(1, n_page);
+      });
     });
-    it("n_page=2 prev 1 2 next", async () => {});
-    it("n_page=3 prev 1 2 3 next", async () => {});
-    // it("n_page>4 1,2,..,n_page", () => {
-    //   it.each([4, 5, 100])("n_page=%i", async (n_page) => {});
-    // });
+    describe("n_page>5 からスクロールに変わる", () => {
+      it.each([6, 7, 10, 15, 20, 100])("n_page=%i", async (n_page) => {
+        const { container } = render_(n_page);
+        common_expect();
+        expect(
+          container.querySelector('[data-slot="scroll-area"]'),
+        ).toBeInTheDocument();
+        expect(screen.getByText("1")).toBeInTheDocument();
+        expect(screen.getByText(`${n_page}`)).toBeInTheDocument();
+      });
+    });
   });
   describe("current あり", () => {
-    it("currentが有効範囲[1, n_page]外", async () => {});
+    it("currentが有効範囲[1, n_page]外 でエラー", async () => {
+      expect(() => render_(10, 20)).toThrow();
+    });
+
     describe("currentが有効範囲[1, n_page]内", () => {
-      it("prev disable current=1", () => {});
-      it("next disable current=n_page", () => {});
+      it.each([1, 4, 5, 6, 20])(
+        "prev disable current=1 n_page=%i",
+        async (n_page) => {
+          render_(n_page, 1);
+          expect(screen.getByText("Previous").closest("button")).toBeDisabled();
+        },
+      );
+
+      it.each([1, 4, 5, 6, 20])(
+        "next disable current, n_page=%i",
+        async (n_page) => {
+          render_(n_page, n_page);
+          expect(screen.getByText("Next").closest("button")).toBeDisabled();
+        },
+      );
     });
   });
 });
