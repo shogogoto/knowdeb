@@ -1,17 +1,54 @@
+import { render, screen } from "@testing-library/react";
+import _ from "lodash";
+import { MemoryRouter } from "react-router";
+import PagingNavi from "./replace";
+
+function common_expect() {
+  expect(screen.getByText("Previous")).toBeInTheDocument();
+  expect(screen.getByText("Next")).toBeInTheDocument();
+}
+
+function undisplayed_expect(first: number, last: number) {
+  const end = last + 1;
+  [..._.range(0 - 2, first), ..._.range(end, end + 2)].forEach((i) => {
+    expect(screen.queryByText(`${i}`)).not.toBeInTheDocument();
+    console.log(i);
+  });
+}
+
 describe("Pagination 作り直し", () => {
-  it("current なし", () => {
+  describe("current なし", () => {
     it("n_page<0 エラー", async () => {});
-    it("n_page=0 prev next のみ表示", async () => {});
-    it("n_page=1 prev 1 next", async () => {});
+    it("n_page=0 prev next のみ表示", async () => {
+      render(
+        <MemoryRouter>
+          <PagingNavi n_page={0} />
+        </MemoryRouter>,
+      );
+      common_expect();
+      expect(screen.queryByText("0")).not.toBeInTheDocument();
+      undisplayed_expect(0, 0);
+    });
+    it("n_page=1 prev 1 next", async () => {
+      render(
+        <MemoryRouter>
+          <PagingNavi n_page={1} />
+        </MemoryRouter>,
+      );
+      common_expect();
+
+      expect(screen.queryByText("1")).toBeInTheDocument();
+      undisplayed_expect(1, 1);
+    });
     it("n_page=2 prev 1 2 next", async () => {});
     it("n_page=3 prev 1 2 3 next", async () => {});
-    it("n_page>4 1,2,..,n_page", () => {
-      it.each([4, 5, 100])("n_page=%i", async (n_page) => {});
-    });
+    // it("n_page>4 1,2,..,n_page", () => {
+    //   it.each([4, 5, 100])("n_page=%i", async (n_page) => {});
+    // });
   });
-  it("current あり", () => {
+  describe("current あり", () => {
     it("currentが有効範囲[1, n_page]外", async () => {});
-    it("currentが有効範囲[1, n_page]内", () => {
+    describe("currentが有効範囲[1, n_page]内", () => {
       it("prev disable current=1", () => {});
       it("next disable current=n_page", () => {});
     });
