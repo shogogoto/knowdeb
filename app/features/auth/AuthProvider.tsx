@@ -11,7 +11,7 @@ import {
 import { easyStorage } from "~/lib/storage";
 
 interface AuthContextT {
-  user: UserRead | null | undefined;
+  user: UserRead | undefined;
   isLoading: boolean;
   isValidating: boolean;
   signOut: () => Promise<void>;

@@ -1,10 +1,9 @@
 import { Cloudinary } from "@cloudinary/url-gen";
 import type { ComponentProps } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import type { UserRead, UserReadPublic } from "~/generated/fastAPI.schemas";
-type Props = {
-  user: UserRead | UserReadPublic | null;
-} & ComponentProps<typeof Avatar>;
+import type { UserProps } from "../types";
+
+type Props = UserProps & ComponentProps<typeof Avatar>;
 
 export default function UserAvatar({ user, ...props }: Props) {
   const cld = new Cloudinary({
