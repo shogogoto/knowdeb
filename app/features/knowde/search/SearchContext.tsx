@@ -4,8 +4,8 @@ import {
   createContext,
   useState,
 } from "react";
-import type { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import type { OrderBy } from "./SearchBar/types";
+import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
   setQ: Dispatch<SetStateAction<string>>;
@@ -13,7 +13,16 @@ type SearchContextType = {
   setOrderBy: Dispatch<SetStateAction<OrderBy>>;
 } & ValProps;
 
-const SearchContext = createContext<SearchContextType | null>(null);
+const initialSearchState: SearchContextType = {
+  q: "",
+  searchOption: SearchByTextKnowdeGetType.CONTAINS,
+  orderBy: defaultOrderBy,
+  setQ: () => {},
+  setSearchOption: () => {},
+  setOrderBy: () => {},
+};
+
+const SearchContext = createContext<SearchContextType>(initialSearchState);
 
 export default SearchContext;
 

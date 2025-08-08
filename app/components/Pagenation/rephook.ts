@@ -2,14 +2,16 @@ import React from "react";
 
 export type PagingState = {
   current?: number;
-  pageSize: number;
   setCurrent: React.Dispatch<React.SetStateAction<number | undefined>>;
+  pageSize: number;
+  setPageSize: React.Dispatch<React.SetStateAction<number>>;
   nPage: number;
 };
 
 const initial: PagingState = {
   pageSize: 10,
   setCurrent: () => {},
+  setPageSize: () => {},
   current: 1,
   nPage: 1,
 };

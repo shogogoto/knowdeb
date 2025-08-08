@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { PProvider } from "~/components/Pagenation/reprovider";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import { SearchProvider } from "../../SearchContext";
 import { defaultOrderBy } from "../types";
@@ -17,19 +18,19 @@ export const Default: Story = {
   // @ts-ignore
   args: {
     setPaging: () => {},
-    setOrderBy: () => {},
-    order: defaultOrderBy,
     size: 10,
   },
   decorators: [
     (Story) => (
-      <SearchProvider
-        q=""
-        searchOption={SearchByTextKnowdeGetType.CONTAINS}
-        orderBy={defaultOrderBy}
-      >
-        <Story />
-      </SearchProvider>
+      <PProvider total={100} pageSize={10} initial={1}>
+        <SearchProvider
+          q=""
+          searchOption={SearchByTextKnowdeGetType.CONTAINS}
+          orderBy={defaultOrderBy}
+        >
+          <Story />
+        </SearchProvider>
+      </PProvider>
     ),
   ],
 };

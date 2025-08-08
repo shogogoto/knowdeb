@@ -1,4 +1,4 @@
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, Search, Settings } from "lucide-react";
 import { useContext, useState } from "react";
 import { Form, useNavigation } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
@@ -44,7 +44,7 @@ export default function SearchBar() {
           className="md:w-auto px-2 border bg-blue-600 hover:bg-blue-700 text-white"
           disabled={isLoading}
         >
-          {isLoading ? <LoaderCircle className="animate-spin" /> : "🔍"}
+          {isLoading ? <LoaderCircle className="animate-spin" /> : <Search />}
         </Button>
         <Button
           type="button"
@@ -52,19 +52,10 @@ export default function SearchBar() {
           onClick={toggleShow}
           disabled={isLoading}
         >
-          ⚙
+          <Settings />
         </Button>
       </div>
-      {isShown && (
-        <SearchConfig
-          paging={paging}
-          order={orderBy}
-          setPaging={setPaging}
-          setOrderBy={setOrderBy}
-          searchOption={searchOption}
-          setSearchOption={setSearchOption}
-        />
-      )}
+      {isShown && <SearchConfig />}
 
       <input type="hidden" name="page" value={paging.page?.toString() || "1"} />
       <input

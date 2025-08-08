@@ -13,7 +13,9 @@ export function PProvider(props: Props) {
       "total must be non-negative and pageSize must be positive.",
     );
   }
-  const nPage = Math.ceil(total / pageSize);
+  const [_pageSize, setPageSize] = useState(props.pageSize);
+
+  const nPage = Math.ceil(total / _pageSize);
   if (current && (current < 1 || current > nPage)) {
     throw new Error("現在ページが有効範囲外");
   }
@@ -21,7 +23,8 @@ export function PProvider(props: Props) {
   const value = {
     current,
     setCurrent,
-    pageSize,
+    pageSize: _pageSize,
+    setPageSize,
     nPage,
   };
 
