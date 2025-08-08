@@ -1,27 +1,27 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router";
-import type { PaginationProps } from "./replace";
+import React from "react";
 
-export default function usePagingNeo(props: PaginationProps) {
-  const { total, pageSize, initial } = props;
-  if (total < 0 || pageSize <= 0) {
-    throw new Error(
-      "total must be non-negative and pageSize must be positive.",
-    );
-  }
-  const nPage = Math.ceil(total / pageSize);
-  if (initial !== undefined && (initial < 1 || initial > nPage)) {
-    throw new Error("initial must be between 1 and nPage.");
-  }
-  const [current, setCurrent] = useState(initial);
-  const location = useLocation();
-  const navigate = useNavigate();
+export type PagingState = {
+  current?: number;
+  pageSize: number;
+  setCurrent: React.Dispatch<React.SetStateAction<number | undefined>>;
+  nPage: number;
+};
 
-  function setPageUrlParam(currentPage: number) {
-    const params = new URLSearchParams(location.search);
-    params.set("page", String(currentPage));
-    navigate(`${location.pathname}?${params.toString()}`);
+const initial: PagingState = {
+  pageSize: 10,
+  setCurrent: () => {},
+  current: 1,
+  nPage: 1,
+};
+
+export const PContext = React.createContext<PagingState>(initial);
+
+export default function usePagingNeo() {
+  const { current, setCurrent, nPage } = React.useContext(PContext);
+  if (current && (current < 1 || current > nPage)) {
+    throw new Error("現在ページが有効範囲外");
   }
+
   // ------------------------------------- methods
   function currentNext() {
     if (!current || current === nPage) return;
@@ -44,7 +44,6 @@ export default function usePagingNeo(props: PaginationProps) {
     n_page: nPage,
     current,
     location,
-    setPageUrlParam,
     currentNext,
     currentPrev,
     updateCurrent,

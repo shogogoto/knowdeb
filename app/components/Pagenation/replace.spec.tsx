@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import _ from "lodash";
 import { MemoryRouter } from "react-router";
 import PagingNavi from "./replace";
+import { PProvider } from "./reprovider";
 
 function common_expect() {
   expect(screen.getByText("Previous")).toBeInTheDocument();
@@ -24,7 +25,9 @@ function render_(n_page: number, current?: number) {
 
   return render(
     <MemoryRouter>
-      <PagingNavi {...props} />
+      <PProvider {...props}>
+        <PagingNavi {...props} />
+      </PProvider>
     </MemoryRouter>,
   );
 }

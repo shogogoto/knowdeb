@@ -2,7 +2,7 @@ import _ from "lodash";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { type ButtonHTMLAttributes, useEffect, useRef } from "react";
 import { z } from "zod";
-import { Button } from "../ui/button";
+import { Button } from "~/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -11,8 +11,8 @@ import {
   type PaginationLinkProps,
   PaginationNext,
   PaginationPrevious,
-} from "../ui/pagination";
-import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+} from "~/components/ui/pagination";
+import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import usePagingNeo from "./rephook";
 
 const _PagingNaviProps = z.object({
@@ -26,18 +26,9 @@ export type PaginationProps = z.infer<typeof _PagingNaviProps>;
 export default function PagingNavi(props: PaginationProps) {
   const parsed = _PagingNaviProps.parse(props);
   const { n_page, current, currentNext, currentPrev, updateCurrent } =
-    usePagingNeo(parsed);
+    usePagingNeo();
 
-  if (current && (current < 1 || current > n_page)) {
-    throw new Error("現在ページが有効範囲外");
-  }
-
-  function iprops(page: number) {
-    return {
-      page,
-      isActive: page === current,
-    };
-  }
+  const iprops = (page: number) => ({ page, isActive: page === current });
 
   const isFirst = current === 1;
   const isLast = current === n_page;

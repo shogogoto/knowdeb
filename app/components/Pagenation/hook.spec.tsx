@@ -6,21 +6,27 @@ url との同期
   見開きページみたいなことができる
 */
 
-import { act, renderHook } from "@testing-library/react";
+import { renderHook } from "@testing-library/react";
 import { MemoryRouter, Routes } from "react-router";
 import { Route } from "react-router";
 import usePagingNeo from "./rephook";
 import type { PaginationProps } from "./replace";
+import { PProvider } from "./reprovider";
 
 function renderHook_(props: PaginationProps) {
-  const wrapper = ({ children }: React.PropsWithChildren) => (
-    <MemoryRouter initialEntries={["/some/0"]}>
-      <Routes>
-        <Route path="/some/:page" element={children} />
-      </Routes>
-    </MemoryRouter>
-  );
-  return renderHook(() => usePagingNeo(props), { wrapper });
+  const wrapper = ({ children }: React.PropsWithChildren) => {
+    return (
+      <MemoryRouter initialEntries={["/some/0"]}>
+        <Routes>
+          <Route
+            path="/some/:page"
+            Component={() => <PProvider {...props}>{children}</PProvider>}
+          />
+        </Routes>
+      </MemoryRouter>
+    );
+  };
+  return renderHook(() => usePagingNeo(), { wrapper });
 }
 
 describe("PagenationHook", () => {
@@ -51,14 +57,22 @@ describe("PagenationHook", () => {
       },
     );
   });
-  describe("URLParamをセット", () => {
-    it("?page=0", async () => {
-      const { result } = renderHook_({ total: 1201, pageSize: 50 });
-      act(() => {
-        result.current.setPageUrlParam(100);
-      });
-      expect(result.current.location.search).toBe("?page=100");
-      console.log(result.current);
-    });
-  });
+  // describe("URLParamをセット", () => {
+  // const location = useLocation();
+  // const navigate = useNavigate();
+  // function setPageUrlParam(currentPage: number) {
+  //   const params = new URLSearchParams(location.search);
+  //   params.set("page", String(currentPage));
+  //   navigate(`${location.pathname}?${params.toString()}`);
+  // }
+  //
+  //   it("?page=0", async () => {
+  //     const { result } = renderHook_({ total: 1201, pageSize: 50 });
+  //     act(() => {
+  //       result.current.setPageUrlParam(100);
+  //     });
+  //     expect(result.current.location.search).toBe("?page=100");
+  //     console.log(result.current);
+  //   });
+  // });
 });
