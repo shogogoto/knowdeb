@@ -1,4 +1,5 @@
 import React from "react";
+import { useLocation } from "react-router";
 
 export type PagingState = {
   current?: number;
@@ -20,7 +21,7 @@ export const PContext = React.createContext<PagingState>(initial);
 
 export default function usePagingNeo() {
   const { current, setCurrent, nPage } = React.useContext(PContext);
-
+  const location = useLocation();
   // ------------------------------------- methods
   function currentNext() {
     if (!current || current === nPage) return;
