@@ -1,50 +1,56 @@
 import { LoaderCircle } from "lucide-react";
-import { useLoaderData } from "react-router";
-import { useSearchParams } from "react-router";
-import PageNavi from "~/components/Pagenation";
+import { useContext } from "react";
+import { PContext } from "~/components/Pagenation/rephook";
 import PagingNavi from "~/components/Pagenation/replace";
 import { PProvider } from "~/components/Pagenation/reprovider";
-import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import SearchBar from "./SearchBar";
-import { defaultOrderBy } from "./SearchBar/types";
-import { SearchProvider } from "./SearchContext";
+import SearchContext, {
+  initialSearchState,
+  SearchProvider,
+} from "./SearchContext";
 import SearchResults from "./SearchResults";
 
-export default function KnowdeSearch() {
-  const loaderData = useLoaderData();
-  const { params } = loaderData;
+export function _KnowdeSearch() {
+  const { q, searchOption, orderBy } = useContext(SearchContext);
+  const { pageSize, current, setCurrent } = useContext(PContext);
+
+  const params = {
+    q,
+    page: current,
+    size: pageSize,
+    search_type: searchOption,
+    ...orderBy,
+  };
 
   const { data, isLoading } = useSearchByTextKnowdeGet(params, {
-    // swr: { fallbackData: getItem() },
+    swr: {
+      keepPreviousData: true,
+    },
   });
 
   const total = data?.status === 200 ? data.data.total : 0;
-  const pn = <PageNavi total={total} />;
 
-  const [searchParams] = useSearchParams();
-  const value = {
-    q: searchParams.get("q") || "",
-    searchOption:
-      (searchParams.get("search_type") as SearchByTextKnowdeGetType) ||
-      SearchByTextKnowdeGetType.CONTAINS,
-    orderBy: defaultOrderBy,
-  };
   return (
-    <PProvider total={total} pageSize={50} initial={1}>
-      <SearchProvider {...value}>
-        <>
-          <SearchBar />
-          <PagingNavi />
-          {isLoading ? (
-            <LoaderCircle className="animate-spin justify-center" />
-          ) : (
-            data?.status === 200 &&
-            data.data && <SearchResults data={data.data} />
-          )}
-          <PagingNavi />
-        </>
-      </SearchProvider>
-    </PProvider>
+    <>
+      {JSON.stringify(params)}
+      <SearchBar />
+      <PagingNavi total={total} />
+      {isLoading ? (
+        <LoaderCircle className="animate-spin justify-center" />
+      ) : (
+        data?.status === 200 && data.data && <SearchResults data={data.data} />
+      )}
+    </>
+  );
+}
+
+export default function KnowdeSearch() {
+  return (
+    <SearchProvider {...initialSearchState}>
+      <PProvider pageSize={50}>
+        <_KnowdeSearch />
+      </PProvider>
+    </SearchProvider>
   );
 }

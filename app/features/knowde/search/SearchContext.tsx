@@ -13,7 +13,7 @@ type SearchContextType = {
   setOrderBy: Dispatch<SetStateAction<OrderBy>>;
 } & ValProps;
 
-const initialSearchState: SearchContextType = {
+export const initialSearchState: SearchContextType = {
   q: "",
   searchOption: SearchByTextKnowdeGetType.CONTAINS,
   orderBy: defaultOrderBy,

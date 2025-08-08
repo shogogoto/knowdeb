@@ -1,6 +1,4 @@
-import { useContext } from "react";
 import { Link } from "react-router";
-import { PageContext } from "~/components/Pagenation/PageProvider";
 import { Card } from "~/components/ui/card";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
@@ -14,7 +12,7 @@ type Props = {
 };
 
 export default function SearchResults({ data }: Props) {
-  const { startIndex } = useContext(PageContext);
+  const startIndex = 1;
   return (
     <div className="container mx-auto">
       <div>

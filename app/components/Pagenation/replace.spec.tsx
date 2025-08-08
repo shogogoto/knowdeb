@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import _ from "lodash";
 import { MemoryRouter } from "react-router";
-import PagingNavi from "./replace";
+import PagingNavi, { numberPage } from "./replace";
 import { PProvider } from "./reprovider";
 
 function common_expect() {
@@ -26,7 +26,7 @@ function render_(n_page: number, current?: number) {
   return render(
     <MemoryRouter>
       <PProvider {...props}>
-        <PagingNavi />
+        <PagingNavi total={total} />
       </PProvider>
     </MemoryRouter>,
   );
@@ -92,7 +92,7 @@ describe("Pagination 作り直し", () => {
   });
 
   function assert_current(page: number) {
-    expect(screen.getByRole("link", { name: `${page}` })).toHaveAttribute(
+    expect(screen.getByRole("button", { name: `${page}` })).toHaveAttribute(
       "aria-current",
       "page",
     );
@@ -136,5 +136,32 @@ describe("Pagination 作り直し", () => {
       await user.click(screen.getByText("10"));
       assert_current(10);
     });
+  });
+
+  describe("ページ数計算", () => {
+    it.each([
+      { total: 100, pageSize: 10, expected: 10 },
+      { total: 101, pageSize: 10, expected: 11 },
+      { total: 9, pageSize: 10, expected: 1 },
+      { total: 0, pageSize: 10, expected: 0 },
+    ])(
+      "total $total, pageSize $pageSize のとき $expected ページ",
+      ({ total, pageSize, expected }) => {
+        expect(numberPage(total, pageSize)).toBe(expected);
+      },
+    );
+
+    it.each([
+      { total: -1, pageSize: 10 },
+      { total: 100, pageSize: 0 },
+      { total: 100, pageSize: -1 },
+    ])(
+      "total $total, pageSize $pageSize のときエラー",
+      ({ total, pageSize }) => {
+        expect(() => numberPage(total, pageSize)).toThrow(
+          "total must be non-negative and pageSize must be positive.",
+        );
+      },
+    );
   });
 });
