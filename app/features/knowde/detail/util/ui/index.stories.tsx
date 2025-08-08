@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fixtureDetail1 } from "../../fixture";
-import { DisplayGraph } from "./index";
+import DisplayGraph from "./index";
 
 const meta = {
   component: DisplayGraph,

@@ -1,9 +1,8 @@
 import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
-import type { UserRead, UserReadPublic } from "~/generated/fastAPI.schemas";
 import UserAvatar from "../../UserAvatar";
+import type { UserProps } from "../../types";
 
-type Props = {
-  user: UserRead | UserReadPublic | null;
+type Props = UserProps & {
   disableDialog?: boolean;
 };
 

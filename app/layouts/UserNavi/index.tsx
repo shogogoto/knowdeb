@@ -15,7 +15,7 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import UserDropdown from "./UserDropdown";
 
 type Props = {
-  user: UserRead | null;
+  user: UserRead | undefined;
   side?: "left" | "right" | "top" | "bottom";
 };
 

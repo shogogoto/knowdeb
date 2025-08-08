@@ -30,7 +30,7 @@ type Props = {
   detail: KnowdeDetail;
 };
 
-export function DisplayGraph({ detail }: Props) {
+export default function DisplayGraph({ detail }: Props) {
   const { graph } = toDisplayGraph(detail);
 
   return (

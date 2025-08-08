@@ -1,42 +1,20 @@
-import { useState } from "react";
-import type { Dispatch, SetStateAction } from "react";
-import type { Paging } from "~/components/Pagenation";
-import {
-  type SearchByTextKnowdeGetParams,
-  SearchByTextKnowdeGetType,
-} from "~/generated/fastAPI.schemas";
+import { useContext } from "react";
+import { PContext } from "~/components/Pagenation/rephook";
+import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import SearchContext from "../../SearchContext";
 import type { OrderBy } from "../types";
-import WeightRange from "./WeightRange";
 
-type SearchOptionProps = {
-  searchOption: SearchByTextKnowdeGetType;
-  setSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-};
-type Props = Omit<SearchByTextKnowdeGetParams, "q" | "type"> & {
-  setPaging: Dispatch<SetStateAction<Paging>>;
-  setOrderBy: Dispatch<SetStateAction<OrderBy>>;
-  paging: Paging;
-  order: OrderBy;
-} & SearchOptionProps;
-
-export default function SearchConfig(props: Props) {
-  const {
-    paging,
-    order,
-    setPaging,
-    setOrderBy,
-    searchOption,
-    setSearchOption,
-  } = props;
-  const [showConfig, setShowConfig] = useState(false);
+export default function SearchConfig() {
+  const { orderBy, setOrderBy } = useContext(SearchContext);
+  const { pageSize, setPageSize } = useContext(PContext);
   const ranges = [
     { name: "n_detail", label: "詳細数" },
     { name: "n_premise", label: "前提数" },
     { name: "n_conclusion", label: "結論数" },
     { name: "n_refer", label: "参照数" },
     { name: "n_referred", label: "被参照数" },
-    { name: "dist_axiom", label: "公理距離" },
-    { name: "dist_leaf", label: "リーフ距離" },
+    { name: "dist_axiom", label: "前提距離" },
+    { name: "dist_leaf", label: "結論距離" },
   ];
   return (
     <div className="bg-white dark:bg-gray-800 border p-4">
@@ -48,8 +26,6 @@ export default function SearchConfig(props: Props) {
             <WeightRange
               name={range.name}
               label={range.label}
-              order={order}
-              setOrderBy={setOrderBy}
               key={range.name}
             />
           ))}
@@ -59,23 +35,20 @@ export default function SearchConfig(props: Props) {
         <label className="flex items-center mb-2">
           <input
             type="checkbox"
-            checked={order.desc}
-            // onChange={() => setOrderBy({ ...order, desc: !order.desc })}
-            onChange={(e) => setOrderBy({ ...order, desc: e.target.checked })}
+            checked={orderBy.desc}
+            onChange={(e) => setOrderBy({ ...orderBy, desc: e.target.checked })}
             className="mr-2"
             name="desc"
           />
-          <span>降順{order.desc}</span>
+          <span>降順{orderBy.desc}</span>
         </label>
 
         <label>
           ページサイズ
           <select
             name="size"
-            value={paging.size}
-            onChange={(e) =>
-              setPaging({ ...paging, size: Number(e.target.value) })
-            }
+            value={pageSize}
+            onChange={(e) => setPageSize(Number(e.target.value))}
             className="border dark:bg-gray-800"
           >
             <option value={50}>50</option>
@@ -84,17 +57,14 @@ export default function SearchConfig(props: Props) {
             <option value={200}>200</option>
           </select>
         </label>
-        <SearchOption
-          searchOption={searchOption}
-          setSearchOption={setSearchOption}
-        />
+        <SearchOption />
       </div>
     </div>
   );
 }
 
-export function SearchOption(props: SearchOptionProps) {
-  const { searchOption: val, setSearchOption: set } = props;
+export function SearchOption() {
+  const { searchOption: val, setSearchOption: set } = useContext(SearchContext);
   return (
     <label>
       マッチ方式
@@ -111,5 +81,34 @@ export function SearchOption(props: SearchOptionProps) {
         <option value={SearchByTextKnowdeGetType.EQUAL}>完全一致</option>
       </select>
     </label>
+  );
+}
+
+type WRProps = {
+  name: string;
+  label: string;
+};
+
+function WeightRange({ name, label }: WRProps) {
+  const { orderBy, setOrderBy } = useContext(SearchContext);
+  const val = Number(orderBy[name as keyof OrderBy]);
+  return (
+    <div>
+      <label htmlFor={name} className="text-xs flex justify-between">
+        {label}
+        <span className="text-xs text-right">{val}</span>
+      </label>
+      <input
+        name={name}
+        type="range"
+        min={-1}
+        max={5}
+        value={val}
+        onChange={(e) =>
+          setOrderBy({ ...orderBy, [name]: Number(e.target.value) })
+        }
+        className="w-full"
+      />
+    </div>
   );
 }

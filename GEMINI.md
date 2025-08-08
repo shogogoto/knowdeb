@@ -11,5 +11,5 @@ orvalで生成した/generated配下をいじらない方針で修正して
 react-router-domを使わないで react-routerを使ってください
 react-router-domのjsonではなくResponse.json()を使ってください
 tokenの使用量をなるべく節約して。挙動がおかしくてtokenを空費してるときはストップ
-今日の残りのgemini使用量を最後にチャット毎に報告してほしい
-コメントアウトを削除せずに編集して
+今日の残りのgemini使用量を作業が完了する度にに報告してほしい
+コメントアウトを削除せず放置して
