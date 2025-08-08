@@ -26,7 +26,7 @@ function render_(n_page: number, current?: number) {
   return render(
     <MemoryRouter>
       <PProvider {...props}>
-        <PagingNavi {...props} />
+        <PagingNavi />
       </PProvider>
     </MemoryRouter>,
   );

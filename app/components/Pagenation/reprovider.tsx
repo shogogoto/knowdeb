@@ -5,6 +5,7 @@ import type { PaginationProps } from "./replace";
 type Props = PaginationProps & React.PropsWithChildren;
 
 export function PProvider(props: Props) {
+  // const parsed = _PagingNaviProps.parse(props);
   const { total, pageSize, initial } = props;
   const [current, setCurrent] = useState(initial);
   if (total < 0 || pageSize <= 0) {

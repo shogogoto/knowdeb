@@ -1,9 +1,14 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import Replace, { type PaginationProps } from "./replace";
+import { PProvider } from "./reprovider";
 
 const meta = {
-  component: Replace,
+  component: (props: PaginationProps) => (
+    <PProvider {...props}>
+      <Replace />
+    </PProvider>
+  ),
 } satisfies Meta<typeof Replace>;
 
 export default meta;

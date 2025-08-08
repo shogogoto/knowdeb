@@ -15,7 +15,7 @@ import {
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
 import usePagingNeo from "./rephook";
 
-const _PagingNaviProps = z.object({
+export const _PagingNaviProps = z.object({
   total: z.number().int().nonnegative(),
   pageSize: z.number().int().positive(),
   initial: z.number().int().positive().optional(),
@@ -23,8 +23,7 @@ const _PagingNaviProps = z.object({
 
 export type PaginationProps = z.infer<typeof _PagingNaviProps>;
 
-export default function PagingNavi(props: PaginationProps) {
-  const parsed = _PagingNaviProps.parse(props);
+export default function PagingNavi() {
   const { n_page, current, currentNext, currentPrev, updateCurrent } =
     usePagingNeo();
 
