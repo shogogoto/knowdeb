@@ -21,6 +21,15 @@ globalThis.Headers = Headers;
 // node.js 環境にはないからモック
 window.HTMLElement.prototype.scrollIntoView = () => {};
 
+const ResizeObserverMock = vi.fn(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
+}));
+
+// @ts-ignore
+global.ResizeObserver = ResizeObserverMock;
+
 // 各テストの後にDOMをクリーンアップ
 afterEach(() => {
   cleanup();

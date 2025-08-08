@@ -44,7 +44,7 @@ export default function PagingNavi(props: PaginationProps) {
 
   return (
     <Pagination>
-      <PaginationContent className="max-w-full md:max-w-2xl">
+      <PaginationContent className="">
         <PaginationItem key="prev">
           {isFirst ? (
             <DisabledPrevNext isPrev key="prev-disabled" />
@@ -55,7 +55,10 @@ export default function PagingNavi(props: PaginationProps) {
         {n_page > 5 ? (
           <>
             <PageIndex to="#" {...iprops(1)} onClick={() => updateCurrent(1)} />
-            <ScrollArea className="rounded-md whitespace-nowrap max-w-[calc(100vw-12rem)]">
+            <ScrollArea
+              className="rounded-md whitespace-nowrap
+              max-w-[calc(100vw-12rem)] md:max-w-xs lg:max-w-md"
+            >
               <div className="flex w-full">
                 {_.range(2, n_page).map((i) => (
                   <PageIndex

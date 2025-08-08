@@ -24,6 +24,9 @@ function fixProps(props: Props): PaginationProps {
 
 export const Default: Story = {
   args: fixProps({ n_page: 20 }),
+  globals: {
+    viewport: { value: "desktop" },
+  },
 };
 
 export const Mobile: Story = {
