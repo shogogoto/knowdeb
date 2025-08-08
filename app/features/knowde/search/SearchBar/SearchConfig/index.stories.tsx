@@ -1,4 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import { SearchProvider } from "../../SearchContext";
 import { defaultOrderBy } from "../types";
 import Index from "./index";
 
@@ -17,5 +19,17 @@ export const Default: Story = {
     setPaging: () => {},
     setOrderBy: () => {},
     order: defaultOrderBy,
+    size: 10,
   },
+  decorators: [
+    (Story) => (
+      <SearchProvider
+        q=""
+        searchOption={SearchByTextKnowdeGetType.CONTAINS}
+        orderBy={defaultOrderBy}
+      >
+        <Story />
+      </SearchProvider>
+    ),
+  ],
 };

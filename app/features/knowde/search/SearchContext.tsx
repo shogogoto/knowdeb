@@ -4,47 +4,43 @@ import {
   createContext,
   useState,
 } from "react";
-import { useSearchParams } from "react-router";
-import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
+import type { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import type { OrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
-  q: string;
   setQ: Dispatch<SetStateAction<string>>;
-  searchOption: SearchByTextKnowdeGetType;
   setSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-  order: OrderBy;
   setOrderBy: Dispatch<SetStateAction<OrderBy>>;
-};
+} & ValProps;
 
 const SearchContext = createContext<SearchContextType | null>(null);
 
 export default SearchContext;
 
-type Props = {
-  children: React.ReactNode;
+type ValProps = {
+  q: string;
+  searchOption: SearchByTextKnowdeGetType;
+  orderBy: OrderBy;
 };
+type Props = React.PropsWithChildren & ValProps;
 
-export function SearchProvider({ children }: Props) {
-  const [searchParams] = useSearchParams();
-
-  const [q, setQ] = useState(searchParams.get("q") || "");
-  const [searchOption, setSearchOption] = useState<SearchByTextKnowdeGetType>(
-    (searchParams.get("search_type") as SearchByTextKnowdeGetType) ||
-      SearchByTextKnowdeGetType.CONTAINS,
-  );
-  const [order, setOrderBy] = useState<OrderBy>(defaultOrderBy);
+export function SearchProvider(props: Props) {
+  const [_q, setQ] = useState(props.q);
+  const [_searchOption, setSearchOption] = useState(props.searchOption);
+  const [_order, setOrderBy] = useState(props.orderBy);
 
   const value = {
-    q,
+    q: _q,
     setQ,
-    searchOption,
+    searchOption: _searchOption,
     setSearchOption,
-    order,
+    orderBy: _order,
     setOrderBy,
   };
 
   return (
-    <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
+    <SearchContext.Provider value={value}>
+      {props.children}
+    </SearchContext.Provider>
   );
 }

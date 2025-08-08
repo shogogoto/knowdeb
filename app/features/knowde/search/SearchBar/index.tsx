@@ -1,7 +1,9 @@
 import { LoaderCircle } from "lucide-react";
 import { useContext, useState } from "react";
-import { Form, useNavigation, useSubmit } from "react-router";
+import { Form, useNavigation } from "react-router";
 import { PageContext } from "~/components/Pagenation/PageProvider";
+import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
@@ -9,14 +11,13 @@ export default function SearchBar() {
   const searchContext = useContext(SearchContext);
   const { paging, setPaging } = useContext(PageContext);
   const navigation = useNavigation();
-  const submit = useSubmit();
   const [isShown, setShown] = useState(false);
 
   if (!searchContext) {
     throw new Error("SearchBar must be used within a SearchProvider");
   }
 
-  const { q, setQ, searchOption, setSearchOption, order, setOrderBy } =
+  const { q, setQ, searchOption, setSearchOption, orderBy, setOrderBy } =
     searchContext;
 
   const isLoading =
@@ -27,7 +28,7 @@ export default function SearchBar() {
   return (
     <Form action="/search" method="get" className="container mx-auto p-4">
       <div className="flex w-full relative">
-        <input
+        <Input
           type="search"
           value={q}
           name="q"
@@ -38,26 +39,26 @@ export default function SearchBar() {
           className="w-full border dark:bg-gray-800"
           disabled={isLoading}
         />
-        <button
+        <Button
           type="submit"
           className="md:w-auto px-2 border bg-blue-600 hover:bg-blue-700 text-white"
           disabled={isLoading}
         >
           {isLoading ? <LoaderCircle className="animate-spin" /> : "🔍"}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
           className="md:w-auto px-2"
           onClick={toggleShow}
           disabled={isLoading}
         >
           ⚙
-        </button>
+        </Button>
       </div>
       {isShown && (
         <SearchConfig
           paging={paging}
-          order={order}
+          order={orderBy}
           setPaging={setPaging}
           setOrderBy={setOrderBy}
           searchOption={searchOption}
@@ -65,7 +66,6 @@ export default function SearchBar() {
         />
       )}
 
-      {/* Hidden inputs to ensure all parameters are included in form submission */}
       <input type="hidden" name="page" value={paging.page?.toString() || "1"} />
       <input
         type="hidden"
@@ -74,8 +74,7 @@ export default function SearchBar() {
       />
       <input type="hidden" name="search_type" value={searchOption} />
 
-      {/* Order parameters */}
-      {Object.entries(order).map(
+      {Object.entries(orderBy).map(
         ([key, value]) =>
           value !== undefined && (
             <input

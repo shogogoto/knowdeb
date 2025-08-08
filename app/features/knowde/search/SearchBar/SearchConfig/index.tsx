@@ -1,4 +1,3 @@
-import { useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 import type { Paging } from "~/components/Pagenation";
 import {
@@ -6,7 +5,6 @@ import {
   SearchByTextKnowdeGetType,
 } from "~/generated/fastAPI.schemas";
 import type { OrderBy } from "../types";
-import WeightRange from "./WeightRange";
 
 type SearchOptionProps = {
   searchOption: SearchByTextKnowdeGetType;
@@ -28,15 +26,14 @@ export default function SearchConfig(props: Props) {
     searchOption,
     setSearchOption,
   } = props;
-  const [showConfig, setShowConfig] = useState(false);
   const ranges = [
     { name: "n_detail", label: "詳細数" },
     { name: "n_premise", label: "前提数" },
     { name: "n_conclusion", label: "結論数" },
     { name: "n_refer", label: "参照数" },
     { name: "n_referred", label: "被参照数" },
-    { name: "dist_axiom", label: "公理距離" },
-    { name: "dist_leaf", label: "リーフ距離" },
+    { name: "dist_axiom", label: "前提距離" },
+    { name: "dist_leaf", label: "結論距離" },
   ];
   return (
     <div className="bg-white dark:bg-gray-800 border p-4">
@@ -111,5 +108,35 @@ export function SearchOption(props: SearchOptionProps) {
         <option value={SearchByTextKnowdeGetType.EQUAL}>完全一致</option>
       </select>
     </label>
+  );
+}
+
+type WRProps = {
+  name: string;
+  label: string;
+  order: OrderBy;
+  setOrderBy: Dispatch<SetStateAction<OrderBy>>;
+};
+
+function WeightRange({ name, label, order, setOrderBy }: WRProps) {
+  const val = Number(order[name as keyof OrderBy]);
+  return (
+    <div>
+      <label htmlFor={name} className="text-xs flex justify-between">
+        {label}
+        <span className="text-xs text-right">{val}</span>
+      </label>
+      <input
+        name={name}
+        type="range"
+        min={-1}
+        max={5}
+        value={val}
+        onChange={(e) =>
+          setOrderBy({ ...order, [name]: Number(e.target.value) })
+        }
+        className="w-full"
+      />
+    </div>
   );
 }

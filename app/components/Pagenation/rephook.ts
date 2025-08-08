@@ -18,9 +18,6 @@ export const PContext = React.createContext<PagingState>(initial);
 
 export default function usePagingNeo() {
   const { current, setCurrent, nPage } = React.useContext(PContext);
-  if (current && (current < 1 || current > nPage)) {
-    throw new Error("現在ページが有効範囲外");
-  }
 
   // ------------------------------------- methods
   function currentNext() {

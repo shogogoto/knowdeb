@@ -1,13 +1,9 @@
-export type OrderBy = {
-  n_detail?: number;
-  n_premise?: number;
-  n_conclusion?: number;
-  n_refer?: number;
-  n_referred?: number;
-  dist_axiom?: number;
-  dist_leaf?: number;
-  desc?: boolean;
-};
+import type { SearchByTextKnowdeGetParams } from "~/generated/fastAPI.schemas";
+
+export type OrderBy = Omit<
+  SearchByTextKnowdeGetParams,
+  "user" | "q" | "type" | "page" | "size"
+>;
 
 export const defaultOrderBy: OrderBy = {
   n_detail: 1,
