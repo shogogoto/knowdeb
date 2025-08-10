@@ -6,7 +6,6 @@ import { defaultOrderBy } from "../types";
 import Index from "./index";
 
 const meta = {
-  title: "SearchConfig",
   component: Index,
 } satisfies Meta<typeof Index>;
 
