@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { PContext } from "~/components/Pagenation/rephook";
+import PageContext from "~/components/Pagenation/PageContext";
 import { Slider } from "~/components/ui/slider";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import SearchContext from "../../SearchContext";
@@ -7,7 +7,7 @@ import type { OrderBy } from "../types";
 
 export default function SearchConfig() {
   const { orderBy, setOrderBy } = useContext(SearchContext);
-  const { pageSize, setPageSize } = useContext(PContext);
+  const { pageSize, setPageSize } = useContext(PageContext);
   const ranges = [
     { name: "n_detail", label: "詳細数" },
     { name: "n_premise", label: "前提数" },

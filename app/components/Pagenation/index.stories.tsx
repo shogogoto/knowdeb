@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import Replace from "./replace";
-import { PProvider } from "./reprovider";
+import PagingNavi from ".";
+import { PageProvider } from "./PageProvider";
 
 type Props2 = {
   n_page: number;
@@ -12,9 +12,9 @@ const ReplaceWithProvider = ({ n_page, current }: Props2) => {
   const pageSize = 10;
   const total = n_page * pageSize;
   return (
-    <PProvider {...{ pageSize, current }}>
-      <Replace total={total} />
-    </PProvider>
+    <PageProvider {...{ pageSize, current }}>
+      <PagingNavi total={total} />
+    </PageProvider>
   );
 };
 

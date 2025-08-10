@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import _ from "lodash";
 import { MemoryRouter } from "react-router";
-import PagingNavi, { numberPage } from "./replace";
-import { PProvider } from "./reprovider";
+import PagingNavi, { numberPage } from ".";
+import { PageProvider } from "./PageProvider";
 
 function common_expect() {
   expect(screen.getByText("Previous")).toBeInTheDocument();
@@ -25,9 +25,9 @@ function render_(n_page: number, current?: number) {
 
   return render(
     <MemoryRouter>
-      <PProvider {...props}>
+      <PageProvider {...props}>
         <PagingNavi total={total} />
-      </PProvider>
+      </PageProvider>
     </MemoryRouter>,
   );
 }

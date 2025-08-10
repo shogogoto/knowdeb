@@ -1,6 +1,6 @@
 import React from "react";
 
-export type PagingState = {
+type PagingState = {
   current?: number;
   setCurrent: React.Dispatch<React.SetStateAction<number | undefined>>;
   pageSize: number;
@@ -8,10 +8,11 @@ export type PagingState = {
 };
 
 const initial: PagingState = {
-  current: 1,
+  current: undefined,
   setCurrent: () => {},
   pageSize: 10,
   setPageSize: () => {},
 };
 
-export const PContext = React.createContext<PagingState>(initial);
+const PageContext = React.createContext<PagingState>(initial);
+export default PageContext;

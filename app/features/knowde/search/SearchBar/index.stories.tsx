@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { PProvider } from "~/components/Pagenation/reprovider";
+import { PageProvider } from "~/components/Pagenation/PageProvider";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import { SearchProvider } from "../SearchContext";
 import Index from "./index";
@@ -18,7 +18,7 @@ export const Default: Story = {
   args: {},
   decorators: [
     (Story) => (
-      <PProvider total={100} pageSize={10} initial={1}>
+      <PageProvider pageSize={10}>
         <SearchProvider
           q=""
           searchOption={SearchByTextKnowdeGetType.CONTAINS}
@@ -26,7 +26,7 @@ export const Default: Story = {
         >
           <Story />
         </SearchProvider>
-      </PProvider>
+      </PageProvider>
     ),
   ],
 };

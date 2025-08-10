@@ -1,8 +1,8 @@
 import { LoaderCircle } from "lucide-react";
 import { useContext } from "react";
-import { PContext } from "~/components/Pagenation/rephook";
-import PagingNavi from "~/components/Pagenation/replace";
-import { PProvider } from "~/components/Pagenation/reprovider";
+import PagingNavi from "~/components/Pagenation";
+import PageContext from "~/components/Pagenation/PageContext";
+import { PageProvider } from "~/components/Pagenation/PageProvider";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
 import SearchBar from "./SearchBar";
 import SearchContext, {
@@ -13,7 +13,7 @@ import SearchResults from "./SearchResults";
 
 export function _KnowdeSearch() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { pageSize, current, setCurrent } = useContext(PContext);
+  const { pageSize, current, setCurrent } = useContext(PageContext);
 
   const params = {
     q,
@@ -55,9 +55,9 @@ export function _KnowdeSearch() {
 export default function KnowdeSearch() {
   return (
     <SearchProvider {...initialSearchState}>
-      <PProvider pageSize={50}>
+      <PageProvider pageSize={50}>
         <_KnowdeSearch />
-      </PProvider>
+      </PageProvider>
     </SearchProvider>
   );
 }
