@@ -50,13 +50,14 @@ export default function SearchResults({ data }: Props) {
                       data-index={virtualItem.index}
                       ref={rowVirtualizer.measureElement}
                       style={{
+                        // 重なって描画されないようにする。リストの仮想化に不可欠
                         position: "absolute",
                         top: 0,
                         left: 0,
                         width: "100%",
                         transform: `translateY(${virtualItem.start}px)`,
                       }}
-                      className="flex items-center border-b" // Replaced divide-y with border-b and padding
+                      className="flex items-center border-b"
                     >
                       {user && (
                         <Link

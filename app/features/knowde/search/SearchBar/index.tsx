@@ -1,8 +1,9 @@
 import { LoaderCircle, Search, Settings } from "lucide-react";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Form, useNavigation } from "react-router";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
+import { useDebounce } from "~/hooks/useDebounce";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
@@ -10,6 +11,21 @@ export default function SearchBar() {
   const navigation = useNavigation();
   const [isShown, setShown] = useState(false);
   const { q, setQ } = useContext(SearchContext);
+
+  // Local state for the input to make typing responsive.
+  const [inputValue, setInputValue] = useState(q);
+  // Debounce the local input value.
+  const debouncedInputValue = useDebounce(inputValue, 300);
+
+  // Only update the global SearchContext when the debounced value changes.
+  useEffect(() => {
+    setQ(debouncedInputValue);
+  }, [debouncedInputValue, setQ]);
+
+  // Sync from global context to local state if q changes externally.
+  useEffect(() => {
+    setInputValue(q);
+  }, [q]);
 
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
@@ -21,10 +37,10 @@ export default function SearchBar() {
         <div className="flex w-full relative">
           <Input
             type="search"
-            value={q}
+            value={inputValue}
             name="q"
             onChange={(ev) => {
-              setQ(ev.target.value);
+              setInputValue(ev.target.value);
             }}
             placeholder="検索文字列を入力..."
             className="w-full border dark:bg-gray-800"
