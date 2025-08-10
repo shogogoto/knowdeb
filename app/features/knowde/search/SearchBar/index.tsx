@@ -34,28 +34,31 @@ export default function SearchBar() {
   return (
     <Form action="/search" method="get" className="container mx-auto p-4">
       <div className="container mx-auto p-4">
-        <div className="flex w-full relative">
-          <Input
-            type="search"
-            value={inputValue}
-            name="q"
-            onChange={(ev) => {
-              setInputValue(ev.target.value);
-            }}
-            placeholder="検索文字列を入力..."
-            className="w-full border dark:bg-gray-800"
-            disabled={isLoading}
-          />
-          <Button
-            type="submit"
-            className="md:w-auto px-2 border bg-blue-600 hover:bg-blue-700 text-white"
-            disabled={isLoading}
-          >
-            {isLoading ? <LoaderCircle className="animate-spin" /> : <Search />}
-          </Button>
+        <div className="flex w-full items-center gap-2">
+          <div className="relative flex-grow">
+            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+              {isLoading ? (
+                <LoaderCircle className="animate-spin text-muted-foreground" />
+              ) : (
+                <Search className="text-muted-foreground" />
+              )}
+            </div>
+            <Input
+              type="search"
+              value={inputValue}
+              name="q"
+              onChange={(ev) => {
+                setInputValue(ev.target.value);
+              }}
+              placeholder="検索文字列を入力..."
+              className="w-full border dark:bg-gray-800 pl-10"
+              disabled={isLoading}
+            />
+          </div>
           <Button
             type="button"
-            className="md:w-auto px-2"
+            variant="ghost"
+            size="icon"
             onClick={toggleShow}
             disabled={isLoading}
           >

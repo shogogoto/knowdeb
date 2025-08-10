@@ -1,5 +1,6 @@
 import { LoaderCircle } from "lucide-react";
-import { useContext } from "react";
+import { Suspense, useContext } from "react";
+import { ClientOnly } from "~/components/ClientOnly";
 import PagingNavi from "~/components/Pagenation";
 import PageContext from "~/components/Pagenation/PageContext";
 import { PageProvider } from "~/components/Pagenation/PageProvider";
@@ -27,12 +28,12 @@ export function _KnowdeSearch() {
 
   const fallbackData = useCachedSearch(params);
 
-  const { data, isLoading } = useSearchByTextKnowdeGet(params, {
+  const { data } = useSearchByTextKnowdeGet(params, {
     swr: {
       keepPreviousData: true,
       fallbackData,
       onSuccess: async (data) => {
-        if (data?.status === 200) {
+        if (data.status === 200) {
           // 再検索で有効範囲外にならないようにする
           const total = data.data.total || 0;
           if (total === 0) setCurrent(undefined);
@@ -41,33 +42,39 @@ export function _KnowdeSearch() {
           await setCache(paramsToKey(params), data.data);
         }
       },
+      suspense: true,
     },
   });
 
-  const total = data?.status === 200 ? data.data.total : 0;
+  const total = data?.status === 200 ? data.data.total : 0; // data.statusのチェックは不要
 
   return (
     <>
-      {fallbackData !== undefined && (
-        <p className="text-muted-foreground">{paramsToKey(params)}</p>
-      )}
-      <SearchBar />
       <PagingNavi total={total} />
-      {isLoading && fallbackData === undefined ? (
-        <LoaderCircle className="animate-spin justify-center" />
-      ) : (
-        data?.status === 200 && <SearchResults data={data.data} />
-      )}
+      {data && data.status === 200 && <SearchResults data={data.data} />}
     </>
   );
 }
 
 export default function KnowdeSearch() {
   return (
-    <SearchProvider {...initialSearchState}>
-      <PageProvider pageSize={50}>
-        <_KnowdeSearch />
-      </PageProvider>
-    </SearchProvider>
+    <ClientOnly>
+      {() => (
+        <SearchProvider {...initialSearchState}>
+          <PageProvider pageSize={50}>
+            <SearchBar />
+            <Suspense
+              fallback={
+                <div className="flex justify-center p-4">
+                  <LoaderCircle className="animate-spin" />
+                </div>
+              }
+            >
+              <_KnowdeSearch />
+            </Suspense>
+          </PageProvider>
+        </SearchProvider>
+      )}
+    </ClientOnly>
   );
 }
