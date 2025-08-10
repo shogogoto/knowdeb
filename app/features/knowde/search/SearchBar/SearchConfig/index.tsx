@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { PContext } from "~/components/Pagenation/rephook";
+import { Slider } from "~/components/ui/slider";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
 import SearchContext from "../../SearchContext";
 import type { OrderBy } from "../types";
@@ -98,15 +99,13 @@ function WeightRange({ name, label }: WRProps) {
         {label}
         <span className="text-xs text-right">{val}</span>
       </label>
-      <input
+      <Slider
         name={name}
-        type="range"
         min={-1}
         max={5}
-        value={val}
-        onChange={(e) =>
-          setOrderBy({ ...orderBy, [name]: Number(e.target.value) })
-        }
+        step={1}
+        value={[val]}
+        onValueChange={(value) => setOrderBy({ ...orderBy, [name]: value[0] })}
         className="w-full"
       />
     </div>
