@@ -26,6 +26,13 @@ export function _KnowdeSearch() {
   const { data, isLoading } = useSearchByTextKnowdeGet(params, {
     swr: {
       keepPreviousData: true,
+      onSuccess: (data) => {
+        // 再検索で有効範囲外にならないようにする
+        const total = data?.status === 200 ? data.data.total : 0;
+        if (total === 0) setCurrent(undefined);
+        if (current && current > total) setCurrent(total);
+        if (!current && total > 0) setCurrent(1);
+      },
     },
   });
 

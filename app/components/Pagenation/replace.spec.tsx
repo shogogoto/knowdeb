@@ -92,7 +92,7 @@ describe("Pagination 作り直し", () => {
   });
 
   function assert_current(page: number) {
-    expect(screen.getByRole("button", { name: `${page}` })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: `${page}` })).toHaveAttribute(
       "aria-current",
       "page",
     );

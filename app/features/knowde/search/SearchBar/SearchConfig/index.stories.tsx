@@ -22,7 +22,7 @@ export const Default: Story = {
   },
   decorators: [
     (Story) => (
-      <PProvider total={100} pageSize={10} initial={1}>
+      <PProvider pageSize={10} initial={1}>
         <SearchProvider
           q=""
           searchOption={SearchByTextKnowdeGetType.CONTAINS}
