@@ -1,3 +1,5 @@
+import { toast } from "sonner";
+
 export function easyStorage(key: string) {
   return {
     getItem: () => getItem(key),
@@ -29,6 +31,7 @@ export function setItem(key: string, value: unknown): boolean {
     return true;
   } catch (error) {
     console.error(`Failed to set item in localStorage: ${key}`, error);
+    toast.error(`Failed to set item in localStorage: ${key}`);
     return false;
   }
 }

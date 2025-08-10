@@ -101,7 +101,7 @@ function StatView({
   stats,
   collapsible,
 }: { stats: KStats | undefined; collapsible?: boolean }) {
-  const score_it = { Icon: Award, label: "スコア", value: stats?.score || -1 };
+  const score_it = { Icon: Award, label: "スコア", value: stats?.score || 0 };
 
   const items = [
     { Icon: BookText, label: "詳細数", value: stats?.n_detail },

@@ -49,10 +49,6 @@ export default function PagingNavi({ total }: Props) {
     );
   }
 
-  // if (total <= 0) {
-  //   return null;
-  // }
-
   const nPage = numberPage(total, pageSize);
   if (total > 0 && !!current && (current < 1 || current > nPage)) {
     throw new Error(

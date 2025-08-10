@@ -1,4 +1,7 @@
+import { useVirtualizer } from "@tanstack/react-virtual";
+import { useContext, useRef } from "react";
 import { Link } from "react-router";
+import PageContext from "~/components/Pagenation/PageContext";
 import { Card } from "~/components/ui/card";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
@@ -12,42 +15,77 @@ type Props = {
 };
 
 export default function SearchResults({ data }: Props) {
-  const startIndex = 1;
+  const { current, pageSize } = useContext(PageContext);
+  const startIndex = current ? 1 + (current - 1) * pageSize : 1;
+
+  const parentRef = useRef(null);
+
+  const rowVirtualizer = useVirtualizer({
+    count: data.data.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 130, // A reasonable estimate for item height
+    overscan: 5,
+  });
+
   return (
     <div className="container mx-auto">
       <div>
         {data.total > 0 ? (
           <div>
             <h2 className="text-xl font-semibold">検索結果 ({data.total}件)</h2>
-            <div className="divide-y max-w-2xl">
-              {data.data.map((k, index) => {
-                const { user, resource } = data.owners[k.resource_uid];
-                return (
-                  <div className="flex items-center" key={k.uid}>
-                    {user && (
-                      <Link
-                        to={`/user/${user.username}`}
-                        className="flex w-24 flex-col items-center justify-center space-y-1"
-                      >
-                        <UserAvatar user={user} />
-                        <span className="break-all text-center text-sm font-semibold">
-                          {user.display_name}
-                        </span>
-                        <span className="text-center text-xs text-muted-foreground">
-                          @{user.username}
-                        </span>
-                      </Link>
-                    )}
+            <div ref={parentRef} className="max-w-2xl">
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  width: "100%",
+                  position: "relative",
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                  const k = data.data[virtualItem.index];
+                  const { user, resource } = data.owners[k.resource_uid];
+                  return (
+                    <div
+                      key={virtualItem.key}
+                      data-index={virtualItem.index}
+                      ref={rowVirtualizer.measureElement}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        width: "100%",
+                        transform: `translateY(${virtualItem.start}px)`,
+                      }}
+                      className="flex items-center border-b" // Replaced divide-y with border-b and padding
+                    >
+                      {user && (
+                        <Link
+                          to={`/user/${user.username}`}
+                          className="flex w-24 flex-col items-center justify-center space-y-1"
+                        >
+                          <UserAvatar user={user} />
+                          <span className="break-all text-center text-sm font-semibold">
+                            {user.display_name}
+                          </span>
+                          <span className="text-center text-xs text-muted-foreground">
+                            @{user.username}
+                          </span>
+                        </Link>
+                      )}
 
-                    <Card className="flex-1 max-w-2xl">
-                      <Link to={`/knowde/${k.uid}`}>
-                        <KnowdeCardContent k={k} resource={resource} />
-                      </Link>
-                      <KnowdeCardFooter k={k} index={index + startIndex} />
-                    </Card>
-                  </div>
-                );
-              })}
+                      <Card className="flex-1 max-w-2xl">
+                        <Link to={`/knowde/${k.uid}`}>
+                          <KnowdeCardContent k={k} resource={resource} />
+                        </Link>
+                        <KnowdeCardFooter
+                          k={k}
+                          index={virtualItem.index + startIndex}
+                        />
+                      </Card>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         ) : (
