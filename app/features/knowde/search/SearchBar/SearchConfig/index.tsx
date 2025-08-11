@@ -18,7 +18,7 @@ export default function SearchConfig() {
     { name: "dist_leaf", label: "結論距離" },
   ];
   return (
-    <div className="bg-white dark:bg-gray-800 border p-4">
+    <div className="bg-white dark:bg-gray-800 border">
       <p className="font-medium mb-2">検索オプション</p>
       <div className="mb-4">
         <h4 className="text-sm font-medium mb-1">スコア重み設定</h4>
