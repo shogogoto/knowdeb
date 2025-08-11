@@ -1,18 +1,25 @@
-import React from "react";
+import type React from "react";
 
-type PagingState = {
+type PageContextType = {
   current?: number;
   setCurrent: React.Dispatch<React.SetStateAction<number | undefined>>;
   pageSize: number;
   setPageSize: React.Dispatch<React.SetStateAction<number>>;
+  total: number;
+  setTotal: React.Dispatch<React.SetStateAction<number>>;
 };
 
-const initial: PagingState = {
+const initial: PageContextType = {
   current: undefined,
   setCurrent: () => {},
   pageSize: 10,
   setPageSize: () => {},
+  total: 0,
+  setTotal: () => {},
 };
 
-const PageContext = React.createContext<PagingState>(initial);
+import { createContext } from "react";
+
+const PageContext = createContext<PageContextType>(initial);
+
 export default PageContext;

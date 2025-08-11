@@ -7,12 +7,15 @@ type Props = PaginationProps & React.PropsWithChildren;
 export function PageProvider(props: Props) {
   const [current, setCurrent] = useState(props.initial);
   const [_pageSize, setPageSize] = useState(props.pageSize);
+  const [_total, setTotal] = useState(0);
 
   const value = {
     current,
     setCurrent,
     pageSize: _pageSize,
     setPageSize,
+    total: _total,
+    setTotal,
   };
 
   return (

@@ -41,7 +41,10 @@ type Props = {
 };
 
 export default function PagingNavi({ total }: Props) {
-  const { current, setCurrent, pageSize } = useContext(PageContext);
+  const { current, setCurrent, pageSize, setTotal } = useContext(PageContext);
+  useEffect(() => {
+    setTotal(total);
+  }, [total, setTotal]);
 
   if (total < 0 || pageSize <= 0) {
     throw new Error(

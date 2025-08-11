@@ -33,7 +33,7 @@ export default function SearchResults({ data }: Props) {
         {data.total > 0 ? (
           <div>
             <h2 className="text-xl font-semibold">検索結果 ({data.total}件)</h2>
-            <div ref={parentRef} className="max-w-2xl">
+            <div ref={parentRef} className="max-w-3xl">
               <div
                 style={{
                   height: `${rowVirtualizer.getTotalSize()}px`,

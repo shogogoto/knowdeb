@@ -16,7 +16,7 @@ import { paramsToKey, useCachedSearch } from "./hooks";
 
 export function _KnowdeSearch() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { pageSize, current, setCurrent } = useContext(PageContext);
+  const { pageSize, current, setCurrent, setTotal } = useContext(PageContext);
 
   const params = {
     q,
@@ -34,8 +34,9 @@ export function _KnowdeSearch() {
       fallbackData,
       onSuccess: async (data) => {
         if (data.status === 200) {
-          // 再検索で有効範囲外にならないようにする
           const total = data.data.total || 0;
+          setTotal(total);
+          // 再検索で有効範囲外にならないようにする
           if (total === 0) setCurrent(undefined);
           if (current && current > total) setCurrent(total);
           if (!current && total > 0) setCurrent(1);
@@ -46,13 +47,35 @@ export function _KnowdeSearch() {
     },
   });
 
-  const total = data?.status === 200 ? data.data.total : 0; // data.statusのチェックは不要
-
   return (
-    <>
-      <PagingNavi total={total} />
+    <div className="flex justify-center w-full">
       {data && data.status === 200 && <SearchResults data={data.data} />}
-    </>
+    </div>
+  );
+}
+
+function KnowdeSearchLayout() {
+  const { total } = useContext(PageContext);
+  return (
+    <div className="flex flex-col h-screen">
+      <header className="flex sticky top-0 justify-center pb-2 bg-background border-b">
+        <SearchBar />
+      </header>
+      <main className="flex-1 justify-center overflow-y w-full">
+        <Suspense
+          fallback={
+            <div className="flex justify-center p-4">
+              <LoaderCircle className="animate-spin" />
+            </div>
+          }
+        >
+          <_KnowdeSearch />
+        </Suspense>
+      </main>
+      <footer className="flex sticky bottom-0 bg-background border-t">
+        <PagingNavi total={total} />
+      </footer>
+    </div>
   );
 }
 
@@ -62,16 +85,7 @@ export default function KnowdeSearch() {
       {() => (
         <SearchProvider {...initialSearchState}>
           <PageProvider pageSize={50}>
-            <SearchBar />
-            <Suspense
-              fallback={
-                <div className="flex justify-center p-4">
-                  <LoaderCircle className="animate-spin" />
-                </div>
-              }
-            >
-              <_KnowdeSearch />
-            </Suspense>
+            <KnowdeSearchLayout />
           </PageProvider>
         </SearchProvider>
       )}

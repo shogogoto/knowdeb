@@ -32,7 +32,7 @@ export default function SearchBar() {
   const toggleShow = () => setShown(!isShown);
 
   return (
-    <Form action="/search" method="get" className="container mx-auto p-4">
+    <Form action="/search" method="get" className="container mx-auto">
       <div className="container mx-auto p-4">
         <div className="flex w-full items-center gap-2">
           <div className="relative flex-grow">
