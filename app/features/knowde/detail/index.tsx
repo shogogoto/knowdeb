@@ -1,13 +1,16 @@
 "use client";
+import { LoaderCircle } from "lucide-react";
 import { Suspense, lazy } from "react";
 import { Card } from "~/components/ui/card";
 import { useDetailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
+import { knowdeDetailCache } from "~/lib/indexed";
 import KnowdeCard, {
   KnowdeCardContent,
   KnowdeCardFooter,
 } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
+import { useCachedKnowdeDetail } from "./hooks";
 
 const DisplayGraph = lazy(() => import("./util/ui"));
 
@@ -16,31 +19,36 @@ type Props = {
 };
 
 export default function KnowdeDetailView({ id }: Props) {
-  const { data, isLoading, error } = useDetailKnowdeSentenceSentenceIdGet(id);
+  const fallbackData = useCachedKnowdeDetail(id);
+  const { data } = useDetailKnowdeSentenceSentenceIdGet(id, undefined, {
+    swr: {
+      keepPreviousData: true,
+      fallbackData,
+      suspense: true,
+      onSuccess: async (data) => {
+        if (data.status === 200) {
+          await knowdeDetailCache.set(data.data);
+        }
+      },
+    },
+  });
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  if (error) {
-    console.log({ error });
+  if (data?.status !== 200) {
     return <div>Error fetching data. </div>;
   }
-  if (!data?.data) {
-    return <div>no entries.</div>;
-  }
-  if (!("knowdes" in data.data)) {
-    if ("detail" in data.data) {
-      return <div>Error: {JSON.stringify(data.data.detail)}</div>;
-    }
-    return <div>Invalid data structure.</div>;
-  }
 
-  const { g, uid, location, knowdes } = data.data;
+  const { uid, location, knowdes } = data.data;
   const excepted = Object.keys(knowdes).filter((v) => v !== uid);
-
   const k = knowdes[uid.replaceAll(/-/g, "")];
   return (
-    <>
+    <Suspense
+      fallback={
+        <div className="flex justify-center p-4">
+          <LoaderCircle className="animate-spin" />
+        </div>
+      }
+    >
+      {/* <CacheInfo /> */}
       <LocationView loc={location} />
       <Card key={k.uid} className="w-full max-w-2xl border">
         <KnowdeCardContent k={k} />
@@ -54,6 +62,6 @@ export default function KnowdeDetailView({ id }: Props) {
       <Suspense fallback={<div>Loading Graph...</div>}>
         <DisplayGraph detail={data.data} />
       </Suspense>
-    </>
+    </Suspense>
   );
 }

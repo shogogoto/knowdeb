@@ -5,7 +5,7 @@ import PagingNavi from "~/components/Pagenation";
 import PageContext from "~/components/Pagenation/PageContext";
 import { PageProvider } from "~/components/Pagenation/PageProvider";
 import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
-import { setCache } from "~/lib/indexed";
+import { knowdeSearchCache } from "~/lib/indexed";
 import SearchBar from "./SearchBar";
 import SearchContext, {
   initialSearchState,
@@ -40,7 +40,7 @@ export function _KnowdeSearch() {
           if (total === 0) setCurrent(undefined);
           if (current && current > total) setCurrent(total);
           if (!current && total > 0) setCurrent(1);
-          await setCache(paramsToKey(params), data.data);
+          await knowdeSearchCache.set(paramsToKey(params), data.data);
         }
       },
       suspense: true,

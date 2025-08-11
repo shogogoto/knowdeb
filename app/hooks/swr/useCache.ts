@@ -8,7 +8,10 @@ export function createCacheKey<TParams extends object>(
   return `${prefix}-${JSON.stringify(sortedParams)}`;
 }
 
-export function useCachedSWR<TData, TResponse>(cacheKey: string) {
+export function useCachedSWR<TData, TResponse>(
+  cacheKey: string,
+  getCache: (key: string) => Promise<TData | undefined>,
+) {
   const [fallbackData, setFallbackData] = useState<TResponse | undefined>(
     undefined,
   );
@@ -21,8 +24,7 @@ export function useCachedSWR<TData, TResponse>(cacheKey: string) {
 
     let isMounted = true;
     async function loadCache() {
-      const { getCache } = await import("~/lib/indexed");
-      const cachedData = await getCache<TData>(cacheKey);
+      const cachedData = await getCache(cacheKey);
       if (isMounted && cachedData) {
         const res = {
           status: 200,
@@ -39,7 +41,7 @@ export function useCachedSWR<TData, TResponse>(cacheKey: string) {
     return () => {
       isMounted = false;
     };
-  }, [cacheKey]);
+  }, [cacheKey, getCache]);
 
   return fallbackData;
 }
