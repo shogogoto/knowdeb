@@ -33,7 +33,7 @@ export default function SearchBar() {
 
   return (
     <Form action="/search" method="get" className="container mx-auto">
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-2">
         <div className="flex w-full items-center gap-2">
           <div className="relative flex-grow">
             <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
