@@ -14,7 +14,7 @@ const TTL = 1000 * 60 * 60 * 24; // 24 hours
 
 class KnowdeCacheDB extends Dexie {
   public cache!: Table<CacheItem<unknown>>;
-  public knowdeDetails!: Table<KnowdeDetail & { id: string }>;
+  public knowdeDetails!: Table<KnowdeDetail>;
   public knowdeSearchResults!: Table<CacheItem<KnowdeSearchResult>>;
 
   public constructor() {

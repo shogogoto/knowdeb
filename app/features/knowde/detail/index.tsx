@@ -2,7 +2,12 @@
 import { LoaderCircle } from "lucide-react";
 import { Suspense, lazy } from "react";
 import { Card } from "~/components/ui/card";
-import { useDetailKnowdeSentenceSentenceIdGet } from "~/generated/knowde/knowde";
+import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
+import {
+  type detailKnowdeSentenceSentenceIdGetResponse,
+  useDetailKnowdeSentenceSentenceIdGet,
+} from "~/generated/knowde/knowde";
+import { useCachedSWR } from "~/hooks/swr/useCache";
 import { knowdeDetailCache } from "~/lib/indexed";
 import KnowdeCard, {
   KnowdeCardContent,
@@ -10,7 +15,6 @@ import KnowdeCard, {
 } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
-import { useCachedKnowdeDetail } from "./hooks";
 
 const DisplayGraph = lazy(() => import("./util/ui"));
 
@@ -19,7 +23,11 @@ type Props = {
 };
 
 export default function KnowdeDetailView({ id }: Props) {
-  const fallbackData = useCachedKnowdeDetail(id);
+  const fallbackData = useCachedSWR<
+    KnowdeDetail,
+    detailKnowdeSentenceSentenceIdGetResponse
+  >(id, knowdeDetailCache.get);
+
   const { data } = useDetailKnowdeSentenceSentenceIdGet(id, undefined, {
     swr: {
       keepPreviousData: true,

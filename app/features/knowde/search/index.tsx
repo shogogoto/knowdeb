@@ -4,7 +4,12 @@ import { ClientOnly } from "~/components/ClientOnly";
 import PagingNavi from "~/components/Pagenation";
 import PageContext from "~/components/Pagenation/PageContext";
 import { PageProvider } from "~/components/Pagenation/PageProvider";
-import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
+import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
+import {
+  type searchByTextKnowdeGetResponse,
+  useSearchByTextKnowdeGet,
+} from "~/generated/knowde/knowde";
+import { createCacheKey, useCachedSWR } from "~/hooks/swr/useCache";
 import { knowdeSearchCache } from "~/lib/indexed";
 import SearchBar from "./SearchBar";
 import SearchContext, {
@@ -12,7 +17,6 @@ import SearchContext, {
   SearchProvider,
 } from "./SearchContext";
 import SearchResults from "./SearchResults";
-import { paramsToKey, useCachedSearch } from "./hooks";
 
 export function _KnowdeSearch() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
@@ -26,7 +30,11 @@ export function _KnowdeSearch() {
     ...orderBy,
   };
 
-  const fallbackData = useCachedSearch(params);
+  const cacheKey = createCacheKey("search", params);
+  const fallbackData = useCachedSWR<
+    KnowdeSearchResult,
+    searchByTextKnowdeGetResponse
+  >(cacheKey, knowdeSearchCache.get);
 
   const { data } = useSearchByTextKnowdeGet(params, {
     swr: {
@@ -40,7 +48,7 @@ export function _KnowdeSearch() {
           if (total === 0) setCurrent(undefined);
           if (current && current > total) setCurrent(total);
           if (!current && total > 0) setCurrent(1);
-          await knowdeSearchCache.set(paramsToKey(params), data.data);
+          await knowdeSearchCache.set(cacheKey, data.data);
         }
       },
       suspense: true,
