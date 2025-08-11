@@ -1,41 +1,17 @@
-import { useEffect, useState } from "react";
 import type {
   KnowdeSearchResult,
   SearchByTextKnowdeGetParams,
 } from "~/generated/fastAPI.schemas";
 import type { searchByTextKnowdeGetResponse } from "~/generated/knowde/knowde";
-import { getCache } from "~/lib/indexed";
+import { createCacheKey, useCachedSWR } from "~/hooks/swr/useCache";
 
-export function paramsToKey(params: SearchByTextKnowdeGetParams): string {
-  const sortedParams = Object.fromEntries(Object.entries(params).sort());
-  return `search-${JSON.stringify(sortedParams)}`;
+export function paramsToKey(params: SearchByTextKnowdeGetParams) {
+  return createCacheKey("search", params);
 }
 
 export function useCachedSearch(params: SearchByTextKnowdeGetParams) {
-  const [fallbackData, setFallbackData] = useState<
-    searchByTextKnowdeGetResponse | undefined
-  >(undefined);
-  const cacheKey = paramsToKey(params);
-  useEffect(() => {
-    let isMounted = true;
-    async function loadCache() {
-      const cachedData = await getCache<KnowdeSearchResult>(cacheKey);
-      if (isMounted && cachedData) {
-        const res: searchByTextKnowdeGetResponse = {
-          status: 200,
-          data: cachedData,
-          headers: new Headers(),
-        };
-
-        setFallbackData(res);
-        console.log("LOADED!!!!!");
-      }
-    }
-    loadCache();
-    return () => {
-      isMounted = false;
-    };
-  }, [cacheKey]);
-
-  return fallbackData;
+  const cacheKey = createCacheKey("search", params);
+  return useCachedSWR<KnowdeSearchResult, searchByTextKnowdeGetResponse>(
+    cacheKey,
+  );
 }
