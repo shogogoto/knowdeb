@@ -55,11 +55,11 @@ export function _KnowdeSearch() {
 function KnowdeSearchLayout() {
   const { total } = useContext(PageContext);
   return (
-    <div className="flex flex-col h-full">
-      <header className="flex flex-col justify-center bg-background border-b">
+    <div className="flex flex-col h-dvh">
+      <header className="flex sticky z-5 top-0 border-b">
         <SearchBar />
       </header>
-      <main className="flex-1 justify-center overflow-y-auto w-full">
+      <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
         <Suspense
           fallback={
             <div className="flex justify-center p-4">
@@ -67,12 +67,12 @@ function KnowdeSearchLayout() {
             </div>
           }
         >
-          <div className="flex-1 justify-center w-full">
+          <div className="flex h-screen justify-center w-full">
             <_KnowdeSearch />
           </div>
         </Suspense>
       </main>
-      <footer className="flex buttom-0 bg-background border-t">
+      <footer className="flex sticky bottom-0 bg-background border-t">
         <PagingNavi total={total} />
       </footer>
     </div>

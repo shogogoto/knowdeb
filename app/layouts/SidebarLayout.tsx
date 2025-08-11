@@ -17,9 +17,7 @@ export default function SidebarLayout({ className }: Props) {
   return (
     <SidebarProvider>
       <MySidebar />
-      <div
-        className={"flex flex-col w-full h-screen  bg-white dark:bg-gray-950"}
-      >
+      <div className={"flex flex-col w-full h-dvh  bg-white dark:bg-gray-950"}>
         <main className={`flex-1 overflow-y-auto ${className} ${docStyle}`}>
           <Outlet />
           <Toaster
