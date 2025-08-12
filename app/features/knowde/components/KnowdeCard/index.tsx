@@ -29,29 +29,36 @@ import type {
   MResource,
 } from "~/generated/fastAPI.schemas";
 import { cn } from "~/lib/utils";
+import { Highlight } from "../Highlight";
 
 type Props = {
   k: Knowde;
   index?: number;
+  query?: string;
 };
 
-export default function KnowdeCard({ k, index }: Props) {
+export default function KnowdeCard({ k, index, query }: Props) {
   return (
     <Link
       to={`/knowde/${k.uid}`}
       draggable={false} // テキストをコピペできるため
     >
       <Card key={k.uid} className="w-full max-w-2xl">
-        <KnowdeCardContent k={k} />
+        <KnowdeCardContent k={k} query={query} />
         <KnowdeCardFooter k={k} index={index} />
       </Card>
     </Link>
   );
 }
 
-type KProps = { k: Knowde; className?: string; resource?: MResource };
+type KProps = {
+  k: Knowde;
+  className?: string;
+  resource?: MResource;
+  query?: string;
+};
 
-export function KnowdeCardContent({ k, className, resource }: KProps) {
+export function KnowdeCardContent({ k, className, resource, query }: KProps) {
   return (
     <CardContent>
       <div className="flex flex-wrap items-start gap-2">
@@ -59,16 +66,18 @@ export function KnowdeCardContent({ k, className, resource }: KProps) {
           <span
             key={name}
             className={cn(
-              "rounded-full font-bold text-green-800  dark:text-green-300",
+              "rounded-full font-bold text-green-800  dark:text-green-500",
               className,
             )}
           >
-            {name}
+            <Highlight text={name} query={query ?? ""} />
           </span>
         ))}
       </div>
       {k.sentence !== "<<<not defined>>>" && (
-        <span className="break-all">{k.sentence}</span>
+        <span className="break-all">
+          <Highlight text={k.sentence} query={query ?? ""} />
+        </span>
       )}
       <div className="flex flex-wrap items-center gap-x-4 mt-4 text-sm text-muted-foreground">
         {resource && (

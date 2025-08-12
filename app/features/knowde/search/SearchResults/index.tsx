@@ -9,12 +9,14 @@ import {
   KnowdeCardContent,
   KnowdeCardFooter,
 } from "../../components/KnowdeCard";
+import SearchContext from "../SearchContext";
 
 type Props = {
   data: KnowdeSearchResult;
 };
 
 export default function SearchResults({ data }: Props) {
+  const { q } = useContext(SearchContext);
   const { current, pageSize } = useContext(PageContext);
   const startIndex = current ? 1 + (current - 1) * pageSize : 1;
 
@@ -76,7 +78,11 @@ export default function SearchResults({ data }: Props) {
 
                       <Card className="flex-1 max-w-2xl">
                         <Link to={`/knowde/${k.uid}`}>
-                          <KnowdeCardContent k={k} resource={resource} />
+                          <KnowdeCardContent
+                            k={k}
+                            resource={resource}
+                            query={q}
+                          />
                         </Link>
                         <KnowdeCardFooter
                           k={k}
