@@ -114,11 +114,13 @@ export default function UploadWidget({
               coordinates,
               public_id: newPublicId,
               version,
+              format,
             } = info as {
               coordinates?: { custom: number[][] };
               public_id: string;
               version: number;
               secure_url: string;
+              format: string;
             };
 
             let uploadedImageUrl: string;
@@ -127,7 +129,7 @@ export default function UploadWidget({
               const [x, y, width, height] = coord;
               uploadedImageUrl = `https://res.cloudinary.com/${
                 import.meta.env.VITE_CLOUD_NAME
-              }/image/upload/c_crop,h_${height},w_${width},x_${x},y_${y}/v${version}/${newPublicId}`;
+              }/image/upload/c_crop,h_${height},w_${width},x_${x},y_${y}/v${version}/${newPublicId}.${format}`;
             } else {
               uploadedImageUrl = (info as { secure_url: string }).secure_url;
             }
