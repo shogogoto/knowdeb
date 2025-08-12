@@ -52,6 +52,7 @@ function createTTLStore<T>(table: Table<CacheItem<T>>) {
       await cleanup();
     },
     clear: () => table.clear(),
+    count: () => table.count(),
   };
 }
 
@@ -63,6 +64,7 @@ function createEntityStore<T>(table: Table<T>) {
     set: (entity: T) => table.put(entity),
     delete: (id: KeyType) => table.delete(id),
     clear: () => table.clear(),
+    count: () => table.count(),
   };
 }
 

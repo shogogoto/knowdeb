@@ -9,6 +9,7 @@ import {
 } from "~/generated/knowde/knowde";
 import { useCachedSWR } from "~/hooks/swr/useCache";
 import { knowdeDetailCache } from "~/lib/indexed";
+import { CacheInfo } from "../components/CacheInfo";
 import KnowdeCard, {
   KnowdeCardContent,
   KnowdeCardFooter,
@@ -56,7 +57,7 @@ export default function KnowdeDetailView({ id }: Props) {
         </div>
       }
     >
-      {/* <CacheInfo /> */}
+      <CacheInfo />
       <LocationView loc={location} />
       <Card key={k.uid} className="w-full max-w-2xl border">
         <KnowdeCardContent k={k} />
