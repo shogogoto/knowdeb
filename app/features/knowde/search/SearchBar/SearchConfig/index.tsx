@@ -6,7 +6,7 @@ import SearchContext from "../../SearchContext";
 import type { OrderBy } from "../types";
 
 export default function SearchConfig() {
-  const { orderBy, setOrderBy } = useContext(SearchContext);
+  const { immediateOrderBy, setImmediateOrderBy } = useContext(SearchContext);
   const { pageSize, setPageSize } = useContext(PageContext);
   const ranges = [
     { name: "n_detail", label: "詳細数" },
@@ -36,12 +36,17 @@ export default function SearchConfig() {
         <label className="flex items-center mb-2">
           <input
             type="checkbox"
-            checked={orderBy.desc}
-            onChange={(e) => setOrderBy({ ...orderBy, desc: e.target.checked })}
+            checked={immediateOrderBy.desc}
+            onChange={(e) =>
+              setImmediateOrderBy({
+                ...immediateOrderBy,
+                desc: e.target.checked,
+              })
+            }
             className="mr-2"
             name="desc"
           />
-          <span>降順{orderBy.desc}</span>
+          <span>降順{immediateOrderBy.desc}</span>
         </label>
 
         <label>
@@ -65,13 +70,16 @@ export default function SearchConfig() {
 }
 
 export function SearchOption() {
-  const { searchOption: val, setSearchOption: set } = useContext(SearchContext);
+  const { immediateSearchOption, setImmediateSearchOption } =
+    useContext(SearchContext);
   return (
     <label>
       マッチ方式
       <select
-        value={val}
-        onChange={(e) => set(e.target.value as SearchByTextKnowdeGetType)}
+        value={immediateSearchOption}
+        onChange={(e) =>
+          setImmediateSearchOption(e.target.value as SearchByTextKnowdeGetType)
+        }
         className="border dark:bg-gray-800"
         name="type"
       >
@@ -91,8 +99,8 @@ type WRProps = {
 };
 
 function WeightRange({ name, label }: WRProps) {
-  const { orderBy, setOrderBy } = useContext(SearchContext);
-  const val = Number(orderBy[name as keyof OrderBy]);
+  const { immediateOrderBy, setImmediateOrderBy } = useContext(SearchContext);
+  const val = Number(immediateOrderBy[name as keyof OrderBy]);
   return (
     <div>
       <label htmlFor={name} className="text-xs flex justify-between">
@@ -105,7 +113,9 @@ function WeightRange({ name, label }: WRProps) {
         max={5}
         step={1}
         value={[val]}
-        onValueChange={(value) => setOrderBy({ ...orderBy, [name]: value[0] })}
+        onValueChange={(value) =>
+          setImmediateOrderBy({ ...immediateOrderBy, [name]: value[0] })
+        }
         className="w-full"
       />
     </div>

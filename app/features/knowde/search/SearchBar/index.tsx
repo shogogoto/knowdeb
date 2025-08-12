@@ -1,43 +1,30 @@
 import { LoaderCircle, Search, Settings } from "lucide-react";
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { Form, useNavigation } from "react-router";
 import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "~/components/ui/popover";
-import { useDebounce } from "~/hooks/useDebounce";
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
+import { Input } from "~/components/ui/input";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
 export default function SearchBar() {
   const navigation = useNavigation();
-  const { q, setQ } = useContext(SearchContext);
-
-  // Local state for the input to make typing responsive.
-  const [inputValue, setInputValue] = useState(q);
-  // Debounce the local input value.
-  const debouncedInputValue = useDebounce(inputValue, 300);
-
-  // Only update the global SearchContext when the debounced value changes.
-  useEffect(() => {
-    setQ(debouncedInputValue);
-  }, [debouncedInputValue, setQ]);
-
-  // Sync from global context to local state if q changes externally.
-  useEffect(() => {
-    setInputValue(q);
-  }, [q]);
+  const { q, searchOption, orderBy, immediateQ, setImmediateQ } =
+    useContext(SearchContext);
 
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
 
+  const formKey = JSON.stringify({ q, searchOption, orderBy });
+
   return (
-    <Form className="container mx-auto">
+    <Form className="container mx-auto" key={formKey}>
       <div className="container mx-auto p-2">
-        <Popover>
+        <Collapsible>
           <div className="flex w-full items-center gap-2">
             <div className="relative flex-grow">
               <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
@@ -49,17 +36,17 @@ export default function SearchBar() {
               </div>
               <Input
                 type="search"
-                value={inputValue}
+                value={immediateQ}
                 name="q"
                 onChange={(ev) => {
-                  setInputValue(ev.target.value);
+                  setImmediateQ(ev.target.value);
                 }}
                 placeholder="検索文字列を入力..."
                 className="w-full border dark:bg-gray-800 pl-10"
                 disabled={isLoading}
               />
             </div>
-            <PopoverTrigger asChild>
+            <CollapsibleTrigger asChild>
               <Button
                 type="button"
                 variant="ghost"
@@ -68,12 +55,12 @@ export default function SearchBar() {
               >
                 <Settings />
               </Button>
-            </PopoverTrigger>
+            </CollapsibleTrigger>
           </div>
-          <PopoverContent className="w-full">
+          <CollapsibleContent className="w-full">
             <SearchConfig />
-          </PopoverContent>
-        </Popover>
+          </CollapsibleContent>
+        </Collapsible>
       </div>
     </Form>
   );

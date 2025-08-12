@@ -5,21 +5,34 @@ import {
   useState,
 } from "react";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import { useDebounce } from "~/hooks/useDebounce";
 import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
-  setQ: Dispatch<SetStateAction<string>>;
-  setSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-  setOrderBy: Dispatch<SetStateAction<OrderBy>>;
-} & ValProps;
+  // Debounceされた値
+  q: string;
+  searchOption: SearchByTextKnowdeGetType;
+  orderBy: OrderBy;
+  // 即時反映される値
+  immediateQ: string;
+  immediateSearchOption: SearchByTextKnowdeGetType;
+  immediateOrderBy: OrderBy;
+  // セッター
+  setImmediateQ: Dispatch<SetStateAction<string>>;
+  setImmediateSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
+  setImmediateOrderBy: Dispatch<SetStateAction<OrderBy>>;
+};
 
 export const initialSearchState: SearchContextType = {
   q: "",
   searchOption: SearchByTextKnowdeGetType.CONTAINS,
   orderBy: defaultOrderBy,
-  setQ: () => {},
-  setSearchOption: () => {},
-  setOrderBy: () => {},
+  immediateQ: "",
+  immediateSearchOption: SearchByTextKnowdeGetType.CONTAINS,
+  immediateOrderBy: defaultOrderBy,
+  setImmediateQ: () => {},
+  setImmediateSearchOption: () => {},
+  setImmediateOrderBy: () => {},
 };
 
 const SearchContext = createContext<SearchContextType>(initialSearchState);
@@ -34,17 +47,26 @@ type ValProps = {
 type Props = React.PropsWithChildren & ValProps;
 
 export function SearchProvider(props: Props) {
-  const [_q, setQ] = useState(props.q);
-  const [_searchOption, setSearchOption] = useState(props.searchOption);
-  const [_order, setOrderBy] = useState(props.orderBy);
+  const [immediateQ, setImmediateQ] = useState(props.q);
+  const [immediateSearchOption, setImmediateSearchOption] = useState(
+    props.searchOption,
+  );
+  const [immediateOrderBy, setImmediateOrderBy] = useState(props.orderBy);
+
+  const q = useDebounce(immediateQ, 300);
+  const searchOption = useDebounce(immediateSearchOption, 300);
+  const orderBy = useDebounce(immediateOrderBy, 300);
 
   const value = {
-    q: _q,
-    setQ,
-    searchOption: _searchOption,
-    setSearchOption,
-    orderBy: _order,
-    setOrderBy,
+    q,
+    searchOption,
+    orderBy,
+    immediateQ,
+    immediateSearchOption,
+    immediateOrderBy,
+    setImmediateQ,
+    setImmediateSearchOption,
+    setImmediateOrderBy,
   };
 
   return (
