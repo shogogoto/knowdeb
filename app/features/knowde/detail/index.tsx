@@ -1,7 +1,6 @@
 "use client";
 import { LoaderCircle } from "lucide-react";
 import { Suspense, lazy } from "react";
-import { Card } from "~/components/ui/card";
 import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
 import {
   type detailKnowdeSentenceSentenceIdGetResponse,
@@ -10,12 +9,7 @@ import {
 import { useCachedSWR } from "~/hooks/swr/useCache";
 import { knowdeDetailCache } from "~/lib/indexed";
 import { CacheInfo } from "../components/CacheInfo";
-import KnowdeCard, {
-  KnowdeCardContent,
-  KnowdeCardFooter,
-} from "../components/KnowdeCard";
-import LocationView from "../components/LocationView";
-import KnowdeGroup from "./KnowdeGroup";
+import MainView from "./MainView";
 
 const DisplayGraph = lazy(() => import("./util/ui"));
 
@@ -43,12 +37,9 @@ export default function KnowdeDetailView({ id }: Props) {
   });
 
   if (data?.status !== 200) {
-    return <div>Error fetching data. </div>;
+    return <div>{JSON.stringify(data?.data)}</div>;
   }
 
-  const { uid, location, knowdes } = data.data;
-  const excepted = Object.keys(knowdes).filter((v) => v !== uid);
-  const k = knowdes[uid.replaceAll(/-/g, "")];
   return (
     <Suspense
       fallback={
@@ -57,20 +48,21 @@ export default function KnowdeDetailView({ id }: Props) {
         </div>
       }
     >
+      <div className="flex flex-col md:flex-row h-screen">
+        <div className="flex-1 overflow-y-auto">
+          <MainView detail={data.data} />
+        </div>
+
+        <div className="w-1/4 bg-gray-100 p-4 border-l hidden md:block overflow-y-auto">
+          {/* <Suspense fallback={<div>Loading Graph...</div>}> */}
+          {/*   <DisplayGraph detail={data.data} /> */}
+          {/* </Suspense> */}
+          {/* <SideView /> */}
+        </div>
+      </div>
       <CacheInfo />
-      <LocationView loc={location} />
-      <Card key={k.uid} className="w-full max-w-2xl border">
-        <KnowdeCardContent k={k} />
-        <KnowdeCardFooter k={k} />
-      </Card>
-      <KnowdeGroup>
-        {excepted.map((v, i) => {
-          return <KnowdeCard key={v} k={knowdes[v]} index={i} />;
-        })}
-      </KnowdeGroup>
-      <Suspense fallback={<div>Loading Graph...</div>}>
-        <DisplayGraph detail={data.data} />
-      </Suspense>
     </Suspense>
   );
 }
+
+function DetailLayout() {}

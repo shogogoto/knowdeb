@@ -36,11 +36,12 @@ export default function DisplayGraph({ detail }: Props) {
   return (
     <SigmaContainer
       graph={graph}
-      style={{ height: "100vh", width: "100%" }}
+      //style={{ height: "100vh", width: "100%" }}
       className="border"
       settings={{
         renderEdgeLabels: true,
         defaultEdgeType: "arrow",
+        allowInvalidContainer: true,
       }}
     >
       {/* <Fa2 /> */}

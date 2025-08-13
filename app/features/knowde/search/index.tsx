@@ -40,6 +40,7 @@ export function _KnowdeSearch() {
     swr: {
       keepPreviousData: true,
       fallbackData,
+      suspense: true,
       onSuccess: async (data) => {
         if (data.status === 200) {
           const total = data.data.total || 0;
@@ -51,7 +52,6 @@ export function _KnowdeSearch() {
           await knowdeSearchCache.set(cacheKey, data.data);
         }
       },
-      suspense: true,
     },
   });
 

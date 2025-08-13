@@ -17,11 +17,6 @@ export function useCachedSWR<TData, TResponse>(
   );
 
   useEffect(() => {
-    if (!cacheKey) {
-      setFallbackData(undefined);
-      return;
-    }
-
     let isMounted = true;
     async function loadCache() {
       const cachedData = await getCache(cacheKey);
@@ -32,9 +27,9 @@ export function useCachedSWR<TData, TResponse>(
           headers: new Headers(),
         } as TResponse;
         setFallbackData(res);
-      } else if (isMounted) {
-        setFallbackData(undefined);
       }
+
+      console.log("LOADED CACHE", cacheKey);
     }
     loadCache();
 

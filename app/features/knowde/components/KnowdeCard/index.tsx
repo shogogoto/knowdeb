@@ -38,15 +38,24 @@ type Props = {
 };
 
 export default function KnowdeCard({ k, index, query }: Props) {
+  const score = k.stats?.score || 0;
+
+  const card = (
+    <Card key={k.uid} className="w-full max-w-3xl">
+      <KnowdeCardContent k={k} query={query} />
+      <KnowdeCardFooter k={k} index={index} />
+    </Card>
+  );
+
+  if (score === 0) {
+    return card;
+  }
   return (
     <Link
       to={`/knowde/${k.uid}`}
       draggable={false} // テキストをコピペできるため
     >
-      <Card key={k.uid} className="w-full max-w-2xl">
-        <KnowdeCardContent k={k} query={query} />
-        <KnowdeCardFooter k={k} index={index} />
-      </Card>
+      {card}
     </Link>
   );
 }

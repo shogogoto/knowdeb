@@ -1,4 +1,4 @@
-import Graph from "graphology";
+import Graph, { type DirectedGraph } from "graphology";
 import type {
   EdgeData,
   EdgeType,
@@ -7,7 +7,7 @@ import type {
 } from "~/generated/fastAPI.schemas";
 import { pathsToEnd, succ } from "./network";
 
-export function toGraph(g: GraphData) {
+export function toGraph(g: GraphData): DirectedGraph {
   const { nodes, edges } = g;
   const graph = new Graph({
     multi: true,
@@ -32,12 +32,25 @@ export function toGraph(g: GraphData) {
   return graph;
 }
 
+export function graphForView(kd: KnowdeDetail) {
+  const id = kd.uid.replaceAll(/-/g, "");
+  return {
+    g: toGraph(kd.g),
+    rootId: id,
+    knowdes: kd.knowdes,
+    exceptedRoot: Object.keys(kd.knowdes).filter((v) => v !== kd.uid),
+    root: kd.knowdes[id],
+    location: kd.location,
+    kn: (id: string) => kd.knowdes[id],
+  };
+}
+
 function randomInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
 const EdgeColors: Partial<Record<EdgeType, string>> = {
-  below: "darkorange",
+  below: "brown",
   sibling: "orange",
   to: "gray",
   resolved: "darkgreen",

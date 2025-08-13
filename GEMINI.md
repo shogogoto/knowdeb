@@ -8,7 +8,7 @@ routes/配下には基本的に実装は書かない。featuresなどで書か�
 orvalで生成した/generated配下をいじらない方針で修正して
 変更の方針を考えたら、それを実施する前に確認して
 変更箇所を全て表示して確認させてほしい
-react-router-dom や @react-router/node を使わないで react-routerを使ってください
+react-router-dom や "@react-router/node" を使わないで react-routerを使ってください
 reposonseを返すときはResponse.json()などの標準のものを使ってください
 tokenの使用量をなるべく節約して。挙動がおかしくてtokenを空費してるときはストップ
 <!-- 今日のgeminiのquota残量を作業が完了する度にに報告してほしい -->
