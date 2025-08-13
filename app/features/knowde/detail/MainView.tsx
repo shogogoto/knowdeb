@@ -5,6 +5,7 @@ import { KnowdeCardContent, KnowdeCardFooter } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
 import { graphForView } from "./util";
+import { eqEdgeType, succ } from "./util/network";
 
 type Props = {
   detail: KnowdeDetail;
@@ -12,6 +13,8 @@ type Props = {
 
 export default function MainView({ detail }: Props) {
   const { root, g, kn, location, rootId } = graphForView(detail);
+
+  const belows = succ(g, rootId, eqEdgeType("below"));
 
   return (
     <div className="flex-1 p-8 overflow-y-auto">
@@ -32,7 +35,9 @@ export default function MainView({ detail }: Props) {
         <TabsContent value="detail">
           {/* <ParentKnowdes parents={location.parents} /> */}
           Make changes to your account here.
-          <KnowdeGroup startId={rootId} kn={kn} g={g} />
+          {belows?.map((bid) => {
+            return <KnowdeGroup startId={bid} kn={kn} g={g} key={bid} />;
+          })}
         </TabsContent>
         <TabsContent value="logic">logic here.</TabsContent>
         <TabsContent value="ref">reference graph here.</TabsContent>
