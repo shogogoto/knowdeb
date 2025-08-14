@@ -77,4 +77,10 @@ export default defineConfig({
     //   },
     // ],
   },
+  ssr: {
+    noExternal: [
+      "@react-sigma/layout-forceatlas2",
+      "graphology-layout-forceatlas2",
+    ],
+  },
 });
