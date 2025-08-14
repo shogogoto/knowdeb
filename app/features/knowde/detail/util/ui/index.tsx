@@ -12,6 +12,7 @@ import {
 } from "@react-sigma/layout-forceatlas2";
 import { MiniMap } from "@react-sigma/minimap";
 import { useEffect } from "react";
+import { ClientOnly } from "~/components/ClientOnly";
 import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
 import { toDisplayGraph } from "..";
 
@@ -30,7 +31,7 @@ type Props = {
   detail: KnowdeDetail;
 };
 
-export default function DisplayGraph({ detail }: Props) {
+function DisplayGraphComponent({ detail }: Props) {
   const { graph } = toDisplayGraph(detail);
 
   return (
@@ -62,4 +63,8 @@ export default function DisplayGraph({ detail }: Props) {
       </ControlsContainer>
     </SigmaContainer>
   );
+}
+
+export default function DisplayGraph(props: Props) {
+  return <ClientOnly>{() => <DisplayGraphComponent {...props} />}</ClientOnly>;
 }
