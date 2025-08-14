@@ -5,11 +5,6 @@ import {
   route,
 } from "@react-router/dev/routes";
 
-// Add any necessary exports for server rendering
-export const config = {
-  hydrate: true,
-};
-
 export default [
   layout("layouts/SidebarLayout.tsx", [
     // Docs

@@ -16,7 +16,7 @@ import { ClientOnly } from "~/components/ClientOnly";
 import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
 import { toDisplayGraph } from "..";
 
-export const Fa2 = () => {
+const Fa2 = () => {
   const { start, kill } = useWorkerLayoutForceAtlas2({
     settings: { slowDown: 10 },
   });
