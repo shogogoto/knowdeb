@@ -37,8 +37,7 @@ export function pathsToEnd(
     if (!last) throw new Error();
     const accs = accessor(g, last, predicate);
     if (accs.length === 0 && ns.length !== 1) {
-      // 自身のみのpathは除外
-      ls.push(ns);
+      ls.push(ns); // 自身のみのpathは除外
     }
     for (const a of accs) {
       _f([...ns, a]);
@@ -48,23 +47,12 @@ export function pathsToEnd(
   return ls;
 }
 
-function stack(n: string) {
-  const ls: string[] = [];
-}
-// accessがなくなるまで辿りながら処理する
-export function repeatToEnd(
-  g: Graph,
-  start: string,
-  predicate: EdgePredicate,
-  accessor: Accessor,
-) {
-  function _f(n: string) {
-    const nexts = accessor(g, n, predicate);
-    if (nexts.length === 0) {
-    }
-    for (const next of nexts) {
-      _f(next);
-    }
-  }
-  _f(start);
+export function operatorGraph(g: Graph, edgeType: EdgeType) {
+  const predicate = eqEdgeType(edgeType);
+  return {
+    succ: (n: string) => succ(g, n, predicate),
+    pred: (n: string) => pred(g, n, predicate),
+    pathsToEnd: (start: string, predicate: EdgePredicate) =>
+      pathsToEnd(g, start, predicate, succ),
+  };
 }

@@ -1,19 +1,37 @@
-export function getItem(key: string): string | null {
+import { toast } from "sonner";
+
+export function easyStorage(key: string) {
+  return {
+    getItem: () => getItem(key),
+    setItem: (value: unknown) => setItem(key, value),
+    removeItem: () => removeItem(key),
+    hasItem: () => hasItem(key),
+  };
+}
+
+export function getItem(key: string) {
   if (typeof window === "undefined") {
     return null;
   }
-  return window.localStorage.getItem(key);
+  const item = window.localStorage.getItem(key);
+  return item ? JSON.parse(item) : null;
 }
 
-export function setItem(key: string, value: string): boolean {
+export function setItem(key: string, value: unknown): boolean {
   if (typeof window === "undefined") {
     return false;
   }
   try {
-    window.localStorage.setItem(key, value);
+    // 空の場合
+    if (!value) {
+      removeItem(key);
+    }
+    const item = typeof value === "string" ? value : JSON.stringify(value);
+    window.localStorage.setItem(key, item);
     return true;
   } catch (error) {
     console.error(`Failed to set item in localStorage: ${key}`, error);
+    toast.error(`Failed to set item in localStorage: ${key}`);
     return false;
   }
 }

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import PageProvider from "~/components/Pagenation/PageProvider";
+import { PageProvider } from "~/components/Pagenation/PageProvider";
 import { fixtureSearchResult } from "./fixture";
 import Index from "./index";
 
@@ -8,7 +8,7 @@ const meta = {
   component: Index,
   decorators: [
     (Story) => (
-      <PageProvider>
+      <PageProvider pageSize={10}>
         <Story />
       </PageProvider>
     ),

@@ -1,14 +1,21 @@
+import { fixtureDetail1 } from "./fixture";
+
 describe("detail", () => {
   it("aaa", async () => {
-    expect(0).toBe(0);
-  });
-  it("あるtargetのedgeをグルーピング", async () => {
-    // console.log("-".repeat(100));
+    const { uid, g, knowdes, location } = fixtureDetail1;
+    const start = uid.replaceAll(/-/g, "");
+
+    // g.setNodeAttribute(start, "x", 0jj
     // console.log(pred(knowdes, cvt, _id, "below"));
     // console.log(pred(knowdes, cvt, _id, "to"));
     // console.log(pred(knowdes, cvt, _id, "resolved"));
     // console.log(pred(knowdes, cvt, _id, "num"));
     // console.log(pred(knowdes, cvt, _id, "sibling"));
+
+    expect(0).toBe(0);
+  });
+  it("あるtargetのedgeをグルーピング", async () => {
+    // console.log("-".repeat(100));
     // groupByEdgeType(cvt, uid);)
     // const g = path(Graph, 4);
     // g.forEachEdge((edge) => {

@@ -29,29 +29,45 @@ import type {
   MResource,
 } from "~/generated/fastAPI.schemas";
 import { cn } from "~/lib/utils";
+import { Highlight } from "../Highlight";
 
 type Props = {
   k: Knowde;
   index?: number;
+  query?: string;
 };
 
-export default function KnowdeCard({ k, index }: Props) {
+export default function KnowdeCard({ k, index, query }: Props) {
+  const score = k.stats?.score || 0;
+
+  const card = (
+    <Card key={k.uid} className="w-full max-w-3xl">
+      <KnowdeCardContent k={k} query={query} />
+      <KnowdeCardFooter k={k} index={index} />
+    </Card>
+  );
+
+  if (score === 0) {
+    return card;
+  }
   return (
     <Link
       to={`/knowde/${k.uid}`}
       draggable={false} // テキストをコピペできるため
     >
-      <Card key={k.uid} className="w-full max-w-2xl">
-        <KnowdeCardContent k={k} />
-        <KnowdeCardFooter k={k} index={index} />
-      </Card>
+      {card}
     </Link>
   );
 }
 
-type KProps = { k: Knowde; className?: string; resource?: MResource };
+type KProps = {
+  k: Knowde;
+  className?: string;
+  resource?: MResource;
+  query?: string;
+};
 
-export function KnowdeCardContent({ k, className, resource }: KProps) {
+export function KnowdeCardContent({ k, className, resource, query }: KProps) {
   return (
     <CardContent>
       <div className="flex flex-wrap items-start gap-2">
@@ -59,16 +75,18 @@ export function KnowdeCardContent({ k, className, resource }: KProps) {
           <span
             key={name}
             className={cn(
-              "rounded-full font-bold text-green-800  dark:text-green-300",
+              "rounded-full font-bold text-green-800  dark:text-green-500",
               className,
             )}
           >
-            {name}
+            <Highlight text={name} query={query ?? ""} />
           </span>
         ))}
       </div>
       {k.sentence !== "<<<not defined>>>" && (
-        <span className="break-all">{k.sentence}</span>
+        <span className="break-all">
+          <Highlight text={k.sentence} query={query ?? ""} />
+        </span>
       )}
       <div className="flex flex-wrap items-center gap-x-4 mt-4 text-sm text-muted-foreground">
         {resource && (
@@ -90,47 +108,68 @@ export function KnowdeCardFooter({ k, index }: KProps & { index?: number }) {
   return (
     <CardFooter className="flex justify-between">
       <TooltipProvider>
-        <StatView stats={k.stats} />
+        <StatViews stats={k.stats} />
       </TooltipProvider>
       {index !== undefined && <Badge>#{index}</Badge>}
     </CardFooter>
   );
 }
 
-function StatView({
+export function createStatView(stats: KStats | undefined) {
+  const f = (stat: { Icon: LucideIcon; label: string; value?: number }) =>
+    stat.value != null && (
+      <StatViewItem
+        key={stat.label}
+        Icon={stat.Icon}
+        label={stat.label}
+        value={stat.value}
+      />
+    );
+
+  const items = {
+    s: { Icon: Award, label: "スコア", value: stats?.score || 0 },
+    d: { Icon: BookText, label: "詳細数", value: stats?.n_detail },
+    pre: { Icon: ChevronsUp, label: "前提数", value: stats?.n_premise },
+    con: { Icon: ChevronsDown, label: "結論数", value: stats?.n_conclusion },
+    refer: { Icon: GitFork, label: "参照数", value: stats?.n_refer },
+    refd: { Icon: GitPullRequest, label: "被参照数", value: stats?.n_referred },
+    d_ax: { Icon: ArrowUpFromDot, label: "前提距離", value: stats?.dist_axiom },
+    d_lf: { Icon: ArrowDownToDot, label: "結論距離", value: stats?.dist_leaf },
+  };
+
+  return {
+    score: f(items.s),
+    detail: f(items.d),
+    premise: f(items.pre),
+    conclusion: f(items.con),
+    refer: f(items.refer),
+    referred: f(items.refd),
+    dist_axiom: f(items.d_ax),
+    dist_leaf: f(items.d_lf),
+  };
+}
+
+function StatViews({
   stats,
   collapsible,
 }: { stats: KStats | undefined; collapsible?: boolean }) {
-  const score_it = { Icon: Award, label: "スコア", value: stats?.score || -1 };
-
-  const items = [
-    { Icon: BookText, label: "詳細数", value: stats?.n_detail },
-    { Icon: ChevronsUp, label: "前提数", value: stats?.n_premise },
-    { Icon: ChevronsDown, label: "結論数", value: stats?.n_conclusion },
-    { Icon: GitFork, label: "参照数", value: stats?.n_refer },
-    { Icon: GitPullRequest, label: "被参照数", value: stats?.n_referred },
-    { Icon: ArrowUpFromDot, label: "前提距離", value: stats?.dist_axiom },
-    { Icon: ArrowDownToDot, label: "結論距離", value: stats?.dist_leaf },
+  const st = createStatView(stats);
+  const items_c = [
+    st.detail,
+    st.premise,
+    st.conclusion,
+    st.refer,
+    st.referred,
+    st.dist_axiom,
+    st.dist_leaf,
   ];
 
-  const score_c = <StatItem {...score_it} />;
-  const items_c = items.map(
-    (stat) =>
-      stat.value != null && (
-        <StatItem
-          key={stat.label}
-          Icon={stat.Icon}
-          label={stat.label}
-          value={stat.value}
-        />
-      ),
-  );
   const className = "flex flex-wrap items-center gap-x-2";
   if (collapsible)
     return (
       <Collapsible>
         <div className={className}>
-          <CollapsibleTrigger>{score_c}</CollapsibleTrigger>
+          <CollapsibleTrigger>{st.score}</CollapsibleTrigger>
           <CollapsibleContent className={className}>
             {items_c}
           </CollapsibleContent>
@@ -140,13 +179,13 @@ function StatView({
 
   return (
     <div className={className}>
-      {score_c}
+      {st.score}
       {items_c}
     </div>
   );
 }
 
-function StatItem({
+function StatViewItem({
   Icon,
   label,
   value,

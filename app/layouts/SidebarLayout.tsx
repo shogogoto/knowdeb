@@ -17,10 +17,8 @@ export default function SidebarLayout({ className }: Props) {
   return (
     <SidebarProvider>
       <MySidebar />
-      <div
-        className={"flex flex-col w-full h-screen  bg-white dark:bg-gray-950"}
-      >
-        <main className={`flex-1 overflow-auto ${className} ${docStyle}`}>
+      <div className={"flex flex-col w-full h-dvh  bg-white dark:bg-gray-950"}>
+        <main className={`flex-1 overflow-y-auto ${className} ${docStyle}`}>
           <Outlet />
           <Toaster
             richColors
@@ -29,7 +27,10 @@ export default function SidebarLayout({ className }: Props) {
             position={isMobile ? "top-right" : "bottom-right"}
           />
         </main>
-        <BottomNavigation />
+
+        <nav className="sm:hidden sticky flex bottom-0 left-0 w-full p-4 py-2 border-t justify-between bg-white dark:bg-gray-950">
+          <BottomNavigation />
+        </nav>
       </div>
     </SidebarProvider>
   );

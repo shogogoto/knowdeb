@@ -9,10 +9,11 @@ pre-commit:
         npx @biomejs/biome check --write --no-errors-on-unmatched --files-ignore-unknown=true --colors=off {staged_files}
       stage_fixed: true
     typecheck:
-      run: npx tsc-files --noEmit --pretty
+      run: npm run typecheck # これじゃないと全体でtypecheckが素通りする
+      # run: npx tsc-files --noEmit --pretty
       # run: npm run typecheck # これじゃないと全体でtypecheckが素通りする
 
-pre-push:
-  commands:
-    typecheck:
-      run: npm run typecheck # これじゃないと全体でtypecheckが素通りする
+# pre-push:
+#   commands:
+#     typecheck:
+#       run: npm run typecheck # これじゃないと全体でtypecheckが素通りする

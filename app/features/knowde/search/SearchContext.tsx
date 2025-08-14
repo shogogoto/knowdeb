@@ -4,47 +4,74 @@ import {
   createContext,
   useState,
 } from "react";
-import { useSearchParams } from "react-router";
 import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import { useDebounce } from "~/hooks/useDebounce";
 import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
+  // Debounceされた値
   q: string;
-  setQ: Dispatch<SetStateAction<string>>;
   searchOption: SearchByTextKnowdeGetType;
-  setSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-  order: OrderBy;
-  setOrderBy: Dispatch<SetStateAction<OrderBy>>;
+  orderBy: OrderBy;
+  // 即時反映される値
+  immediateQ: string;
+  immediateSearchOption: SearchByTextKnowdeGetType;
+  immediateOrderBy: OrderBy;
+  // セッター
+  setImmediateQ: Dispatch<SetStateAction<string>>;
+  setImmediateSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
+  setImmediateOrderBy: Dispatch<SetStateAction<OrderBy>>;
 };
 
-const SearchContext = createContext<SearchContextType | null>(null);
+export const initialSearchState: SearchContextType = {
+  q: "",
+  searchOption: SearchByTextKnowdeGetType.CONTAINS,
+  orderBy: defaultOrderBy,
+  immediateQ: "",
+  immediateSearchOption: SearchByTextKnowdeGetType.CONTAINS,
+  immediateOrderBy: defaultOrderBy,
+  setImmediateQ: () => {},
+  setImmediateSearchOption: () => {},
+  setImmediateOrderBy: () => {},
+};
+
+const SearchContext = createContext<SearchContextType>(initialSearchState);
 
 export default SearchContext;
 
-type Props = {
-  children: React.ReactNode;
+type ValProps = {
+  q: string;
+  searchOption: SearchByTextKnowdeGetType;
+  orderBy: OrderBy;
 };
+type Props = React.PropsWithChildren & ValProps;
 
-export function SearchProvider({ children }: Props) {
-  const [searchParams] = useSearchParams();
-
-  const [q, setQ] = useState(searchParams.get("q") || "");
-  const [searchOption, setSearchOption] = useState<SearchByTextKnowdeGetType>(
-    (searchParams.get("search_type") as SearchByTextKnowdeGetType) ||
-      SearchByTextKnowdeGetType.CONTAINS,
+export function SearchProvider(props: Props) {
+  const [immediateQ, setImmediateQ] = useState(props.q);
+  const [immediateSearchOption, setImmediateSearchOption] = useState(
+    props.searchOption,
   );
-  const [order, setOrderBy] = useState<OrderBy>(defaultOrderBy);
+  const [immediateOrderBy, setImmediateOrderBy] = useState(props.orderBy);
+
+  const q = useDebounce(immediateQ, 300);
+  const searchOption = useDebounce(immediateSearchOption, 300);
+  const orderBy = useDebounce(immediateOrderBy, 300);
 
   const value = {
     q,
-    setQ,
     searchOption,
-    setSearchOption,
-    order,
-    setOrderBy,
+    orderBy,
+    immediateQ,
+    immediateSearchOption,
+    immediateOrderBy,
+    setImmediateQ,
+    setImmediateSearchOption,
+    setImmediateOrderBy,
   };
 
   return (
-    <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
+    <SearchContext.Provider value={value}>
+      {props.children}
+    </SearchContext.Provider>
   );
 }

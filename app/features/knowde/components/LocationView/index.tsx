@@ -23,25 +23,23 @@ export default function LocationView({ loc }: Props) {
             <span className="font-bold">{user.display_name} </span>@
             {user.username || user.uid}
           </div>
-          <div className="text-sm text-muted-foreground space-x-2">
+          <div className="text-sm text-muted-foreground space-x-2 gap-2">
             <Link
               to={`/resource/${loc.resource.uid}`}
               className="hover:underline"
             >
-              {loc.resource.name}
+              <span>{loc.resource.name}</span>
+              <span>{loc.resource.authors}</span>
+              <span>{loc.resource.published}</span>
             </Link>
-            <span>{loc.resource.authors}</span>
-            <span>{loc.resource.published}</span>
           </div>
         </div>
       </div>
-
-      <ParentKnowdes parents={loc.parents} />
     </div>
   );
 }
 
-function ParentKnowdes({ parents }: { parents: Knowde[] }) {
+export function ParentKnowdes({ parents }: { parents: Knowde[] }) {
   if (parents.length === 0) {
     return null;
   }

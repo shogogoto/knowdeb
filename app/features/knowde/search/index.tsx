@@ -1,34 +1,102 @@
 import { LoaderCircle } from "lucide-react";
-import { useLoaderData } from "react-router";
-import PageNavi from "~/components/Pagenation";
-import PageProvider from "~/components/Pagenation/PageProvider";
-import { useSearchByTextKnowdeGet } from "~/generated/knowde/knowde";
+import { Suspense, useContext } from "react";
+import { ClientOnly } from "~/components/ClientOnly";
+import PagingNavi from "~/components/Pagenation";
+import PageContext from "~/components/Pagenation/PageContext";
+import { PageProvider } from "~/components/Pagenation/PageProvider";
+import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
+import {
+  type searchByTextKnowdeGetResponse200,
+  useSearchByTextKnowdeGet,
+} from "~/generated/knowde/knowde";
+import { createCacheKey, useCachedSWR } from "~/hooks/swr/useCache";
+import { knowdeSearchCache } from "~/lib/indexed";
 import SearchBar from "./SearchBar";
-import { SearchProvider } from "./SearchContext";
+import SearchContext, {
+  initialSearchState,
+  SearchProvider,
+} from "./SearchContext";
 import SearchResults from "./SearchResults";
 
-export default function KnowdeSearch() {
-  const loaderData = useLoaderData();
+export function _KnowdeSearch() {
+  const { q, searchOption, orderBy } = useContext(SearchContext);
+  const { pageSize, current, setCurrent, setTotal } = useContext(PageContext);
 
-  const { params } = loaderData;
-  const { data, isLoading } = useSearchByTextKnowdeGet(params);
+  const params = {
+    q,
+    page: current,
+    size: pageSize,
+    search_type: searchOption,
+    ...orderBy,
+  };
 
-  const total = data?.status === 200 ? data.data.total : 0;
-  const pn = <PageNavi total={total} />;
+  const cacheKey = createCacheKey("search", params);
+  const fallbackData = useCachedSWR<
+    KnowdeSearchResult,
+    searchByTextKnowdeGetResponse200 & { headers: Headers }
+  >(cacheKey, knowdeSearchCache.get);
 
+  const { data } = useSearchByTextKnowdeGet(params, {
+    swr: {
+      keepPreviousData: true,
+      fallbackData,
+      suspense: true,
+      onSuccess: async (data) => {
+        if (data.status === 200) {
+          const total = data.data.total || 0;
+          setTotal(total);
+          // 再検索で有効範囲外にならないようにする
+          if (total === 0) setCurrent(undefined);
+          if (current && current > total) setCurrent(total);
+          if (!current && total > 0) setCurrent(1);
+          await knowdeSearchCache.set(cacheKey, data.data);
+        }
+      },
+    },
+  });
+
+  const displayData = data?.status === 200 ? data.data : fallbackData?.data;
+
+  return <>{displayData && <SearchResults data={displayData} />}</>;
+}
+
+function KnowdeSearchLayout() {
+  const { total } = useContext(PageContext);
   return (
-    <PageProvider>
-      <SearchProvider>
+    <div className="flex flex-col h-dvh">
+      <header className="flex sticky z-5 top-0 border-b">
         <SearchBar />
-        {pn}
-        {isLoading ? (
-          <LoaderCircle className="animate-spin justify-center" />
-        ) : (
-          data?.status === 200 &&
-          data.data && <SearchResults data={data.data} />
-        )}
-        {pn}
-      </SearchProvider>
-    </PageProvider>
+      </header>
+      <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
+        <Suspense
+          fallback={
+            <div className="flex justify-center p-4">
+              <LoaderCircle className="animate-spin" />
+            </div>
+          }
+        >
+          <div className="flex h-screen justify-center w-full">
+            <_KnowdeSearch />
+          </div>
+        </Suspense>
+      </main>
+      <footer className="flex sticky bottom-0 bg-background border-t">
+        <PagingNavi total={total} />
+      </footer>
+    </div>
+  );
+}
+
+export default function KnowdeSearch() {
+  return (
+    <ClientOnly>
+      {() => (
+        <SearchProvider {...initialSearchState}>
+          <PageProvider pageSize={50}>
+            <KnowdeSearchLayout />
+          </PageProvider>
+        </SearchProvider>
+      )}
+    </ClientOnly>
   );
 }

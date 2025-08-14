@@ -1,5 +1,4 @@
 import KnowdeSearch from "~/features/knowde/search/index";
-import { searchKnowde } from "~/features/knowde/search/server";
 
 export function meta() {
   return [
@@ -7,8 +6,6 @@ export function meta() {
     { name: "description", content: "Search knowledge database" },
   ];
 }
-
-export const loader = searchKnowde;
 
 export default KnowdeSearch;
 

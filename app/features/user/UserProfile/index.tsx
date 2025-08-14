@@ -1,13 +1,9 @@
 import { Link } from "react-router";
 import { Button } from "~/components/ui/button";
-import type { UserReadPublic } from "~/generated/fastAPI.schemas";
+import type { UserProps } from "../types";
 import ProfileImage from "./ProfileImage";
 
-type Props = {
-  user: UserReadPublic | null;
-};
-
-export default function UserProfile({ user }: Props) {
+export default function UserProfile({ user }: UserProps) {
   return (
     <div className="space-y-4 bg-white dark:bg-gray-800 p-6 shadow-md">
       <div className="flex item-center space-x-4">
