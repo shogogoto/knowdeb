@@ -6,25 +6,20 @@ import {
   SigmaContainer,
   ZoomControl,
 } from "@react-sigma/core";
-import {
-  LayoutForceAtlas2Control,
-  useWorkerLayoutForceAtlas2,
-} from "@react-sigma/layout-forceatlas2";
 import { MiniMap } from "@react-sigma/minimap";
-import { useEffect } from "react";
 import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
 import { toDisplayGraph } from "..";
 
-export const Fa2 = () => {
-  const { start, kill } = useWorkerLayoutForceAtlas2({
-    settings: { slowDown: 10 },
-  });
-  useEffect(() => {
-    start();
-    return () => kill();
-  }, [start, kill]);
-  return null;
-};
+// export const Fa2 = () => {
+//   const { start, kill } = useWorkerLayoutForceAtlas2({
+//     settings: { slowDown: 10 },
+//   });
+//   useEffect(() => {
+//     start();
+//     return () => kill();
+//   }, [start, kill]);
+//   return null;
+// };
 
 type Props = {
   detail: KnowdeDetail;
@@ -55,7 +50,7 @@ export default function DisplayGraph({ detail }: Props) {
       >
         <ZoomControl />
         <FullScreenControl />
-        <LayoutForceAtlas2Control />
+        {/* <LayoutForceAtlas2Control /> */}
       </ControlsContainer>
       <ControlsContainer position={"bottom-left"}>
         <MiniMap width="100px" height="100px" />
