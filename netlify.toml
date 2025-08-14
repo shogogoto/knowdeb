@@ -3,6 +3,16 @@
 # publish = "dist"
 command = "react-router build"
 publish = "build/client"
+
+[functions]
+  directory = "build/server"
+  node_bundler = "esbuild"
+  node_target = "node20"
+
+[functions."*"]
+  [functions."*".environment]
+    NODE_OPTIONS = "--experimental-specifier-resolution=node"
+
 [dev]
 # command = "npm run dev"
 command = "react-router dev"

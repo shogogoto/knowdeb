@@ -42,14 +42,6 @@ export default defineConfig({
       }),
     },
   ],
-  resolve: {
-    alias: [
-      {
-        find: "graphology-layout-forceatlas2/worker",
-        replacement: "graphology-layout-forceatlas2/worker.js",
-      },
-    ],
-  },
   test: {
     globals: true, // `describe`, `it`, `expect` テスト関数のインポート省略
     environment: "jsdom",
@@ -76,11 +68,5 @@ export default defineConfig({
     //     },
     //   },
     // ],
-  },
-  ssr: {
-    noExternal: [
-      "@react-sigma/layout-forceatlas2",
-      "graphology-layout-forceatlas2",
-    ],
   },
 });
