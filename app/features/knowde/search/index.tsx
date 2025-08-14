@@ -6,7 +6,7 @@ import PageContext from "~/components/Pagenation/PageContext";
 import { PageProvider } from "~/components/Pagenation/PageProvider";
 import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
 import {
-  type searchByTextKnowdeGetResponse,
+  type searchByTextKnowdeGetResponse200,
   useSearchByTextKnowdeGet,
 } from "~/generated/knowde/knowde";
 import { createCacheKey, useCachedSWR } from "~/hooks/swr/useCache";
@@ -33,7 +33,7 @@ export function _KnowdeSearch() {
   const cacheKey = createCacheKey("search", params);
   const fallbackData = useCachedSWR<
     KnowdeSearchResult,
-    searchByTextKnowdeGetResponse
+    searchByTextKnowdeGetResponse200 & { headers: Headers }
   >(cacheKey, knowdeSearchCache.get);
 
   const { data } = useSearchByTextKnowdeGet(params, {
@@ -55,9 +55,9 @@ export function _KnowdeSearch() {
     },
   });
 
-  return (
-    <>{data && data.status === 200 && <SearchResults data={data.data} />}</>
-  );
+  const displayData = data?.status === 200 ? data.data : fallbackData?.data;
+
+  return <>{displayData && <SearchResults data={displayData} />}</>;
 }
 
 function KnowdeSearchLayout() {

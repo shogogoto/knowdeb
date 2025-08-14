@@ -1,7 +1,7 @@
 import { Card } from "~/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
-import { KnowdeCardContent, KnowdeCardFooter } from "../components/KnowdeCard";
+import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
 import KnowdeGroup2 from "./KnowdeGroup/KnowdeGroup2";
@@ -20,6 +20,8 @@ export default function MainView({ detail }: Props) {
   const logicOp = operatorGraph(g, "to");
   const refOp = operatorGraph(g, "resolved");
 
+  const st = createStatView(root.stats);
+
   return (
     <div className="flex-1 p-8 overflow-y-auto">
       {/* パンくずリスト */}
@@ -28,13 +30,23 @@ export default function MainView({ detail }: Props) {
       </div>
       <Card key={root.uid} className="w-full max-w-3xl">
         <KnowdeCardContent k={root} />
-        <KnowdeCardFooter k={root} />
       </Card>
       <Tabs defaultValue="detail" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="detail">詳細</TabsTrigger>
-          <TabsTrigger value="logic">論理</TabsTrigger>
-          <TabsTrigger value="ref">参照</TabsTrigger>
+          <TabsTrigger value="detail">
+            詳細
+            {st.detail}
+          </TabsTrigger>
+          <TabsTrigger value="logic">
+            論理
+            {st.premise}
+            {st.conclusion}
+          </TabsTrigger>
+          <TabsTrigger value="ref">
+            参照
+            {st.refer}
+            {st.referred}
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="detail">
           {/* <ParentKnowdes parents={location.parents} /> */}
