@@ -20,7 +20,6 @@ export function toGraph(g: GraphData): DirectedGraph {
       },
       source: edge.source,
       target: edge.target,
-      key: [edge.source, edge.target].sort().join("->"),
     };
   }
 
