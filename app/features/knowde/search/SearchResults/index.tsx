@@ -4,7 +4,7 @@ import { Link } from "react-router";
 import PageContext from "~/components/Pagenation/PageContext";
 import { Card } from "~/components/ui/card";
 import UserAvatar from "~/features/user/UserAvatar";
-import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
+import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
 import {
   KnowdeCardContent,
   KnowdeCardFooter,

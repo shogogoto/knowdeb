@@ -8,8 +8,8 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { RouterProvider, createMemoryRouter } from "react-router";
-import { getAuthMock } from "~/generated/auth/auth.msw";
-import { getUserMock } from "~/generated/user/user.msw";
+import { getAuthMock } from "~/shared/generated/auth/auth.msw";
+import { getUserMock } from "~/shared/generated/user/user.msw";
 import SignUpForm, { UserRegisterAction } from ".";
 
 const server = setupServer(...getUserMock(), ...getAuthMock());

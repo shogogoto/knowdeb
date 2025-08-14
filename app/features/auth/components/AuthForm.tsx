@@ -6,8 +6,8 @@ import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
-import { registerRegisterAuthRegisterPostBody } from "~/generated/auth/auth.zod";
 import useShowToggle from "~/hooks/useShowToggle";
+import { registerRegisterAuthRegisterPostBody } from "~/shared/generated/auth/auth.zod";
 import { GoogleAuthButton } from "../sso/google";
 
 export const authSchema = registerRegisterAuthRegisterPostBody

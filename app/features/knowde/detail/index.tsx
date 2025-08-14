@@ -1,13 +1,13 @@
 "use client";
 import { LoaderCircle } from "lucide-react";
 import { Suspense } from "react";
-import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
+import { useCachedSWR } from "~/hooks/swr/useCache";
+import { knowdeDetailCache } from "~/lib/indexed";
+import type { KnowdeDetail } from "~/shared/generated/fastAPI.schemas";
 import {
   type detailKnowdeSentenceSentenceIdGetResponse200,
   useDetailKnowdeSentenceSentenceIdGet,
-} from "~/generated/knowde/knowde";
-import { useCachedSWR } from "~/hooks/swr/useCache";
-import { knowdeDetailCache } from "~/lib/indexed";
+} from "~/shared/generated/knowde/knowde";
 import { CacheInfo } from "../components/CacheInfo";
 import MainView from "./MainView";
 

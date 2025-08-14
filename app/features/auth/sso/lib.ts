@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { UAParser } from "ua-parser-js";
-import { oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet } from "~/generated/google/google";
+import { oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet } from "~/shared/generated/google/google";
 
 export function shouldOpenExternal() {
   const inApp = ["Line"]; // 外部ブラウザで開きたい

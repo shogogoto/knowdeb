@@ -4,7 +4,7 @@ import { Button } from "~/components/ui/button";
 import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
-} from "~/generated/google/google";
+} from "~/shared/generated/google/google";
 import { shouldOpenExternal, useHandleGoogleSSOExternal } from "./lib";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 

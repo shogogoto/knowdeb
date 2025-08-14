@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { faker } from "@faker-js/faker";
-import type { Knowde } from "~/generated/fastAPI.schemas";
+import type { Knowde } from "~/shared/generated/fastAPI.schemas";
 import Index from "./index";
 
 const meta = {

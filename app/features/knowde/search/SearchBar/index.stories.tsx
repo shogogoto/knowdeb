@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { PageProvider } from "~/components/Pagenation/PageProvider";
-import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
+import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import { SearchProvider } from "../SearchContext";
 import Index from "./index";
 import { defaultOrderBy } from "./types";

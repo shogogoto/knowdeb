@@ -4,7 +4,7 @@ export default defineConfig({
   petstore: {
     output: {
       mode: "tags-split",
-      target: "./app/generated",
+      target: "./app/shared/generated",
       baseUrl: "https://knowde.onrender.com",
       // baseUrl: "http://localhost:8000",
       // baseUrl: "https://toucan-renewing-jackal.ngrok-free.app",

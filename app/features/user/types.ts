@@ -1,4 +1,4 @@
-import type { UserReadPublic } from "~/generated/fastAPI.schemas";
+import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 
 export type UserProps = {
   user: UserReadPublic | undefined;

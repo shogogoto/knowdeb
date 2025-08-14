@@ -1,3 +1,3 @@
-import { usersCurrentUserUserMeGet } from "~/generated/user/user";
+import { usersCurrentUserUserMeGet } from "~/shared/generated/user/user";
 
 export const loader = usersCurrentUserUserMeGet;

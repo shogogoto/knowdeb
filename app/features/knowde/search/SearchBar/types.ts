@@ -1,4 +1,4 @@
-import type { SearchByTextKnowdeGetParams } from "~/generated/fastAPI.schemas";
+import type { SearchByTextKnowdeGetParams } from "~/shared/generated/fastAPI.schemas";
 
 export type OrderBy = Omit<
   SearchByTextKnowdeGetParams,

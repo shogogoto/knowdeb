@@ -2,7 +2,7 @@ import Dexie, { type Table } from "dexie";
 import type {
   KnowdeDetail,
   KnowdeSearchResult,
-} from "~/generated/fastAPI.schemas";
+} from "~/shared/generated/fastAPI.schemas";
 
 // --- 共通の定義 ---
 export interface CacheItem<T> {

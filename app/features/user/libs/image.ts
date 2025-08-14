@@ -1,4 +1,4 @@
-import type { UserAvatarUrl } from "~/generated/fastAPI.schemas";
+import type { UserAvatarUrl } from "~/shared/generated/fastAPI.schemas";
 
 export function getTransformedImageUrl(
   url: UserAvatarUrl | undefined,

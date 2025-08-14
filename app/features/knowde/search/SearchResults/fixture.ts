@@ -1,4 +1,4 @@
-import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
+import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
 
 export const fixtureSearchResult: KnowdeSearchResult = {
   total: 1240,

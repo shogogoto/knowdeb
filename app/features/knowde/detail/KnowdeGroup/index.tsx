@@ -1,5 +1,5 @@
 import type { DirectedGraph } from "graphology";
-import type { Knowde } from "~/generated/fastAPI.schemas";
+import type { Knowde } from "~/shared/generated/fastAPI.schemas";
 import KnowdeCard from "../../components/KnowdeCard";
 import { eqEdgeType, pathsToEnd, succ } from "../util/network";
 

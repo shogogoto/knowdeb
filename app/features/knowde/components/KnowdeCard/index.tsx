@@ -22,13 +22,13 @@ import {
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
 import { TooltipProvider } from "~/components/ui/tooltip";
+import { cn } from "~/lib/utils";
 import type {
   KStats,
   Knowde,
   KnowdeAdditional,
   MResource,
-} from "~/generated/fastAPI.schemas";
-import { cn } from "~/lib/utils";
+} from "~/shared/generated/fastAPI.schemas";
 import { Highlight } from "../Highlight";
 
 type Props = {

@@ -6,8 +6,12 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/components/ui/collapsible";
-import { useGetNamaspaceNamespaceGet } from "~/generated/entry/entry";
-import type { Entry, MResource, NameSpace } from "~/generated/fastAPI.schemas";
+import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
+import type {
+  Entry,
+  MResource,
+  NameSpace,
+} from "~/shared/generated/fastAPI.schemas";
 
 type FolderNode = Entry & {
   type: "folder";

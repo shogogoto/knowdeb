@@ -10,8 +10,8 @@ import {
 } from "~/components/ui/sidebar";
 import LogoutDialogContent from "~/features/auth/SignOutDialog";
 import UserAvatar from "~/features/user/UserAvatar";
-import type { UserRead } from "~/generated/fastAPI.schemas";
 import { useIsMobile } from "~/hooks/use-mobile";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 import UserDropdown from "./UserDropdown";
 
 type Props = {

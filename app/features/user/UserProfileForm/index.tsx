@@ -13,13 +13,13 @@ import { Button } from "~/components/ui/button";
 import { Dialog, DialogTrigger } from "~/components/ui/dialog";
 import { Skeleton } from "~/components/ui/skeleton";
 import { useAuth } from "~/features/auth/AuthProvider";
-import type { UserRead } from "~/generated/fastAPI.schemas";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 import {
   userProfileUserProfileUsernameGetResponse,
   userProfileUserProfileUsernameGetResponseDisplayNameMaxOne,
   userProfileUserProfileUsernameGetResponseUsernameMaxOne,
-} from "~/generated/public-user/public-user.zod";
-import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
+} from "~/shared/generated/public-user/public-user.zod";
+import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/shared/generated/user/user.zod";
 import UploadWidget from "../ImageUploader/UploadWidget";
 import {
   useDeleteUploadedImage,

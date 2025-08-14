@@ -13,7 +13,7 @@ import {
 import { MiniMap } from "@react-sigma/minimap";
 import { useEffect } from "react";
 import { ClientOnly } from "~/components/ClientOnly";
-import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
+import type { KnowdeDetail } from "~/shared/generated/fastAPI.schemas";
 import { toDisplayGraph } from "..";
 
 const Fa2 = () => {
