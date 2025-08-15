@@ -1,5 +1,5 @@
 import { Moon, Sun } from "lucide-react";
-import { cn } from "~/lib/utils";
+import { cn } from "~/shared/lib/utils";
 import { useTheme } from "./ThemeProvider";
 
 type Props = {

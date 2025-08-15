@@ -1,8 +1,8 @@
 import { type FieldMetadata, getInputProps } from "@conform-to/react";
 import TextareaAutosize from "react-textarea-autosize";
-import { cn } from "~/lib/utils";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
+import { cn } from "~/shared/lib/utils";
 
 type InputFormControlProps = {
   label: string;

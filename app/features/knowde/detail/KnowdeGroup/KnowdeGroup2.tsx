@@ -1,5 +1,5 @@
-import { cn } from "~/lib/utils";
 import type { Knowde } from "~/shared/generated/fastAPI.schemas";
+import { cn } from "~/shared/lib/utils";
 import KnowdeCard from "../../components/KnowdeCard";
 
 type Props = {

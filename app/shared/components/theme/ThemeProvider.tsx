@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import { getItem, setItem } from "~/lib/storage";
+import { getItem, setItem } from "~/shared/lib/storage";
 import type { Theme, ThemeProviderState } from "./types";
 
 const initialState: ThemeProviderState = {

@@ -2,13 +2,13 @@ import type React from "react";
 import { createContext, useCallback, useContext } from "react";
 import { toast } from "sonner";
 import type { KeyedMutator } from "swr";
-import { easyStorage } from "~/lib/storage";
 import { authCookieLogoutAuthCookieLogoutPost } from "~/shared/generated/auth/auth";
 import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 import {
   useUsersCurrentUserUserMeGet,
   type usersCurrentUserUserMeGetResponse,
 } from "~/shared/generated/user/user";
+import { easyStorage } from "~/shared/lib/storage";
 
 interface AuthContextT {
   user: UserRead | undefined;

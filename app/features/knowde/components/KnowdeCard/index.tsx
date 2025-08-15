@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
-import { cn } from "~/lib/utils";
 import HybridTooltip from "~/shared/components/HybridTooltip";
 import { Badge } from "~/shared/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
@@ -29,6 +28,7 @@ import type {
   KnowdeAdditional,
   MResource,
 } from "~/shared/generated/fastAPI.schemas";
+import { cn } from "~/shared/lib/utils";
 import { Highlight } from "../Highlight";
 
 type Props = {
