@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { getUsersCurrentUserUserMeGetResponseMock } from "~/generated/user/user.msw";
+import { getUsersCurrentUserUserMeGetResponseMock } from "~/shared/generated/user/user.msw";
 import Index from "./index";
 
 const meta = {

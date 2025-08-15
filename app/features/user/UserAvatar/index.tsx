@@ -1,6 +1,10 @@
 import { Cloudinary } from "@cloudinary/url-gen";
 import type { ComponentProps } from "react";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "~/shared/components/ui/avatar";
 import type { UserProps } from "../types";
 
 type Props = UserProps & ComponentProps<typeof Avatar>;

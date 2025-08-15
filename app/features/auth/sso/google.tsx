@@ -1,10 +1,10 @@
 import { Link, Navigate, redirect } from "react-router";
-import GoogleIcon from "~/components/icons/Google";
-import { Button } from "~/components/ui/button";
+import GoogleIcon from "~/shared/components/icons/Google";
+import { Button } from "~/shared/components/ui/button";
 import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,
-} from "~/generated/google/google";
+} from "~/shared/generated/google/google";
 import { shouldOpenExternal, useHandleGoogleSSOExternal } from "./lib";
 import type { Route } from ".react-router/types/app/routes/sso/google/+types/callback";
 

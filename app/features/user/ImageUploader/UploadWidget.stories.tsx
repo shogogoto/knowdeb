@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Button } from "~/components/ui/button";
 import { AuthProvider } from "~/features/auth/AuthProvider";
+import { Button } from "~/shared/components/ui/button";
 import Index from "./UploadWidget";
 
 const meta = {

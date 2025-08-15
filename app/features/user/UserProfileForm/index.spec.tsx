@@ -7,11 +7,11 @@ import { RouterProvider } from "react-router";
 import { Toaster } from "sonner";
 import { describe, it, vi } from "vitest";
 import { AuthProvider } from "~/features/auth/AuthProvider";
-import { getAuthMock } from "~/generated/auth/auth.msw";
+import { getAuthMock } from "~/shared/generated/auth/auth.msw";
 import {
   getUserMock,
   getUsersCurrentUserUserMeGetMockHandler,
-} from "~/generated/user/user.msw";
+} from "~/shared/generated/user/user.msw";
 import UserProfileForm from ".";
 import { editUserProfile } from "./action";
 

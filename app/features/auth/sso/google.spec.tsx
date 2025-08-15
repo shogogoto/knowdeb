@@ -8,8 +8,8 @@ import { Navigate } from "react-router";
 import {
   getGoogleMock,
   getOauthGoogleCookieAuthorizeGoogleCookieAuthorizeGetMockHandler,
-} from "~/generated/google/google.msw";
-import { getUserMock } from "~/generated/user/user.msw";
+} from "~/shared/generated/google/google.msw";
+import { getUserMock } from "~/shared/generated/user/user.msw";
 import { AuthProvider } from "../AuthProvider";
 import GoogleCallback, { authorize, GoogleAuthButton } from "./google";
 

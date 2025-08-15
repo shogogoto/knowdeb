@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Sidebar, SidebarProvider } from "~/components/ui/sidebar";
 import { AuthProvider } from "~/features/auth/AuthProvider";
-import { getUsersCurrentUserUserMeGetResponseMock } from "~/generated/user/user.msw";
+import { Sidebar, SidebarProvider } from "~/shared/components/ui/sidebar";
+import { getUsersCurrentUserUserMeGetResponseMock } from "~/shared/generated/user/user.msw";
 import Index from "./index";
 
 const meta = {

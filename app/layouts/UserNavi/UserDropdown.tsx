@@ -7,7 +7,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from "~/components/ui/dropdown-menu";
+} from "~/shared/components/ui/dropdown-menu";
 
 type Props = {
   side?: "left" | "right" | "top" | "bottom";

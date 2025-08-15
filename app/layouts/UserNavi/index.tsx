@@ -1,17 +1,17 @@
-import { Dialog } from "~/components/ui/dialog";
+import LogoutDialogContent from "~/features/auth/SignOutDialog";
+import UserAvatar from "~/features/user/UserAvatar";
+import { Dialog } from "~/shared/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from "~/shared/components/ui/dropdown-menu";
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "~/components/ui/sidebar";
-import LogoutDialogContent from "~/features/auth/SignOutDialog";
-import UserAvatar from "~/features/user/UserAvatar";
-import type { UserRead } from "~/generated/fastAPI.schemas";
-import { useIsMobile } from "~/hooks/use-mobile";
+} from "~/shared/components/ui/sidebar";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
+import { useIsMobile } from "~/shared/hooks/use-mobile";
 import UserDropdown from "./UserDropdown";
 
 type Props = {

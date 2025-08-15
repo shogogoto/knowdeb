@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { getDetailKnowdeSentenceSentenceIdGetMockHandler } from "~/generated/knowde/knowde.msw";
+import { getDetailKnowdeSentenceSentenceIdGetMockHandler } from "~/shared/generated/knowde/knowde.msw";
 import { fixtureDetail1 } from "./fixture";
 import Index from "./index";
 

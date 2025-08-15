@@ -1,13 +1,17 @@
 import { ChevronRight, File, Folder } from "lucide-react";
 import React, { useEffect } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
-import { useGetNamaspaceNamespaceGet } from "~/generated/entry/entry";
-import type { Entry, MResource, NameSpace } from "~/generated/fastAPI.schemas";
+} from "~/shared/components/ui/collapsible";
+import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
+import type {
+  Entry,
+  MResource,
+  NameSpace,
+} from "~/shared/generated/fastAPI.schemas";
 
 type FolderNode = Entry & {
   type: "folder";

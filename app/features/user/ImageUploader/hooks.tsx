@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 import { useAuth } from "~/features/auth/AuthProvider";
-import type { UserRead } from "~/generated/fastAPI.schemas";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 import { editUserProfile } from "../UserProfileForm/action";
 
 async function updateAvatarUrl(imageUrl: string) {

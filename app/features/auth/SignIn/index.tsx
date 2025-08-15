@@ -3,7 +3,7 @@ import type { ActionFunctionArgs } from "react-router";
 import { redirect, useActionData } from "react-router";
 import { Navigate } from "react-router";
 import { toast } from "sonner";
-import { authCookieLoginAuthCookieLoginPost } from "~/generated/auth/auth";
+import { authCookieLoginAuthCookieLoginPost } from "~/shared/generated/auth/auth";
 import { useAuth } from "../AuthProvider";
 import AuthForm, { authSchema } from "../components/AuthForm";
 

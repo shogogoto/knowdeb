@@ -4,8 +4,8 @@ import {
   createContext,
   useState,
 } from "react";
-import { SearchByTextKnowdeGetType } from "~/generated/fastAPI.schemas";
-import { useDebounce } from "~/hooks/useDebounce";
+import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
+import { useDebounce } from "~/shared/hooks/useDebounce";
 import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {

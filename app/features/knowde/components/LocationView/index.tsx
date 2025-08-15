@@ -1,6 +1,9 @@
 import { Link } from "react-router";
 import UserAvatar from "~/features/user/UserAvatar";
-import type { Knowde, KnowdeLocation } from "~/generated/fastAPI.schemas";
+import type {
+  Knowde,
+  KnowdeLocation,
+} from "~/shared/generated/fastAPI.schemas";
 import KnowdeCard from "../KnowdeCard";
 
 type Props = {

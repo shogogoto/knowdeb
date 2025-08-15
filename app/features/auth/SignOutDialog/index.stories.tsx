@@ -1,7 +1,7 @@
 import { DialogTrigger } from "@radix-ui/react-dialog";
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { Button } from "~/components/ui/button";
-import { Dialog } from "~/components/ui/dialog";
+import { Button } from "~/shared/components/ui/button";
+import { Dialog } from "~/shared/components/ui/dialog";
 import LogoutDialogContent from ".";
 import { AuthProvider } from "../AuthProvider";
 

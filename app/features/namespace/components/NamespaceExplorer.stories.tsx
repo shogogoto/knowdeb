@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse, delay } from "msw";
-import type { NameSpace } from "~/generated/fastAPI.schemas";
+import type { NameSpace } from "~/shared/generated/fastAPI.schemas";
 import NamespaceExplorer from "./NamespaceExplorer";
 
 const mockData = {

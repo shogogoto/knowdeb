@@ -1,16 +1,16 @@
 import { LoaderCircle } from "lucide-react";
 import { Suspense, useContext } from "react";
-import { ClientOnly } from "~/components/ClientOnly";
-import PagingNavi from "~/components/Pagenation";
-import PageContext from "~/components/Pagenation/PageContext";
-import { PageProvider } from "~/components/Pagenation/PageProvider";
-import type { KnowdeSearchResult } from "~/generated/fastAPI.schemas";
+import { ClientOnly } from "~/shared/components/ClientOnly";
+import PagingNavi from "~/shared/components/Pagenation";
+import PageContext from "~/shared/components/Pagenation/PageContext";
+import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
+import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
 import {
   type searchByTextKnowdeGetResponse200,
   useSearchByTextKnowdeGet,
-} from "~/generated/knowde/knowde";
-import { createCacheKey, useCachedSWR } from "~/hooks/swr/useCache";
-import { knowdeSearchCache } from "~/lib/indexed";
+} from "~/shared/generated/knowde/knowde";
+import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
+import { knowdeSearchCache } from "~/shared/lib/indexed";
 import SearchBar from "./SearchBar";
 import SearchContext, {
   initialSearchState,

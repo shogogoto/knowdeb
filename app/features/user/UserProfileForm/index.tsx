@@ -8,18 +8,18 @@ import { useEffect } from "react";
 import { Link, useFetcher, useNavigate, useNavigation } from "react-router";
 import { toast } from "sonner";
 import { z } from "zod";
-import ConfirmDialogContent from "~/components/ConfirmDialogContent";
-import { Button } from "~/components/ui/button";
-import { Dialog, DialogTrigger } from "~/components/ui/dialog";
-import { Skeleton } from "~/components/ui/skeleton";
 import { useAuth } from "~/features/auth/AuthProvider";
-import type { UserRead } from "~/generated/fastAPI.schemas";
+import ConfirmDialogContent from "~/shared/components/ConfirmDialogContent";
+import { Button } from "~/shared/components/ui/button";
+import { Dialog, DialogTrigger } from "~/shared/components/ui/dialog";
+import { Skeleton } from "~/shared/components/ui/skeleton";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 import {
   userProfileUserProfileUsernameGetResponse,
   userProfileUserProfileUsernameGetResponseDisplayNameMaxOne,
   userProfileUserProfileUsernameGetResponseUsernameMaxOne,
-} from "~/generated/public-user/public-user.zod";
-import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/generated/user/user.zod";
+} from "~/shared/generated/public-user/public-user.zod";
+import { usersPatchCurrentUserUserMePatchResponseProfileMaxOne } from "~/shared/generated/user/user.zod";
 import UploadWidget from "../ImageUploader/UploadWidget";
 import {
   useDeleteUploadedImage,

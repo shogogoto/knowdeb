@@ -1,6 +1,6 @@
 import { parseWithZod } from "@conform-to/zod";
 import type { ActionFunctionArgs } from "react-router";
-import { usersPatchCurrentUserUserMePatch } from "~/generated/user/user"; // orvalが生成したAPIクライアント
+import { usersPatchCurrentUserUserMePatch } from "~/shared/generated/user/user"; // orvalが生成したAPIクライアント
 import { UserProfileSchema } from ".";
 
 export async function editUserProfile({ request }: ActionFunctionArgs) {

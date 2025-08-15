@@ -1,5 +1,5 @@
 import { jwtVerify } from "jose";
-import type { UserRead } from "~/generated/fastAPI.schemas";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 
 type UserJWTPayload = Pick<UserRead, "uid" | "username" | "display_name">;
 

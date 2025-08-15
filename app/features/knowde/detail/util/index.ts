@@ -4,7 +4,7 @@ import type {
   EdgeType,
   GraphData,
   KnowdeDetail,
-} from "~/generated/fastAPI.schemas";
+} from "~/shared/generated/fastAPI.schemas";
 import { pathsToEnd, succ } from "./network";
 
 export function toGraph(g: GraphData): DirectedGraph {

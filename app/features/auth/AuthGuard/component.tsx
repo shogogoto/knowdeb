@@ -1,5 +1,5 @@
 import type { PropsWithChildren } from "react";
-import { Card } from "~/components/ui/card";
+import { Card } from "~/shared/components/ui/card";
 
 export function AuthCard({ children }: PropsWithChildren) {
   return (

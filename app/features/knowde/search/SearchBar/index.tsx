@@ -1,13 +1,13 @@
 import { LoaderCircle, Search, Settings } from "lucide-react";
 import { useContext } from "react";
 import { Form, useNavigation } from "react-router";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
-import { Input } from "~/components/ui/input";
+} from "~/shared/components/ui/collapsible";
+import { Input } from "~/shared/components/ui/input";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 

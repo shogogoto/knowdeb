@@ -12,8 +12,8 @@ import {
 } from "@react-sigma/layout-forceatlas2";
 import { MiniMap } from "@react-sigma/minimap";
 import { useEffect } from "react";
-import { ClientOnly } from "~/components/ClientOnly";
-import type { KnowdeDetail } from "~/generated/fastAPI.schemas";
+import { ClientOnly } from "~/shared/components/ClientOnly";
+import type { KnowdeDetail } from "~/shared/generated/fastAPI.schemas";
 import { toDisplayGraph } from "..";
 
 const Fa2 = () => {

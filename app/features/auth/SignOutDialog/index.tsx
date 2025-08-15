@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import ConfirmDialogContent from "~/components/ConfirmDialogContent";
+import ConfirmDialogContent from "~/shared/components/ConfirmDialogContent";
 import { useAuth } from "../AuthProvider";
 
 export default function LogoutDialogContent() {

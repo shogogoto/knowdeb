@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import type { UserReadPublic } from "~/generated/fastAPI.schemas";
+import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import Index from "./index";
 
 const meta = {

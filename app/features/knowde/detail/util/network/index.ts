@@ -1,6 +1,6 @@
 import type Graph from "graphology";
 import type { Attributes } from "graphology-types";
-import type { EdgeType } from "~/generated/fastAPI.schemas";
+import type { EdgeType } from "~/shared/generated/fastAPI.schemas";
 
 type EdgePredicate = (attr: Attributes) => boolean;
 

@@ -1,7 +1,7 @@
 // server ations
 import { v2 as cloudinary } from "cloudinary";
 import type { ActionFunctionArgs } from "react-router";
-import type { UserRead } from "~/generated/fastAPI.schemas";
+import type { UserRead } from "~/shared/generated/fastAPI.schemas";
 
 cloudinary.config({
   cloud_name: process.env.VITE_CLOUD_NAME,

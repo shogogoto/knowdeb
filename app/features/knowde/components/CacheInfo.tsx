@@ -1,6 +1,6 @@
 "use client";
 import { useLiveQuery } from "dexie-react-hooks";
-import { knowdeDetailCache } from "~/lib/indexed"; // knowdeDetailCache の代わりに db をインポート
+import { knowdeDetailCache } from "~/shared/lib/indexed"; // knowdeDetailCache の代わりに db をインポート
 
 export function CacheInfo() {
   const count = useLiveQuery(() => knowdeDetailCache.count());

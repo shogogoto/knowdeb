@@ -13,22 +13,22 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
-import HybridTooltip from "~/components/HybridTooltip";
-import { Badge } from "~/components/ui/badge";
-import { Card, CardContent, CardFooter } from "~/components/ui/card";
+import HybridTooltip from "~/shared/components/HybridTooltip";
+import { Badge } from "~/shared/components/ui/badge";
+import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
-import { TooltipProvider } from "~/components/ui/tooltip";
+} from "~/shared/components/ui/collapsible";
+import { TooltipProvider } from "~/shared/components/ui/tooltip";
 import type {
   KStats,
   Knowde,
   KnowdeAdditional,
   MResource,
-} from "~/generated/fastAPI.schemas";
-import { cn } from "~/lib/utils";
+} from "~/shared/generated/fastAPI.schemas";
+import { cn } from "~/shared/lib/utils";
 import { Highlight } from "../Highlight";
 
 type Props = {
