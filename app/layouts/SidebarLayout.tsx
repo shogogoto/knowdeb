@@ -1,12 +1,12 @@
 // import { rootAuthLoader } from "@clerk/react-router/ssr.server";
 import { Outlet } from "react-router";
 import { useMatch } from "react-router";
-import { SidebarProvider } from "~/components/ui/sidebar";
+import { SidebarProvider } from "~/shared/components/ui/sidebar";
 import MySidebar from "./MySidebar";
 import BottomNavigation from "./components/BottomNavigation";
 import "github-markdown-css/github-markdown.css";
-import { Toaster } from "~/components/ui/sonner";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { Toaster } from "~/shared/components/ui/sonner";
 
 type Props = { className?: string };
 

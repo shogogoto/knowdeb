@@ -1,11 +1,11 @@
 import { ChevronRight, File, Folder } from "lucide-react";
 import React, { useEffect } from "react";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
+} from "~/shared/components/ui/collapsible";
 import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
 import type {
   Entry,

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { PageProvider } from "~/components/Pagenation/PageProvider";
+import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import { fixtureSearchResult } from "./fixture";
 import Index from "./index";
 

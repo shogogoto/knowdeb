@@ -1,6 +1,6 @@
 import { BookOpen, Crown, Home, PanelLeftIcon, Search } from "lucide-react";
 import { Link } from "react-router";
-import { useSidebar } from "~/components/ui/sidebar";
+import { useSidebar } from "~/shared/components/ui/sidebar";
 
 export default function BottomNavigation() {
   const { toggleSidebar } = useSidebar();

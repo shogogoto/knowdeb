@@ -1,4 +1,8 @@
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+} from "~/shared/components/ui/dialog";
 import UserAvatar from "../../UserAvatar";
 import type { UserProps } from "../../types";
 

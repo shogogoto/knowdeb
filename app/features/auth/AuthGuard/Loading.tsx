@@ -3,7 +3,7 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "~/shared/components/ui/card";
 import { AuthCard } from "./component";
 
 export default function AuthGuardLoading() {

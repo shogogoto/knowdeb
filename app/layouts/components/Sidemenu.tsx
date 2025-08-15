@@ -6,7 +6,7 @@ import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
+} from "~/shared/components/ui/collapsible";
 import {
   SidebarMenuAction,
   SidebarMenuButton,
@@ -15,7 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   useSidebar,
-} from "~/components/ui/sidebar";
+} from "~/shared/components/ui/sidebar";
 
 type MenuProps = {
   title: string;

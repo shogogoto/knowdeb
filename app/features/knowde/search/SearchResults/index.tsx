@@ -1,9 +1,9 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useContext, useRef } from "react";
 import { Link } from "react-router";
-import PageContext from "~/components/Pagenation/PageContext";
-import { Card } from "~/components/ui/card";
 import UserAvatar from "~/features/user/UserAvatar";
+import PageContext from "~/shared/components/Pagenation/PageContext";
+import { Card } from "~/shared/components/ui/card";
 import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
 import {
   KnowdeCardContent,

@@ -1,11 +1,11 @@
 import { Link } from "react-router";
-import ThemeToggle from "~/components/theme/ThemeToggle";
+import ThemeToggle from "~/shared/components/theme/ThemeToggle";
 import {
   SidebarMenu,
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "~/components/ui/sidebar";
+} from "~/shared/components/ui/sidebar";
 import favicon from "/favicon.svg";
 
 export function SiteLogo() {

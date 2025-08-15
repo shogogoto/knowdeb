@@ -2,11 +2,16 @@ import { type SubmissionResult, useForm } from "@conform-to/react";
 import { getZodConstraint, parseWithZod } from "@conform-to/zod";
 import { Form, useNavigation } from "react-router";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import useShowToggle from "~/hooks/useShowToggle";
+import { Button } from "~/shared/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "~/shared/components/ui/card";
+import { Input } from "~/shared/components/ui/input";
+import { Label } from "~/shared/components/ui/label";
 import { registerRegisterAuthRegisterPostBody } from "~/shared/generated/auth/auth.zod";
 import { GoogleAuthButton } from "../sso/google";
 

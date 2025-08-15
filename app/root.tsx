@@ -8,9 +8,17 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
-import { ThemeProvider } from "./components/theme/ThemeProvider";
-import ThemeScript from "./components/theme/ThemeScript";
+import { ThemeProvider } from "~/shared/components/theme/ThemeProvider";
+import ThemeScript from "~/shared/components/theme/ThemeScript";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "~/shared/components/ui/card";
 import { AuthProvider } from "./features/auth/AuthProvider";
+
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
   {
@@ -60,14 +68,6 @@ export default function App({ loaderData }: Route.ComponentProps) {
     </ThemeProvider>
   );
 }
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./components/ui/card";
-
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";

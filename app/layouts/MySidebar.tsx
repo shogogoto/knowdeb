@@ -1,4 +1,6 @@
 import { LogIn, MailQuestion } from "lucide-react";
+import { useAuth } from "~/features/auth/AuthProvider";
+import { useIsMobile } from "~/hooks/use-mobile";
 import {
   Sidebar,
   SidebarContent,
@@ -7,9 +9,7 @@ import {
   SidebarHeader,
   SidebarMenu,
   SidebarRail,
-} from "~/components/ui/sidebar";
-import { useAuth } from "~/features/auth/AuthProvider";
-import { useIsMobile } from "~/hooks/use-mobile";
+} from "~/shared/components/ui/sidebar";
 import {
   DocsSideMenu,
   FeaturesMenu,

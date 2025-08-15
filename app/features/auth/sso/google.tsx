@@ -1,6 +1,6 @@
 import { Link, Navigate, redirect } from "react-router";
-import GoogleIcon from "~/components/icons/Google";
-import { Button } from "~/components/ui/button";
+import GoogleIcon from "~/shared/components/icons/Google";
+import { Button } from "~/shared/components/ui/button";
 import {
   oauthGoogleCookieAuthorizeGoogleCookieAuthorizeGet,
   oauthGoogleCookieCallbackGoogleCookieCallbackGet,

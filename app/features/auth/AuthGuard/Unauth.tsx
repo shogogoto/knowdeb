@@ -1,12 +1,12 @@
 import { TriangleAlert } from "lucide-react";
 import { Link } from "react-router";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 import {
   CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
+} from "~/shared/components/ui/card";
 import { AuthCard } from "./component";
 
 export default function Unauth() {

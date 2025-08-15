@@ -7,7 +7,7 @@ import {
   useRef,
 } from "react";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { Button } from "~/shared/components/ui/button";
 import {
   Pagination,
   PaginationContent,
@@ -16,8 +16,8 @@ import {
   type PaginationLinkProps,
   PaginationNext,
   PaginationPrevious,
-} from "~/components/ui/pagination";
-import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
+} from "~/shared/components/ui/pagination";
+import { ScrollArea, ScrollBar } from "~/shared/components/ui/scroll-area";
 import PageContext from "./PageContext";
 
 export const _PagingNaviProps = z.object({

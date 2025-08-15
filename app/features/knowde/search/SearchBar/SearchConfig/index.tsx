@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import PageContext from "~/components/Pagenation/PageContext";
-import { Slider } from "~/components/ui/slider";
+import PageContext from "~/shared/components/Pagenation/PageContext";
+import { Slider } from "~/shared/components/ui/slider";
 import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import SearchContext from "../../SearchContext";
 import type { OrderBy } from "../types";

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import { PageProvider } from "~/components/Pagenation/PageProvider";
+import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import { SearchProvider } from "../../SearchContext";
 import { defaultOrderBy } from "../types";

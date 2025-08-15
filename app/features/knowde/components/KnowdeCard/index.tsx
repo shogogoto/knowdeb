@@ -13,16 +13,16 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
-import HybridTooltip from "~/components/HybridTooltip";
-import { Badge } from "~/components/ui/badge";
-import { Card, CardContent, CardFooter } from "~/components/ui/card";
+import { cn } from "~/lib/utils";
+import HybridTooltip from "~/shared/components/HybridTooltip";
+import { Badge } from "~/shared/components/ui/badge";
+import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "~/components/ui/collapsible";
-import { TooltipProvider } from "~/components/ui/tooltip";
-import { cn } from "~/lib/utils";
+} from "~/shared/components/ui/collapsible";
+import { TooltipProvider } from "~/shared/components/ui/tooltip";
 import type {
   KStats,
   Knowde,
