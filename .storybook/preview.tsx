@@ -11,7 +11,7 @@ import {
   withRouter,
 } from "storybook-addon-remix-react-router";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
-import { ThemeProvider } from "../app/components/theme/ThemeProvider";
+import { ThemeProvider } from "../app/shared/components/theme/ThemeProvider";
 
 initialize({
   onUnhandledRequest: "bypass", // 画像読み込みエラーを消す [MSW] Warning: intercepted a request without a matching request handler: • GET /app/stories/assets/accessibility.png?import If you still wish to intercept this unhandled request, please create a request handler for it.
