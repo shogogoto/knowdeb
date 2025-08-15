@@ -1,6 +1,5 @@
 import { LoaderCircle } from "lucide-react";
 import { Suspense, useContext } from "react";
-import { createCacheKey, useCachedSWR } from "~/hooks/swr/useCache";
 import { knowdeSearchCache } from "~/lib/indexed";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import PagingNavi from "~/shared/components/Pagenation";
@@ -11,6 +10,7 @@ import {
   type searchByTextKnowdeGetResponse200,
   useSearchByTextKnowdeGet,
 } from "~/shared/generated/knowde/knowde";
+import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import SearchBar from "./SearchBar";
 import SearchContext, {
   initialSearchState,

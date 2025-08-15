@@ -5,8 +5,8 @@ import { SidebarProvider } from "~/shared/components/ui/sidebar";
 import MySidebar from "./MySidebar";
 import BottomNavigation from "./components/BottomNavigation";
 import "github-markdown-css/github-markdown.css";
-import { useIsMobile } from "~/hooks/use-mobile";
 import { Toaster } from "~/shared/components/ui/sonner";
+import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 type Props = { className?: string };
 

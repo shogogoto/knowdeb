@@ -1,6 +1,5 @@
 import type * as React from "react";
 
-import { useIsMobile } from "~/hooks/use-mobile";
 import {
   Popover,
   PopoverContent,
@@ -12,6 +11,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/shared/components/ui/tooltip";
+import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 interface HybridTooltipProps {
   content: React.ReactNode;

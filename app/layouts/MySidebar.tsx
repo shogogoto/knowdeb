@@ -1,6 +1,5 @@
 import { LogIn, MailQuestion } from "lucide-react";
 import { useAuth } from "~/features/auth/AuthProvider";
-import { useIsMobile } from "~/hooks/use-mobile";
 import {
   Sidebar,
   SidebarContent,
@@ -10,6 +9,7 @@ import {
   SidebarMenu,
   SidebarRail,
 } from "~/shared/components/ui/sidebar";
+import { useIsMobile } from "~/shared/hooks/use-mobile";
 import {
   DocsSideMenu,
   FeaturesMenu,

@@ -1,6 +1,5 @@
 import LogoutDialogContent from "~/features/auth/SignOutDialog";
 import UserAvatar from "~/features/user/UserAvatar";
-import { useIsMobile } from "~/hooks/use-mobile";
 import { Dialog } from "~/shared/components/ui/dialog";
 import {
   DropdownMenu,
@@ -12,6 +11,7 @@ import {
   SidebarMenuItem,
 } from "~/shared/components/ui/sidebar";
 import type { UserRead } from "~/shared/generated/fastAPI.schemas";
+import { useIsMobile } from "~/shared/hooks/use-mobile";
 import UserDropdown from "./UserDropdown";
 
 type Props = {
