@@ -38,6 +38,7 @@ export function _KnowdeSearch() {
 
   const { data } = useSearchByTextKnowdeGet(params, {
     swr: {
+      revalidateOnFocus: false,
       keepPreviousData: true,
       fallbackData,
       suspense: true,
