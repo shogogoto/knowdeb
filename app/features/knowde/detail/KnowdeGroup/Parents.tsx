@@ -1,5 +1,4 @@
 import type { Knowde } from "~/shared/generated/fastAPI.schemas";
-import { cn } from "~/shared/lib/utils";
 import KnowdeCard from "../../components/KnowdeCard";
 
 type Props = {
@@ -15,8 +14,8 @@ export default function Parents({ parents, className, borderColor }: Props) {
     return null;
   }
   return (
-    <div className={cn("border-l-4", borderColor, className)}>
-      <KnowdeCard k={up} />
+    <div className={className}>
+      <KnowdeCard k={up} borderColor={borderColor} />
       <Parents parents={nexts} className="ml-1" borderColor={borderColor} />
     </div>
   );
