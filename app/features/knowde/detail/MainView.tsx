@@ -8,7 +8,7 @@ import {
 import type { KnowdeDetail } from "~/shared/generated/fastAPI.schemas";
 import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
-import KnowdeGroup from "./KnowdeGroup";
+import DetailNested from "./KnowdeGroup";
 import KnowdeGroup2 from "./KnowdeGroup/KnowdeGroup2";
 import Parents from "./KnowdeGroup/Parents";
 import { graphForView } from "./util";
@@ -57,7 +57,7 @@ export default function MainView({ detail }: Props) {
         <TabsContent value="detail">
           <Parents parents={location.parents} />
           {belows?.map((bid) => {
-            return <KnowdeGroup startId={bid} kn={kn} g={g} key={bid} />;
+            return <DetailNested startId={bid} kn={kn} g={g} key={bid} />;
           })}
         </TabsContent>
         <TabsContent value="logic">

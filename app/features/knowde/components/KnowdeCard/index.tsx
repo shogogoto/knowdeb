@@ -35,13 +35,14 @@ type Props = {
   k: Knowde;
   index?: number;
   query?: string;
+  className?: string;
 };
 
-export default function KnowdeCard({ k, index, query }: Props) {
+export default function KnowdeCard({ k, index, query, className }: Props) {
   const score = k.stats?.score || 0;
 
   const card = (
-    <Card key={k.uid} className="w-full max-w-3xl">
+    <Card key={k.uid} className={cn("w-full max-w-3xl", className)}>
       <KnowdeCardContent k={k} query={query} />
       <KnowdeCardFooter k={k} index={index} />
     </Card>

@@ -10,7 +10,7 @@ type Props = {
   className?: string;
 };
 
-export default function KnowdeGroup({ startId, kn, g, className }: Props) {
+export default function DetailNested({ startId, kn, g, className }: Props) {
   const sibls = pathsToEnd(g, startId, eqEdgeType("sibling"), succ);
 
   return (
@@ -29,7 +29,7 @@ export default function KnowdeGroup({ startId, kn, g, className }: Props) {
               return (
                 <div className="border border-blue-500" key={bid}>
                   <KnowdeCard k={kn(id)} key={id} />
-                  <KnowdeGroup
+                  <DetailNested
                     startId={bid}
                     kn={kn}
                     g={g}
