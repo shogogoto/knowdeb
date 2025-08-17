@@ -22,14 +22,17 @@ const colors = {
   detail: {
     in: "border-blue-800", // 親: 濃い青
     out: "border-blue-400", // 子: 明るい青
+    tab: "data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900",
   },
   logic: {
     in: "border-green-800", // 前提: 濃い緑
     out: "border-green-400", // 結論: 明るい緑
+    tab: "data-[state=active]:bg-green-100 dark:data-[state=active]:bg-green-900",
   },
   ref: {
     in: "border-orange-800", // 被参照: 濃い橙
     out: "border-yellow-400", // 参照: 明るい黄色
+    tab: "data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900",
   },
 };
 
@@ -54,16 +57,16 @@ export default function MainView({ detail }: Props) {
       </Card>
       <Tabs defaultValue="detail" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="detail">
+          <TabsTrigger value="detail" className={colors.detail.tab}>
             詳細
             {st.detail}
           </TabsTrigger>
-          <TabsTrigger value="logic">
+          <TabsTrigger value="logic" className={colors.logic.tab}>
             {st.premise}
             論理
             {st.conclusion}
           </TabsTrigger>
-          <TabsTrigger value="ref">
+          <TabsTrigger value="ref" className={colors.ref.tab}>
             {st.refer}
             参照
             {st.referred}
