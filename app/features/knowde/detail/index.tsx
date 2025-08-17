@@ -21,23 +21,34 @@ export function _KnowdeDetailView({ id }: Props) {
     detailKnowdeSentenceSentenceIdGetResponse200 & { headers: Headers }
   >(id, knowdeDetailCache.get);
 
-  const { data } = useDetailKnowdeSentenceSentenceIdGet(id, undefined, {
-    swr: {
-      revalidateOnFocus: false,
-      keepPreviousData: true,
-      fallbackData,
-      suspense: true,
-      onSuccess: async (data) => {
-        if (data.status === 200) {
-          await knowdeDetailCache.set(data.data);
-        }
+  const { data, isLoading } = useDetailKnowdeSentenceSentenceIdGet(
+    id,
+    undefined,
+    {
+      swr: {
+        revalidateOnFocus: false,
+        keepPreviousData: true,
+        fallbackData,
+        // suspense: true,
+        onSuccess: async (data) => {
+          if (data.status === 200) {
+            await knowdeDetailCache.set(data.data);
+          }
+        },
       },
     },
-  });
+  );
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
   if (!displayData) {
     return <div>{JSON.stringify(data)}</div>;
+  }
+  if (isLoading && !displayData) {
+    return (
+      <div className="flex justify-center p-4">
+        <LoaderCircle className="animate-spin" />
+      </div>
+    );
   }
 
   return (

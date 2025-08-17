@@ -1,5 +1,5 @@
 import { LoaderCircle } from "lucide-react";
-import { Suspense, useContext } from "react";
+import { useContext } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import PagingNavi from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
@@ -36,12 +36,11 @@ export function _KnowdeSearch() {
     searchByTextKnowdeGetResponse200 & { headers: Headers }
   >(cacheKey, knowdeSearchCache.get);
 
-  const { data } = useSearchByTextKnowdeGet(params, {
+  const { data, isLoading } = useSearchByTextKnowdeGet(params, {
     swr: {
       revalidateOnFocus: false,
       keepPreviousData: true,
       fallbackData,
-      suspense: true,
       onSuccess: async (data) => {
         if (data.status === 200) {
           const total = data.data.total || 0;
@@ -58,6 +57,14 @@ export function _KnowdeSearch() {
 
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
+  if (isLoading && !displayData) {
+    return (
+      <div className="flex justify-center p-4">
+        <LoaderCircle className="animate-spin" />
+      </div>
+    );
+  }
+
   return <>{displayData && <SearchResults data={displayData} />}</>;
 }
 
@@ -69,17 +76,9 @@ function KnowdeSearchLayout() {
         <SearchBar />
       </header>
       <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
-        <Suspense
-          fallback={
-            <div className="flex justify-center p-4">
-              <LoaderCircle className="animate-spin" />
-            </div>
-          }
-        >
-          <div className="flex h-screen justify-center w-full">
-            <_KnowdeSearch />
-          </div>
-        </Suspense>
+        <div className="flex h-screen justify-center w-full">
+          <_KnowdeSearch />
+        </div>
       </main>
       <footer className="flex sticky bottom-0 bg-background border-t">
         <PagingNavi total={total} />
