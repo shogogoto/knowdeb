@@ -8,6 +8,7 @@ type Props = {
   getGroup: (id: string) => string[];
   className?: string;
   border?: boolean;
+  borderColor?: string;
 };
 
 export default function KnowdeGroup2({
@@ -16,11 +17,12 @@ export default function KnowdeGroup2({
   getGroup,
   className,
   border,
+  borderColor,
 }: Props) {
   const nexts = getGroup(startId);
   const cName =
     nexts.length > 0 || border
-      ? cn("border border-blue-500", className)
+      ? cn("border-l-4", borderColor, className)
       : className;
 
   return (
@@ -35,6 +37,7 @@ export default function KnowdeGroup2({
             getGroup={getGroup}
             className="ml-1"
             border
+            borderColor={borderColor}
           />
         );
       })}

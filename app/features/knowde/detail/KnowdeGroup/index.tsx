@@ -1,5 +1,6 @@
 import type { DirectedGraph } from "graphology";
 import type { Knowde } from "~/shared/generated/fastAPI.schemas";
+import { cn } from "~/shared/lib/utils";
 import KnowdeCard from "../../components/KnowdeCard";
 import { eqEdgeType, pathsToEnd, succ } from "../util/network";
 
@@ -8,9 +9,16 @@ type Props = {
   kn: (id: string) => Knowde;
   g: DirectedGraph;
   className?: string;
+  borderColor?: string;
 };
 
-export default function DetailNested({ startId, kn, g, className }: Props) {
+export default function DetailNested({
+  startId,
+  kn,
+  g,
+  className,
+  borderColor,
+}: Props) {
   const sibls = pathsToEnd(g, startId, eqEdgeType("sibling"), succ);
 
   return (
@@ -27,14 +35,15 @@ export default function DetailNested({ startId, kn, g, className }: Props) {
 
             return belows.map((bid) => {
               return (
-                <div className="border border-blue-500" key={bid}>
+                <div className={cn("border-l-2", borderColor)} key={bid}>
                   <KnowdeCard k={kn(id)} key={id} />
                   <DetailNested
                     startId={bid}
                     kn={kn}
                     g={g}
                     key={bid}
-                    className="ml-1 border border-blue-500"
+                    className="ml-1"
+                    borderColor={borderColor}
                   />
                 </div>
               );

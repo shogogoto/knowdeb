@@ -18,6 +18,21 @@ type Props = {
   detail: KnowdeDetail;
 };
 
+const colors = {
+  detail: {
+    in: "border-blue-800", // 親: 濃い青
+    out: "border-blue-400", // 子: 明るい青
+  },
+  logic: {
+    in: "border-green-800", // 前提: 濃い緑
+    out: "border-green-400", // 結論: 明るい緑
+  },
+  ref: {
+    in: "border-orange-800", // 被参照: 濃い橙
+    out: "border-yellow-400", // 参照: 明るい黄色
+  },
+};
+
 export default function MainView({ detail }: Props) {
   const { root, g, kn, location, rootId } = graphForView(detail);
 
@@ -55,9 +70,17 @@ export default function MainView({ detail }: Props) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="detail">
-          <Parents parents={location.parents} />
+          <Parents parents={location.parents} borderColor={colors.detail.in} />
           {belows?.map((bid) => {
-            return <DetailNested startId={bid} kn={kn} g={g} key={bid} />;
+            return (
+              <DetailNested
+                startId={bid}
+                kn={kn}
+                g={g}
+                key={bid}
+                borderColor={colors.detail.out}
+              />
+            );
           })}
         </TabsContent>
         <TabsContent value="logic">
@@ -67,6 +90,7 @@ export default function MainView({ detail }: Props) {
               kn={kn}
               getGroup={logicOp.pred}
               key={id}
+              borderColor={colors.logic.in}
             />
           ))}
           {logicOp.succ(rootId).map((id) => (
@@ -75,15 +99,28 @@ export default function MainView({ detail }: Props) {
               kn={kn}
               getGroup={logicOp.succ}
               key={id}
+              borderColor={colors.logic.out}
             />
           ))}
         </TabsContent>
         <TabsContent value="ref">
           {refOp.pred(rootId).map((id) => (
-            <KnowdeGroup2 startId={id} kn={kn} getGroup={refOp.pred} key={id} />
+            <KnowdeGroup2
+              startId={id}
+              kn={kn}
+              getGroup={refOp.pred}
+              key={id}
+              borderColor={colors.ref.in}
+            />
           ))}
           {refOp.succ(rootId).map((id) => (
-            <KnowdeGroup2 startId={id} kn={kn} getGroup={refOp.succ} key={id} />
+            <KnowdeGroup2
+              startId={id}
+              kn={kn}
+              getGroup={refOp.succ}
+              key={id}
+              borderColor={colors.ref.out}
+            />
           ))}
         </TabsContent>
       </Tabs>
