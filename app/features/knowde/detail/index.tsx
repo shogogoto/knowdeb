@@ -23,6 +23,7 @@ export function _KnowdeDetailView({ id }: Props) {
 
   const { data } = useDetailKnowdeSentenceSentenceIdGet(id, undefined, {
     swr: {
+      revalidateOnFocus: false,
       keepPreviousData: true,
       fallbackData,
       suspense: true,
@@ -35,14 +36,14 @@ export function _KnowdeDetailView({ id }: Props) {
   });
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
-  if (data?.status !== 200) {
+  if (!displayData) {
     return <div>{JSON.stringify(data)}</div>;
   }
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="flex-1 overflow-y-auto">
-        {displayData && <MainView detail={displayData} />}
+        <MainView detail={displayData} />
       </div>
 
       {/* <div className="w-1/4 bg-gray-100 p-4 border-l hidden md:block overflow-y-auto"> */}

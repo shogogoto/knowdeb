@@ -28,12 +28,12 @@ export default function MainView({ detail }: Props) {
   const st = createStatView(root.stats);
 
   return (
-    <div className="flex-1 p-8 overflow-y-auto">
+    <div className="flex-1 overflow-y-auto max-w-3xl">
       {/* パンくずリスト */}
       <div className="mb-4">
         <LocationView loc={location} />
       </div>
-      <Card key={root.uid} className="w-full max-w-3xl">
+      <Card key={root.uid} className="w-full">
         <KnowdeCardContent k={root} />
       </Card>
       <Tabs defaultValue="detail" className="w-full">

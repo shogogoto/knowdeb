@@ -17,7 +17,6 @@ export async function listImages() {
     type: "upload",
     prefix: CLOUD_FOLDER,
   });
-  console.log({ res: JSON.stringify(res) });
   return res;
 }
 
