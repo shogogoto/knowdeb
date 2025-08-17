@@ -41,5 +41,3 @@ export default function KnowdeGroup2({
     </div>
   );
 }
-
-// Tree と stream

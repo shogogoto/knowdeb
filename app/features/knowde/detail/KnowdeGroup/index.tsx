@@ -7,17 +7,10 @@ type Props = {
   startId: string;
   kn: (id: string) => Knowde;
   g: DirectedGraph;
-  getGroup?: (id: string) => string[];
   className?: string;
 };
 
-export default function KnowdeGroup({
-  startId,
-  kn,
-  g,
-  getGroup,
-  className,
-}: Props) {
+export default function KnowdeGroup({ startId, kn, g, className }: Props) {
   const sibls = pathsToEnd(g, startId, eqEdgeType("sibling"), succ);
 
   return (

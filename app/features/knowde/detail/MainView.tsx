@@ -10,6 +10,7 @@ import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import KnowdeGroup from "./KnowdeGroup";
 import KnowdeGroup2 from "./KnowdeGroup/KnowdeGroup2";
+import Parents from "./KnowdeGroup/Parents";
 import { graphForView } from "./util";
 import { eqEdgeType, operatorGraph, succ } from "./util/network";
 
@@ -43,19 +44,18 @@ export default function MainView({ detail }: Props) {
             {st.detail}
           </TabsTrigger>
           <TabsTrigger value="logic">
-            論理
             {st.premise}
+            論理
             {st.conclusion}
           </TabsTrigger>
           <TabsTrigger value="ref">
-            参照
             {st.refer}
+            参照
             {st.referred}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="detail">
-          {/* <ParentKnowdes parents={location.parents} /> */}
-          Make changes to your account here.
+          <Parents parents={location.parents} />
           {belows?.map((bid) => {
             return <KnowdeGroup startId={bid} kn={kn} g={g} key={bid} />;
           })}
