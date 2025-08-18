@@ -53,9 +53,10 @@ export function SearchProvider(props: Props) {
   );
   const [immediateOrderBy, setImmediateOrderBy] = useState(props.orderBy);
 
-  const q = useDebounce(immediateQ, 300);
-  const searchOption = useDebounce(immediateSearchOption, 300);
-  const orderBy = useDebounce(immediateOrderBy, 300);
+  const ms = 1000;
+  const q = useDebounce(immediateQ, ms);
+  const searchOption = useDebounce(immediateSearchOption, ms);
+  const orderBy = useDebounce(immediateOrderBy, ms);
 
   const value = {
     q,

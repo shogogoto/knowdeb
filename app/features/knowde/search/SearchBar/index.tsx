@@ -13,16 +13,13 @@ import SearchConfig from "./SearchConfig";
 
 export default function SearchBar() {
   const navigation = useNavigation();
-  const { q, searchOption, orderBy, immediateQ, setImmediateQ } =
-    useContext(SearchContext);
+  const { immediateQ, setImmediateQ } = useContext(SearchContext);
 
   const isLoading =
     navigation.state === "submitting" || navigation.state === "loading";
 
-  const formKey = JSON.stringify({ q, searchOption, orderBy });
-
   return (
-    <Form className="container mx-auto" key={formKey}>
+    <Form className="container mx-auto">
       <div className="container mx-auto p-2">
         <Collapsible>
           <div className="flex w-full items-center gap-2">
@@ -43,7 +40,7 @@ export default function SearchBar() {
                 }}
                 placeholder="検索文字列を入力..."
                 className="w-full border dark:bg-gray-800 pl-10"
-                disabled={isLoading}
+                //disabled={isLoading}
               />
             </div>
             <CollapsibleTrigger asChild>
@@ -51,7 +48,7 @@ export default function SearchBar() {
                 type="button"
                 variant="ghost"
                 size="icon"
-                disabled={isLoading}
+                //disabled={isLoading}
               >
                 <Settings />
               </Button>

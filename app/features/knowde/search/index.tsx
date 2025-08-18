@@ -10,6 +10,7 @@ import {
   useSearchByTextKnowdeGet,
 } from "~/shared/generated/knowde/knowde";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
+import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
 import SearchBar from "./SearchBar";
 import SearchContext, {
@@ -24,19 +25,18 @@ export function _KnowdeSearch() {
 
   const params = {
     q,
-    page: current,
+    page: current || 1, // 0だと backendで validation error
     size: pageSize,
     search_type: searchOption,
     ...orderBy,
   };
-
-  const cacheKey = createCacheKey("search", params);
+  const debouncedParams = useDebounce(params, 500);
+  const cacheKey = createCacheKey("search", debouncedParams);
   const fallbackData = useCachedSWR<
     KnowdeSearchResult,
     searchByTextKnowdeGetResponse200 & { headers: Headers }
   >(cacheKey, knowdeSearchCache.get);
-
-  const { data, isLoading } = useSearchByTextKnowdeGet(params, {
+  const { data, isLoading } = useSearchByTextKnowdeGet(debouncedParams, {
     swr: {
       revalidateOnFocus: false,
       keepPreviousData: true,
@@ -56,7 +56,6 @@ export function _KnowdeSearch() {
   });
 
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
-
   if (isLoading && !displayData) {
     return (
       <div className="flex justify-center p-4">
