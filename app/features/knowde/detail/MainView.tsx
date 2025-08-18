@@ -38,15 +38,15 @@ const colors = {
     in: "border-green-800",
     out: "border-green-400",
     tab: "data-[state=active]:bg-green-100 dark:data-[state=active]:bg-green-900",
-    bgIn: "bg-green-100 dark:bg-green-900",
-    bgOut: "bg-green-50 dark:bg-green-950",
+    bgIn: "bg-green-50 dark:bg-green-950",
+    bgOut: "bg-green-100 dark:bg-green-900",
   },
   ref: {
     in: "border-orange-800",
     out: "border-yellow-400",
     tab: "data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900",
-    bgIn: "bg-orange-100 dark:bg-orange-900",
-    bgOut: "bg-yellow-50 dark:bg-yellow-950",
+    bgIn: "bg-yellow-50 dark:bg-yellow-950",
+    bgOut: "bg-orange-100 dark:bg-orange-900",
   },
 };
 
@@ -191,30 +191,30 @@ export default function MainView({ detail }: Props) {
         </TabsContent>
         <TabsContent value="ref">
           <CollapsibleSection
-            title="被参照"
-            stat={st.referred}
-            backgroundColor={colors.ref.bgIn}
-          >
-            {refPred.map((id) => (
-              <KnowdeGroup2
-                startId={id}
-                kn={kn}
-                getGroup={refOp.pred}
-                key={id}
-                borderColor={colors.ref.in}
-              />
-            ))}
-          </CollapsibleSection>
-          <CollapsibleSection
             title="参照"
             stat={st.refer}
-            backgroundColor={colors.ref.bgOut}
+            backgroundColor={colors.ref.bgIn}
           >
             {refSucc.map((id) => (
               <KnowdeGroup2
                 startId={id}
                 kn={kn}
                 getGroup={refOp.succ}
+                key={id}
+                borderColor={colors.ref.in}
+              />
+            ))}
+          </CollapsibleSection>
+          <CollapsibleSection
+            title="被参照"
+            stat={st.referred}
+            backgroundColor={colors.ref.bgOut}
+          >
+            {refPred.map((id) => (
+              <KnowdeGroup2
+                startId={id}
+                kn={kn}
+                getGroup={refOp.pred}
                 key={id}
                 borderColor={colors.ref.out}
               />
