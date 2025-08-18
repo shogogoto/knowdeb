@@ -28,29 +28,37 @@ type Props = {
 
 const colors = {
   detail: {
-    in: "border-blue-800", // 親: 濃い青
-    out: "border-blue-400", // 子: 明るい青
+    in: "border-blue-800",
+    out: "border-blue-400",
     tab: "data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900",
+    bgIn: "bg-blue-50 dark:bg-blue-950",
+    bgOut: "bg-blue-100 dark:bg-blue-800",
   },
   logic: {
-    in: "border-green-800", // 前提: 濃い緑
-    out: "border-green-400", // 結論: 明るい緑
+    in: "border-green-800",
+    out: "border-green-400",
     tab: "data-[state=active]:bg-green-100 dark:data-[state=active]:bg-green-900",
+    bgIn: "bg-green-100 dark:bg-green-900",
+    bgOut: "bg-green-50 dark:bg-green-950",
   },
   ref: {
-    in: "border-orange-800", // 被参照: 濃い橙
-    out: "border-yellow-400", // 参照: 明るい黄色
+    in: "border-orange-800",
+    out: "border-yellow-400",
     tab: "data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900",
+    bgIn: "bg-orange-100 dark:bg-orange-900",
+    bgOut: "bg-yellow-50 dark:bg-yellow-950",
   },
 };
 
 function CollapsibleSection({
   title,
   stat,
+  backgroundColor,
   children,
 }: {
   title: string;
   stat?: React.ReactNode;
+  backgroundColor?: string;
   children: React.ReactNode;
 }) {
   const [isOpen, setIsOpen] = useState(true);
@@ -58,7 +66,12 @@ function CollapsibleSection({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="my-2">
-      <CollapsibleTrigger className="flex items-center gap-1 w-full p-2 rounded-md hover:bg-muted">
+      <CollapsibleTrigger
+        className={cn(
+          "flex items-center gap-1 w-full p-2 rounded-md hover:bg-muted",
+          backgroundColor,
+        )}
+      >
         <ChevronRight
           className={cn(
             "transition-transform duration-200",
@@ -121,13 +134,18 @@ export default function MainView({ detail }: Props) {
           <CollapsibleSection
             title="親"
             stat={<ArrowUpCircle className="size-4" />}
+            backgroundColor={colors.detail.bgIn}
           >
             <Parents
               parents={location.parents}
               borderColor={colors.detail.in}
             />
           </CollapsibleSection>
-          <CollapsibleSection title="子" stat={st.detail}>
+          <CollapsibleSection
+            title="子"
+            stat={st.detail}
+            backgroundColor={colors.detail.bgOut}
+          >
             {belows?.map((bid) => (
               <DetailNested
                 startId={bid}
@@ -140,7 +158,11 @@ export default function MainView({ detail }: Props) {
           </CollapsibleSection>
         </TabsContent>
         <TabsContent value="logic">
-          <CollapsibleSection title="前提" stat={st.premise}>
+          <CollapsibleSection
+            title="前提"
+            stat={st.premise}
+            backgroundColor={colors.logic.bgIn}
+          >
             {logicPred.map((id) => (
               <KnowdeGroup2
                 startId={id}
@@ -151,7 +173,11 @@ export default function MainView({ detail }: Props) {
               />
             ))}
           </CollapsibleSection>
-          <CollapsibleSection title="結論" stat={st.conclusion}>
+          <CollapsibleSection
+            title="結論"
+            stat={st.conclusion}
+            backgroundColor={colors.logic.bgOut}
+          >
             {logicSucc.map((id) => (
               <KnowdeGroup2
                 startId={id}
@@ -164,7 +190,11 @@ export default function MainView({ detail }: Props) {
           </CollapsibleSection>
         </TabsContent>
         <TabsContent value="ref">
-          <CollapsibleSection title="被参照" stat={st.referred}>
+          <CollapsibleSection
+            title="被参照"
+            stat={st.referred}
+            backgroundColor={colors.ref.bgIn}
+          >
             {refPred.map((id) => (
               <KnowdeGroup2
                 startId={id}
@@ -175,7 +205,11 @@ export default function MainView({ detail }: Props) {
               />
             ))}
           </CollapsibleSection>
-          <CollapsibleSection title="参照" stat={st.refer}>
+          <CollapsibleSection
+            title="参照"
+            stat={st.refer}
+            backgroundColor={colors.ref.bgOut}
+          >
             {refSucc.map((id) => (
               <KnowdeGroup2
                 startId={id}
