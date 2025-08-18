@@ -5,10 +5,7 @@ type HighlightProps = {
   query: string;
 };
 
-export const Highlight = React.memo(function Highlight({
-  text,
-  query,
-}: HighlightProps) {
+export function Highlight({ text, query }: HighlightProps) {
   if (!query) {
     return <span>{text}</span>;
   }
@@ -32,4 +29,4 @@ export const Highlight = React.memo(function Highlight({
       })}
     </span>
   );
-});
+}

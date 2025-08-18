@@ -32,10 +32,13 @@ export function _KnowdeSearch() {
   };
   const debouncedParams = useDebounce(params, 500);
   const cacheKey = createCacheKey("search", debouncedParams);
-  const fallbackData = useCachedSWR<
-    KnowdeSearchResult,
-    searchByTextKnowdeGetResponse200 & { headers: Headers }
-  >(cacheKey, knowdeSearchCache.get);
+  const fallbackData = useDebounce(
+    useCachedSWR<
+      KnowdeSearchResult,
+      searchByTextKnowdeGetResponse200 & { headers: Headers }
+    >(cacheKey, knowdeSearchCache.get),
+    300,
+  );
   const { data, isLoading } = useSearchByTextKnowdeGet(debouncedParams, {
     swr: {
       revalidateOnFocus: false,
