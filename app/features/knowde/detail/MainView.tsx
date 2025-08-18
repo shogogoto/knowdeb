@@ -1,4 +1,11 @@
+import { ArrowUpCircle, ChevronRight } from "lucide-react";
+import React, { useState } from "react";
 import { Card } from "~/shared/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/shared/components/ui/collapsible";
 import {
   Tabs,
   TabsContent,
@@ -6,6 +13,7 @@ import {
   TabsTrigger,
 } from "~/shared/components/ui/tabs";
 import type { KnowdeDetail } from "~/shared/generated/fastAPI.schemas";
+import { cn } from "~/shared/lib/utils";
 import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import DetailNested from "./KnowdeGroup";
@@ -36,15 +44,52 @@ const colors = {
   },
 };
 
+function CollapsibleSection({
+  title,
+  stat,
+  children,
+}: {
+  title: string;
+  stat?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const [isOpen, setIsOpen] = useState(true);
+  const validChildren = React.Children.toArray(children).filter(Boolean);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="my-2">
+      <CollapsibleTrigger className="flex items-center gap-1 w-full p-2 rounded-md hover:bg-muted">
+        <ChevronRight
+          className={cn(
+            "transition-transform duration-200",
+            isOpen && "rotate-90",
+          )}
+        />
+        <div className="flex items-center gap-2 font-bold">
+          {stat}
+          <h3>{title}</h3>
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="pl-4 pt-2">
+        {validChildren}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
 export default function MainView({ detail }: Props) {
   const { root, g, kn, location, rootId } = graphForView(detail);
 
   const belows = succ(g, rootId, eqEdgeType("below"));
-
   const logicOp = operatorGraph(g, "to");
   const refOp = operatorGraph(g, "resolved");
 
   const st = createStatView(root.stats);
+
+  const logicPred = logicOp.pred(rootId);
+  const logicSucc = logicOp.succ(rootId);
+  const refPred = refOp.pred(rootId);
+  const refSucc = refOp.succ(rootId);
 
   return (
     <div className="flex-1 overflow-y-auto max-w-3xl">
@@ -73,9 +118,17 @@ export default function MainView({ detail }: Props) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="detail">
-          <Parents parents={location.parents} borderColor={colors.detail.in} />
-          {belows?.map((bid) => {
-            return (
+          <CollapsibleSection
+            title="親"
+            stat={<ArrowUpCircle className="size-4" />}
+          >
+            <Parents
+              parents={location.parents}
+              borderColor={colors.detail.in}
+            />
+          </CollapsibleSection>
+          <CollapsibleSection title="子" stat={st.detail}>
+            {belows?.map((bid) => (
               <DetailNested
                 startId={bid}
                 kn={kn}
@@ -83,54 +136,58 @@ export default function MainView({ detail }: Props) {
                 key={bid}
                 borderColor={colors.detail.out}
               />
-            );
-          })}
+            ))}
+          </CollapsibleSection>
         </TabsContent>
         <TabsContent value="logic">
-          {logicOp.pred(rootId).map((id) => (
-            <KnowdeGroup2
-              startId={id}
-              kn={kn}
-              getGroup={logicOp.pred}
-              key={id}
-              borderColor={colors.logic.in}
-            />
-          ))}
-          {logicOp.succ(rootId).map((id) => (
-            <KnowdeGroup2
-              startId={id}
-              kn={kn}
-              getGroup={logicOp.succ}
-              key={id}
-              borderColor={colors.logic.out}
-            />
-          ))}
+          <CollapsibleSection title="前提" stat={st.premise}>
+            {logicPred.map((id) => (
+              <KnowdeGroup2
+                startId={id}
+                kn={kn}
+                getGroup={logicOp.pred}
+                key={id}
+                borderColor={colors.logic.in}
+              />
+            ))}
+          </CollapsibleSection>
+          <CollapsibleSection title="結論" stat={st.conclusion}>
+            {logicSucc.map((id) => (
+              <KnowdeGroup2
+                startId={id}
+                kn={kn}
+                getGroup={logicOp.succ}
+                key={id}
+                borderColor={colors.logic.out}
+              />
+            ))}
+          </CollapsibleSection>
         </TabsContent>
         <TabsContent value="ref">
-          {refOp.pred(rootId).map((id) => (
-            <KnowdeGroup2
-              startId={id}
-              kn={kn}
-              getGroup={refOp.pred}
-              key={id}
-              borderColor={colors.ref.in}
-            />
-          ))}
-          {refOp.succ(rootId).map((id) => (
-            <KnowdeGroup2
-              startId={id}
-              kn={kn}
-              getGroup={refOp.succ}
-              key={id}
-              borderColor={colors.ref.out}
-            />
-          ))}
+          <CollapsibleSection title="被参照" stat={st.referred}>
+            {refPred.map((id) => (
+              <KnowdeGroup2
+                startId={id}
+                kn={kn}
+                getGroup={refOp.pred}
+                key={id}
+                borderColor={colors.ref.in}
+              />
+            ))}
+          </CollapsibleSection>
+          <CollapsibleSection title="参照" stat={st.refer}>
+            {refSucc.map((id) => (
+              <KnowdeGroup2
+                startId={id}
+                kn={kn}
+                getGroup={refOp.succ}
+                key={id}
+                borderColor={colors.ref.out}
+              />
+            ))}
+          </CollapsibleSection>
         </TabsContent>
       </Tabs>
-
-      {/* {excepted.map((v, i) => { */}
-      {/*   return <KnowdeCard key={v} k={knowdes[v]} index={i} />; */}
-      {/* })} */}
     </div>
   );
 }
