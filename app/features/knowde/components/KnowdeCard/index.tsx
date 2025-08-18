@@ -12,6 +12,7 @@ import {
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { memo } from "react";
 import { Link } from "react-router";
 import HybridTooltip from "~/shared/components/HybridTooltip";
 import { Badge } from "~/shared/components/ui/badge";
@@ -78,7 +79,12 @@ type KProps = {
   query?: string;
 };
 
-export function KnowdeCardContent({ k, className, resource, query }: KProps) {
+export const KnowdeCardContent = memo(function KnowdeCardContent({
+  k,
+  className,
+  resource,
+  query,
+}: KProps) {
   return (
     <CardContent>
       <div className="flex flex-wrap items-start gap-2">
@@ -113,7 +119,7 @@ export function KnowdeCardContent({ k, className, resource, query }: KProps) {
       </div>
     </CardContent>
   );
-}
+});
 
 export function KnowdeCardFooter({ k, index }: KProps & { index?: number }) {
   return (
