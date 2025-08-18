@@ -12,4 +12,5 @@ react-router-dom や "@react-router/node" を使わないで react-routerを使�
 reposonseを返すときはResponse.json()などの標準のものを使ってください
 tokenの使用量をなるべく節約して。挙動がおかしくてtokenを空費してるときはストップ
 <!-- 今日のgeminiのquota残量を作業が完了する度にに報告してほしい -->
-コメントアウトを削除せず放置して
+コメントを削除せず放置して
+GEMINIの修正内容を手動で直したときには、その意図を汲んでほしい

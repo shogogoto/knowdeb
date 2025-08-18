@@ -1,5 +1,6 @@
 import { ArrowUpCircle, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
+import { useSearchParams } from "react-router";
 import { Card } from "~/shared/components/ui/card";
 import {
   Collapsible,
@@ -31,22 +32,22 @@ const colors = {
     in: "border-blue-800",
     out: "border-blue-400",
     tab: "data-[state=active]:bg-blue-100 dark:data-[state=active]:bg-blue-900",
-    bgIn: "bg-blue-50 dark:bg-blue-950",
-    bgOut: "bg-blue-100 dark:bg-blue-800",
+    bgIn: "bg-blue-100 dark:bg-blue-950",
+    bgOut: "bg-blue-50 dark:bg-blue-800",
   },
   logic: {
     in: "border-green-800",
     out: "border-green-400",
     tab: "data-[state=active]:bg-green-100 dark:data-[state=active]:bg-green-900",
-    bgIn: "bg-green-50 dark:bg-green-950",
-    bgOut: "bg-green-100 dark:bg-green-900",
+    bgIn: "bg-green-100 dark:bg-green-950",
+    bgOut: "bg-green-50 dark:bg-green-900",
   },
   ref: {
     in: "border-orange-800",
     out: "border-yellow-400",
     tab: "data-[state=active]:bg-yellow-100 dark:data-[state=active]:bg-yellow-900",
-    bgIn: "bg-yellow-50 dark:bg-yellow-950",
-    bgOut: "bg-orange-100 dark:bg-orange-900",
+    bgIn: "bg-orange-100 dark:bg-orange-950",
+    bgOut: "bg-yellow-50 dark:bg-orange-900",
   },
 };
 
@@ -63,7 +64,6 @@ function CollapsibleSection({
 }) {
   const [isOpen, setIsOpen] = useState(true);
   const validChildren = React.Children.toArray(children).filter(Boolean);
-
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="my-2">
       <CollapsibleTrigger
@@ -92,6 +92,7 @@ function CollapsibleSection({
 
 export default function MainView({ detail }: Props) {
   const { root, g, kn, location, rootId } = graphForView(detail);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const belows = succ(g, rootId, eqEdgeType("below"));
   const logicOp = operatorGraph(g, "to");
@@ -104,6 +105,15 @@ export default function MainView({ detail }: Props) {
   const refPred = refOp.pred(rootId);
   const refSucc = refOp.succ(rootId);
 
+  const validTabs = ["detail", "logic", "ref"];
+  const currentTab = searchParams.get("tab");
+  const tabValue =
+    currentTab && validTabs.includes(currentTab) ? currentTab : "detail";
+
+  const handleTabChange = (value: string) => {
+    setSearchParams({ tab: value });
+  };
+
   return (
     <div className="flex-1 overflow-y-auto max-w-3xl">
       {/* パンくずリスト */}
@@ -113,7 +123,7 @@ export default function MainView({ detail }: Props) {
       <Card key={root.uid} className="w-full">
         <KnowdeCardContent k={root} />
       </Card>
-      <Tabs defaultValue="detail" className="w-full">
+      <Tabs value={tabValue} onValueChange={handleTabChange} className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="detail" className={colors.detail.tab}>
             詳細
