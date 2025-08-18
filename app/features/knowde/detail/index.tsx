@@ -21,28 +21,40 @@ export function _KnowdeDetailView({ id }: Props) {
     detailKnowdeSentenceSentenceIdGetResponse200 & { headers: Headers }
   >(id, knowdeDetailCache.get);
 
-  const { data } = useDetailKnowdeSentenceSentenceIdGet(id, undefined, {
-    swr: {
-      keepPreviousData: true,
-      fallbackData,
-      suspense: true,
-      onSuccess: async (data) => {
-        if (data.status === 200) {
-          await knowdeDetailCache.set(data.data);
-        }
+  const { data, isLoading } = useDetailKnowdeSentenceSentenceIdGet(
+    id,
+    undefined,
+    {
+      swr: {
+        revalidateOnFocus: false,
+        keepPreviousData: true,
+        fallbackData,
+        // suspense: true,
+        onSuccess: async (data) => {
+          if (data.status === 200) {
+            await knowdeDetailCache.set(data.data);
+          }
+        },
       },
     },
-  });
+  );
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
-  if (data?.status !== 200) {
+  if (!displayData) {
     return <div>{JSON.stringify(data)}</div>;
+  }
+  if (isLoading && !displayData) {
+    return (
+      <div className="flex justify-center p-4">
+        <LoaderCircle className="animate-spin" />
+      </div>
+    );
   }
 
   return (
     <div className="flex flex-col md:flex-row h-screen">
       <div className="flex-1 overflow-y-auto">
-        {displayData && <MainView detail={displayData} />}
+        <MainView detail={displayData} />
       </div>
 
       {/* <div className="w-1/4 bg-gray-100 p-4 border-l hidden md:block overflow-y-auto"> */}

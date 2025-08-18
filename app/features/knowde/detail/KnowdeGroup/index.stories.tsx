@@ -15,5 +15,5 @@ type Story = StoryObj<typeof meta>;
 const { rootId, g, kn } = graphForView(fixtureDetail1);
 
 export const Default: Story = {
-  args: { startId: rootId, g, kn, getGroup: (id) => [id] },
+  args: { startId: rootId, g, kn },
 };

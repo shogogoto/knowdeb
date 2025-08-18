@@ -7,41 +7,44 @@ type Props = {
   startId: string;
   kn: (id: string) => Knowde;
   g: DirectedGraph;
-  getGroup?: (id: string) => string[];
   className?: string;
+  borderColor?: string;
 };
 
-export default function KnowdeGroup({
+export default function DetailNested({
   startId,
   kn,
   g,
-  getGroup,
   className,
+  borderColor,
 }: Props) {
   const sibls = pathsToEnd(g, startId, eqEdgeType("sibling"), succ);
 
   return (
     <div className={className}>
       {sibls.length === 0 ? (
-        <KnowdeCard k={kn(startId)} key={startId} />
+        <KnowdeCard k={kn(startId)} key={startId} borderColor={borderColor} />
       ) : (
         sibls.map((path) => {
           return path.map((id) => {
             const belows = succ(g, id, eqEdgeType("below"));
             if (belows.length === 0) {
-              return <KnowdeCard k={kn(id)} key={id} />;
+              return (
+                <KnowdeCard k={kn(id)} key={id} borderColor={borderColor} />
+              );
             }
 
             return belows.map((bid) => {
               return (
-                <div className="border border-blue-500" key={bid}>
-                  <KnowdeCard k={kn(id)} key={id} />
-                  <KnowdeGroup
+                <div key={bid}>
+                  <KnowdeCard k={kn(id)} key={id} borderColor={borderColor} />
+                  <DetailNested
                     startId={bid}
                     kn={kn}
                     g={g}
                     key={bid}
-                    className="ml-1 border border-blue-500"
+                    className="ml-1"
+                    borderColor={borderColor}
                   />
                 </div>
               );

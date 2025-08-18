@@ -1,10 +1,6 @@
 import { Link } from "react-router";
 import UserAvatar from "~/features/user/UserAvatar";
-import type {
-  Knowde,
-  KnowdeLocation,
-} from "~/shared/generated/fastAPI.schemas";
-import KnowdeCard from "../KnowdeCard";
+import type { KnowdeLocation } from "~/shared/generated/fastAPI.schemas";
 
 type Props = {
   loc: KnowdeLocation;
@@ -38,25 +34,6 @@ export default function LocationView({ loc }: Props) {
           </div>
         </div>
       </div>
-    </div>
-  );
-}
-
-export function ParentKnowdes({ parents }: { parents: Knowde[] }) {
-  if (parents.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="flex flex-col">
-      {parents.map((p) => (
-        <div
-          key={p.uid}
-          //className="ml-4 border-l-2 pl-4"
-        >
-          <KnowdeCard k={p} />
-        </div>
-      ))}
     </div>
   );
 }

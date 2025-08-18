@@ -69,8 +69,6 @@ export function toDisplayGraph(kd: KnowdeDetail) {
     return `${k.term?.names?.join(" ") || ""}: ${k.sentence}`;
   }
 
-  console.log({ id });
-
   const paths = pathsToEnd(
     graph,
     id,
