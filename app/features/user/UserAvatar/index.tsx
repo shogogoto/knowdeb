@@ -1,5 +1,5 @@
 import { Cloudinary } from "@cloudinary/url-gen";
-import type { ComponentProps } from "react";
+import { type ComponentProps, memo } from "react";
 import {
   Avatar,
   AvatarFallback,
@@ -9,7 +9,7 @@ import type { UserProps } from "../types";
 
 type Props = UserProps & ComponentProps<typeof Avatar>;
 
-export default function UserAvatar({ user, ...props }: Props) {
+const UserAvatar = memo(function UserAvatar({ user, ...props }: Props) {
   const cld = new Cloudinary({
     cloud: {
       cloudName: import.meta.env.VITE_CLOUD_NAME,
@@ -38,4 +38,5 @@ export default function UserAvatar({ user, ...props }: Props) {
   //     plugins={[lazyload(), responsive(), accessibility()]}
   //   />
   // );
-}
+});
+export default UserAvatar;

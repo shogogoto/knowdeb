@@ -1,10 +1,16 @@
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useContext, useRef } from "react";
+import React, { useContext, useRef } from "react";
 import { Link } from "react-router";
 import UserAvatar from "~/features/user/UserAvatar";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { Card } from "~/shared/components/ui/card";
-import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
+import type {
+  Knowde,
+  KnowdeSearchResult,
+  MResource,
+  UserReadPublic,
+} from "~/shared/generated/fastAPI.schemas";
+import { useDebounce } from "~/shared/hooks/useDebounce";
 import {
   KnowdeCardContent,
   KnowdeCardFooter,
@@ -20,6 +26,7 @@ export default function SearchResults({ data }: Props) {
   const { current, pageSize } = useContext(PageContext);
   const startIndex = current ? 1 + (current - 1) * pageSize : 1;
 
+  const bouncedQ = useDebounce(q, 500);
   const parentRef = useRef(null);
 
   const rowVirtualizer = useVirtualizer({
@@ -46,6 +53,7 @@ export default function SearchResults({ data }: Props) {
                 {rowVirtualizer.getVirtualItems().map((virtualItem) => {
                   const k = data.data[virtualItem.index];
                   const { user, resource } = data.owners[k.resource_uid];
+
                   return (
                     <div
                       key={virtualItem.key}
@@ -61,34 +69,13 @@ export default function SearchResults({ data }: Props) {
                       }}
                       className="flex items-center border-b"
                     >
-                      {user && (
-                        <Link
-                          to={`/user/${user.username}`}
-                          className="flex w-24 flex-col items-center justify-center space-y-1"
-                        >
-                          <UserAvatar user={user} />
-                          <span className="break-all text-center text-sm font-semibold">
-                            {user.display_name}
-                          </span>
-                          <span className="text-center text-xs text-muted-foreground">
-                            @{user.username}
-                          </span>
-                        </Link>
-                      )}
-
-                      <Card className="flex-1 max-w-2xl">
-                        <Link to={`/knowde/${k.uid}`}>
-                          <KnowdeCardContent
-                            k={k}
-                            resource={resource}
-                            query={q}
-                          />
-                        </Link>
-                        <KnowdeCardFooter
-                          k={k}
-                          index={virtualItem.index + startIndex}
-                        />
-                      </Card>
+                      <ResultRow
+                        k={k}
+                        user={user}
+                        resource={resource}
+                        index={virtualItem.index + startIndex}
+                        query={bouncedQ}
+                      />
                     </div>
                   );
                 })}
@@ -104,3 +91,41 @@ export default function SearchResults({ data }: Props) {
     </div>
   );
 }
+
+type RowProps = {
+  k: Knowde;
+  user: UserReadPublic;
+  resource: MResource;
+  index: number;
+  query?: string;
+};
+
+const ResultRow = React.memo(
+  ({ k, user, resource, index, query }: RowProps) => {
+    return (
+      <>
+        {user && (
+          <Link
+            to={`/user/${user.username}`}
+            className="flex w-24 flex-col items-center justify-center space-y-1"
+          >
+            <UserAvatar user={user} />
+            <span className="break-all text-center text-sm font-semibold">
+              {user.display_name}
+            </span>
+            <span className="text-center text-xs text-muted-foreground">
+              @{user.username}
+            </span>
+          </Link>
+        )}
+
+        <Card className="flex-1 max-w-2xl">
+          <Link to={`/knowde/${k.uid}`}>
+            <KnowdeCardContent k={k} resource={resource} query={query} />
+          </Link>
+          <KnowdeCardFooter k={k} index={index} />
+        </Card>
+      </>
+    );
+  },
+);
