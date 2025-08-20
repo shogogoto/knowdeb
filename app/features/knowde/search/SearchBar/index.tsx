@@ -1,6 +1,6 @@
 import { LoaderCircle, Search, Settings } from "lucide-react";
 import { useContext } from "react";
-import { Form, useNavigation } from "react-router";
+import { Form } from "react-router";
 import { Button } from "~/shared/components/ui/button";
 import {
   Collapsible,
@@ -11,12 +11,12 @@ import { Input } from "~/shared/components/ui/input";
 import SearchContext from "../SearchContext";
 import SearchConfig from "./SearchConfig";
 
-export default function SearchBar() {
-  const navigation = useNavigation();
-  const { immediateQ, setImmediateQ } = useContext(SearchContext);
+type Props = {
+  isLoading?: boolean;
+};
 
-  const isLoading =
-    navigation.state === "submitting" || navigation.state === "loading";
+export default function SearchBar({ isLoading }: Props) {
+  const { immediateQ, setImmediateQ } = useContext(SearchContext);
 
   return (
     <Form className="container mx-auto">

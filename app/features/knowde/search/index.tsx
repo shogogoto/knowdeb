@@ -1,6 +1,6 @@
-import { LoaderCircle } from "lucide-react";
 import { useContext } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
+import Loading from "~/shared/components/Loading";
 import PagingNavi from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
@@ -19,9 +19,10 @@ import SearchContext, {
 } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
-export function _KnowdeSearch() {
+function KnowdeSearchLayout() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { pageSize, current, setCurrent, setTotal } = useContext(PageContext);
+  const { pageSize, current, setCurrent, setTotal, total } =
+    useContext(PageContext);
 
   const params = {
     q,
@@ -59,27 +60,19 @@ export function _KnowdeSearch() {
   });
 
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
-  if (isLoading && !displayData) {
-    return (
-      <div className="flex justify-center p-4">
-        <LoaderCircle className="animate-spin" />
-      </div>
-    );
-  }
 
-  return <>{displayData && <SearchResults data={displayData} />}</>;
-}
-
-function KnowdeSearchLayout() {
-  const { total } = useContext(PageContext);
   return (
-    <div className="flex flex-col h-dvh">
+    <div className="flex flex-col h-dvh relative">
       <header className="flex sticky z-5 top-0 border-b">
-        <SearchBar />
+        <SearchBar isLoading={isLoading && !!displayData} />
       </header>
       <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
         <div className="flex h-screen justify-center w-full">
-          <_KnowdeSearch />
+          {isLoading && !displayData ? (
+            <Loading isLoading={true} type="center-x" />
+          ) : (
+            displayData && <SearchResults data={displayData} />
+          )}
         </div>
       </main>
       <footer className="flex sticky bottom-0 bg-background border-t">
