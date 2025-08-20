@@ -29,6 +29,7 @@ import type {
   MResource,
 } from "~/shared/generated/fastAPI.schemas";
 import { cn } from "~/shared/lib/utils";
+import { useTab } from "../../detail/TabContext";
 import { Highlight } from "../Highlight";
 
 type Props = {
@@ -46,6 +47,7 @@ export default function KnowdeCard({
   className,
   borderColor,
 }: Props) {
+  const searchParams = useTab();
   const score = k.stats?.score || 0;
 
   const card = (
@@ -63,7 +65,7 @@ export default function KnowdeCard({
   }
   return (
     <Link
-      to={`/knowde/${k.uid}`}
+      to={`/knowde/${k.uid}?${searchParams?.toString()}`}
       draggable={false} // テキストをコピペできるため
     >
       {card}

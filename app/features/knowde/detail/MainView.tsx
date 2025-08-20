@@ -20,6 +20,7 @@ import LocationView from "../components/LocationView";
 import DetailNested from "./KnowdeGroup";
 import KnowdeGroup2 from "./KnowdeGroup/KnowdeGroup2";
 import Parents from "./KnowdeGroup/Parents";
+import { TabProvider } from "./TabContext";
 import { graphForView } from "./util";
 import { eqEdgeType, operatorGraph, succ } from "./util/network";
 
@@ -115,126 +116,132 @@ export default function MainView({ detail }: Props) {
   };
 
   return (
-    <div className="flex-1 max-w-3xl mx-auto">
-      {/* パンくずリスト */}
-      <div className="m-1">
-        <LocationView loc={location} />
-      </div>
-      <Tabs value={tabValue} onValueChange={handleTabChange} className="w-full">
-        <div className="sticky top-0 z-10 bg-background">
-          <Card key={root.uid} className="w-full rounded-none border-x-0">
-            <KnowdeCardContent k={root} />
-          </Card>
-          <TabsList className="grid w-full grid-cols-3 rounded-none">
-            <TabsTrigger value="detail" className={colors.detail.tab}>
-              詳細
-              {st.detail}
-            </TabsTrigger>
-            <TabsTrigger value="logic" className={colors.logic.tab}>
-              {st.premise}
-              論理
-              {st.conclusion}
-            </TabsTrigger>
-            <TabsTrigger value="ref" className={colors.ref.tab}>
-              {st.refer}
-              参照
-              {st.referred}
-            </TabsTrigger>
-          </TabsList>
+    <TabProvider value={searchParams}>
+      <div className="flex-1 max-w-3xl mx-auto">
+        {/* パンくずリスト */}
+        <div className="m-1">
+          <LocationView loc={location} />
         </div>
+        <Tabs
+          value={tabValue}
+          onValueChange={handleTabChange}
+          className="w-full"
+        >
+          <div className="sticky top-0 z-10 bg-background">
+            <Card key={root.uid} className="w-full rounded-none border-x-0">
+              <KnowdeCardContent k={root} />
+            </Card>
+            <TabsList className="grid w-full grid-cols-3 rounded-none">
+              <TabsTrigger value="detail" className={colors.detail.tab}>
+                詳細
+                {st.detail}
+              </TabsTrigger>
+              <TabsTrigger value="logic" className={colors.logic.tab}>
+                {st.premise}
+                論理
+                {st.conclusion}
+              </TabsTrigger>
+              <TabsTrigger value="ref" className={colors.ref.tab}>
+                {st.refer}
+                参照
+                {st.referred}
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <TabsContent value="detail">
-          <CollapsibleSection
-            title="親"
-            stat={<ArrowUpCircle className="size-4" />}
-            backgroundColor={colors.detail.bgIn}
-          >
-            <Parents
-              parents={location.parents}
-              borderColor={colors.detail.in}
-            />
-          </CollapsibleSection>
-          <CollapsibleSection
-            title="子"
-            stat={st.detail}
-            backgroundColor={colors.detail.bgOut}
-          >
-            {belows?.map((bid) => (
-              <DetailNested
-                startId={bid}
-                kn={kn}
-                g={g}
-                key={bid}
-                borderColor={colors.detail.out}
+          <TabsContent value="detail">
+            <CollapsibleSection
+              title="親"
+              stat={<ArrowUpCircle className="size-4" />}
+              backgroundColor={colors.detail.bgIn}
+            >
+              <Parents
+                parents={location.parents}
+                borderColor={colors.detail.in}
               />
-            ))}
-          </CollapsibleSection>
-        </TabsContent>
-        <TabsContent value="logic">
-          <CollapsibleSection
-            title="前提"
-            stat={st.premise}
-            backgroundColor={colors.logic.bgIn}
-          >
-            {logicPred.map((id) => (
-              <KnowdeGroup2
-                startId={id}
-                kn={kn}
-                getGroup={logicOp.pred}
-                key={id}
-                borderColor={colors.logic.in}
-              />
-            ))}
-          </CollapsibleSection>
-          <CollapsibleSection
-            title="結論"
-            stat={st.conclusion}
-            backgroundColor={colors.logic.bgOut}
-          >
-            {logicSucc.map((id) => (
-              <KnowdeGroup2
-                startId={id}
-                kn={kn}
-                getGroup={logicOp.succ}
-                key={id}
-                borderColor={colors.logic.out}
-              />
-            ))}
-          </CollapsibleSection>
-        </TabsContent>
-        <TabsContent value="ref">
-          <CollapsibleSection
-            title="参照"
-            stat={st.refer}
-            backgroundColor={colors.ref.bgIn}
-          >
-            {refSucc.map((id) => (
-              <KnowdeGroup2
-                startId={id}
-                kn={kn}
-                getGroup={refOp.succ}
-                key={id}
-                borderColor={colors.ref.in}
-              />
-            ))}
-          </CollapsibleSection>
-          <CollapsibleSection
-            title="被参照"
-            stat={st.referred}
-            backgroundColor={colors.ref.bgOut}
-          >
-            {refPred.map((id) => (
-              <KnowdeGroup2
-                startId={id}
-                kn={kn}
-                getGroup={refOp.pred}
-                key={id}
-                borderColor={colors.ref.out}
-              />
-            ))}
-          </CollapsibleSection>
-        </TabsContent>
-      </Tabs>
-    </div>
+            </CollapsibleSection>
+            <CollapsibleSection
+              title="子"
+              stat={st.detail}
+              backgroundColor={colors.detail.bgOut}
+            >
+              {belows?.map((bid) => (
+                <DetailNested
+                  startId={bid}
+                  kn={kn}
+                  g={g}
+                  key={bid}
+                  borderColor={colors.detail.out}
+                />
+              ))}
+            </CollapsibleSection>
+          </TabsContent>
+          <TabsContent value="logic">
+            <CollapsibleSection
+              title="前提"
+              stat={st.premise}
+              backgroundColor={colors.logic.bgIn}
+            >
+              {logicPred.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={logicOp.pred}
+                  key={id}
+                  borderColor={colors.logic.in}
+                />
+              ))}
+            </CollapsibleSection>
+            <CollapsibleSection
+              title="結論"
+              stat={st.conclusion}
+              backgroundColor={colors.logic.bgOut}
+            >
+              {logicSucc.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={logicOp.succ}
+                  key={id}
+                  borderColor={colors.logic.out}
+                />
+              ))}
+            </CollapsibleSection>
+          </TabsContent>
+          <TabsContent value="ref">
+            <CollapsibleSection
+              title="参照"
+              stat={st.refer}
+              backgroundColor={colors.ref.bgIn}
+            >
+              {refSucc.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={refOp.succ}
+                  key={id}
+                  borderColor={colors.ref.in}
+                />
+              ))}
+            </CollapsibleSection>
+            <CollapsibleSection
+              title="被参照"
+              stat={st.referred}
+              backgroundColor={colors.ref.bgOut}
+            >
+              {refPred.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={refOp.pred}
+                  key={id}
+                  borderColor={colors.ref.out}
+                />
+              ))}
+            </CollapsibleSection>
+          </TabsContent>
+        </Tabs>
+      </div>
+    </TabProvider>
   );
 }
