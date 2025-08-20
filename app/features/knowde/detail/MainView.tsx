@@ -98,7 +98,7 @@ export default function MainView({ detail }: Props) {
   const logicOp = operatorGraph(g, "to");
   const refOp = operatorGraph(g, "resolved");
 
-  const st = createStatView(root.stats);
+  const st = createStatView(root.stats, true);
 
   const logicPred = logicOp.pred(rootId);
   const logicSucc = logicOp.succ(rootId);

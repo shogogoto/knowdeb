@@ -99,7 +99,7 @@ export function KnowdeCardContent({ k, className, resource, query }: KProps) {
           <Highlight text={k.sentence} query={query ?? ""} />
         </span>
       )}
-      <div className="flex flex-wrap items-center gap-x-4 mt-4 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-4 text-sm text-muted-foreground">
         {resource && (
           <div className="text-sm text-muted-foreground space-x-2">
             <Link to={`/resource/${resource.uid}`} className="hover:underline">
@@ -126,7 +126,10 @@ export function KnowdeCardFooter({ k, index }: KProps & { index?: number }) {
   );
 }
 
-export function createStatView(stats: KStats | undefined) {
+export function createStatView(
+  stats: KStats | undefined,
+  mobileDisabled?: boolean,
+) {
   const f = (stat: { Icon: LucideIcon; label: string; value?: number }) =>
     stat.value != null && (
       <StatViewItem
@@ -134,6 +137,7 @@ export function createStatView(stats: KStats | undefined) {
         Icon={stat.Icon}
         label={stat.label}
         value={stat.value}
+        mobileDisabled={mobileDisabled}
       />
     );
 
@@ -200,13 +204,15 @@ function StatViewItem({
   Icon,
   label,
   value,
+  mobileDisabled,
 }: {
   Icon: LucideIcon;
   label: string;
   value: number | undefined;
+  mobileDisabled?: boolean;
 }) {
   return (
-    <HybridTooltip content={label}>
+    <HybridTooltip content={label} mobileDisabled={mobileDisabled}>
       <div className="flex items-center gap-1">
         <Icon className="size-4 cursor-pointer text-muted-foreground" />
         <div className="font-mono text-sm text-right">{value}</div>
