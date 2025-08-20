@@ -91,7 +91,7 @@ export function _KnowdeDetailView({ id }: Props) {
   }
 
   // TODO: エラーハンドリング
-  return <Loading type="center-x" />;
+  return <div>{JSON.stringify(data)}</div>;
 }
 
 export default function KnowdeDetailView({ id }: Props) {
