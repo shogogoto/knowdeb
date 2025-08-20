@@ -1,12 +1,12 @@
 import { LoaderCircle } from "lucide-react";
 
 type Props = {
-  isLoading: boolean;
+  isLoading?: boolean;
 
   type?: "top" | "center-x";
 };
 
-export default function Loading({ isLoading, type }: Props) {
+export default function Loading({ isLoading = true, type }: Props) {
   if (!isLoading) {
     return null;
   }

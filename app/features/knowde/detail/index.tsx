@@ -1,6 +1,6 @@
 "use client";
-import { LoaderCircle } from "lucide-react";
 import { Suspense } from "react";
+import Loading from "~/shared/components/Loading";
 import type { KnowdeDetail } from "~/shared/generated/fastAPI.schemas";
 import {
   type detailKnowdeSentenceSentenceIdGetResponse200,
@@ -29,7 +29,7 @@ export function _KnowdeDetailView({ id }: Props) {
         revalidateOnFocus: false,
         keepPreviousData: true,
         fallbackData,
-        // suspense: true,
+        suspense: true,
         onSuccess: async (data) => {
           if (data.status === 200) {
             await knowdeDetailCache.set(data.data);
@@ -42,13 +42,6 @@ export function _KnowdeDetailView({ id }: Props) {
 
   if (!displayData) {
     return <div>{JSON.stringify(data)}</div>;
-  }
-  if (isLoading && !displayData) {
-    return (
-      <div className="flex justify-center p-4">
-        <LoaderCircle className="animate-spin" />
-      </div>
-    );
   }
 
   return (
@@ -70,13 +63,7 @@ export function _KnowdeDetailView({ id }: Props) {
 
 export default function KnowdeDetailView({ id }: Props) {
   return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center p-4">
-          <LoaderCircle className="animate-spin" />
-        </div>
-      }
-    >
+    <Suspense fallback={<Loading type="center-x" />}>
       <_KnowdeDetailView id={id} />
     </Suspense>
   );
