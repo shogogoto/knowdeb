@@ -76,7 +76,7 @@ function CollapsibleSection({
   const [isOpen, setIsOpen] = useState(true);
   const validChildren = React.Children.toArray(children).filter(Boolean);
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="my-2">
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
       <CollapsibleTrigger
         className={cn(
           "flex items-center gap-1 w-full p-2 rounded-md hover:bg-muted",
@@ -94,9 +94,7 @@ function CollapsibleSection({
           <h3>{title}</h3>
         </div>
       </CollapsibleTrigger>
-      <CollapsibleContent className="pl-4 pt-2">
-        {validChildren}
-      </CollapsibleContent>
+      <CollapsibleContent>{validChildren}</CollapsibleContent>
     </Collapsible>
   );
 }
@@ -172,7 +170,7 @@ export default function MainView({ detail, prefetched }: Props) {
             onValueChange={handleTabChange}
             className="w-full"
           >
-            <div className="sticky top-0 z-10 bg-background">
+            <div className="sticky top-0 z-5 bg-background">
               <Card
                 key={headerKnowde.uid}
                 className="w-full rounded-none border-x-0"
@@ -199,7 +197,7 @@ export default function MainView({ detail, prefetched }: Props) {
 
             {detail && g && rootId && logicOp && refOp ? (
               <>
-                <TabsContent value="detail">
+                <TabsContent value="detail" className="mt-[-0.5rem]">
                   <CollapsibleSection
                     title="親"
                     stat={<ArrowUpCircle className="size-4" />}
@@ -226,7 +224,7 @@ export default function MainView({ detail, prefetched }: Props) {
                     ))}
                   </CollapsibleSection>
                 </TabsContent>
-                <TabsContent value="logic">
+                <TabsContent value="logic" className="mt-[-0.5rem]">
                   <CollapsibleSection
                     title="前提"
                     stat={st.premise}
@@ -258,7 +256,7 @@ export default function MainView({ detail, prefetched }: Props) {
                     ))}
                   </CollapsibleSection>
                 </TabsContent>
-                <TabsContent value="ref">
+                <TabsContent value="ref" className="mt-[-0.5rem]">
                   <CollapsibleSection
                     title="参照"
                     stat={st.refer}

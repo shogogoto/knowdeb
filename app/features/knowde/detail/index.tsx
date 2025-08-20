@@ -14,7 +14,6 @@ import {
 } from "~/shared/generated/knowde/knowde";
 import { useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { knowdeDetailCache } from "~/shared/lib/indexed";
-import { CacheInfo } from "../components/CacheInfo";
 import MainView from "./MainView";
 
 type Props = {
@@ -65,7 +64,6 @@ export function _KnowdeDetailView({ id }: Props) {
           <div className="flex-1 overflow-y-auto">
             <MainView prefetched={validPrefetched} />
           </div>
-          <CacheInfo />
         </div>
       );
     }
@@ -85,7 +83,6 @@ export function _KnowdeDetailView({ id }: Props) {
         {/* </Suspense> */}
         {/* <SideView /> */}
         {/* </div> */}
-        <CacheInfo />
       </div>
     );
   }
