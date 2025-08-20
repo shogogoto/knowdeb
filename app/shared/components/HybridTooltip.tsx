@@ -16,17 +16,22 @@ import { useIsMobile } from "~/shared/hooks/use-mobile";
 interface HybridTooltipProps {
   content: React.ReactNode;
   children: React.ReactNode;
+  mobileDisabled?: boolean;
 }
 
 // tooltipはmobile非推奨のため、モバイルではPopoverを使う
 export default function HybridTooltip({
   content,
   children,
+  mobileDisabled,
 }: HybridTooltipProps) {
   // 画面幅が768px（mdブレイクポイント）以上かどうかを判定
   const isMobile = useIsMobile();
 
   if (isMobile) {
+    if (mobileDisabled) {
+      return children;
+    }
     return (
       <Popover>
         <PopoverTrigger asChild>{children}</PopoverTrigger>

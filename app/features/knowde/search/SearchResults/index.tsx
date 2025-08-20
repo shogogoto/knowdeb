@@ -110,7 +110,7 @@ const ResultRow = React.memo(
             className="flex w-24 flex-col items-center justify-center space-y-1"
           >
             <UserAvatar user={user} />
-            <span className="break-all text-center text-sm font-semibold">
+            <span className="break-all text-center text-xs font-semibold">
               {user.display_name}
             </span>
             <span className="text-center text-xs text-muted-foreground">
@@ -120,7 +120,7 @@ const ResultRow = React.memo(
         )}
 
         <Card className="flex-1 max-w-2xl">
-          <Link to={`/knowde/${k.uid}`}>
+          <Link to={`/knowde/${k.uid}`} state={{ knowde: k, user, resource }}>
             <KnowdeCardContent k={k} resource={resource} query={query} />
           </Link>
           <KnowdeCardFooter k={k} index={index} />
