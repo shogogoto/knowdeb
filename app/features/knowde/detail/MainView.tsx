@@ -115,31 +115,34 @@ export default function MainView({ detail }: Props) {
   };
 
   return (
-    <div className="flex-1 overflow-y-auto max-w-3xl">
+    <div className="flex-1 max-w-3xl mx-auto">
       {/* パンくずリスト */}
-      <div className="mb-4">
+      <div className="m-1">
         <LocationView loc={location} />
       </div>
-      <Card key={root.uid} className="w-full">
-        <KnowdeCardContent k={root} />
-      </Card>
       <Tabs value={tabValue} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="detail" className={colors.detail.tab}>
-            詳細
-            {st.detail}
-          </TabsTrigger>
-          <TabsTrigger value="logic" className={colors.logic.tab}>
-            {st.premise}
-            論理
-            {st.conclusion}
-          </TabsTrigger>
-          <TabsTrigger value="ref" className={colors.ref.tab}>
-            {st.refer}
-            参照
-            {st.referred}
-          </TabsTrigger>
-        </TabsList>
+        <div className="sticky top-0 z-10 bg-background">
+          <Card key={root.uid} className="w-full rounded-none border-x-0">
+            <KnowdeCardContent k={root} />
+          </Card>
+          <TabsList className="grid w-full grid-cols-3 rounded-none">
+            <TabsTrigger value="detail" className={colors.detail.tab}>
+              詳細
+              {st.detail}
+            </TabsTrigger>
+            <TabsTrigger value="logic" className={colors.logic.tab}>
+              {st.premise}
+              論理
+              {st.conclusion}
+            </TabsTrigger>
+            <TabsTrigger value="ref" className={colors.ref.tab}>
+              {st.refer}
+              参照
+              {st.referred}
+            </TabsTrigger>
+          </TabsList>
+        </div>
+
         <TabsContent value="detail">
           <CollapsibleSection
             title="親"
