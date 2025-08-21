@@ -1,4 +1,5 @@
 import Dexie, { type Table } from "dexie";
+import type { HistoryItem } from "~/features/history/types";
 import type {
   KnowdeDetail,
   KnowdeSearchResult,
@@ -11,11 +12,13 @@ export interface CacheItem<T> {
   expires: number;
 }
 const TTL = 1000 * 60 * 60 * 24; // 24 hours
+const HISTORY_MAX = 100;
 
 class KnowdeCacheDB extends Dexie {
   public cache!: Table<CacheItem<unknown>>;
   public knowdeDetails!: Table<KnowdeDetail>;
   public knowdeSearchResults!: Table<CacheItem<KnowdeSearchResult>>;
+  public history!: Table<HistoryItem>;
 
   public constructor() {
     super("knowde-cache");
@@ -23,6 +26,7 @@ class KnowdeCacheDB extends Dexie {
       cache: "&key, expires",
       knowdeDetails: "&uid",
       knowdeSearchResults: "&key, expires",
+      history: "++id, type, timestamp, url",
     });
   }
 }
@@ -68,6 +72,36 @@ function createEntityStore<T>(table: Table<T>) {
   };
 }
 
+function createHistoryStore(table: Table<HistoryItem>) {
+  return {
+    async add(item: Omit<HistoryItem, "id" | "timestamp">): Promise<void> {
+      const existing = await table.where({ url: item.url }).first();
+      if (existing?.id) {
+        await table.delete(existing.id);
+      }
+
+      await table.add({
+        ...item,
+        timestamp: Date.now(),
+      });
+
+      const count = await table.count();
+      if (count > HISTORY_MAX) {
+        const toDelete = await table
+          .orderBy("timestamp")
+          .limit(count - HISTORY_MAX)
+          .toArray();
+        const idsToDelete = toDelete
+          .map((h) => h.id)
+          .filter((id): id is number => id !== undefined);
+        await table.bulkDelete(idsToDelete);
+      }
+    },
+    getAll: () => table.orderBy("timestamp").reverse().toArray(),
+    clear: () => table.clear(),
+  };
+}
+
 // --- 具体的なキャッシュストアのインスタンス化 ---
 export const genericCache = createTTLStore(db.cache);
 export const knowdeSearchCache = createTTLStore<KnowdeSearchResult>(
@@ -76,6 +110,7 @@ export const knowdeSearchCache = createTTLStore<KnowdeSearchResult>(
 export const knowdeDetailCache = createEntityStore<KnowdeDetail>(
   db.knowdeDetails,
 );
+export const historyStore = createHistoryStore(db.history);
 
 // --- その他のユーティリティ ---
 export async function clearAllCache(): Promise<void> {
@@ -83,5 +118,6 @@ export async function clearAllCache(): Promise<void> {
     genericCache.clear(),
     knowdeSearchCache.clear(),
     knowdeDetailCache.clear(),
+    historyStore.clear(),
   ]);
 }
