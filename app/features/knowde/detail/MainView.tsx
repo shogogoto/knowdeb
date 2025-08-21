@@ -1,6 +1,7 @@
 import { ArrowUpCircle, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
 import { useSearchParams } from "react-router";
+import { useSwipeable } from "react-swipeable";
 import Loading from "~/shared/components/Loading";
 import { Card } from "~/shared/components/ui/card";
 import {
@@ -150,6 +151,23 @@ export default function MainView({ detail, prefetched }: Props) {
     setSearchParams({ tab: value });
   };
 
+  const handlers = useSwipeable({
+    onSwipedLeft: () => {
+      const currentIndex = validTabs.indexOf(tabValue);
+      if (currentIndex < validTabs.length - 1) {
+        handleTabChange(validTabs[currentIndex + 1]);
+      }
+    },
+    onSwipedRight: () => {
+      const currentIndex = validTabs.indexOf(tabValue);
+      if (currentIndex > 0) {
+        handleTabChange(validTabs[currentIndex - 1]);
+      }
+    },
+    preventScrollOnSwipe: true,
+    trackMouse: true,
+  });
+
   return (
     <DetailContextProvider
       value={
@@ -159,7 +177,7 @@ export default function MainView({ detail, prefetched }: Props) {
       }
     >
       <TabProvider value={searchParams}>
-        <div className="flex-1 max-w-3xl mx-auto">
+        <div {...handlers} className="flex-1 max-w-3xl mx-auto">
           {headerLocation.user && headerLocation.resource && (
             <div className="m-1">
               <LocationView loc={headerLocation as KnowdeLocation} />
