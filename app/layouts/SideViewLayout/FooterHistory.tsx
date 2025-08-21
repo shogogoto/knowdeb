@@ -1,17 +1,21 @@
 import { Link } from "react-router";
-import { useHistory } from "~/features/history/hooks";
+import { useHistory } from "~/shared/history/hooks";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 export function FooterHistory() {
   const isMobile = useIsMobile();
   const { histories } = useHistory();
 
-  if (!isMobile || histories.length === 0) {
+  if (!isMobile) {
     return null;
   }
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-10 h-16 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <footer
+      className="flex"
+      //className="sm:hidden sticky flex bottom-0 border-t justify-between bg-white dark:bg-gray-950"
+      //className="fixed bottom-0 left-0 right-0 z-20 h-16 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
       <div className="container flex items-center h-full max-w-screen-2xl">
         <p className="flex-shrink-0 mr-2 text-sm font-bold">履歴:</p>
         <div className="flex-1 w-0 overflow-x-auto whitespace-nowrap no-scrollbar">

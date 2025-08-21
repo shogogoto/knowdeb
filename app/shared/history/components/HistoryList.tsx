@@ -1,6 +1,5 @@
 import { Book, FileText, History, Search, User } from "lucide-react";
 import { Link } from "react-router";
-import { useHighlightByHash, useHistory } from "~/features/history/hooks";
 import {
   Card,
   CardContent,
@@ -9,6 +8,7 @@ import {
 } from "~/shared/components/ui/card";
 import { ScrollArea } from "~/shared/components/ui/scroll-area";
 import { cn } from "~/shared/lib/utils";
+import { useHighlightByHash, useHistory } from "../hooks";
 import type { HistoryType } from "../types";
 import { formatRelativeTime } from "../utils";
 

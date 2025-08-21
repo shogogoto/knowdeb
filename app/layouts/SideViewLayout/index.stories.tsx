@@ -1,15 +1,15 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import SideHistoryLayout from "./index";
+import SideViewLayout from "./index";
 
 const meta = {
-  component: SideHistoryLayout,
+  component: SideViewLayout,
   parameters: {
     reactRouter: {
       route: "/",
       outlet: <div>Dummy Outlet Content</div>,
     },
   },
-} satisfies Meta<typeof SideHistoryLayout>;
+} satisfies Meta<typeof SideViewLayout>;
 
 export default meta;
 

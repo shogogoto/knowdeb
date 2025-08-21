@@ -1,9 +1,9 @@
 import Dexie, { type Table } from "dexie";
-import type { HistoryItem } from "~/features/history/types";
 import type {
   KnowdeDetail,
   KnowdeSearchResult,
 } from "~/shared/generated/fastAPI.schemas";
+import type { HistoryItem } from "../history/types";
 
 // --- 共通の定義 ---
 export interface CacheItem<T> {
