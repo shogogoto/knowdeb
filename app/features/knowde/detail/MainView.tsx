@@ -177,7 +177,10 @@ export default function MainView({ detail, prefetched }: Props) {
       }
     >
       <TabProvider value={searchParams}>
-        <div {...handlers} className="flex-1 max-w-3xl mx-auto">
+        <div
+          {...handlers}
+          className="flex flex-col min-h-screen max-w-3xl mx-auto"
+        >
           {headerLocation.user && headerLocation.resource && (
             <div className="m-1">
               <LocationView loc={headerLocation as KnowdeLocation} />
@@ -186,7 +189,7 @@ export default function MainView({ detail, prefetched }: Props) {
           <Tabs
             value={tabValue}
             onValueChange={handleTabChange}
-            className="w-full"
+            className="w-full flex flex-col"
           >
             <div className="sticky top-0 z-5 bg-background">
               <Card
