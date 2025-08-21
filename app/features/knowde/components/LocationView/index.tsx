@@ -22,10 +22,10 @@ export default function LocationView({ loc }: Props) {
             <span className="font-bold">{user.display_name} </span>@
             {user.username || user.uid}
           </div>
-          <div className="text-sm text-muted-foreground space-x-2 gap-2">
+          <div className="text-sm text-muted-foreground">
             <Link
               to={`/resource/${loc.resource.uid}`}
-              className="hover:underline"
+              className="hover:underline space-x-2"
             >
               <span>{loc.resource.name}</span>
               <span>{loc.resource.authors}</span>
