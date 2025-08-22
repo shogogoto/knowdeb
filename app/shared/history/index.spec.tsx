@@ -27,19 +27,21 @@ function mkrouter(initial: string) {
         path: "/",
         Component: () => (
           <div>
-            home
             <History />
+            <Outlet />
           </div>
         ),
-      },
-
-      {
-        path: "/knowde/search?q=testquery",
-        Component: () => {
-          const { addHistory } = useHistory();
-          addHistory({ title: "testquery" });
-          return <div>Search Page</div>;
-        },
+        children: [
+          { index: true, element: <div>Home Page</div> },
+          {
+            path: "knowde/search",
+            Component: () => {
+              const { addHistory } = useHistory();
+              addHistory({ title: "testquery" });
+              return <div>Search Page</div>;
+            },
+          },
+        ],
       },
     ],
     {
@@ -62,42 +64,10 @@ describe("history", () => {
 
     it("検索画面の履歴", async () => {
       const user = userEvent.setup();
-
-      function SearchPage() {
-        const { addHistory } = useHistory();
-        addHistory({ title: "testquery" });
-        return <div>Search Page</div>;
-      }
-      function HomePage() {
-        return <div>Home Page</div>;
-      }
-      function TestApp() {
-        return (
-          <div>
-            <History />
-            <Outlet />
-          </div>
-        );
-      }
-
-      const router = createMemoryRouter(
-        [
-          {
-            path: "/",
-            element: <TestApp />,
-            children: [
-              { index: true, element: <HomePage /> },
-              { path: "knowde/search", element: <SearchPage /> },
-            ],
-          },
-        ],
-        { initialEntries: ["/knowde/search?q=testquery"] },
-      );
-
+      const router = mkrouter("/knowde/search?q=testquery");
       render(<RouterProvider router={router} />);
       const historyItem = await screen.findByText("testquery");
       expect(historyItem).toBeInTheDocument(); // titleが表示される
-
       const parentDiv = historyItem.parentElement;
       expect(parentDiv?.querySelector("svg")).toBeInTheDocument();
       act(() => {
