@@ -12,7 +12,7 @@ import {
   User,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { Link } from "react-router";
+import { Link, useSearchParams } from "react-router";
 import HybridTooltip from "~/shared/components/HybridTooltip";
 import { Badge } from "~/shared/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
@@ -30,7 +30,6 @@ import type {
 } from "~/shared/generated/fastAPI.schemas";
 import { cn } from "~/shared/lib/utils";
 import { useDetailContext } from "../../detail/DetailContext";
-import { useTab } from "../../detail/TabContext";
 import { Highlight } from "../Highlight";
 
 type Props = {
@@ -48,7 +47,7 @@ export default function KnowdeCard({
   className,
   borderColor,
 }: Props) {
-  const searchParams = useTab();
+  const [searchParams, _] = useSearchParams();
   const detailContext = useDetailContext();
   const score = k.stats?.score || 0;
 
@@ -67,7 +66,7 @@ export default function KnowdeCard({
   }
   return (
     <Link
-      to={`/knowde/${k.uid}?${searchParams?.toString()}`}
+      to={`/knowde/${k.uid}?${searchParams.toString()}`}
       draggable={false} // テキストをコピペできるため
       {...(detailContext && {
         state: { knowde: k, ...detailContext },
