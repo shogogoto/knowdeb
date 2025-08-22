@@ -69,7 +69,7 @@ export function HistoryList({ histories }: Props) {
   );
 }
 
-export function HistoryListContainer() {
+export default function History() {
   const { histories } = useHistory();
   return <HistoryList histories={histories} />;
 }

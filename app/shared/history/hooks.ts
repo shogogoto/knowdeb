@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useLocation } from "react-router";
 import useSWR from "swr";
 import { historyCache } from "~/shared/lib/indexed";
 import type { HistoryItemType } from "./types";
@@ -10,10 +11,13 @@ export function useHistory() {
     historyCache.getAll(),
   );
 
+  const location = useLocation();
+
   const addHistory = async (
-    item: Omit<HistoryItemType, "id" | "timestamp">,
+    item: Omit<HistoryItemType, "id" | "timestamp" | "url">,
   ) => {
-    await historyCache.add(item);
+    const url = location.pathname + location.search;
+    await historyCache.add({ ...item, url });
     await mutate();
   };
 
