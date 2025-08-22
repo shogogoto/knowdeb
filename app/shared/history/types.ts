@@ -1,10 +1,6 @@
-export const historyTypes = ["user", "knowde", "resource", "search"] as const;
-export type HistoryType = (typeof historyTypes)[number];
-
-export type HistoryItem = {
+export type HistoryItemType = {
   id?: number; // auto-increment
-  type: HistoryType;
   title: string;
-  url: string;
+  url: string; // sub URL
   timestamp: number;
 };

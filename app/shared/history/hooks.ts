@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import useSWR from "swr";
 import { historyStore } from "~/shared/lib/indexed";
-import type { HistoryItem } from "./types";
+import type { HistoryItemType } from "./types";
 
 const SWR_KEY = "history";
 
@@ -10,7 +10,9 @@ export function useHistory() {
     historyStore.getAll(),
   );
 
-  const addHistory = async (item: Omit<HistoryItem, "id" | "timestamp">) => {
+  const addHistory = async (
+    item: Omit<HistoryItemType, "id" | "timestamp">,
+  ) => {
     await historyStore.add(item);
     await mutate();
   };

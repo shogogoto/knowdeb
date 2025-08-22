@@ -3,7 +3,7 @@ import type {
   KnowdeDetail,
   KnowdeSearchResult,
 } from "~/shared/generated/fastAPI.schemas";
-import type { HistoryItem } from "../history/types";
+import type { HistoryItemType } from "../history/types";
 
 // --- 共通の定義 ---
 export interface CacheItem<T> {
@@ -18,7 +18,7 @@ class KnowdeCacheDB extends Dexie {
   public cache!: Table<CacheItem<unknown>>;
   public knowdeDetails!: Table<KnowdeDetail>;
   public knowdeSearchResults!: Table<CacheItem<KnowdeSearchResult>>;
-  public history!: Table<HistoryItem>;
+  public history!: Table<HistoryItemType>;
 
   public constructor() {
     super("knowde-cache");
@@ -72,9 +72,9 @@ function createEntityStore<T>(table: Table<T>) {
   };
 }
 
-function createHistoryStore(table: Table<HistoryItem>) {
+function createHistoryStore(table: Table<HistoryItemType>) {
   return {
-    async add(item: Omit<HistoryItem, "id" | "timestamp">): Promise<void> {
+    async add(item: Omit<HistoryItemType, "id" | "timestamp">): Promise<void> {
       const existing = await table.where({ url: item.url }).first();
       if (existing?.id) {
         await table.delete(existing.id);
@@ -111,13 +111,3 @@ export const knowdeDetailCache = createEntityStore<KnowdeDetail>(
   db.knowdeDetails,
 );
 export const historyStore = createHistoryStore(db.history);
-
-// --- その他のユーティリティ ---
-export async function clearAllCache(): Promise<void> {
-  await Promise.all([
-    genericCache.clear(),
-    knowdeSearchCache.clear(),
-    knowdeDetailCache.clear(),
-    historyStore.clear(),
-  ]);
-}
