@@ -45,17 +45,17 @@ function HistoryItem({ history }: { history: HistoryItemType }) {
   return (
     <li className={cn("flex hover:bg-muted rounded-md truncate", color)}>
       {Icon && <Icon />}
-      <Link to={`/knowde/detail/${history.id}`}>{history.title}</Link>
+      <Link to={history.url}>{history.title}</Link>
     </li>
   );
 }
 
 type Props = {
-  histories?: readonly HistoryItemType[];
+  histories: readonly HistoryItemType[];
 };
 
 export function HistoryList({ histories }: Props) {
-  if (!histories || histories.length === 0) {
+  if (histories && histories.length === 0) {
     return (
       <p className="text-center text-sm text-muted-foreground">履歴なし</p>
     );

@@ -26,16 +26,13 @@ class KnowdeCacheDB extends Dexie {
       cache: "&key, expires",
       knowdeDetails: "&uid",
       knowdeSearchResults: "&key, expires",
-      history: "++id, type, timestamp, url",
+      history: "++id, timestamp, url",
     });
   }
 }
 
 export const db = new KnowdeCacheDB();
 
-/**
- * TTL（有効期限）付きのキャッシュストアを生成するファクトリ
- */
 function createTTLStore<T>(table: Table<CacheItem<T>>) {
   async function cleanup() {
     const now = Date.now();
@@ -110,4 +107,4 @@ export const knowdeSearchCache = createTTLStore<KnowdeSearchResult>(
 export const knowdeDetailCache = createEntityStore<KnowdeDetail>(
   db.knowdeDetails,
 );
-export const historyStore = createHistoryStore(db.history);
+export const historyCache = createHistoryStore(db.history);

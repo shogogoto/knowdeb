@@ -36,15 +36,9 @@ export const Empty: Story = {
   },
 };
 
-export const Loading: Story = {
-  args: {
-    histories: undefined,
-  },
-};
-
 export const LongList: Story = {
   args: {
-    histories: Array.from({ length: 20 }, (_, i) =>
+    histories: Array.from({ length: 100 }, (_, i) =>
       mockHistory({ title: `履歴項目 ${i + 1}` }),
     ),
   },
