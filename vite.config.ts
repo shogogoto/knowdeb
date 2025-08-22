@@ -45,7 +45,7 @@ export default defineConfig({
   test: {
     globals: true, // `describe`, `it`, `expect` テスト関数のインポート省略
     environment: "jsdom",
-    setupFiles: ["./vitest.setup.ts"],
+    setupFiles: ["./vitest.setup.ts", "fake-indexeddb/auto"],
     reporters: ["verbose"],
     // projects: [
     //   "vite.config.ts",

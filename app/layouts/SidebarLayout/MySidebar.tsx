@@ -9,7 +9,6 @@ import {
   SidebarMenu,
   SidebarRail,
 } from "~/shared/components/ui/sidebar";
-import { useIsMobile } from "~/shared/hooks/use-mobile";
 import {
   DocsSideMenu,
   FeaturesMenu,
@@ -22,8 +21,6 @@ import SideMenu from "./components/Sidemenu";
 
 export default function MySidebar() {
   const { user, isAuthenticated } = useAuth();
-  const isMobile = useIsMobile();
-  const side = isMobile ? "bottom" : "right";
 
   const forGuest = (
     <>

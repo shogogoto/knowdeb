@@ -7,6 +7,7 @@ import BottomNavigation from "./components/BottomNavigation";
 import "github-markdown-css/github-markdown.css";
 import { Toaster } from "~/shared/components/ui/sonner";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
+import { FooterHistory } from "../SideViewLayout/FooterHistory";
 
 type Props = { className?: string };
 
@@ -29,6 +30,7 @@ export default function SidebarLayout({ className }: Props) {
         </main>
 
         <nav className="sm:hidden sticky flex bottom-0 left-0 w-full p-4 py-2 border-t justify-between bg-white dark:bg-gray-950">
+          <FooterHistory />
           <BottomNavigation />
         </nav>
       </div>
