@@ -6,7 +6,6 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "~/shared/components/ui/drawer";
-import { HistoryList } from "~/shared/history/components/HistoryList";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
 import { FooterHistory } from "./FooterHistory";
 
@@ -27,7 +26,7 @@ export default function SideViewLayout() {
               </Button>
             </DrawerTrigger>
             <DrawerContent className="w-full max-w-sm p-0">
-              <HistoryList />
+              {/* <HistoryListContainer /> */}
             </DrawerContent>
           </Drawer>
         </div>
@@ -42,7 +41,7 @@ export default function SideViewLayout() {
         <Outlet />
       </main>
       <aside className="sticky top-16 h-[calc(100vh-4rem)]">
-        <HistoryList />
+        {/* <HistoryListContainer /> */}
       </aside>
     </div>
   );
