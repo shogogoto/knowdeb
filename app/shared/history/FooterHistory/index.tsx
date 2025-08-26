@@ -20,11 +20,7 @@ export function FooterHistory({ histories: initialHistories }: Props) {
   }
 
   return (
-    <footer
-      className="flex"
-      //className="sm:hidden sticky flex bottom-0 border-t justify-between bg-white dark:bg-gray-950"
-      //className="fixed bottom-0 left-0 right-0 z-20 h-16 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
-    >
+    <div className="flex">
       <div className="container flex items-center h-full max-w-screen-2xl">
         <HybridTooltip content="履歴">
           <div className="flex-shrink-0 px-2">
@@ -36,7 +32,7 @@ export function FooterHistory({ histories: initialHistories }: Props) {
             <Link
               key={item.id}
               to={item.url}
-              className="inline-flex items-center px-3 py-1.5 mx-1 text-sm rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              className="inline-flex items-center py-1 mx-1 text-sm rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
               <HistoryItemIcon url={item.url} className="mr-1 flex-shrink-0" />
               <span className="truncate">
@@ -48,6 +44,6 @@ export function FooterHistory({ histories: initialHistories }: Props) {
           ))}
         </div>
       </div>
-    </footer>
+    </div>
   );
 }

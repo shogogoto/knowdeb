@@ -1,13 +1,11 @@
-// import { rootAuthLoader } from "@clerk/react-router/ssr.server";
-import { Outlet } from "react-router";
-import { useMatch } from "react-router";
+import { Outlet, useMatch } from "react-router";
 import { SidebarProvider } from "~/shared/components/ui/sidebar";
+import { Toaster } from "~/shared/components/ui/sonner";
+import { useIsMobile } from "~/shared/hooks/use-mobile";
+import "github-markdown-css/github-markdown.css";
+import { FooterHistory } from "~/shared/history/FooterHistory";
 import MySidebar from "./MySidebar";
 import BottomNavigation from "./components/BottomNavigation";
-import "github-markdown-css/github-markdown.css";
-import { Toaster } from "~/shared/components/ui/sonner";
-import { FooterHistory } from "~/shared/history/FooterHistory";
-import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 type Props = { className?: string };
 
@@ -29,10 +27,12 @@ export default function SidebarLayout({ className }: Props) {
           />
         </main>
 
-        <nav className="sm:hidden sticky flex bottom-0 left-0 w-full p-4 py-2 border-t justify-between bg-white dark:bg-gray-950">
+        <footer className="sm:hidden sticky bottom-0 left-0 w-full border-t bg-white dark:bg-gray-950">
           <FooterHistory />
-          <BottomNavigation />
-        </nav>
+          <nav className="flex w-full p-4 py-2 justify-between">
+            <BottomNavigation />
+          </nav>
+        </footer>
       </div>
     </SidebarProvider>
   );
