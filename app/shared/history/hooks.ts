@@ -14,16 +14,8 @@ export function useHistory() {
   const addHistory = useCallback(
     async (item: Omit<HistoryItemType, "id" | "timestamp" | "url">) => {
       const url = location.pathname + location.search;
-      // 重複チェック
-      const currentHistories = await historyCache.getAll();
-      if (currentHistories.some((h) => h.url === url)) {
-        return; // 既に存在する場合は何もしない
-      }
-
       await historyCache.add({ ...item, url });
-      // DBから最新のデータを取得し、それをキャッシュに設定する
       const newHistories = await historyCache.getAll();
-      // revalidate: false で余計な再検証を防ぐ
       await mutate(SWR_KEY, newHistories, { revalidate: false });
     },
     [location, mutate],

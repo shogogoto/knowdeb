@@ -176,14 +176,40 @@ describe("history", () => {
         expect(router2.state.location.pathname).toBe("/other");
       });
     });
-    it("履歴間の移動", async () => {
-      const knowdeId = "d9353547-6298-404d-b013-d61713117c32";
-      const router = mkrouter(`/knowde/${knowdeId}`);
+    it("履歴間の移動と重複削除", async () => {
+      const user = userEvent.setup();
+      const router = mkrouter("/");
       render(<RouterProvider router={router} />);
 
-      // このテストは現在のコンポーネント構造だと複雑なので、一旦コメントアウトのままにします
-      // await router.navigate(knowdeUrl);
-      // ...
+      await act(() => router.navigate("/knowde/1"));
+      await act(() => router.navigate("/user/1"));
+      await act(() => router.navigate("/resource/1"));
+      await act(() => router.navigate("/"));
+      await waitFor(async () => {
+        const historyItems = await screen.findAllByRole("listitem");
+        expect(historyItems).toHaveLength(3);
+        expect(historyItems[0]).toHaveTextContent(resourceTitle);
+        expect(historyItems[1]).toHaveTextContent(userTitle);
+        expect(historyItems[2]).toHaveTextContent(knowdeTitle);
+      });
+      await act(() => router.navigate("/knowde/1")); // 最初のページに再訪
+      await act(() => router.navigate("/"));
+
+      // knowdeが一番上に移動している
+      await waitFor(async () => {
+        const historyItems = await screen.findAllByRole("listitem");
+        expect(historyItems).toHaveLength(3);
+        expect(historyItems[0]).toHaveTextContent(knowdeTitle);
+        expect(historyItems[1]).toHaveTextContent(resourceTitle);
+        expect(historyItems[2]).toHaveTextContent(userTitle);
+      });
+
+      // 履歴をクリックして遷移
+      const resourceHistoryItem = screen.getByText(resourceTitle);
+      await user.click(resourceHistoryItem);
+      await waitFor(() => {
+        expect(router.state.location.pathname).toBe("/resource/1");
+      });
     });
   });
 });
