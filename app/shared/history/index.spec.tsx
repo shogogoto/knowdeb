@@ -1,20 +1,15 @@
+import "fake-indexeddb/auto";
 import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { Link, Outlet, RouterProvider, createMemoryRouter } from "react-router";
+import { Outlet, RouterProvider, createMemoryRouter } from "react-router";
+import { beforeEach } from "vitest";
 import { historyCache } from "../lib/indexed";
 import { useHistory } from "./hooks";
 import History from "./index";
 
-// `Test` and `mkrouter` are not used in the new test, but might be used by other tests.
-// So, I'll keep them.
-function Test() {
-  return (
-    <div>
-      test
-      <Link to="/home">Home</Link>
-    </div>
-  );
-}
+beforeEach(async () => {
+  await historyCache.clear();
+});
 
 function mkrouter(initial: string) {
   return createMemoryRouter(
@@ -34,13 +29,14 @@ function mkrouter(initial: string) {
         children: [
           { index: true, element: <div>Home Page</div> },
           {
-            path: "knowde/search",
+            path: "/search",
             Component: () => {
               const { addHistory } = useHistory();
               addHistory({ title: "testquery" });
               return <div>Search Page</div>;
             },
           },
+          { path: "knowde/:knowdeId", element: <div>Knowde Detail Page</div> },
         ],
       },
     ],
@@ -51,10 +47,6 @@ function mkrouter(initial: string) {
 }
 
 describe("history", () => {
-  beforeEach(async () => {
-    await historyCache.clear();
-  });
-
   describe("URLを履歴に追加", () => {
     // URLを履歴に追加
     // historyのtitleに何を選ぶかはURLに含まれる文字列Typeによって異なる
@@ -64,82 +56,78 @@ describe("history", () => {
 
     it("検索画面の履歴", async () => {
       const user = userEvent.setup();
-      const router = mkrouter("/knowde/search?q=testquery");
+      const router = mkrouter("/search?q=testquery");
       render(<RouterProvider router={router} />);
+      act(() => {
+        router.navigate("/");
+      });
+
       const historyItem = await screen.findByText("testquery");
       expect(historyItem).toBeInTheDocument(); // titleが表示される
       const parentDiv = historyItem.parentElement;
       expect(parentDiv?.querySelector("svg")).toBeInTheDocument();
-      act(() => {
-        router.navigate("/");
-      });
       await user.click(historyItem);
       await waitFor(() => {
-        expect(router.state.location.pathname).toBe("/knowde/search");
+        expect(router.state.location.pathname).toBe("/search");
         expect(router.state.location.search).toBe("?q=testquery");
       });
     });
 
-    //   it("knowde詳細画面履歴", async () => {
-    //     const user = userEvent.setup();
-    //     const knowdeId = "d9353547-6298-404d-b013-d61713117c32";
-    //
-    //     // Test components
-    //     function KnowdeDetailPage() {
-    //       return <div>Knowde Detail Page</div>;
-    //     }
-    //     function HomePage() {
-    //       return <div>Home Page</div>;
-    //     }
-    //     function TestApp() {
-    //       return (
-    //         <div>
-    //           <History />
-    //           <Outlet />
-    //         </div>
-    //       );
-    //     }
-    //
-    //     const router = createMemoryRouter(
-    //       [
-    //         {
-    //           path: "/",
-    //           element: <TestApp />,
-    //           children: [
-    //             { index: true, element: <HomePage /> },
-    //             { path: "knowde/:knowdeId", element: <KnowdeDetailPage /> },
-    //           ],
-    //         },
-    //       ],
-    //       { initialEntries: ["/"] },
-    //     );
-    //
-    //     render(<RouterProvider router={router} />);
-    //
-    //     // /knowde/:knowdeId に遷移
-    //     await router.navigate(`/knowde/${knowdeId}`);
-    //
-    //     // 履歴に knowdeId が表示されるのを待つ
-    //     const historyItem = await screen.findByText(knowdeId);
-    //     expect(historyItem).toBeInTheDocument();
-    //
-    //     // アイコン(SVG)が表示されていることを確認
-    //     const parentDiv = historyItem.parentElement;
-    //     expect(parentDiv?.querySelector("svg")).toBeInTheDocument();
-    //
-    //     // TODO: アイコンがLightbulbアイコンであることをより厳密にテストする
-    //
-    //     // 別のページに遷移
-    //     await router.navigate("/");
-    //
-    //     // 履歴アイテムをクリック
-    //     await user.click(historyItem);
-    //
-    //     // URLが戻っていることを確認
-    //     await waitFor(() => {
-    //       expect(router.state.location.pathname).toBe(`/knowde/${knowdeId}`);
-    //     });
-    //   });
+    it("knowde詳細画面履歴", async () => {
+      const user = userEvent.setup();
+      const knowdeId = "d9353547-6298-404d-b013-d61713117c32";
+      const title = "knowde title";
+      function KnowdeDetailPage() {
+        const { addHistory } = useHistory();
+        addHistory({ title });
+        return <div>Knowde Detail Page</div>;
+      }
+      function HomePage() {
+        return <div>Home Page</div>;
+      }
+      function TestApp() {
+        return (
+          <div>
+            <History />
+            <Outlet />
+          </div>
+        );
+      }
+
+      const router = createMemoryRouter(
+        [
+          {
+            path: "/",
+            element: <TestApp />,
+            children: [
+              { index: true, element: <HomePage /> },
+              { path: "knowde/:knowdeId", element: <KnowdeDetailPage /> },
+            ],
+          },
+        ],
+        { initialEntries: ["/"] },
+      );
+
+      render(<RouterProvider router={router} />);
+      await historyCache.clear();
+
+      act(() => {
+        router.navigate(`/knowde/${knowdeId}`);
+      });
+      act(() => {
+        router.navigate("/");
+      });
+
+      const historyItem = await screen.findByText(title);
+      const parentDiv = historyItem.parentElement;
+      expect(parentDiv?.querySelector("svg")).toBeInTheDocument();
+
+      await user.click(historyItem);
+
+      await waitFor(() => {
+        expect(router.state.location.pathname).toBe(`/knowde/${knowdeId}`);
+      });
+    });
     //   it("userプロフィール画面", async () => {
     //     const user = userEvent.setup();
     //     const userId = "some-user-id";
