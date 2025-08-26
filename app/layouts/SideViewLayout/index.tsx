@@ -6,8 +6,8 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "~/shared/components/ui/drawer";
+import { FooterHistory } from "~/shared/history/FooterHistory";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
-import { FooterHistory } from "./FooterHistory";
 
 export default function SideViewLayout() {
   const isMobile = useIsMobile();

@@ -6,8 +6,8 @@ import MySidebar from "./MySidebar";
 import BottomNavigation from "./components/BottomNavigation";
 import "github-markdown-css/github-markdown.css";
 import { Toaster } from "~/shared/components/ui/sonner";
+import { FooterHistory } from "~/shared/history/FooterHistory";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
-import { FooterHistory } from "../SideViewLayout/FooterHistory";
 
 type Props = { className?: string };
 

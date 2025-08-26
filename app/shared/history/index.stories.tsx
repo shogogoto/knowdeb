@@ -31,17 +31,19 @@ export const Default: Story = {
 };
 
 export const Empty: Story = {
-  args: {
-    histories: [],
-  },
+  args: { histories: [] },
 };
 
+const longLs = Array.from({ length: 100 }, (_, i) =>
+  mockHistory({ title: `履歴項目 ${i + 1}` }),
+);
 export const LongList: Story = {
-  args: {
-    histories: Array.from({ length: 100 }, (_, i) =>
-      mockHistory({ title: `履歴項目 ${i + 1}` }),
-    ),
-  },
+  args: { histories: longLs },
+};
+
+export const LongListMobile: Story = {
+  args: { histories: longLs },
+  globals: { viewport: { value: "mobile1" } },
 };
 
 export const LongNames: Story = {
