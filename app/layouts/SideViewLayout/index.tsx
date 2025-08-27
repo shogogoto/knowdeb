@@ -8,6 +8,7 @@ import {
 } from "~/shared/components/ui/drawer";
 import { ScrollArea } from "~/shared/components/ui/scroll-area";
 import History from "~/shared/history";
+import { useHistory } from "~/shared/history/hooks";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 export default function SideViewLayout() {
@@ -26,14 +27,15 @@ export default function SideViewLayout() {
                 <PanelRightOpen />
               </Button>
             </DrawerTrigger>
-            <DrawerContent className="w-full max-w-sm p-0">
-              {/* <HistoryListContainer /> */}
-            </DrawerContent>
+            <DrawerContent className="w-full max-w-sm p-0" />
           </Drawer>
         </div>
       </>
     );
   }
+
+  const { histories } = useHistory();
+  const count = histories.length;
 
   return (
     <div className="grid grid-cols-[1fr_320px] gap-4">
@@ -42,7 +44,7 @@ export default function SideViewLayout() {
       </main>
       <aside className="sticky top-16 h-[calc(100vh-4rem)]">
         <>
-          <p>履歴</p>
+          <p>履歴 {count}</p>
           <ScrollArea className="h-72 w-full">
             <History />
           </ScrollArea>
