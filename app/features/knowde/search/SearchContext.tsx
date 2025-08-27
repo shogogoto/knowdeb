@@ -2,18 +2,18 @@ import {
   type Dispatch,
   type SetStateAction,
   createContext,
+  useEffect,
   useState,
 } from "react";
+import { useSearchParams } from "react-router";
 import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
 type SearchContextType = {
-  // Debounceされた値
   q: string;
   searchOption: SearchByTextKnowdeGetType;
   orderBy: OrderBy;
-  // 即時反映される値
   immediateQ: string;
   immediateSearchOption: SearchByTextKnowdeGetType;
   immediateOrderBy: OrderBy;
@@ -36,29 +36,71 @@ export const initialSearchState: SearchContextType = {
 };
 
 const SearchContext = createContext<SearchContextType>(initialSearchState);
-
 export default SearchContext;
 
-type ValProps = {
-  q: string;
-  searchOption: SearchByTextKnowdeGetType;
-  orderBy: OrderBy;
-};
-type Props = React.PropsWithChildren & ValProps;
+type Props = React.PropsWithChildren;
 
-export function SearchProvider(props: Props) {
-  const [immediateQ, setImmediateQ] = useState(props.q);
-  const [immediateSearchOption, setImmediateSearchOption] = useState(
-    props.searchOption,
-  );
-  const [immediateOrderBy, setImmediateOrderBy] = useState(props.orderBy);
+export function SearchProvider({ children }: Props) {
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const ms = 1000;
+  const [immediateQ, setImmediateQ] = useState(searchParams.get("q") || "");
+  const [immediateSearchOption, setImmediateSearchOption] =
+    useState<SearchByTextKnowdeGetType>(
+      (searchParams.get("type") as SearchByTextKnowdeGetType) ||
+        SearchByTextKnowdeGetType.CONTAINS,
+    );
+  const [immediateOrderBy, setImmediateOrderBy] = useState<OrderBy>(() => {
+    const initial: { [key: string]: unknown } = { ...defaultOrderBy };
+    for (const key in defaultOrderBy) {
+      const paramValue = searchParams.get(key);
+      if (paramValue !== null) {
+        if (key === "desc") {
+          initial[key] = paramValue === "true";
+        } else {
+          const numValue = Number(paramValue);
+          if (!Number.isNaN(numValue)) {
+            initial[key] = numValue;
+          }
+        }
+      }
+    }
+    return initial as OrderBy;
+  });
+  const ms = 500;
   const q = useDebounce(immediateQ, ms);
   const searchOption = useDebounce(immediateSearchOption, ms);
   const orderBy = useDebounce(immediateOrderBy, ms);
 
-  const value = {
+  useEffect(() => {
+    const newParams = new URLSearchParams(searchParams);
+    if (q) {
+      newParams.set("q", q);
+    } else {
+      newParams.delete("q");
+    }
+    if (searchOption !== SearchByTextKnowdeGetType.CONTAINS) {
+      newParams.set("type", searchOption);
+    } else {
+      newParams.delete("type");
+    }
+
+    for (const key in orderBy) {
+      const K = key as keyof OrderBy;
+      const value = orderBy[K];
+      const defaultValue = defaultOrderBy[K];
+
+      if (value !== defaultValue) {
+        newParams.set(key, String(value));
+      } else {
+        newParams.delete(key);
+      }
+    }
+    if (newParams.toString() !== searchParams.toString()) {
+      setSearchParams(newParams, { replace: true });
+    }
+  }, [q, searchOption, orderBy, searchParams, setSearchParams]);
+
+  const value: SearchContextType = {
     q,
     searchOption,
     orderBy,
@@ -71,8 +113,6 @@ export function SearchProvider(props: Props) {
   };
 
   return (
-    <SearchContext.Provider value={value}>
-      {props.children}
-    </SearchContext.Provider>
+    <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
   );
 }

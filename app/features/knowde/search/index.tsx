@@ -13,20 +13,17 @@ import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
 import SearchBar from "./SearchBar";
-import SearchContext, {
-  initialSearchState,
-  SearchProvider,
-} from "./SearchContext";
+import SearchContext, { SearchProvider } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
 function KnowdeSearchLayout() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { pageSize, current, setCurrent, setTotal, total } =
+  const { current, pageSize, total, setTotal, setCurrent } =
     useContext(PageContext);
 
   const params = {
     q,
-    page: current || 1, // 0だと backendで validation error
+    page: current || 1, // 0 だとbackendで validation error
     size: pageSize,
     search_type: searchOption,
     ...orderBy,
@@ -86,7 +83,7 @@ export default function KnowdeSearch() {
   return (
     <ClientOnly>
       {() => (
-        <SearchProvider {...initialSearchState}>
+        <SearchProvider>
           <PageProvider pageSize={50}>
             <KnowdeSearchLayout />
           </PageProvider>
