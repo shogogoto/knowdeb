@@ -1,5 +1,5 @@
 import { ArrowUpCircle, ChevronRight } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router";
 import { useSwipeable } from "react-swipeable";
 import Loading from "~/shared/components/Loading";
@@ -22,6 +22,7 @@ import type {
   MResource,
   UserReadPublic,
 } from "~/shared/generated/fastAPI.schemas";
+import { useHistory } from "~/shared/history/hooks";
 import { cn } from "~/shared/lib/utils";
 import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
@@ -106,35 +107,69 @@ type Props = {
 export default function MainView({ detail, prefetched }: Props) {
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const headerKnowde = detail ? graphForView(detail).root : prefetched?.knowde;
-  const headerLocation: Partial<KnowdeLocation> | undefined = detail
-    ? graphForView(detail).location
-    : { user: prefetched?.user, resource: prefetched?.resource };
+  const {
+    headerKnowde,
+    headerLocation,
+    g,
+    kn,
+    rootId,
+    belows,
+    logicOp,
+    refOp,
+    st,
+  } = useMemo(() => {
+    if (detail) {
+      const { root, g, kn, location, rootId } = graphForView(detail);
+      const belows = succ(g, rootId, eqEdgeType("below"));
+      const logicOp = operatorGraph(g, "to");
+      const refOp = operatorGraph(g, "resolved");
+      const st = createStatView(root.stats, true);
+      return {
+        headerKnowde: root,
+        headerLocation: location,
+        g,
+        kn,
+        rootId,
+        belows,
+        logicOp,
+        refOp,
+        st,
+      };
+    }
+    return {
+      headerKnowde: prefetched?.knowde,
+      headerLocation: {
+        user: prefetched?.user,
+        resource: prefetched?.resource,
+      },
+      g: null,
+      kn: null,
+      rootId: null,
+      belows: [],
+      logicOp: null,
+      refOp: null,
+      st: createStatView(prefetched?.knowde.stats, true),
+    };
+  }, [detail, prefetched]);
 
   if (!headerKnowde) {
-    // 親コンポーネントのロジック的にここには来ないはず
     return <Loading type="center-x" />;
   }
 
-  // detailがあるときだけgraph関連の処理を行う
-  const { g, kn, rootId, belows, logicOp, refOp, st } = detail
-    ? (() => {
-        const { root, g, kn, location, rootId } = graphForView(detail);
-        const belows = succ(g, rootId, eqEdgeType("below"));
-        const logicOp = operatorGraph(g, "to");
-        const refOp = operatorGraph(g, "resolved");
-        const st = createStatView(root.stats, true);
-        return { g, kn, rootId, belows, logicOp, refOp, st };
-      })()
-    : {
-        g: null,
-        kn: null,
-        rootId: null,
-        belows: [],
-        logicOp: null,
-        refOp: null,
-        st: createStatView(headerKnowde.stats, true),
-      };
+  const { addHistory, getKnowdeTitle } = useHistory();
+  const addedRootIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!kn || !rootId) return;
+
+    // 前回追加したrootIdと同じであれば、処理をスキップ
+    if (addedRootIdRef.current === rootId) {
+      return;
+    }
+
+    addHistory({ title: getKnowdeTitle(kn(rootId)) });
+    addedRootIdRef.current = rootId; // 今回処理したrootIdを記録
+  }, [kn, rootId, addHistory, getKnowdeTitle]);
 
   const logicPred = detail && rootId && logicOp ? logicOp.pred(rootId) : [];
   const logicSucc = detail && rootId && logicOp ? logicOp.succ(rootId) : [];

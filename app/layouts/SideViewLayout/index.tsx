@@ -6,7 +6,8 @@ import {
   DrawerContent,
   DrawerTrigger,
 } from "~/shared/components/ui/drawer";
-import { FooterHistory } from "~/shared/history/FooterHistory";
+import { ScrollArea } from "~/shared/components/ui/scroll-area";
+import History from "~/shared/history";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 export default function SideViewLayout() {
@@ -30,7 +31,6 @@ export default function SideViewLayout() {
             </DrawerContent>
           </Drawer>
         </div>
-        <FooterHistory />
       </>
     );
   }
@@ -41,7 +41,12 @@ export default function SideViewLayout() {
         <Outlet />
       </main>
       <aside className="sticky top-16 h-[calc(100vh-4rem)]">
-        {/* <HistoryListContainer /> */}
+        <>
+          <p>履歴</p>
+          <ScrollArea className="h-72 w-full">
+            <History />
+          </ScrollArea>
+        </>
       </aside>
     </div>
   );

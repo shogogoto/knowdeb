@@ -1,4 +1,5 @@
 import { History } from "lucide-react";
+import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 import HybridTooltip from "~/shared/components/HybridTooltip";
 import { HistoryItemIcon } from "~/shared/history/HistoryItemIcon";
@@ -14,6 +15,13 @@ export function FooterHistory({ histories: initialHistories }: Props) {
   const isMobile = useIsMobile();
   const { histories: historiesFromHook } = useHistory();
   const histories = initialHistories ?? historiesFromHook;
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = 0;
+    }
+  }, []);
 
   if (!isMobile) {
     return null;
@@ -27,17 +35,20 @@ export function FooterHistory({ histories: initialHistories }: Props) {
             <History size="1.25em" className="text-muted-foreground" />
           </div>
         </HybridTooltip>
-        <div className="flex-1 w-0 overflow-x-auto whitespace-nowrap no-scrollbar">
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 w-0 overflow-x-auto whitespace-nowrap no-scrollbar"
+        >
           {histories.map((item) => (
             <Link
               key={item.id}
               to={item.url}
-              className="inline-flex items-center py-1 mx-1 text-sm rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
+              className="inline-flex items-center py-1 text-sm rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80"
             >
-              <HistoryItemIcon url={item.url} className="mr-1 flex-shrink-0" />
+              <HistoryItemIcon url={item.url} className="flex-shrink-0" />
               <span className="truncate">
                 {item.title.length > 2
-                  ? `${item.title.substring(0, 2)}...`
+                  ? `${item.title.substring(0, 3)}`
                   : item.title}
               </span>
             </Link>

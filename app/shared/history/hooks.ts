@@ -2,6 +2,11 @@ import { useCallback, useEffect } from "react";
 import { useLocation } from "react-router";
 import useSWR, { useSWRConfig } from "swr";
 import { historyCache } from "~/shared/lib/indexed";
+import type {
+  Knowde,
+  MResource,
+  UserReadPublic,
+} from "../generated/fastAPI.schemas";
 import type { HistoryItemType } from "./types";
 
 const SWR_KEY = "history";
@@ -21,13 +26,28 @@ export function useHistory() {
     [location, mutate],
   );
 
+  const getKnowdeTitle = useCallback((k: Knowde) => {
+    if (k.term?.names) return k.term?.names.join(", ");
+    return k.sentence;
+  }, []);
+
+  const getUserTitle = useCallback((u: UserReadPublic) => {
+    return u.display_name || u.username || u.uid;
+  }, []);
+
+  const getResourcreTitle = useCallback((r: MResource) => {
+    return r.name;
+  }, []);
+
   return {
     histories: histories ?? [],
     addHistory,
+    getKnowdeTitle,
+    getUserTitle,
+    getResourcreTitle,
   };
 }
 
-// useHighlightByHash は変更なし
 export function useHighlightByHash(prefix = "history-") {
   useEffect(() => {
     const hash = window.location.hash;
