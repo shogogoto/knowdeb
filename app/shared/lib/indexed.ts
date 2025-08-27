@@ -72,11 +72,29 @@ function createEntityStore<T>(table: Table<T>) {
 function createHistoryStore(table: Table<HistoryItemType>) {
   return {
     async add(item: Omit<HistoryItemType, "id" | "timestamp">): Promise<void> {
-      const existing = await table.where({ url: item.url }).first();
-      if (existing?.id) {
-        await table.delete(existing.id);
-      }
+      const ignoredParams = ["tab"];
+      const normalizeUrl = (urlStr: string) => {
+        try {
+          // URLコンストラクタが絶対URLを要求するため、ダミーのオリジンを渡す
+          const url = new URL(urlStr, "http://localhost");
+          const path = url.pathname;
+          const params = new URLSearchParams(url.search);
+          ignoredParams.forEach((param) => params.delete(param));
+          params.sort();
+          return `${path}?${params.toString()}`;
+        } catch (e) {
+          // 不正なURLがDBに保存されている場合などへのフォールバック
+          return urlStr; // パース失敗時は元の文字列を返す
+        }
+      };
 
+      const normalizedItemUrl = normalizeUrl(item.url);
+      await table
+        .filter((history) => {
+          const normalizedHistoryUrl = normalizeUrl(history.url);
+          return normalizedHistoryUrl === normalizedItemUrl;
+        })
+        .delete();
       await table.add({
         ...item,
         timestamp: Date.now(),

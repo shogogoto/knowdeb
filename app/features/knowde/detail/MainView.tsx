@@ -161,12 +161,7 @@ export default function MainView({ detail, prefetched }: Props) {
 
   useEffect(() => {
     if (!kn || !rootId) return;
-
-    // 前回追加したrootIdと同じであれば、処理をスキップ
-    if (addedRootIdRef.current === rootId) {
-      return;
-    }
-
+    if (addedRootIdRef.current === rootId) return;
     addHistory({ title: getKnowdeTitle(kn(rootId)) });
     addedRootIdRef.current = rootId; // 今回処理したrootIdを記録
   }, [kn, rootId, addHistory, getKnowdeTitle]);
