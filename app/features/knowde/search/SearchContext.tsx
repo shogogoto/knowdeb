@@ -70,6 +70,7 @@ export function SearchProvider({ children }: Props) {
   const searchOption = useDebounce(immediateSearchOption, ms);
   const orderBy = useDebounce(immediateOrderBy, ms);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `searchParams` 意図的に除外 state -> 古いurl に置き換えてしまうのを防ぐ
   useEffect(() => {
     // state -> url の同期
     const newParams = new URLSearchParams(searchParams);
@@ -98,7 +99,7 @@ export function SearchProvider({ children }: Props) {
     if (newParams.toString() !== searchParams.toString()) {
       setSearchParams(newParams, { replace: true });
     }
-  }, [q, searchOption, orderBy, searchParams, setSearchParams]);
+  }, [q, searchOption, orderBy]);
 
   useEffect(() => {
     const urlQ = searchParams.get("q") || "";

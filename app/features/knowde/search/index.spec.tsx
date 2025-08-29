@@ -121,7 +121,7 @@ describe("Knowde Search", () => {
       const router = mkrouter(
         "/knowde/search?q=initial&type=REGEX&desc=false&n_detail=2&n_premise=3",
       );
-      const { container } = render(<RouterProvider router={router} />);
+      render(<RouterProvider router={router} />);
 
       await waitFor(() => {
         const { search } = router.state.location;
@@ -160,30 +160,22 @@ describe("Knowde Search", () => {
       expect(premiseSlider).toHaveAttribute("aria-valuenow", "3");
     });
   });
-  //
-  // describe("State -> URL同期", () => {
-  //   it("検索入力によってURLのクエリパラメータが更新される", async () => {
-  //     const routes = [{ path: "/knowde/search", element: <TestComponent /> }];
-  //     const router = createMemoryRouter(routes, {
-  //       initialEntries: ["/knowde/search"],
-  //     });
-  //     render(<RouterProvider router={router} />);
-  //
-  //     const user = userEvent.setup({
-  //       advanceTimers: (delay) => act(() => vi.advanceTimersByTime(delay)),
-  //     });
-  //
-  //     const searchInput = await screen.findByPlaceholderText(
-  //       "検索文字列を入力...",
-  //     );
-  //     await user.type(searchInput, "sync test");
-  //
-  //     // debounceを待つ
-  //     await act(() => vi.advanceTimersByTime(1000));
-  //
-  //     await waitFor(() => {
-  //       expect(router.state.location.search).toContain("q=sync+test");
-  //     });
-  //   });
-  // });
+
+  describe("State -> URL同期", () => {
+    it("検索入力によってURLのクエリパラメータが更新される", async () => {
+      const router = mkrouter("/knowde/search");
+      render(<RouterProvider router={router} />);
+
+      const user = userEvent.setup();
+
+      const searchInput = await screen.findByPlaceholderText(
+        "検索文字列を入力...",
+      );
+      await user.type(searchInput, "sync test");
+
+      await waitFor(() => {
+        expect(router.state.location.search).toContain("q=sync+test");
+      });
+    });
+  });
 });
