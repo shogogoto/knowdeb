@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import Loading from "~/shared/components/Loading";
 import PagingNavi from "~/shared/components/Pagenation";
@@ -9,6 +9,7 @@ import {
   type searchByTextKnowdeGetResponse200,
   useSearchByTextKnowdeGet,
 } from "~/shared/generated/knowde/knowde";
+import { useHistory } from "~/shared/history/hooks";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
@@ -37,6 +38,10 @@ function KnowdeSearchLayout() {
     >(cacheKey, knowdeSearchCache.get),
     300,
   );
+
+  const { addHistory } = useHistory();
+  const addedRef = useRef<string | null>(null);
+
   const { data, isLoading } = useSearchByTextKnowdeGet(debouncedParams, {
     swr: {
       revalidateOnFocus: false,
@@ -51,6 +56,10 @@ function KnowdeSearchLayout() {
           if (current && current > total) setCurrent(total);
           if (!current && total > 0) setCurrent(1);
           await knowdeSearchCache.set(cacheKey, data.data);
+          // 履歴登録
+          if (addedRef.current === q) return;
+          addHistory({ title: q || "empty" });
+          addedRef.current = q;
         }
       },
     },

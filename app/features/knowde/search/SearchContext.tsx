@@ -17,7 +17,6 @@ type SearchContextType = {
   immediateQ: string;
   immediateSearchOption: SearchByTextKnowdeGetType;
   immediateOrderBy: OrderBy;
-  // セッター
   setImmediateQ: Dispatch<SetStateAction<string>>;
   setImmediateSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
   setImmediateOrderBy: Dispatch<SetStateAction<OrderBy>>;
@@ -72,6 +71,7 @@ export function SearchProvider({ children }: Props) {
   const orderBy = useDebounce(immediateOrderBy, ms);
 
   useEffect(() => {
+    // state -> url の同期
     const newParams = new URLSearchParams(searchParams);
     if (q) {
       newParams.set("q", q);
@@ -99,6 +99,31 @@ export function SearchProvider({ children }: Props) {
       setSearchParams(newParams, { replace: true });
     }
   }, [q, searchOption, orderBy, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    const urlQ = searchParams.get("q") || "";
+    setImmediateQ(urlQ);
+    const urlSearchOption =
+      (searchParams.get("type") as SearchByTextKnowdeGetType) ||
+      SearchByTextKnowdeGetType.CONTAINS;
+    setImmediateSearchOption(urlSearchOption);
+
+    const newOrderBy: { [key: string]: unknown } = { ...defaultOrderBy };
+    for (const key in defaultOrderBy) {
+      const paramValue = searchParams.get(key);
+      if (paramValue !== null) {
+        if (key === "desc") {
+          newOrderBy[key] = paramValue === "true";
+        } else {
+          const numValue = Number(paramValue);
+          if (!Number.isNaN(numValue)) {
+            newOrderBy[key] = numValue;
+          }
+        }
+      }
+    }
+    setImmediateOrderBy(newOrderBy as OrderBy);
+  }, [searchParams]);
 
   const value: SearchContextType = {
     q,
