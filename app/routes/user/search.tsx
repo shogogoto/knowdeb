@@ -6,17 +6,8 @@ import type { Route } from "./+types/search";
 export async function loader({ params }: Route.LoaderArgs) {
   const { userId } = params;
 
-  const isUUID = (id: string | undefined): id is string => {
-    if (!id) return false;
-    const uuidRegex =
-      /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    return uuidRegex.test(id);
-  };
-
-  const convertedUserId = isUUID(userId) ? userId.replace(/-/g, "") : userId;
-
   const response = await searchUserUserSearchGet({
-    id: convertedUserId,
+    id: userId.replace(/-/g, ""),
   });
 
   if (response.status !== 200 || !response.data) {

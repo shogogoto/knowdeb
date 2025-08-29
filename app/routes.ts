@@ -6,7 +6,7 @@ import {
 } from "@react-router/dev/routes";
 
 export default [
-  layout("layouts/SidebarLayout.tsx", [
+  layout("layouts/SidebarLayout/index.tsx", [
     // Docs
     index("routes/docs/LandingPage.tsx"),
     route("docs/toc", "routes/docs/toc.tsx"),
@@ -15,14 +15,16 @@ export default [
     route("docs/cli", "routes/docs/cli.mdx"),
     route("docs/features", "routes/docs/features.mdx"),
 
-    route("search", "routes/knowde/search/index.tsx"),
-    route("knowde/:id", "routes/knowde/detail/index.tsx"),
     route("register", "routes/user/register.tsx"),
     route("login", "routes/user/login.tsx"),
 
-    route("home", "routes/home.tsx"),
-    route("user/edit", "routes/user/edit.tsx"),
-    route("user/:userId", "routes/user/search.tsx"),
+    layout("layouts/SideViewLayout/index.tsx", [
+      route("home", "routes/home.tsx"),
+      route("search", "routes/knowde/search/index.tsx"),
+      route("knowde/:id", "routes/knowde/detail/index.tsx"),
+      route("user/edit", "routes/user/edit.tsx"),
+      route("user/:userId", "routes/user/search.tsx"),
+    ]),
   ]),
 
   route("/user/signUpload", "routes/user/signUpload.ts"),

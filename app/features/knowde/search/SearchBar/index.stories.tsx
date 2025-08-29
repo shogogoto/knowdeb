@@ -1,10 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
-import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import { SearchProvider } from "../SearchContext";
 import Index from "./index";
-import { defaultOrderBy } from "./types";
 
 const meta = {
   component: Index,
@@ -19,11 +17,7 @@ export const Default: Story = {
   decorators: [
     (Story) => (
       <PageProvider pageSize={10}>
-        <SearchProvider
-          q=""
-          searchOption={SearchByTextKnowdeGetType.CONTAINS}
-          orderBy={defaultOrderBy}
-        >
+        <SearchProvider>
           <Story />
         </SearchProvider>
       </PageProvider>

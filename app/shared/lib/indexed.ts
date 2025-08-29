@@ -3,6 +3,7 @@ import type {
   KnowdeDetail,
   KnowdeSearchResult,
 } from "~/shared/generated/fastAPI.schemas";
+import type { HistoryItemType } from "../history/types";
 
 // --- 共通の定義 ---
 export interface CacheItem<T> {
@@ -11,11 +12,13 @@ export interface CacheItem<T> {
   expires: number;
 }
 const TTL = 1000 * 60 * 60 * 24; // 24 hours
+const HISTORY_MAX = 100;
 
 class KnowdeCacheDB extends Dexie {
   public cache!: Table<CacheItem<unknown>>;
   public knowdeDetails!: Table<KnowdeDetail>;
   public knowdeSearchResults!: Table<CacheItem<KnowdeSearchResult>>;
+  public history!: Table<HistoryItemType>;
 
   public constructor() {
     super("knowde-cache");
@@ -23,15 +26,13 @@ class KnowdeCacheDB extends Dexie {
       cache: "&key, expires",
       knowdeDetails: "&uid",
       knowdeSearchResults: "&key, expires",
+      history: "++id, timestamp, url",
     });
   }
 }
 
 export const db = new KnowdeCacheDB();
 
-/**
- * TTL（有効期限）付きのキャッシュストアを生成するファクトリ
- */
 function createTTLStore<T>(table: Table<CacheItem<T>>) {
   async function cleanup() {
     const now = Date.now();
@@ -68,6 +69,54 @@ function createEntityStore<T>(table: Table<T>) {
   };
 }
 
+function createHistoryStore(table: Table<HistoryItemType>) {
+  return {
+    async add(item: Omit<HistoryItemType, "id" | "timestamp">): Promise<void> {
+      const ignoredParams = ["tab"];
+      const normalizeUrl = (urlStr: string) => {
+        try {
+          // URLコンストラクタが絶対URLを要求するため、ダミーのオリジンを渡す
+          const url = new URL(urlStr, "http://localhost");
+          const path = url.pathname;
+          const params = new URLSearchParams(url.search);
+          ignoredParams.forEach((param) => params.delete(param));
+          params.sort();
+          return `${path}?${params.toString()}`;
+        } catch (e) {
+          // 不正なURLがDBに保存されている場合などへのフォールバック
+          return urlStr; // パース失敗時は元の文字列を返す
+        }
+      };
+
+      const normalizedItemUrl = normalizeUrl(item.url);
+      await table
+        .filter((history) => {
+          const normalizedHistoryUrl = normalizeUrl(history.url);
+          return normalizedHistoryUrl === normalizedItemUrl;
+        })
+        .delete();
+      await table.add({
+        ...item,
+        timestamp: Date.now(),
+      });
+
+      const count = await table.count();
+      if (count > HISTORY_MAX) {
+        const toDelete = await table
+          .orderBy("timestamp")
+          .limit(count - HISTORY_MAX)
+          .toArray();
+        const idsToDelete = toDelete
+          .map((h) => h.id)
+          .filter((id): id is number => id !== undefined);
+        await table.bulkDelete(idsToDelete);
+      }
+    },
+    getAll: () => table.orderBy("timestamp").reverse().toArray(),
+    clear: () => table.clear(),
+  };
+}
+
 // --- 具体的なキャッシュストアのインスタンス化 ---
 export const genericCache = createTTLStore(db.cache);
 export const knowdeSearchCache = createTTLStore<KnowdeSearchResult>(
@@ -76,12 +125,4 @@ export const knowdeSearchCache = createTTLStore<KnowdeSearchResult>(
 export const knowdeDetailCache = createEntityStore<KnowdeDetail>(
   db.knowdeDetails,
 );
-
-// --- その他のユーティリティ ---
-export async function clearAllCache(): Promise<void> {
-  await Promise.all([
-    genericCache.clear(),
-    knowdeSearchCache.clear(),
-    knowdeDetailCache.clear(),
-  ]);
-}
+export const historyCache = createHistoryStore(db.history);

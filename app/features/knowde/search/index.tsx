@@ -1,7 +1,7 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import Loading from "~/shared/components/Loading";
-import PagingNavi from "~/shared/components/Pagenation";
+import PagingNavi, { numberPage } from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
@@ -9,24 +9,22 @@ import {
   type searchByTextKnowdeGetResponse200,
   useSearchByTextKnowdeGet,
 } from "~/shared/generated/knowde/knowde";
+import { useHistory } from "~/shared/history/hooks";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
 import SearchBar from "./SearchBar";
-import SearchContext, {
-  initialSearchState,
-  SearchProvider,
-} from "./SearchContext";
+import SearchContext, { SearchProvider } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
 function KnowdeSearchLayout() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { pageSize, current, setCurrent, setTotal, total } =
+  const { current, pageSize, total, setTotal, setCurrent } =
     useContext(PageContext);
 
   const params = {
     q,
-    page: current || 1, // 0だと backendで validation error
+    page: current || 1, // 0 だとbackendで validation error
     size: pageSize,
     search_type: searchOption,
     ...orderBy,
@@ -40,6 +38,10 @@ function KnowdeSearchLayout() {
     >(cacheKey, knowdeSearchCache.get),
     300,
   );
+
+  const { addHistory } = useHistory();
+  const addedRef = useRef<string | null>(null);
+
   const { data, isLoading } = useSearchByTextKnowdeGet(debouncedParams, {
     swr: {
       revalidateOnFocus: false,
@@ -51,9 +53,17 @@ function KnowdeSearchLayout() {
           setTotal(total);
           // 再検索で有効範囲外にならないようにする
           if (total === 0) setCurrent(undefined);
-          if (current && current > total) setCurrent(total);
+          const nPage = numberPage(total, pageSize);
+          // if (total > 0 && !!current && (current < 1 || current > nPage)) {
+          //   setCurrent(1);
+          // }
+          if (current && current > total) setCurrent(nPage);
           if (!current && total > 0) setCurrent(1);
           await knowdeSearchCache.set(cacheKey, data.data);
+          // 履歴登録
+          if (addedRef.current === q) return;
+          addHistory({ title: q || "empty" });
+          addedRef.current = q;
         }
       },
     },
@@ -86,7 +96,7 @@ export default function KnowdeSearch() {
   return (
     <ClientOnly>
       {() => (
-        <SearchProvider {...initialSearchState}>
+        <SearchProvider>
           <PageProvider pageSize={50}>
             <KnowdeSearchLayout />
           </PageProvider>

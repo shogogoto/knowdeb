@@ -1,6 +1,5 @@
 import { LoaderCircle, Search, Settings } from "lucide-react";
 import { useContext } from "react";
-import { Form } from "react-router";
 import { Button } from "~/shared/components/ui/button";
 import {
   Collapsible,
@@ -19,7 +18,7 @@ export default function SearchBar({ isLoading }: Props) {
   const { immediateQ, setImmediateQ } = useContext(SearchContext);
 
   return (
-    <Form className="container mx-auto">
+    <div className="container mx-auto">
       <div className="container mx-auto p-2">
         <Collapsible>
           <div className="flex w-full items-center gap-2">
@@ -34,13 +33,12 @@ export default function SearchBar({ isLoading }: Props) {
               <Input
                 type="search"
                 value={immediateQ}
-                name="q"
+                name="q" // このname属性はもう機能しません
                 onChange={(ev) => {
                   setImmediateQ(ev.target.value);
                 }}
                 placeholder="検索文字列を入力..."
                 className="w-full border dark:bg-gray-800 pl-10"
-                //disabled={isLoading}
               />
             </div>
             <CollapsibleTrigger asChild>
@@ -48,7 +46,7 @@ export default function SearchBar({ isLoading }: Props) {
                 type="button"
                 variant="ghost"
                 size="icon"
-                //disabled={isLoading}
+                aria-label="Settings"
               >
                 <Settings />
               </Button>
@@ -59,6 +57,6 @@ export default function SearchBar({ isLoading }: Props) {
           </CollapsibleContent>
         </Collapsible>
       </div>
-    </Form>
+    </div>
   );
 }
