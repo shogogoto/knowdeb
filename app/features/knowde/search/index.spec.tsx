@@ -112,66 +112,54 @@ describe("Knowde Search", () => {
     });
   });
 
-  // describe("debounce test", () => {
-  //   it("入力後500ms経過するまでAPIは呼ばれず、1000ms経過後にAPIが呼ばれる", async () => {
-  //     const spy = vi.fn();
-  //     server.use(
-  //       http.get("*/knowde/", async (info) => {
-  //         spy(info.request.url);
-  //         return HttpResponse.json(getSearchByTextKnowdeGetResponseMock());
-  //       }),
-  //     );
-  //
-  //     render(<TestComponent />);
-  //     const user = userEvent.setup({
-  //       advanceTimers: (delay) => act(() => vi.advanceTimersByTime(delay)),
-  //     });
-  //
-  //     const searchInput = await screen.findByPlaceholderText(
-  //       "検索文字列を入力...",
-  //     );
-  //     expect(searchInput).toBeInTheDocument();
-  //     expect(spy).not.toHaveBeenCalled();
-  //
-  //     await user.type(searchInput, "test");
-  //
-  //     await act(() => vi.advanceTimersByTime(499));
-  //     expect(spy).not.toHaveBeenCalled();
-  //
-  //     // debounce(q) + debounce(params) の合計分待つ
-  //     await act(() => vi.advanceTimersByTime(501));
-  //     await waitFor(() => {
-  //       expect(spy).toHaveBeenCalledTimes(1);
-  //       expect(spy).toHaveBeenCalledWith(expect.stringContaining("q=test"));
-  //     });
-  //   });
-  // });
-  //
-  // describe("URL -> State同期", () => {
-  //   it("URLのクエリパラメータでコンポーネントが初期化される", async () => {
-  //     const spy = vi.fn();
-  //     server.use(
-  //       http.get("*/knowde/", async (info) => {
-  //         spy(info.request.url);
-  //         return HttpResponse.json(getSearchByTextKnowdeGetResponseMock());
-  //       }),
-  //     );
-  //
-  //     render(<TestComponent initialEntries={["/knowde/search?q=initial"]} />);
-  //
-  //     // debounceを待つ
-  //     await act(() => vi.advanceTimersByTime(1000));
-  //
-  //     // 初期レンダリング時にURLのクエリパラメータを使ってAPIが呼ばれる
-  //     await waitFor(() => {
-  //       expect(spy).toHaveBeenCalledWith(expect.stringContaining("q=initial"));
-  //     });
-  //
-  //     // 検索窓にも値が反映されている
-  //     const searchInput = await screen.findByDisplayValue("initial");
-  //     expect(searchInput).toBeInTheDocument();
-  //   });
-  // });
+  describe("URL -> State同期", () => {
+    it("URLのクエリパラメータでコンポーネントが初期化される", async () => {
+      server.use(getSearchByTextKnowdeGetMockHandler());
+
+      const user = userEvent.setup();
+      const router = mkrouter(
+        "/knowde/search?q=initial&type=REGEX&desc=false&n_detail=2&n_premise=3",
+      );
+      const { container } = render(<RouterProvider router={router} />);
+
+      await waitFor(() => {
+        const { search } = router.state.location;
+        expect(search).toContain("q=initial");
+        expect(search).toContain("type=REGEX");
+        expect(search).toContain("desc=false");
+        expect(search).toContain("n_detail=2");
+        expect(search).toContain("n_premise=3");
+      });
+
+      expect(await screen.findByDisplayValue("initial")).toBeInTheDocument();
+      const settingsButton = screen.getByRole("button", { name: "Settings" });
+      expect(settingsButton).toBeInTheDocument();
+      await user.click(settingsButton);
+      await waitFor(() => {
+        expect(settingsButton).toHaveAttribute("data-state", "open");
+      });
+
+      expect(
+        await screen.findByRole("checkbox", { name: "降順" }),
+      ).not.toBeChecked();
+      // expect(await screen.findByRole("comboBox", { name: "type" })).toHaveValue(
+      //   SearchByTextKnowdeGetType.REGEX,
+      // );
+      //
+      //
+      // // 詳細度 (n_detail=2)
+      // // Shadcn/uiのSliderは role=slider を持ち、値は aria-valuenow で表現される
+      // expect(
+      //   await screen.findByRole("slider", { name: "詳細数" }),
+      //   // ).toHaveAttribute("aria-valuenow", "2");
+      // ).toHaveValue(2);
+      //
+      // // 前提 (n_premise=3)
+      // expect(
+      //   await screen.findByRole("slider", { name: "前提" }),
+      // ).toHaveAttribute("aria-valuenow", "3");
+    });
+  });
   //
   // describe("State -> URL同期", () => {
   //   it("検索入力によってURLのクエリパラメータが更新される", async () => {

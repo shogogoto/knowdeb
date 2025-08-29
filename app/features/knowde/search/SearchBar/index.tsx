@@ -42,7 +42,12 @@ export default function SearchBar({ isLoading }: Props) {
               />
             </div>
             <CollapsibleTrigger asChild>
-              <Button type="button" variant="ghost" size="icon">
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Settings"
+              >
                 <Settings />
               </Button>
             </CollapsibleTrigger>
