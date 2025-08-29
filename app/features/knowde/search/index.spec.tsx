@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { setupServer } from "msw/node";
 import { RouterProvider, createMemoryRouter } from "react-router";
 import { vi } from "vitest";
+import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import {
   getKnowdeMock,
   getSearchByTextKnowdeGetMockHandler,
@@ -142,22 +143,21 @@ describe("Knowde Search", () => {
       expect(
         await screen.findByRole("checkbox", { name: "降順" }),
       ).not.toBeChecked();
-      // expect(await screen.findByRole("comboBox", { name: "type" })).toHaveValue(
-      //   SearchByTextKnowdeGetType.REGEX,
-      // );
-      //
-      //
-      // // 詳細度 (n_detail=2)
-      // // Shadcn/uiのSliderは role=slider を持ち、値は aria-valuenow で表現される
-      // expect(
-      //   await screen.findByRole("slider", { name: "詳細数" }),
-      //   // ).toHaveAttribute("aria-valuenow", "2");
-      // ).toHaveValue(2);
-      //
-      // // 前提 (n_premise=3)
-      // expect(
-      //   await screen.findByRole("slider", { name: "前提" }),
-      // ).toHaveAttribute("aria-valuenow", "3");
+      expect(
+        await screen.findByRole("combobox", { name: "マッチ方式" }),
+      ).toHaveValue(SearchByTextKnowdeGetType.REGEX);
+
+      const detailLabel = await screen.findByText("詳細数");
+      const detailContainer = detailLabel.closest("div");
+      // @ts-ignore
+      const detailSlider = within(detailContainer).getByRole("slider");
+      expect(detailSlider).toHaveAttribute("aria-valuenow", "2");
+
+      const premiseLabel = await screen.findByText("前提数");
+      const premiseContainer = premiseLabel.closest("div");
+      // @ts-ignore
+      const premiseSlider = within(premiseContainer).getByRole("slider");
+      expect(premiseSlider).toHaveAttribute("aria-valuenow", "3");
     });
   });
   //
