@@ -1,7 +1,7 @@
 import { useContext, useRef } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import Loading from "~/shared/components/Loading";
-import PagingNavi from "~/shared/components/Pagenation";
+import PagingNavi, { numberPage } from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
@@ -53,7 +53,11 @@ function KnowdeSearchLayout() {
           setTotal(total);
           // 再検索で有効範囲外にならないようにする
           if (total === 0) setCurrent(undefined);
-          if (current && current > total) setCurrent(total);
+          const nPage = numberPage(total, pageSize);
+          // if (total > 0 && !!current && (current < 1 || current > nPage)) {
+          //   setCurrent(1);
+          // }
+          if (current && current > total) setCurrent(nPage);
           if (!current && total > 0) setCurrent(1);
           await knowdeSearchCache.set(cacheKey, data.data);
           // 履歴登録
