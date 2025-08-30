@@ -13,6 +13,8 @@ import { useIsMobile } from "~/shared/hooks/use-mobile";
 
 export default function SideViewLayout() {
   const isMobile = useIsMobile();
+  const { histories } = useHistory();
+  const count = histories.length;
 
   if (isMobile) {
     return (
@@ -33,9 +35,6 @@ export default function SideViewLayout() {
       </>
     );
   }
-
-  const { histories } = useHistory();
-  const count = histories.length;
 
   return (
     <div className="grid grid-cols-[1fr_320px] gap-4">

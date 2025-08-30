@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback } from "react";
 import { useLocation } from "react-router";
 import useSWR, { useSWRConfig } from "swr";
 import { historyCache } from "~/shared/lib/indexed";
@@ -47,21 +47,4 @@ export function useHistory() {
     getUserTitle,
     getResourcreTitle,
   };
-}
-
-export function useHighlightByHash(prefix = "history-") {
-  useEffect(() => {
-    const hash = window.location.hash;
-    if (!hash.startsWith(`#${prefix}`)) return;
-    const elementId = hash.substring(1);
-    const element = document.getElementById(elementId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "center" });
-      element.style.transition = "background-color 0.5s ease-in-out";
-      element.style.backgroundColor = "rgba(255, 255, 0, 0.3)";
-      setTimeout(() => {
-        element.style.backgroundColor = "";
-      }, 2000);
-    }
-  }, [prefix]);
 }
