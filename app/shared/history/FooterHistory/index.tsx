@@ -3,9 +3,11 @@ import { useEffect, useRef } from "react";
 import { Link } from "react-router";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogTrigger,
 } from "~/shared/components/ui/dialog";
+import { ScrollArea } from "~/shared/components/ui/scroll-area";
 import { HistoryList } from "~/shared/history";
 import { HistoryItemIcon } from "~/shared/history/HistoryItemIcon";
 import { useHistory } from "~/shared/history/hooks";
@@ -41,8 +43,26 @@ export function FooterHistory({ histories: initialHistories }: Props) {
               <History size="1.25em" className="text-muted-foreground" />
             </div>
           </DialogTrigger>
-          <DialogContent className="w-80">
-            <HistoryList histories={histories} />
+          <DialogContent className="w-80 h-4/5 flex flex-col">
+            <ScrollArea className="h-full">
+              <ul>
+                {histories.map((history) => (
+                  <li key={history.id}>
+                    <DialogClose asChild>
+                      <Link
+                        to={history.url}
+                        className="flex items-center w-full p-1 hover:bg-muted rounded-md"
+                      >
+                        <HistoryItemIcon url={history.url} className="mr-2" />
+                        <span className="truncate flex-1">{history.title}</span>
+                      </Link>
+                    </DialogClose>
+                  </li>
+                ))}
+              </ul>
+
+              <HistoryList histories={histories} />
+            </ScrollArea>
           </DialogContent>
         </Dialog>
 
