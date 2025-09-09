@@ -11,22 +11,6 @@ import { http, HttpResponse, delay } from "msw";
 export const getCheckHealthHealthGetResponseMock = (): string =>
   faker.word.sample();
 
-export const getReadFileUploadPostMockHandler = (
-  overrideResponse?:
-    | null
-    | ((
-        info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<null> | null),
-) => {
-  return http.post("*/upload", async (info) => {
-    await delay(200);
-    if (typeof overrideResponse === "function") {
-      await overrideResponse(info);
-    }
-    return new HttpResponse(null, { status: 200 });
-  });
-};
-
 export const getCheckHealthHealthGetMockHandler = (
   overrideResponse?:
     | string
@@ -49,7 +33,4 @@ export const getCheckHealthHealthGetMockHandler = (
     );
   });
 };
-export const getDefaultMock = () => [
-  getReadFileUploadPostMockHandler(),
-  getCheckHealthHealthGetMockHandler(),
-];
+export const getDefaultMock = () => [getCheckHealthHealthGetMockHandler()];

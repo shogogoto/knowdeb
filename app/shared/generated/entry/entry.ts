@@ -11,8 +11,12 @@ import useSWRMutation from "swr/mutation";
 import type { SWRMutationConfiguration } from "swr/mutation";
 
 import type {
+  BodyPostFilesResourcePost,
+  BodyPostTextResourceTextPost,
   HTTPValidationError,
   NameSpace,
+  PostTextResourceTextPost200,
+  ResourceDetail,
   ResourceMetas,
 } from "../fastAPI.schemas";
 
@@ -98,36 +102,36 @@ export const useGetNamaspaceNamespaceGet = <
 };
 /**
  * ファイルシステムと同期.
- * @summary Sync Paths
+ * @summary Sync Namespace Api
  */
-export type syncPathsNamespacePostResponse200 = {
+export type syncNamespaceApiNamespacePostResponse200 = {
   data: string[];
   status: 200;
 };
 
-export type syncPathsNamespacePostResponse422 = {
+export type syncNamespaceApiNamespacePostResponse422 = {
   data: HTTPValidationError;
   status: 422;
 };
 
-export type syncPathsNamespacePostResponseComposite =
-  | syncPathsNamespacePostResponse200
-  | syncPathsNamespacePostResponse422;
+export type syncNamespaceApiNamespacePostResponseComposite =
+  | syncNamespaceApiNamespacePostResponse200
+  | syncNamespaceApiNamespacePostResponse422;
 
-export type syncPathsNamespacePostResponse =
-  syncPathsNamespacePostResponseComposite & {
+export type syncNamespaceApiNamespacePostResponse =
+  syncNamespaceApiNamespacePostResponseComposite & {
     headers: Headers;
   };
 
-export const getSyncPathsNamespacePostUrl = () => {
+export const getSyncNamespaceApiNamespacePostUrl = () => {
   return "https://knowde.onrender.com/namespace";
 };
 
-export const syncPathsNamespacePost = async (
+export const syncNamespaceApiNamespacePost = async (
   resourceMetas: ResourceMetas,
   options?: RequestInit,
-): Promise<syncPathsNamespacePostResponse> => {
-  const res = await fetch(getSyncPathsNamespacePostUrl(), {
+): Promise<syncNamespaceApiNamespacePostResponse> => {
+  const res = await fetch(getSyncNamespaceApiNamespacePostUrl(), {
     ...options,
     method: "POST",
     headers: { "Content-Type": "application/json", ...options?.headers },
@@ -135,7 +139,7 @@ export const syncPathsNamespacePost = async (
   });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: syncPathsNamespacePostResponse["data"] = body
+  const data: syncNamespaceApiNamespacePostResponse["data"] = body
     ? JSON.parse(body)
     : {};
 
@@ -143,48 +147,346 @@ export const syncPathsNamespacePost = async (
     data,
     status: res.status,
     headers: res.headers,
-  } as syncPathsNamespacePostResponse;
+  } as syncNamespaceApiNamespacePostResponse;
 };
 
-export const getSyncPathsNamespacePostMutationFetcher = (
+export const getSyncNamespaceApiNamespacePostMutationFetcher = (
   options?: RequestInit,
 ) => {
   return (
     _: Key,
     { arg }: { arg: ResourceMetas },
-  ): Promise<syncPathsNamespacePostResponse> => {
-    return syncPathsNamespacePost(arg, options);
+  ): Promise<syncNamespaceApiNamespacePostResponse> => {
+    return syncNamespaceApiNamespacePost(arg, options);
   };
 };
-export const getSyncPathsNamespacePostMutationKey = () =>
+export const getSyncNamespaceApiNamespacePostMutationKey = () =>
   ["https://knowde.onrender.com/namespace"] as const;
 
-export type SyncPathsNamespacePostMutationResult = NonNullable<
-  Awaited<ReturnType<typeof syncPathsNamespacePost>>
+export type SyncNamespaceApiNamespacePostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof syncNamespaceApiNamespacePost>>
 >;
-export type SyncPathsNamespacePostMutationError = Promise<HTTPValidationError>;
+export type SyncNamespaceApiNamespacePostMutationError =
+  Promise<HTTPValidationError>;
 
 /**
- * @summary Sync Paths
+ * @summary Sync Namespace Api
  */
-export const useSyncPathsNamespacePost = <
+export const useSyncNamespaceApiNamespacePost = <
   TError = Promise<HTTPValidationError>,
 >(options?: {
   swr?: SWRMutationConfiguration<
-    Awaited<ReturnType<typeof syncPathsNamespacePost>>,
+    Awaited<ReturnType<typeof syncNamespaceApiNamespacePost>>,
     TError,
     Key,
     ResourceMetas,
-    Awaited<ReturnType<typeof syncPathsNamespacePost>>
+    Awaited<ReturnType<typeof syncNamespaceApiNamespacePost>>
   > & { swrKey?: string };
   fetch?: RequestInit;
 }) => {
   const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
 
-  const swrKey = swrOptions?.swrKey ?? getSyncPathsNamespacePostMutationKey();
-  const swrFn = getSyncPathsNamespacePostMutationFetcher(fetchOptions);
+  const swrKey =
+    swrOptions?.swrKey ?? getSyncNamespaceApiNamespacePostMutationKey();
+  const swrFn = getSyncNamespaceApiNamespacePostMutationFetcher(fetchOptions);
 
   const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * テキストからsysnetを読み取って永続化.
+ * @summary Post Text
+ */
+export type postTextResourceTextPostResponse200 = {
+  data: PostTextResourceTextPost200;
+  status: 200;
+};
+
+export type postTextResourceTextPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type postTextResourceTextPostResponseComposite =
+  | postTextResourceTextPostResponse200
+  | postTextResourceTextPostResponse422;
+
+export type postTextResourceTextPostResponse =
+  postTextResourceTextPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getPostTextResourceTextPostUrl = () => {
+  return "https://knowde.onrender.com/resource-text";
+};
+
+export const postTextResourceTextPost = async (
+  bodyPostTextResourceTextPost: BodyPostTextResourceTextPost,
+  options?: RequestInit,
+): Promise<postTextResourceTextPostResponse> => {
+  const res = await fetch(getPostTextResourceTextPostUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(bodyPostTextResourceTextPost),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: postTextResourceTextPostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postTextResourceTextPostResponse;
+};
+
+export const getPostTextResourceTextPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyPostTextResourceTextPost },
+  ): Promise<postTextResourceTextPostResponse> => {
+    return postTextResourceTextPost(arg, options);
+  };
+};
+export const getPostTextResourceTextPostMutationKey = () =>
+  ["https://knowde.onrender.com/resource-text"] as const;
+
+export type PostTextResourceTextPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postTextResourceTextPost>>
+>;
+export type PostTextResourceTextPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Post Text
+ */
+export const usePostTextResourceTextPost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof postTextResourceTextPost>>,
+    TError,
+    Key,
+    BodyPostTextResourceTextPost,
+    Awaited<ReturnType<typeof postTextResourceTextPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey = swrOptions?.swrKey ?? getPostTextResourceTextPostMutationKey();
+  const swrFn = getPostTextResourceTextPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * ファイルからsysnetを読み取って永続化.
+ * @summary Post Files
+ */
+export type postFilesResourcePostResponse200 = {
+  data: null;
+  status: 200;
+};
+
+export type postFilesResourcePostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type postFilesResourcePostResponseComposite =
+  | postFilesResourcePostResponse200
+  | postFilesResourcePostResponse422;
+
+export type postFilesResourcePostResponse =
+  postFilesResourcePostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getPostFilesResourcePostUrl = () => {
+  return "https://knowde.onrender.com/resource";
+};
+
+export const postFilesResourcePost = async (
+  bodyPostFilesResourcePost: BodyPostFilesResourcePost,
+  options?: RequestInit,
+): Promise<postFilesResourcePostResponse> => {
+  const formData = new FormData();
+  bodyPostFilesResourcePost.files.forEach((value) =>
+    formData.append("files", value),
+  );
+
+  const res = await fetch(getPostFilesResourcePostUrl(), {
+    ...options,
+    method: "POST",
+    body: formData,
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: postFilesResourcePostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as postFilesResourcePostResponse;
+};
+
+export const getPostFilesResourcePostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: BodyPostFilesResourcePost },
+  ): Promise<postFilesResourcePostResponse> => {
+    return postFilesResourcePost(arg, options);
+  };
+};
+export const getPostFilesResourcePostMutationKey = () =>
+  ["https://knowde.onrender.com/resource"] as const;
+
+export type PostFilesResourcePostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof postFilesResourcePost>>
+>;
+export type PostFilesResourcePostMutationError = Promise<HTTPValidationError>;
+
+/**
+ * @summary Post Files
+ */
+export const usePostFilesResourcePost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof postFilesResourcePost>>,
+    TError,
+    Key,
+    BodyPostFilesResourcePost,
+    Awaited<ReturnType<typeof postFilesResourcePost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey = swrOptions?.swrKey ?? getPostFilesResourcePostMutationKey();
+  const swrFn = getPostFilesResourcePostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * リソース詳細.
+ * @summary Get Resource Detail
+ */
+export type getResourceDetailResourceResourceIdGetResponse200 = {
+  data: ResourceDetail;
+  status: 200;
+};
+
+export type getResourceDetailResourceResourceIdGetResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type getResourceDetailResourceResourceIdGetResponseComposite =
+  | getResourceDetailResourceResourceIdGetResponse200
+  | getResourceDetailResourceResourceIdGetResponse422;
+
+export type getResourceDetailResourceResourceIdGetResponse =
+  getResourceDetailResourceResourceIdGetResponseComposite & {
+    headers: Headers;
+  };
+
+export const getGetResourceDetailResourceResourceIdGetUrl = (
+  resourceId: string,
+) => {
+  return `https://knowde.onrender.com/resource/${resourceId}`;
+};
+
+export const getResourceDetailResourceResourceIdGet = async (
+  resourceId: string,
+  options?: RequestInit,
+): Promise<getResourceDetailResourceResourceIdGetResponse> => {
+  const res = await fetch(
+    getGetResourceDetailResourceResourceIdGetUrl(resourceId),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: getResourceDetailResourceResourceIdGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getResourceDetailResourceResourceIdGetResponse;
+};
+
+export const getGetResourceDetailResourceResourceIdGetKey = (
+  resourceId: string,
+) => [`https://knowde.onrender.com/resource/${resourceId}`] as const;
+
+export type GetResourceDetailResourceResourceIdGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getResourceDetailResourceResourceIdGet>>
+>;
+export type GetResourceDetailResourceResourceIdGetQueryError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Get Resource Detail
+ */
+export const useGetResourceDetailResourceResourceIdGet = <
+  TError = Promise<HTTPValidationError>,
+>(
+  resourceId: string,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof getResourceDetailResourceResourceIdGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false && !!resourceId;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() =>
+      isEnabled
+        ? getGetResourceDetailResourceResourceIdGetKey(resourceId)
+        : null);
+  const swrFn = () =>
+    getResourceDetailResourceResourceIdGet(resourceId, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
 
   return {
     swrKey,

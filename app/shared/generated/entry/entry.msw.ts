@@ -9,7 +9,11 @@ import { faker } from "@faker-js/faker";
 import { http, HttpResponse, delay } from "msw";
 
 import { EdgeType } from "../fastAPI.schemas";
-import type { NameSpace } from "../fastAPI.schemas";
+import type {
+  NameSpace,
+  PostTextResourceTextPost200,
+  ResourceDetail,
+} from "../fastAPI.schemas";
 
 export const getGetNamaspaceNamespaceGetResponseMock = (
   overrideResponse: Partial<NameSpace> = {},
@@ -51,10 +55,131 @@ export const getGetNamaspaceNamespaceGetResponseMock = (
   ...overrideResponse,
 });
 
-export const getSyncPathsNamespacePostResponseMock = (): string[] =>
+export const getSyncNamespaceApiNamespacePostResponseMock = (): string[] =>
   Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, () =>
     faker.word.sample(),
   );
+
+export const getPostTextResourceTextPostResponseMock =
+  (): PostTextResourceTextPost200 => ({
+    [faker.string.alphanumeric(5)]: faker.string.alpha(20),
+  });
+
+export const getGetResourceDetailResourceResourceIdGetResponseMock = (
+  overrideResponse: Partial<ResourceDetail> = {},
+): ResourceDetail => ({
+  network: {
+    root: faker.string.alpha(20),
+    g: faker.helpers.arrayElement([
+      {
+        directed: faker.datatype.boolean(),
+        edges: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => ({
+          type: faker.helpers.arrayElement(Object.values(EdgeType)),
+          source: faker.string.alpha(20),
+          target: faker.string.alpha(20),
+          key: faker.number.int({ min: undefined, max: undefined }),
+        })),
+        graph: {},
+        multigraph: faker.datatype.boolean(),
+        nodes: Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => ({
+          [faker.string.alphanumeric(5)]: faker.string.alpha(20),
+        })),
+      },
+      undefined,
+    ]),
+  },
+  owner: {
+    user: {
+      display_name: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      profile: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      avatar_url: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      username: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+          null,
+        ]),
+        undefined,
+      ]),
+      uid: faker.string.uuid(),
+      created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    },
+    resource: {
+      name: faker.string.alpha(20),
+      element_id_property: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      uid: faker.string.uuid(),
+      authors: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+          ).map(() => faker.string.alpha(20)),
+          null,
+        ]),
+        undefined,
+      ]),
+      published: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.date.past().toISOString().split("T")[0],
+          null,
+        ]),
+        undefined,
+      ]),
+      urls: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+          ).map(() => faker.internet.url()),
+          null,
+        ]),
+        undefined,
+      ]),
+      path: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+          ).map(() => faker.string.alpha(20)),
+          null,
+        ]),
+        undefined,
+      ]),
+      updated: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          `${faker.date.past().toISOString().split(".")[0]}Z`,
+          null,
+        ]),
+        undefined,
+      ]),
+      txt_hash: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.number.int({ min: undefined, max: undefined }),
+          null,
+        ]),
+        undefined,
+      ]),
+    },
+  },
+  ...overrideResponse,
+});
 
 export const getGetNamaspaceNamespaceGetMockHandler = (
   overrideResponse?:
@@ -79,7 +204,7 @@ export const getGetNamaspaceNamespaceGetMockHandler = (
   });
 };
 
-export const getSyncPathsNamespacePostMockHandler = (
+export const getSyncNamespaceApiNamespacePostMockHandler = (
   overrideResponse?:
     | string[]
     | ((
@@ -95,7 +220,69 @@ export const getSyncPathsNamespacePostMockHandler = (
           ? typeof overrideResponse === "function"
             ? await overrideResponse(info)
             : overrideResponse
-          : getSyncPathsNamespacePostResponseMock(),
+          : getSyncNamespaceApiNamespacePostResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getPostTextResourceTextPostMockHandler = (
+  overrideResponse?:
+    | PostTextResourceTextPost200
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<PostTextResourceTextPost200> | PostTextResourceTextPost200),
+) => {
+  return http.post("*/resource-text", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getPostTextResourceTextPostResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getPostFilesResourcePostMockHandler = (
+  overrideResponse?:
+    | null
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<null> | null),
+) => {
+  return http.post("*/resource", async (info) => {
+    await delay(200);
+    if (typeof overrideResponse === "function") {
+      await overrideResponse(info);
+    }
+    return new HttpResponse(null, { status: 200 });
+  });
+};
+
+export const getGetResourceDetailResourceResourceIdGetMockHandler = (
+  overrideResponse?:
+    | ResourceDetail
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<ResourceDetail> | ResourceDetail),
+) => {
+  return http.get("*/resource/:resourceId", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetResourceDetailResourceResourceIdGetResponseMock(),
       ),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
@@ -103,5 +290,8 @@ export const getSyncPathsNamespacePostMockHandler = (
 };
 export const getEntryMock = () => [
   getGetNamaspaceNamespaceGetMockHandler(),
-  getSyncPathsNamespacePostMockHandler(),
+  getSyncNamespaceApiNamespacePostMockHandler(),
+  getPostTextResourceTextPostMockHandler(),
+  getPostFilesResourcePostMockHandler(),
+  getGetResourceDetailResourceResourceIdGetMockHandler(),
 ];

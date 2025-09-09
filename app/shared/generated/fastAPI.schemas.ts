@@ -71,8 +71,13 @@ export interface BodyAuthJwtLoginAuthJwtLoginPost {
   client_secret?: BodyAuthJwtLoginAuthJwtLoginPostClientSecret;
 }
 
-export interface BodyReadFileUploadPost {
+export interface BodyPostFilesResourcePost {
   files: Blob[];
+}
+
+export interface BodyPostTextResourceTextPost {
+  txt: string;
+  path: string[];
 }
 
 export interface BodyResetForgotPasswordAuthForgotPasswordPost {
@@ -247,7 +252,7 @@ export interface KnowdeLocation {
   parents: Knowde[];
 }
 
-export type KnowdeSearchResultOwners = { [key: string]: ResourceOwnsers };
+export type KnowdeSearchResultOwners = { [key: string]: ResourceOwner };
 
 /**
  * knowde検索結果.
@@ -302,6 +307,14 @@ export interface OAuth2AuthorizeResponse {
   authorization_url: string;
 }
 
+/**
+ * リソース詳細(API Return Type用).
+ */
+export interface ResourceDetail {
+  network: SysNet;
+  owner: ResourceOwner;
+}
+
 export type ResourceMetaPublished = string | null;
 
 export type ResourceMetaPath = string[] | null;
@@ -331,9 +344,17 @@ export type ResourceMetas = ResourceMeta[];
 /**
  * リソースの所有者.
  */
-export interface ResourceOwnsers {
+export interface ResourceOwner {
   user: UserReadPublic;
   resource: MResource;
+}
+
+/**
+ * 系ネットワーク.
+ */
+export interface SysNet {
+  root: string;
+  g?: GraphData;
 }
 
 /**
@@ -548,6 +569,8 @@ export type SearchUserUserSearchGetParams = {
 export type UserProfileUserProfileUsernameGetParams = {
   user?: TrackUser;
 };
+
+export type PostTextResourceTextPost200 = { [key: string]: string };
 
 export type SearchByTextKnowdeGetParams = {
   user?: TrackUser;
