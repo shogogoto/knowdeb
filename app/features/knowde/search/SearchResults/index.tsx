@@ -52,7 +52,8 @@ export default function SearchResults({ data }: Props) {
               >
                 {rowVirtualizer.getVirtualItems().map((virtualItem) => {
                   const k = data.data[virtualItem.index];
-                  const { user, resource } = data.owners[k.resource_uid];
+                  const { user, resource } =
+                    data.resource_infos[k.resource_uid];
 
                   return (
                     <div

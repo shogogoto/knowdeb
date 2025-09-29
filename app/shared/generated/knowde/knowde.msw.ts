@@ -78,7 +78,7 @@ export const getSearchByTextKnowdeGetResponseMock = (
     },
     resource_uid: faker.string.uuid(),
   })),
-  owners: {
+  resource_infos: {
     [faker.string.alphanumeric(5)]: {
       user: {
         display_name: faker.helpers.arrayElement([
@@ -161,6 +161,47 @@ export const getSearchByTextKnowdeGetResponseMock = (
           ]),
           undefined,
         ]),
+      },
+      resource_stats: {
+        density: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        diameter: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        radius: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        n_scc: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        average_degree: faker.number.int({ min: undefined, max: undefined }),
+        n_char: faker.number.int({ min: undefined, max: undefined }),
+        n_sentence: faker.number.int({ min: undefined, max: undefined }),
+        n_term: faker.number.int({ min: undefined, max: undefined }),
+        n_edge: faker.number.int({ min: undefined, max: undefined }),
+        n_isolation: faker.number.int({ min: undefined, max: undefined }),
+        n_axiom: faker.number.int({ min: undefined, max: undefined }),
+        n_unrefered: faker.number.int({ min: undefined, max: undefined }),
+        r_isolation: faker.number.int({ min: undefined, max: undefined }),
+        r_axiom: faker.number.int({ min: undefined, max: undefined }),
+        r_unrefered: faker.number.int({ min: undefined, max: undefined }),
       },
     },
   },

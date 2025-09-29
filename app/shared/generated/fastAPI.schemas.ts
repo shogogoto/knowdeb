@@ -252,7 +252,7 @@ export interface KnowdeLocation {
   parents: Knowde[];
 }
 
-export type KnowdeSearchResultOwners = { [key: string]: ResourceOwner };
+export type KnowdeSearchResultResourceInfos = { [key: string]: ResourceInfo };
 
 /**
  * knowde検索結果.
@@ -260,7 +260,7 @@ export type KnowdeSearchResultOwners = { [key: string]: ResourceOwner };
 export interface KnowdeSearchResult {
   total: number;
   data: Knowde[];
-  owners: KnowdeSearchResultOwners;
+  resource_infos: KnowdeSearchResultResourceInfos;
 }
 
 export type MResourceElementIdProperty = string | null;
@@ -294,6 +294,8 @@ export interface MResource {
 
 export type NameSpaceRoots = { [key: string]: Entry };
 
+export type NameSpaceStats = { [key: string]: ResourceStats };
+
 /**
  * リソースの分類.
  */
@@ -301,6 +303,7 @@ export interface NameSpace {
   g?: GraphData;
   roots_: NameSpaceRoots;
   user_id: string;
+  stats?: NameSpaceStats;
 }
 
 export interface OAuth2AuthorizeResponse {
@@ -308,18 +311,35 @@ export interface OAuth2AuthorizeResponse {
 }
 
 /**
+ * クエリのページング.
+ */
+export interface Paging {
+  /** */
+  page?: number;
+  /** */
+  size?: number;
+}
+
+/**
  * リソース詳細(API Return Type用).
  */
 export interface ResourceDetail {
   network: SysNet;
-  owner: ResourceOwner;
+  resource_info: ResourceInfo;
+}
+
+/**
+ * リソースの所有者.
+ */
+export interface ResourceInfo {
+  user: UserReadPublic;
+  resource: MResource;
+  resource_stats: ResourceStats;
 }
 
 export type ResourceMetaPublished = string | null;
 
 export type ResourceMetaPath = string[] | null;
-
-export type ResourceMetaUpdated = string | null;
 
 export type ResourceMetaTxtHash = number | null;
 
@@ -332,7 +352,7 @@ export interface ResourceMeta {
   published?: ResourceMetaPublished;
   urls?: string[];
   path?: ResourceMetaPath;
-  updated?: ResourceMetaUpdated;
+  updated?: string;
   txt_hash?: ResourceMetaTxtHash;
 }
 
@@ -341,12 +361,114 @@ export interface ResourceMeta {
  */
 export type ResourceMetas = ResourceMeta[];
 
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const ResourceSearchBodyOrderByAnyOfItem = {
+  title: "title",
+  published: "published",
+  updated: "updated",
+  n_char: "n_char",
+  n_sentence: "n_sentence",
+  r_isolation: "r_isolation",
+  r_axiom: "r_axiom",
+  r_unrefered: "r_unrefered",
+  average_degree: "average_degree",
+  density: "density",
+  diameter: "diameter",
+  radius: "radius",
+  username: "username",
+  display_name: "display_name",
+} as const;
+export type ResourceSearchBodyOrderBy =
+  | (typeof ResourceSearchBodyOrderByAnyOfItem)[keyof typeof ResourceSearchBodyOrderByAnyOfItem][]
+  | null;
+
 /**
- * リソースの所有者.
+ * リソース検索のPOST Body.
  */
-export interface ResourceOwner {
-  user: UserReadPublic;
-  resource: MResource;
+export interface ResourceSearchBody {
+  q?: string;
+  q_user?: string;
+  paging?: Paging;
+  desc?: boolean;
+  order_by?: ResourceSearchBodyOrderBy;
+}
+
+/**
+ * リソース検索結果.
+ */
+export interface ResourceSearchResult {
+  total: number;
+  data?: ResourceInfo[];
+}
+
+/**
+ * 辺の割合。高いほど、ノード同士が密に結合している
+ * @nullable
+ */
+export type ResourceStatsDensity = number | null | null;
+
+/**
+ * 最大離心距離。ネットワーク内の最も遠いノード間の距離。低いほど、ネットワークがコンパクトで情報の伝達効率が高い。非連結のグラフの場合は、最大の強連結成分に対して計算
+ * @nullable
+ */
+export type ResourceStatsDiameter = number | null | null;
+
+/**
+ * 各ノードからの最大距離の最小値。低いほど、中心的なノードから全体にアクセスしやすい。非連結のグラフの場合は、最大の強連結成分に対して計算
+ * @nullable
+ */
+export type ResourceStatsRadius = number | null | null;
+
+/**
+ * グラフがいくつの独立した「島」に分かれているか。低いほど、知識が分断されていない
+ * @nullable
+ */
+export type ResourceStatsNScc = number | null | null;
+
+/**
+ * 知識の量を示す指標 for API.
+ */
+export interface ResourceStats {
+  /**
+   * 辺の割合。高いほど、ノード同士が密に結合している
+   * @nullable
+   */
+  density?: ResourceStatsDensity;
+  /**
+   * 最大離心距離。ネットワーク内の最も遠いノード間の距離。低いほど、ネットワークがコンパクトで情報の伝達効率が高い。非連結のグラフの場合は、最大の強連結成分に対して計算
+   * @nullable
+   */
+  diameter?: ResourceStatsDiameter;
+  /**
+   * 各ノードからの最大距離の最小値。低いほど、中心的なノードから全体にアクセスしやすい。非連結のグラフの場合は、最大の強連結成分に対して計算
+   * @nullable
+   */
+  radius?: ResourceStatsRadius;
+  /**
+   * グラフがいくつの独立した「島」に分かれているか。低いほど、知識が分断されていない
+   * @nullable
+   */
+  n_scc?: ResourceStatsNScc;
+  /** 一つの知識が平均していくつの他の知識と関連付いているか。高いほど、知識が密に関連し合う */
+  average_degree: number;
+  /** テキストの絶対的なボリューム */
+  n_char: number;
+  /** 知識の基本的な構成単位の数 */
+  n_sentence: number;
+  /** 語彙の規模 */
+  n_term: number;
+  /** 知識間の関係性の数 */
+  n_edge: number;
+  n_isolation: number;
+  n_axiom: number;
+  /** 他のどこからも参照されていない用語数 */
+  n_unrefered: number;
+  /** 低いほど、知識が相互に接続されている */
+  readonly r_isolation: number;
+  /** 低いほど、少数の原理から多くの知識が得られている */
+  readonly r_axiom: number;
+  /** 低いほど、定義された用語が無駄なく活用されている */
+  readonly r_unrefered: number;
 }
 
 /**
@@ -571,6 +693,10 @@ export type UserProfileUserProfileUsernameGetParams = {
 };
 
 export type PostTextResourceTextPost200 = { [key: string]: string };
+
+export type SearchResourcePostResourceSearchPostParams = {
+  user?: TrackUser;
+};
 
 export type SearchByTextKnowdeGetParams = {
   user?: TrackUser;

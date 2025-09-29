@@ -13,6 +13,7 @@ import type {
   NameSpace,
   PostTextResourceTextPost200,
   ResourceDetail,
+  ResourceSearchResult,
 } from "../fastAPI.schemas";
 
 export const getGetNamaspaceNamespaceGetResponseMock = (
@@ -52,6 +53,52 @@ export const getGetNamaspaceNamespaceGetResponseMock = (
     },
   },
   user_id: faker.string.uuid(),
+  stats: faker.helpers.arrayElement([
+    {
+      [faker.string.alphanumeric(5)]: {
+        density: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        diameter: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        radius: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        n_scc: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        average_degree: faker.number.int({ min: undefined, max: undefined }),
+        n_char: faker.number.int({ min: undefined, max: undefined }),
+        n_sentence: faker.number.int({ min: undefined, max: undefined }),
+        n_term: faker.number.int({ min: undefined, max: undefined }),
+        n_edge: faker.number.int({ min: undefined, max: undefined }),
+        n_isolation: faker.number.int({ min: undefined, max: undefined }),
+        n_axiom: faker.number.int({ min: undefined, max: undefined }),
+        n_unrefered: faker.number.int({ min: undefined, max: undefined }),
+        r_isolation: faker.number.int({ min: undefined, max: undefined }),
+        r_axiom: faker.number.int({ min: undefined, max: undefined }),
+        r_unrefered: faker.number.int({ min: undefined, max: undefined }),
+      },
+    },
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -94,7 +141,7 @@ export const getGetResourceDetailResourceResourceIdGetResponseMock = (
       undefined,
     ]),
   },
-  owner: {
+  resource_info: {
     user: {
       display_name: faker.helpers.arrayElement([
         faker.helpers.arrayElement([faker.string.alpha(20), null]),
@@ -177,7 +224,186 @@ export const getGetResourceDetailResourceResourceIdGetResponseMock = (
         undefined,
       ]),
     },
+    resource_stats: {
+      density: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.number.int({ min: undefined, max: undefined }),
+          null,
+        ]),
+        undefined,
+      ]),
+      diameter: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.number.int({ min: undefined, max: undefined }),
+          null,
+        ]),
+        undefined,
+      ]),
+      radius: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.number.int({ min: undefined, max: undefined }),
+          null,
+        ]),
+        undefined,
+      ]),
+      n_scc: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.number.int({ min: undefined, max: undefined }),
+          null,
+        ]),
+        undefined,
+      ]),
+      average_degree: faker.number.int({ min: undefined, max: undefined }),
+      n_char: faker.number.int({ min: undefined, max: undefined }),
+      n_sentence: faker.number.int({ min: undefined, max: undefined }),
+      n_term: faker.number.int({ min: undefined, max: undefined }),
+      n_edge: faker.number.int({ min: undefined, max: undefined }),
+      n_isolation: faker.number.int({ min: undefined, max: undefined }),
+      n_axiom: faker.number.int({ min: undefined, max: undefined }),
+      n_unrefered: faker.number.int({ min: undefined, max: undefined }),
+      r_isolation: faker.number.int({ min: undefined, max: undefined }),
+      r_axiom: faker.number.int({ min: undefined, max: undefined }),
+      r_unrefered: faker.number.int({ min: undefined, max: undefined }),
+    },
   },
+  ...overrideResponse,
+});
+
+export const getSearchResourcePostResourceSearchPostResponseMock = (
+  overrideResponse: Partial<ResourceSearchResult> = {},
+): ResourceSearchResult => ({
+  total: faker.number.int({ min: undefined, max: undefined }),
+  data: faker.helpers.arrayElement([
+    Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      user: {
+        display_name: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        profile: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        avatar_url: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        username: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+            null,
+          ]),
+          undefined,
+        ]),
+        uid: faker.string.uuid(),
+        created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      },
+      resource: {
+        name: faker.string.alpha(20),
+        element_id_property: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        uid: faker.string.uuid(),
+        authors: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.string.alpha(20)),
+            null,
+          ]),
+          undefined,
+        ]),
+        published: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.date.past().toISOString().split("T")[0],
+            null,
+          ]),
+          undefined,
+        ]),
+        urls: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.internet.url()),
+            null,
+          ]),
+          undefined,
+        ]),
+        path: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            Array.from(
+              { length: faker.number.int({ min: 1, max: 10 }) },
+              (_, i) => i + 1,
+            ).map(() => faker.string.alpha(20)),
+            null,
+          ]),
+          undefined,
+        ]),
+        updated: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            `${faker.date.past().toISOString().split(".")[0]}Z`,
+            null,
+          ]),
+          undefined,
+        ]),
+        txt_hash: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+      },
+      resource_stats: {
+        density: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        diameter: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        radius: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        n_scc: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.number.int({ min: undefined, max: undefined }),
+            null,
+          ]),
+          undefined,
+        ]),
+        average_degree: faker.number.int({ min: undefined, max: undefined }),
+        n_char: faker.number.int({ min: undefined, max: undefined }),
+        n_sentence: faker.number.int({ min: undefined, max: undefined }),
+        n_term: faker.number.int({ min: undefined, max: undefined }),
+        n_edge: faker.number.int({ min: undefined, max: undefined }),
+        n_isolation: faker.number.int({ min: undefined, max: undefined }),
+        n_axiom: faker.number.int({ min: undefined, max: undefined }),
+        n_unrefered: faker.number.int({ min: undefined, max: undefined }),
+        r_isolation: faker.number.int({ min: undefined, max: undefined }),
+        r_axiom: faker.number.int({ min: undefined, max: undefined }),
+        r_unrefered: faker.number.int({ min: undefined, max: undefined }),
+      },
+    })),
+    undefined,
+  ]),
   ...overrideResponse,
 });
 
@@ -288,10 +514,34 @@ export const getGetResourceDetailResourceResourceIdGetMockHandler = (
     );
   });
 };
+
+export const getSearchResourcePostResourceSearchPostMockHandler = (
+  overrideResponse?:
+    | ResourceSearchResult
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<ResourceSearchResult> | ResourceSearchResult),
+) => {
+  return http.post("*/resource/search", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSearchResourcePostResourceSearchPostResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getEntryMock = () => [
   getGetNamaspaceNamespaceGetMockHandler(),
   getSyncNamespaceApiNamespacePostMockHandler(),
   getPostTextResourceTextPostMockHandler(),
   getPostFilesResourcePostMockHandler(),
   getGetResourceDetailResourceResourceIdGetMockHandler(),
+  getSearchResourcePostResourceSearchPostMockHandler(),
 ];

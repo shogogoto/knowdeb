@@ -18,6 +18,9 @@ import type {
   PostTextResourceTextPost200,
   ResourceDetail,
   ResourceMetas,
+  ResourceSearchBody,
+  ResourceSearchResult,
+  SearchResourcePostResourceSearchPostParams,
 } from "../fastAPI.schemas";
 
 /**
@@ -487,6 +490,131 @@ export const useGetResourceDetailResourceResourceIdGet = <
     swrFn,
     swrOptions,
   );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * リソース検索(POST).
+ * @summary Search Resource Post
+ */
+export type searchResourcePostResourceSearchPostResponse200 = {
+  data: ResourceSearchResult;
+  status: 200;
+};
+
+export type searchResourcePostResourceSearchPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type searchResourcePostResourceSearchPostResponseComposite =
+  | searchResourcePostResourceSearchPostResponse200
+  | searchResourcePostResourceSearchPostResponse422;
+
+export type searchResourcePostResourceSearchPostResponse =
+  searchResourcePostResourceSearchPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getSearchResourcePostResourceSearchPostUrl = (
+  params?: SearchResourcePostResourceSearchPostParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `https://knowde.onrender.com/resource/search?${stringifiedParams}`
+    : "https://knowde.onrender.com/resource/search";
+};
+
+export const searchResourcePostResourceSearchPost = async (
+  resourceSearchBody: ResourceSearchBody,
+  params?: SearchResourcePostResourceSearchPostParams,
+  options?: RequestInit,
+): Promise<searchResourcePostResourceSearchPostResponse> => {
+  const res = await fetch(getSearchResourcePostResourceSearchPostUrl(params), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(resourceSearchBody),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: searchResourcePostResourceSearchPostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as searchResourcePostResourceSearchPostResponse;
+};
+
+export const getSearchResourcePostResourceSearchPostMutationFetcher = (
+  params?: SearchResourcePostResourceSearchPostParams,
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: ResourceSearchBody },
+  ): Promise<searchResourcePostResourceSearchPostResponse> => {
+    return searchResourcePostResourceSearchPost(arg, params, options);
+  };
+};
+export const getSearchResourcePostResourceSearchPostMutationKey = (
+  params?: SearchResourcePostResourceSearchPostParams,
+) =>
+  [
+    "https://knowde.onrender.com/resource/search",
+    ...(params ? [params] : []),
+  ] as const;
+
+export type SearchResourcePostResourceSearchPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof searchResourcePostResourceSearchPost>>
+>;
+export type SearchResourcePostResourceSearchPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Search Resource Post
+ */
+export const useSearchResourcePostResourceSearchPost = <
+  TError = Promise<HTTPValidationError>,
+>(
+  params?: SearchResourcePostResourceSearchPostParams,
+  options?: {
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof searchResourcePostResourceSearchPost>>,
+      TError,
+      Key,
+      ResourceSearchBody,
+      Awaited<ReturnType<typeof searchResourcePostResourceSearchPost>>
+    > & { swrKey?: string };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getSearchResourcePostResourceSearchPostMutationKey(params);
+  const swrFn = getSearchResourcePostResourceSearchPostMutationFetcher(
+    params,
+    fetchOptions,
+  );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
 
   return {
     swrKey,
