@@ -24,6 +24,7 @@ export default [
       route("knowde/:id", "routes/knowde/detail/index.tsx"),
       route("user/edit", "routes/user/edit.tsx"),
       route("user/:userId", "routes/user/search.tsx"),
+      route("resource", "features/namespace/resource/index.tsx"),
     ]),
   ]),
 
