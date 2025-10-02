@@ -4,6 +4,15 @@
  * FastAPI
  * OpenAPI spec version: 0.1.0
  */
+/**
+ * 成果スナップショット実行結果.
+ */
+export interface AchievementSnapshotResult {
+  n_all_users: number;
+  n_target: number;
+  n_saved: number;
+}
+
 export type AdditionalWhen = string | null;
 
 export type AdditionalWhere = string | null;
@@ -306,6 +315,8 @@ export interface NameSpace {
   stats?: NameSpaceStats;
 }
 
+export type Neo4jDateTime = string;
+
 export interface OAuth2AuthorizeResponse {
   authorization_url: string;
 }
@@ -530,7 +541,23 @@ export interface User {
   is_active: boolean;
   is_superuser: boolean;
   is_verified: boolean;
-  created: string;
+  created: Neo4jDateTime;
+}
+
+/**
+ * ユーザーの作業量計.
+ */
+export interface UserAchievement {
+  n_char: number;
+  n_sentence: number;
+  n_resource: number;
+  created: Neo4jDateTime;
+}
+
+export type UserActivityRequestUserIdsItem = string | string;
+
+export interface UserActivityRequest {
+  user_ids: UserActivityRequestUserIdsItem[];
 }
 
 export type UserCreateIsActive = boolean | null;
@@ -580,7 +607,7 @@ export interface UserRead {
   avatar_url?: UserReadAvatarUrl;
   /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
   username?: UserReadUsername;
-  created: string;
+  created: Neo4jDateTime;
 }
 
 export type UserReadPublicDisplayName = string | null;
@@ -604,7 +631,47 @@ export interface UserReadPublic {
   /** 半角英数字とハイフン、アンダースコアのみが使用できます。 */
   username?: UserReadPublicUsername;
   uid: string;
-  created: string;
+  created: Neo4jDateTime;
+}
+
+export type UserSearchBodyOrderByAnyOfItem =
+  (typeof UserSearchBodyOrderByAnyOfItem)[keyof typeof UserSearchBodyOrderByAnyOfItem];
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const UserSearchBodyOrderByAnyOfItem = {
+  username: "username",
+  display_name: "display_name",
+  n_char: "n_char",
+  n_sentence: "n_sentence",
+  n_resource: "n_resource",
+} as const;
+
+export type UserSearchBodyOrderBy = UserSearchBodyOrderByAnyOfItem[] | null;
+
+/**
+ * ユーザー検索パラメータ.
+ */
+export interface UserSearchBody {
+  q?: string;
+  paging?: Paging;
+  desc?: boolean;
+  order_by?: UserSearchBodyOrderBy;
+}
+
+/**
+ * 検索結果.
+ */
+export interface UserSearchResult {
+  total: number;
+  data: UserSearchRow[];
+}
+
+/**
+ * 検索結果行.
+ */
+export interface UserSearchRow {
+  user: UserReadPublic;
+  archivement: UserAchievement;
 }
 
 /**
@@ -682,14 +749,17 @@ export type OauthGoogleCookieCallbackGoogleCookieCallbackGetParams = {
   error?: string | null;
 };
 
-export type SearchUserUserSearchGetParams = {
-  display_name?: string;
-  id?: string;
+export type UserProfileUserProfileUsernameGetParams = {
   user?: TrackUser;
 };
 
-export type UserProfileUserProfileUsernameGetParams = {
+export type SearchUserUserSearchPostParams = {
   user?: TrackUser;
+};
+
+export type SaveUserAchievementUserAchievementBatchGetParams = {
+  page?: number;
+  size?: number;
 };
 
 export type PostTextResourceTextPost200 = { [key: string]: string };

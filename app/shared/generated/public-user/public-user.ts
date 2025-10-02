@@ -7,122 +7,22 @@
 import useSwr from "swr";
 import type { Key, SWRConfiguration } from "swr";
 
+import useSWRMutation from "swr/mutation";
+import type { SWRMutationConfiguration } from "swr/mutation";
+
 import type {
+  AchievementSnapshotResult,
   HTTPValidationError,
-  SearchUserUserSearchGetParams,
+  SaveUserAchievementUserAchievementBatchGetParams,
+  SearchUserUserSearchPostParams,
+  UserActivityRequest,
   UserProfileUserProfileUsernameGetParams,
   UserReadPublic,
+  UserSearchBody,
+  UserSearchResult,
+  UserSearchRow,
 } from "../fastAPI.schemas";
 
-/**
- * 認証なしユーザー検索.
- * @summary Search User
- */
-export type searchUserUserSearchGetResponse200 = {
-  data: UserReadPublic[];
-  status: 200;
-};
-
-export type searchUserUserSearchGetResponse422 = {
-  data: HTTPValidationError;
-  status: 422;
-};
-
-export type searchUserUserSearchGetResponseComposite =
-  | searchUserUserSearchGetResponse200
-  | searchUserUserSearchGetResponse422;
-
-export type searchUserUserSearchGetResponse =
-  searchUserUserSearchGetResponseComposite & {
-    headers: Headers;
-  };
-
-export const getSearchUserUserSearchGetUrl = (
-  params?: SearchUserUserSearchGetParams,
-) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? "null" : value.toString());
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0
-    ? `https://knowde.onrender.com/user/search?${stringifiedParams}`
-    : "https://knowde.onrender.com/user/search";
-};
-
-export const searchUserUserSearchGet = async (
-  params?: SearchUserUserSearchGetParams,
-  options?: RequestInit,
-): Promise<searchUserUserSearchGetResponse> => {
-  const res = await fetch(getSearchUserUserSearchGetUrl(params), {
-    ...options,
-    method: "GET",
-  });
-
-  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: searchUserUserSearchGetResponse["data"] = body
-    ? JSON.parse(body)
-    : {};
-
-  return {
-    data,
-    status: res.status,
-    headers: res.headers,
-  } as searchUserUserSearchGetResponse;
-};
-
-export const getSearchUserUserSearchGetKey = (
-  params?: SearchUserUserSearchGetParams,
-) =>
-  [
-    "https://knowde.onrender.com/user/search",
-    ...(params ? [params] : []),
-  ] as const;
-
-export type SearchUserUserSearchGetQueryResult = NonNullable<
-  Awaited<ReturnType<typeof searchUserUserSearchGet>>
->;
-export type SearchUserUserSearchGetQueryError = Promise<HTTPValidationError>;
-
-/**
- * @summary Search User
- */
-export const useSearchUserUserSearchGet = <
-  TError = Promise<HTTPValidationError>,
->(
-  params?: SearchUserUserSearchGetParams,
-  options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof searchUserUserSearchGet>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
-    fetch?: RequestInit;
-  },
-) => {
-  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
-
-  const isEnabled = swrOptions?.enabled !== false;
-  const swrKey =
-    swrOptions?.swrKey ??
-    (() => (isEnabled ? getSearchUserUserSearchGetKey(params) : null));
-  const swrFn = () => searchUserUserSearchGet(params, fetchOptions);
-
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
-  );
-
-  return {
-    swrKey,
-    ...query,
-  };
-};
 /**
  * 公開ユーザー情報.
  * @summary User Profile
@@ -232,6 +132,344 @@ export const useUserProfileUserProfileUsernameGet = <
         : null);
   const swrFn = () =>
     userProfileUserProfileUsernameGet(username, params, fetchOptions);
+
+  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
+    swrKey,
+    swrFn,
+    swrOptions,
+  );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * 認証なしユーザー検索.
+ * @summary Search User
+ */
+export type searchUserUserSearchPostResponse200 = {
+  data: UserSearchResult;
+  status: 200;
+};
+
+export type searchUserUserSearchPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type searchUserUserSearchPostResponseComposite =
+  | searchUserUserSearchPostResponse200
+  | searchUserUserSearchPostResponse422;
+
+export type searchUserUserSearchPostResponse =
+  searchUserUserSearchPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getSearchUserUserSearchPostUrl = (
+  params?: SearchUserUserSearchPostParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `https://knowde.onrender.com/user/search?${stringifiedParams}`
+    : "https://knowde.onrender.com/user/search";
+};
+
+export const searchUserUserSearchPost = async (
+  userSearchBody: UserSearchBody,
+  params?: SearchUserUserSearchPostParams,
+  options?: RequestInit,
+): Promise<searchUserUserSearchPostResponse> => {
+  const res = await fetch(getSearchUserUserSearchPostUrl(params), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(userSearchBody),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: searchUserUserSearchPostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as searchUserUserSearchPostResponse;
+};
+
+export const getSearchUserUserSearchPostMutationFetcher = (
+  params?: SearchUserUserSearchPostParams,
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: UserSearchBody },
+  ): Promise<searchUserUserSearchPostResponse> => {
+    return searchUserUserSearchPost(arg, params, options);
+  };
+};
+export const getSearchUserUserSearchPostMutationKey = (
+  params?: SearchUserUserSearchPostParams,
+) =>
+  [
+    "https://knowde.onrender.com/user/search",
+    ...(params ? [params] : []),
+  ] as const;
+
+export type SearchUserUserSearchPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof searchUserUserSearchPost>>
+>;
+export type SearchUserUserSearchPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Search User
+ */
+export const useSearchUserUserSearchPost = <
+  TError = Promise<HTTPValidationError>,
+>(
+  params?: SearchUserUserSearchPostParams,
+  options?: {
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof searchUserUserSearchPost>>,
+      TError,
+      Key,
+      UserSearchBody,
+      Awaited<ReturnType<typeof searchUserUserSearchPost>>
+    > & { swrKey?: string };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getSearchUserUserSearchPostMutationKey(params);
+  const swrFn = getSearchUserUserSearchPostMutationFetcher(
+    params,
+    fetchOptions,
+  );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * 複数ユーザーの現在の成果をまとめて取得.
+ * @summary Get User Activity
+ */
+export type getUserActivityUserActivityPostResponse200 = {
+  data: UserSearchRow[];
+  status: 200;
+};
+
+export type getUserActivityUserActivityPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type getUserActivityUserActivityPostResponseComposite =
+  | getUserActivityUserActivityPostResponse200
+  | getUserActivityUserActivityPostResponse422;
+
+export type getUserActivityUserActivityPostResponse =
+  getUserActivityUserActivityPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getGetUserActivityUserActivityPostUrl = () => {
+  return "https://knowde.onrender.com/user/activity";
+};
+
+export const getUserActivityUserActivityPost = async (
+  userActivityRequest: UserActivityRequest,
+  options?: RequestInit,
+): Promise<getUserActivityUserActivityPostResponse> => {
+  const res = await fetch(getGetUserActivityUserActivityPostUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(userActivityRequest),
+  });
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: getUserActivityUserActivityPostResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getUserActivityUserActivityPostResponse;
+};
+
+export const getGetUserActivityUserActivityPostMutationFetcher = (
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    { arg }: { arg: UserActivityRequest },
+  ): Promise<getUserActivityUserActivityPostResponse> => {
+    return getUserActivityUserActivityPost(arg, options);
+  };
+};
+export const getGetUserActivityUserActivityPostMutationKey = () =>
+  ["https://knowde.onrender.com/user/activity"] as const;
+
+export type GetUserActivityUserActivityPostMutationResult = NonNullable<
+  Awaited<ReturnType<typeof getUserActivityUserActivityPost>>
+>;
+export type GetUserActivityUserActivityPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Get User Activity
+ */
+export const useGetUserActivityUserActivityPost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<ReturnType<typeof getUserActivityUserActivityPost>>,
+    TError,
+    Key,
+    UserActivityRequest,
+    Awaited<ReturnType<typeof getUserActivityUserActivityPost>>
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ?? getGetUserActivityUserActivityPostMutationKey();
+  const swrFn = getGetUserActivityUserActivityPostMutationFetcher(fetchOptions);
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * バッチ処理などで利用する成果の保存API.
+ * @summary Save User Achievement
+ */
+export type saveUserAchievementUserAchievementBatchGetResponse200 = {
+  data: AchievementSnapshotResult;
+  status: 200;
+};
+
+export type saveUserAchievementUserAchievementBatchGetResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type saveUserAchievementUserAchievementBatchGetResponseComposite =
+  | saveUserAchievementUserAchievementBatchGetResponse200
+  | saveUserAchievementUserAchievementBatchGetResponse422;
+
+export type saveUserAchievementUserAchievementBatchGetResponse =
+  saveUserAchievementUserAchievementBatchGetResponseComposite & {
+    headers: Headers;
+  };
+
+export const getSaveUserAchievementUserAchievementBatchGetUrl = (
+  params?: SaveUserAchievementUserAchievementBatchGetParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `https://knowde.onrender.com/user/achievement/batch?${stringifiedParams}`
+    : "https://knowde.onrender.com/user/achievement/batch";
+};
+
+export const saveUserAchievementUserAchievementBatchGet = async (
+  params?: SaveUserAchievementUserAchievementBatchGetParams,
+  options?: RequestInit,
+): Promise<saveUserAchievementUserAchievementBatchGetResponse> => {
+  const res = await fetch(
+    getSaveUserAchievementUserAchievementBatchGetUrl(params),
+    {
+      ...options,
+      method: "GET",
+    },
+  );
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: saveUserAchievementUserAchievementBatchGetResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as saveUserAchievementUserAchievementBatchGetResponse;
+};
+
+export const getSaveUserAchievementUserAchievementBatchGetKey = (
+  params?: SaveUserAchievementUserAchievementBatchGetParams,
+) =>
+  [
+    "https://knowde.onrender.com/user/achievement/batch",
+    ...(params ? [params] : []),
+  ] as const;
+
+export type SaveUserAchievementUserAchievementBatchGetQueryResult = NonNullable<
+  Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchGet>>
+>;
+export type SaveUserAchievementUserAchievementBatchGetQueryError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Save User Achievement
+ */
+export const useSaveUserAchievementUserAchievementBatchGet = <
+  TError = Promise<HTTPValidationError>,
+>(
+  params?: SaveUserAchievementUserAchievementBatchGetParams,
+  options?: {
+    swr?: SWRConfiguration<
+      Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchGet>>,
+      TError
+    > & { swrKey?: Key; enabled?: boolean };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const isEnabled = swrOptions?.enabled !== false;
+  const swrKey =
+    swrOptions?.swrKey ??
+    (() =>
+      isEnabled
+        ? getSaveUserAchievementUserAchievementBatchGetKey(params)
+        : null);
+  const swrFn = () =>
+    saveUserAchievementUserAchievementBatchGet(params, fetchOptions);
 
   const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
     swrKey,
