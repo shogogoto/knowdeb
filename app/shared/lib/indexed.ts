@@ -2,6 +2,7 @@ import Dexie, { type Table } from "dexie";
 import type {
   KnowdeDetail,
   KnowdeSearchResult,
+  ResourceSearchResult,
 } from "~/shared/generated/fastAPI.schemas";
 import type { HistoryItemType } from "../history/types";
 
@@ -18,6 +19,7 @@ class KnowdeCacheDB extends Dexie {
   public cache!: Table<CacheItem<unknown>>;
   public knowdeDetails!: Table<KnowdeDetail>;
   public knowdeSearchResults!: Table<CacheItem<KnowdeSearchResult>>;
+  public resourceSearchResults!: Table<CacheItem<ResourceSearchResult>>;
   public history!: Table<HistoryItemType>;
 
   public constructor() {
@@ -26,6 +28,7 @@ class KnowdeCacheDB extends Dexie {
       cache: "&key, expires",
       knowdeDetails: "&uid",
       knowdeSearchResults: "&key, expires",
+      resourceSearchResults: "&key, expires",
       history: "++id, timestamp, url",
     });
   }
@@ -125,4 +128,9 @@ export const knowdeSearchCache = createTTLStore<KnowdeSearchResult>(
 export const knowdeDetailCache = createEntityStore<KnowdeDetail>(
   db.knowdeDetails,
 );
+
+export const resourceSearchCache = createTTLStore<ResourceSearchResult>(
+  db.resourceSearchResults,
+);
+
 export const historyCache = createHistoryStore(db.history);

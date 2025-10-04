@@ -1,6 +1,19 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useMemo } from "react";
+import PageContext from "~/shared/components/Pagenation/PageContext";
+import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import SearchBar from "~/shared/components/SearchBar";
-import { useSearchResourcePostResourceSearchPost } from "~/shared/generated/entry/entry";
+import SearchLayout from "~/shared/components/SearchLayout";
+import {
+  type searchResourcePostResourceSearchPostResponse200,
+  useSearchResourcePostResourceSearchPost,
+} from "~/shared/generated/entry/entry";
+import type {
+  ResourceSearchBody,
+  ResourceSearchResult,
+} from "~/shared/generated/fastAPI.schemas";
+import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
+import { useDebounce } from "~/shared/hooks/useDebounce";
+import { resourceSearchCache } from "~/shared/lib/indexed";
 import SearchQueryContext, {
   SearchQueryProvider,
 } from "~/shared/search/SearchContext";
@@ -8,31 +21,54 @@ import ResourceSearchResultView from "./ResourceSearchResult";
 
 function _ResourceSearch() {
   const { q } = useContext(SearchQueryContext);
+  const { current, pageSize, total, handleSuccess } = useContext(PageContext);
 
-  const { trigger, data, isMutating, error } =
-    useSearchResourcePostResourceSearchPost({});
-
-  useEffect(() => {
-    trigger({
+  const params: ResourceSearchBody = useMemo(() => {
+    return {
       q,
       q_user: "",
       paging: {
-        page: 1,
-        size: 100,
+        page: current || 1,
+        size: pageSize,
       },
       desc: true,
       order_by: ["title", "n_char", "username"],
-    });
-  }, [trigger, q]);
-
-  const displayData = data?.status === 200 ? data.data : { total: 0, data: [] };
-
-  return (
-    <div className="grid gap-4">
-      <ResourceSearchBar isLoading={isMutating} />
-      <ResourceSearchResultView result={displayData} />
-    </div>
+    };
+  }, [q, current, pageSize]);
+  const debouncedParams = useDebounce(params, 500);
+  const cacheKey = createCacheKey("resource-search", debouncedParams);
+  const fallbackData = useCachedSWR<
+    ResourceSearchResult,
+    searchResourcePostResourceSearchPostResponse200 & { headers: Headers }
+  >(cacheKey, resourceSearchCache.get);
+  const { trigger, data, isMutating } = useSearchResourcePostResourceSearchPost(
+    {},
+    {
+      swr: {
+        onSuccess: (data) => {
+          if (data.status === 200) {
+            handleSuccess(data.data.total || 0, pageSize);
+            resourceSearchCache.set(cacheKey, data.data);
+          }
+        },
+      },
+    },
   );
+
+  useEffect(() => {
+    trigger(debouncedParams);
+  }, [trigger, debouncedParams]);
+
+  const displayData =
+    data?.status === 200
+      ? data.data
+      : fallbackData?.status === 200
+        ? fallbackData.data
+        : { total: 0, data: [] };
+
+  const bar = <ResourceSearchBar isLoading={isMutating} />;
+  const main = <ResourceSearchResultView result={displayData} />;
+  return <SearchLayout header={bar} main={main} />;
 }
 
 type SBProps = {
@@ -49,7 +85,9 @@ function ResourceSearchBar({ isLoading }: SBProps) {
 export default function ResourceSearch() {
   return (
     <SearchQueryProvider>
-      <_ResourceSearch />
+      <PageProvider pageSize={100}>
+        <_ResourceSearch />
+      </PageProvider>
     </SearchQueryProvider>
   );
 }

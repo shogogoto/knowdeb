@@ -1,7 +1,6 @@
 import { useContext, useRef } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import Loading from "~/shared/components/Loading";
-import PagingNavi, { numberPage } from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import SearchLayout from "~/shared/components/SearchLayout";
@@ -20,8 +19,7 @@ import KnowdeSearchResults from "./SearchResults";
 
 function KnowdeSearchLayout() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { current, pageSize, total, setTotal, setCurrent } =
-    useContext(PageContext);
+  const { current, pageSize, total, handleSuccess } = useContext(PageContext);
 
   const params = {
     q,
@@ -50,16 +48,7 @@ function KnowdeSearchLayout() {
       fallbackData,
       onSuccess: async (data) => {
         if (data.status === 200) {
-          const total = data.data.total || 0;
-          setTotal(total);
-          // 再検索で有効範囲外にならないようにする
-          if (total === 0) setCurrent(undefined);
-          const nPage = numberPage(total, pageSize);
-          // if (total > 0 && !!current && (current < 1 || current > nPage)) {
-          //   setCurrent(1);
-          // }
-          if (current && current > total) setCurrent(nPage);
-          if (!current && total > 0) setCurrent(1);
+          handleSuccess(data.data.total || 0, pageSize);
           await knowdeSearchCache.set(cacheKey, data.data);
           // 履歴登録
           if (addedRef.current === q) return;
@@ -72,7 +61,7 @@ function KnowdeSearchLayout() {
 
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
-  const search = <KnowdeSearchBar isLoading={isLoading && !!displayData} />;
+  const bar = <KnowdeSearchBar isLoading={isLoading && !!displayData} />;
   const result = (
     <div className="flex h-screen justify-center w-full">
       {isLoading && !displayData ? (
@@ -82,13 +71,7 @@ function KnowdeSearchLayout() {
       )}
     </div>
   );
-  return (
-    <SearchLayout
-      header={search}
-      main={result}
-      footer={<PagingNavi total={total} />}
-    />
-  );
+  return <SearchLayout header={bar} main={result} />;
 }
 
 export default function KnowdeSearch() {

@@ -25,6 +25,7 @@ export default [
       route("user/edit", "routes/user/edit.tsx"),
       route("user/:userId", "routes/user/search.tsx"),
       route("search/resource", "features/resource/search/index.tsx"),
+      route("resource/:id", "routes/resource/detail.tsx"),
     ]),
   ]),
 
