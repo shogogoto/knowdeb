@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import SearchBar from "~/shared/search/SearchBar";
+import SearchBar from "~/shared/components/SearchBar";
 import SearchContext from "../SearchContext";
 import KnowdeSearchConfig from "./SearchConfig";
 

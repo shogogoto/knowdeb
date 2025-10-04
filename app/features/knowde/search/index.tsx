@@ -4,6 +4,7 @@ import Loading from "~/shared/components/Loading";
 import PagingNavi, { numberPage } from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
+import SearchLayout from "~/shared/components/SearchLayout";
 import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
 import {
   type searchByTextKnowdeGetResponse200,
@@ -15,7 +16,7 @@ import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
 import KnowdeSearchBar from "./SearchBar";
 import SearchContext, { SearchProvider } from "./SearchContext";
-import SearchResults from "./SearchResults";
+import KnowdeSearchResults from "./SearchResults";
 
 function KnowdeSearchLayout() {
   const { q, searchOption, orderBy } = useContext(SearchContext);
@@ -71,24 +72,22 @@ function KnowdeSearchLayout() {
 
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
-  return (
-    <div className="flex flex-col h-dvh relative">
-      <header className="flex sticky z-5 top-0 border-b">
-        <KnowdeSearchBar isLoading={isLoading && !!displayData} />
-      </header>
-      <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
-        <div className="flex h-screen justify-center w-full">
-          {isLoading && !displayData ? (
-            <Loading isLoading={true} type="center-x" />
-          ) : (
-            displayData && <SearchResults data={displayData} />
-          )}
-        </div>
-      </main>
-      <footer className="flex sticky bottom-0 bg-background border-t">
-        <PagingNavi total={total} />
-      </footer>
+  const search = <KnowdeSearchBar isLoading={isLoading && !!displayData} />;
+  const result = (
+    <div className="flex h-screen justify-center w-full">
+      {isLoading && !displayData ? (
+        <Loading isLoading={true} type="center-x" />
+      ) : (
+        displayData && <KnowdeSearchResults data={displayData} />
+      )}
     </div>
+  );
+  return (
+    <SearchLayout
+      header={search}
+      main={result}
+      footer={<PagingNavi total={total} />}
+    />
   );
 }
 

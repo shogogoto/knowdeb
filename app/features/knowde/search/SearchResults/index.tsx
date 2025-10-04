@@ -21,7 +21,7 @@ type Props = {
   data: KnowdeSearchResult;
 };
 
-export default function SearchResults({ data }: Props) {
+export default function KnowdeSearchResults({ data }: Props) {
   const { q } = useContext(SearchContext);
   const { current, pageSize } = useContext(PageContext);
   const startIndex = current ? 1 + (current - 1) * pageSize : 1;

@@ -19,7 +19,7 @@ export default function KnowdeSearchConfig() {
   ];
   return (
     <div className="bg-white dark:bg-gray-800 border">
-      <p className="font-medium mb-2">検索オプション</p>
+      <p className="font-medium mb-2">検索設定</p>
       <div className="mb-4">
         <h4 className="text-sm font-medium mb-1">スコア重み設定</h4>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
