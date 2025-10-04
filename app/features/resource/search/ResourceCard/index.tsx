@@ -97,17 +97,15 @@ function createResourceStatView(
     Icon: LucideIcon;
     label: string;
     value?: number | string;
-  }) =>
-    stat.value != null &&
-    stat.value !== 0 && (
-      <StatViewItem
-        key={stat.label}
-        Icon={stat.Icon}
-        label={stat.label}
-        value={stat.value}
-        mobileDisabled={mobileDisabled}
-      />
-    );
+  }) => (
+    <StatViewItem
+      key={stat.label}
+      Icon={stat.Icon}
+      label={stat.label}
+      value={stat.value}
+      mobileDisabled={mobileDisabled}
+    />
+  );
 
   const items = {
     n_char: { Icon: FileText, label: "文字数", value: stats.n_char },
@@ -122,7 +120,10 @@ function createResourceStatView(
     density: {
       Icon: BrainCircuit,
       label: "密度",
-      value: stats.density?.toFixed(3),
+      value:
+        stats.density != null
+          ? `${(stats.density * 100).toFixed(1)}%`
+          : undefined,
     },
   };
 

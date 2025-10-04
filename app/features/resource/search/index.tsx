@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo } from "react";
+import { useContext, useEffect, useMemo, useRef } from "react";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
 import SearchBar from "~/shared/components/SearchBar";
@@ -11,6 +11,7 @@ import type {
   ResourceSearchBody,
   ResourceSearchResult,
 } from "~/shared/generated/fastAPI.schemas";
+import { useHistory } from "~/shared/history/hooks";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { resourceSearchCache } from "~/shared/lib/indexed";
@@ -32,7 +33,7 @@ function _ResourceSearch() {
         size: pageSize,
       },
       desc: true,
-      order_by: ["title", "n_char", "username"],
+      order_by: ["title", "username", "n_char"],
     };
   }, [q, current, pageSize]);
   const debouncedParams = useDebounce(params, 500);
@@ -41,6 +42,10 @@ function _ResourceSearch() {
     ResourceSearchResult,
     searchResourcePostResourceSearchPostResponse200 & { headers: Headers }
   >(cacheKey, resourceSearchCache.get);
+
+  const { addHistory } = useHistory();
+  const addedRef = useRef<string | null>(null);
+
   const { trigger, data, isMutating } = useSearchResourcePostResourceSearchPost(
     {},
     {
@@ -49,6 +54,10 @@ function _ResourceSearch() {
           if (data.status === 200) {
             handleSuccess(data.data.total || 0, pageSize);
             resourceSearchCache.set(cacheKey, data.data);
+
+            if (addedRef.current === q) return;
+            addHistory({ title: q || "empty" });
+            addedRef.current = q;
           }
         },
       },
