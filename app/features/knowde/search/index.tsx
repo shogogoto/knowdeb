@@ -13,7 +13,7 @@ import { useHistory } from "~/shared/history/hooks";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
-import SearchBar from "./SearchBar";
+import KnowdeSearchBar from "./SearchBar";
 import SearchContext, { SearchProvider } from "./SearchContext";
 import SearchResults from "./SearchResults";
 
@@ -74,7 +74,7 @@ function KnowdeSearchLayout() {
   return (
     <div className="flex flex-col h-dvh relative">
       <header className="flex sticky z-5 top-0 border-b">
-        <SearchBar isLoading={isLoading && !!displayData} />
+        <KnowdeSearchBar isLoading={isLoading && !!displayData} />
       </header>
       <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
         <div className="flex h-screen justify-center w-full">

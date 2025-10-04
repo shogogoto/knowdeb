@@ -5,7 +5,7 @@ import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
 import SearchContext from "../../SearchContext";
 import type { OrderBy } from "../types";
 
-export default function SearchConfig() {
+export default function KnowdeSearchConfig() {
   const { immediateOrderBy, setImmediateOrderBy } = useContext(SearchContext);
   const { pageSize, setPageSize } = useContext(PageContext);
   const ranges = [
