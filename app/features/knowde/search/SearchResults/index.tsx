@@ -15,14 +15,16 @@ import {
   KnowdeCardContent,
   KnowdeCardFooter,
 } from "../../components/KnowdeCard";
-import SearchContext from "../SearchContext";
+import { useKnowdeSearch } from "../SearchContext";
 
 type Props = {
   data: KnowdeSearchResult;
 };
 
 export default function KnowdeSearchResults({ data }: Props) {
-  const { q } = useContext(SearchContext);
+  const {
+    params: { q },
+  } = useKnowdeSearch();
   const { current, pageSize } = useContext(PageContext);
   const startIndex = current ? 1 + (current - 1) * pageSize : 1;
 

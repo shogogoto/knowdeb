@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
-import { SearchProvider } from "../SearchContext";
+import { KnowdeSearchProvider } from "../SearchContext";
 import Index from "./index";
 
 const meta = {
@@ -17,9 +17,9 @@ export const Default: Story = {
   decorators: [
     (Story) => (
       <PageProvider pageSize={10}>
-        <SearchProvider>
+        <KnowdeSearchProvider>
           <Story />
-        </SearchProvider>
+        </KnowdeSearchProvider>
       </PageProvider>
     ),
   ],

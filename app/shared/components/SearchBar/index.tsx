@@ -1,5 +1,4 @@
 import { LoaderCircle, Search, Settings } from "lucide-react";
-import type { Dispatch, SetStateAction } from "react";
 import { Button } from "~/shared/components/ui/button";
 import {
   Collapsible,
@@ -11,7 +10,7 @@ import { Input } from "~/shared/components/ui/input";
 type Props = {
   isLoading?: boolean;
   q: string;
-  setQ: Dispatch<SetStateAction<string>>;
+  setQ: (s: string) => void;
 } & React.PropsWithChildren;
 
 export default function SearchBar({ isLoading, q, setQ, children }: Props) {

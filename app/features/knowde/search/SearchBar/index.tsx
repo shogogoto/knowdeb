@@ -1,6 +1,5 @@
-import { useContext } from "react";
 import SearchBar from "~/shared/components/SearchBar";
-import SearchContext from "../SearchContext";
+import { useKnowdeSearch } from "../SearchContext";
 import KnowdeSearchConfig from "./SearchConfig";
 
 type Props = {
@@ -8,9 +7,16 @@ type Props = {
 };
 
 export default function KnowdeSearchBar({ isLoading }: Props) {
-  const { immediateQ, setImmediateQ } = useContext(SearchContext);
+  const {
+    immediateParams: { q: immediateQ },
+    setImmediateParams,
+  } = useKnowdeSearch();
   return (
-    <SearchBar isLoading={isLoading} q={immediateQ} setQ={setImmediateQ}>
+    <SearchBar
+      isLoading={isLoading}
+      q={immediateQ}
+      setQ={(s) => setImmediateParams((prev) => ({ ...prev, q: s }))}
+    >
       <KnowdeSearchConfig />
     </SearchBar>
   );

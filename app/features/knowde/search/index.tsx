@@ -14,12 +14,14 @@ import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
 import KnowdeSearchBar from "./SearchBar";
-import SearchContext, { SearchProvider } from "./SearchContext";
+import { KnowdeSearchProvider, useKnowdeSearch } from "./SearchContext";
 import KnowdeSearchResults from "./SearchResults";
 
 function KnowdeSearchLayout() {
-  const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { current, pageSize, total, handleSuccess } = useContext(PageContext);
+  const {
+    params: { q, searchOption, orderBy },
+  } = useKnowdeSearch();
+  const { current, pageSize, handleSuccess } = useContext(PageContext);
 
   const params = {
     q,
@@ -78,11 +80,11 @@ export default function KnowdeSearch() {
   return (
     <ClientOnly>
       {() => (
-        <SearchProvider>
+        <KnowdeSearchProvider>
           <PageProvider pageSize={50}>
             <KnowdeSearchLayout />
           </PageProvider>
-        </SearchProvider>
+        </KnowdeSearchProvider>
       )}
     </ClientOnly>
   );

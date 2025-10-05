@@ -42,7 +42,7 @@ export function createGenericSearchContext<T extends Record<string, unknown>>(
     // state -> URL の同期
     // biome-ignore lint/correctness/useExhaustiveDependencies: `searchParams` 意図的に除外 state -> 古いurl に置き換えてしまうのを防ぐ
     useEffect(() => {
-      const newUrlParams = new URLSearchParams();
+      const newUrlParams = new URLSearchParams(searchParams);
       for (const key in debouncedParams) {
         const value = debouncedParams[key];
         const defaultValue = config[key].defaultValue;
@@ -68,19 +68,11 @@ export function createGenericSearchContext<T extends Record<string, unknown>>(
     // URL -> state の同期
     useEffect(() => {
       const newState = {} as T;
-      let hasChanged = false;
       for (const key in config) {
         const newValue = config[key].deserialize(searchParams);
         newState[key] = newValue;
-        if (
-          JSON.stringify(newValue) !== JSON.stringify(searchParams.get(key))
-        ) {
-          hasChanged = true;
-        }
       }
-      if (hasChanged) {
-        setImmediateParams(newState);
-      }
+      setImmediateParams(newState);
     }, [searchParams, config]); // immediateParams を依存配列から外して無限ループを防止
 
     const value = useMemo(

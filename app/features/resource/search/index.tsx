@@ -15,14 +15,15 @@ import { useHistory } from "~/shared/history/hooks";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { resourceSearchCache } from "~/shared/lib/indexed";
-import SearchQueryContext, {
-  SearchQueryProvider,
-} from "~/shared/search/SearchContext";
 import ResourceSearchResultView from "./ResourceSearchResult";
+import { SearchQueryProvider, useSearchQuery } from "./SearchCotext";
 
 function _ResourceSearch() {
-  const { q } = useContext(SearchQueryContext);
-  const { current, pageSize, total, handleSuccess } = useContext(PageContext);
+  const {
+    immediateParams: { q },
+  } = useSearchQuery();
+
+  const { current, pageSize, handleSuccess } = useContext(PageContext);
 
   const params: ResourceSearchBody = useMemo(() => {
     return {
@@ -85,9 +86,16 @@ type SBProps = {
 };
 
 function ResourceSearchBar({ isLoading }: SBProps) {
-  const { immediateQ, setImmediateQ } = useContext(SearchQueryContext);
+  const {
+    immediateParams: { q },
+    setImmediateParams,
+  } = useSearchQuery();
   return (
-    <SearchBar isLoading={isLoading} q={immediateQ} setQ={setImmediateQ} />
+    <SearchBar
+      isLoading={isLoading}
+      q={q}
+      setQ={(s: string) => setImmediateParams({ q: s })}
+    />
   );
 }
 

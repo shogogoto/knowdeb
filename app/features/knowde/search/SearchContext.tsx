@@ -1,144 +1,66 @@
 import {
-  type Dispatch,
-  type SetStateAction,
-  createContext,
-  useEffect,
-  useState,
-} from "react";
-import { useSearchParams } from "react-router";
+  type SearchParamsConfig,
+  createGenericSearchContext,
+} from "~/shared/contexts/createGenericSearchContext";
 import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
-import { useDebounce } from "~/shared/hooks/useDebounce";
 import { type OrderBy, defaultOrderBy } from "./SearchBar/types";
 
-type SearchContextType = {
+type KnowdeSearch = {
   q: string;
   searchOption: SearchByTextKnowdeGetType;
   orderBy: OrderBy;
-  immediateQ: string;
-  immediateSearchOption: SearchByTextKnowdeGetType;
-  immediateOrderBy: OrderBy;
-  setImmediateQ: Dispatch<SetStateAction<string>>;
-  setImmediateSearchOption: Dispatch<SetStateAction<SearchByTextKnowdeGetType>>;
-  setImmediateOrderBy: Dispatch<SetStateAction<OrderBy>>;
 };
 
-export const initialSearchState: SearchContextType = {
-  q: "",
-  searchOption: SearchByTextKnowdeGetType.CONTAINS,
-  orderBy: defaultOrderBy,
-  immediateQ: "",
-  immediateSearchOption: SearchByTextKnowdeGetType.CONTAINS,
-  immediateOrderBy: defaultOrderBy,
-  setImmediateQ: () => {},
-  setImmediateSearchOption: () => {},
-  setImmediateOrderBy: () => {},
-};
-
-const SearchContext = createContext<SearchContextType>(initialSearchState);
-export default SearchContext;
-
-type Props = React.PropsWithChildren;
-
-export function SearchProvider({ children }: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [immediateQ, setImmediateQ] = useState(searchParams.get("q") || "");
-  const [immediateSearchOption, setImmediateSearchOption] =
-    useState<SearchByTextKnowdeGetType>(
-      (searchParams.get("type") as SearchByTextKnowdeGetType) ||
-        SearchByTextKnowdeGetType.CONTAINS,
-    );
-  const [immediateOrderBy, setImmediateOrderBy] = useState<OrderBy>(() => {
-    const initial: { [key: string]: unknown } = { ...defaultOrderBy };
-    for (const key in defaultOrderBy) {
-      const paramValue = searchParams.get(key);
-      if (paramValue !== null) {
-        if (key === "desc") {
-          initial[key] = paramValue === "true";
-        } else {
-          const numValue = Number(paramValue);
-          if (!Number.isNaN(numValue)) {
-            initial[key] = numValue;
+const config: SearchParamsConfig<KnowdeSearch> = {
+  q: {
+    defaultValue: "",
+    serialize: (value) => (value ? { q: value } : { q: "" }),
+    deserialize: (params) => params.get("q") ?? "",
+  },
+  searchOption: {
+    defaultValue: SearchByTextKnowdeGetType.CONTAINS,
+    serialize: (value) =>
+      value !== SearchByTextKnowdeGetType.CONTAINS
+        ? { type: value }
+        : { type: SearchByTextKnowdeGetType.CONTAINS },
+    deserialize: (params) =>
+      (params.get("type") as SearchByTextKnowdeGetType) ||
+      SearchByTextKnowdeGetType.CONTAINS,
+  },
+  orderBy: {
+    defaultValue: defaultOrderBy,
+    serialize: (value) => {
+      const params: Record<string, string> = {};
+      for (const key in value) {
+        const K = key as keyof OrderBy;
+        if (value[K] !== defaultOrderBy[K]) {
+          params[key] = String(value[K]);
+        }
+      }
+      return params;
+    },
+    deserialize: (params) => {
+      const newOrderBy: { [key: string]: unknown } = { ...defaultOrderBy };
+      for (const key in defaultOrderBy) {
+        const paramValue = params.get(key);
+        if (paramValue !== null) {
+          if (key === "desc") {
+            newOrderBy[key] = paramValue === "true";
+          } else {
+            const numValue = Number(paramValue);
+            if (!Number.isNaN(numValue)) {
+              newOrderBy[key] = numValue;
+            }
           }
         }
       }
-    }
-    return initial as OrderBy;
-  });
-  const ms = 500;
-  const q = useDebounce(immediateQ, ms);
-  const searchOption = useDebounce(immediateSearchOption, ms);
-  const orderBy = useDebounce(immediateOrderBy, ms);
+      return newOrderBy as OrderBy;
+    },
+  },
+};
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `searchParams` 意図的に除外 state -> 古いurl に置き換えてしまうのを防ぐ
-  useEffect(() => {
-    // state -> url の同期
-    const newParams = new URLSearchParams(searchParams);
-    if (q) {
-      newParams.set("q", q);
-    } else {
-      newParams.delete("q");
-    }
-    if (searchOption !== SearchByTextKnowdeGetType.CONTAINS) {
-      newParams.set("type", searchOption);
-    } else {
-      newParams.delete("type");
-    }
+const { SearchProvider, useSearch } = createGenericSearchContext(config);
 
-    for (const key in orderBy) {
-      const K = key as keyof OrderBy;
-      const value = orderBy[K];
-      const defaultValue = defaultOrderBy[K];
-
-      if (value !== defaultValue) {
-        newParams.set(key, String(value));
-      } else {
-        newParams.delete(key);
-      }
-    }
-    if (newParams.toString() !== searchParams.toString()) {
-      setSearchParams(newParams, { replace: true });
-    }
-  }, [q, searchOption, orderBy]);
-
-  useEffect(() => {
-    const urlQ = searchParams.get("q") || "";
-    setImmediateQ(urlQ);
-    const urlSearchOption =
-      (searchParams.get("type") as SearchByTextKnowdeGetType) ||
-      SearchByTextKnowdeGetType.CONTAINS;
-    setImmediateSearchOption(urlSearchOption);
-
-    const newOrderBy: { [key: string]: unknown } = { ...defaultOrderBy };
-    for (const key in defaultOrderBy) {
-      const paramValue = searchParams.get(key);
-      if (paramValue !== null) {
-        if (key === "desc") {
-          newOrderBy[key] = paramValue === "true";
-        } else {
-          const numValue = Number(paramValue);
-          if (!Number.isNaN(numValue)) {
-            newOrderBy[key] = numValue;
-          }
-        }
-      }
-    }
-    setImmediateOrderBy(newOrderBy as OrderBy);
-  }, [searchParams]);
-
-  const value: SearchContextType = {
-    q,
-    searchOption,
-    orderBy,
-    immediateQ,
-    immediateSearchOption,
-    immediateOrderBy,
-    setImmediateQ,
-    setImmediateSearchOption,
-    setImmediateOrderBy,
-  };
-
-  return (
-    <SearchContext.Provider value={value}>{children}</SearchContext.Provider>
-  );
-}
+export const KnowdeSearchProvider = SearchProvider;
+export const useKnowdeSearch = useSearch;
+export type KnowdeSearchContextType = ReturnType<typeof useKnowdeSearch>;
