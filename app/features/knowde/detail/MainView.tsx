@@ -1,8 +1,9 @@
 import { ArrowUpCircle, ChevronRight } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import Loading from "~/shared/components/Loading";
-import type { TabItem } from "~/shared/components/TabPage";
-import TabPage from "~/shared/components/TabPage";
+import QueryParamTabPage, {
+  type QueryParamTabItem,
+} from "~/shared/components/tabs/QueryParamTabPage";
 import {
   Collapsible,
   CollapsibleContent,
@@ -162,9 +163,9 @@ export default function MainView({ detail, prefetched }: Props) {
   const refPred = detail && rootId && refOp ? refOp.pred(rootId) : [];
   const refSucc = detail && rootId && refOp ? refOp.succ(rootId) : [];
 
-  const isLoading = !!(detail && g && rootId && logicOp && refOp);
+  const isLoaded = !!(detail && g && rootId && logicOp && refOp);
 
-  const items: TabItem[] = [
+  const items: QueryParamTabItem[] = [
     {
       param: "detail",
       className: colors.detail.tab,
@@ -181,7 +182,7 @@ export default function MainView({ detail, prefetched }: Props) {
             stat={<ArrowUpCircle className="size-4" />}
             backgroundColor={colors.detail.bgIn}
           >
-            {isLoading && (
+            {isLoaded && (
               <Parents
                 parents={graphForView(detail).location.parents}
                 borderColor={colors.detail.in}
@@ -193,7 +194,7 @@ export default function MainView({ detail, prefetched }: Props) {
             stat={st.detail}
             backgroundColor={colors.detail.bgOut}
           >
-            {isLoading &&
+            {isLoaded &&
               belows?.map((bid) => (
                 <DetailNested
                   startId={bid}
@@ -224,7 +225,7 @@ export default function MainView({ detail, prefetched }: Props) {
             stat={st.premise}
             backgroundColor={colors.logic.bgIn}
           >
-            {isLoading &&
+            {isLoaded &&
               logicPred.map((id) => (
                 <KnowdeGroup2
                   startId={id}
@@ -240,7 +241,7 @@ export default function MainView({ detail, prefetched }: Props) {
             stat={st.conclusion}
             backgroundColor={colors.logic.bgOut}
           >
-            {isLoading &&
+            {isLoaded &&
               logicSucc.map((id) => (
                 <KnowdeGroup2
                   startId={id}
@@ -271,7 +272,7 @@ export default function MainView({ detail, prefetched }: Props) {
             stat={st.refer}
             backgroundColor={colors.ref.bgIn}
           >
-            {isLoading &&
+            {isLoaded &&
               refSucc.map((id) => (
                 <KnowdeGroup2
                   startId={id}
@@ -287,7 +288,7 @@ export default function MainView({ detail, prefetched }: Props) {
             stat={st.referred}
             backgroundColor={colors.ref.bgOut}
           >
-            {isLoading &&
+            {isLoaded &&
               refPred.map((id) => (
                 <KnowdeGroup2
                   startId={id}
@@ -317,7 +318,11 @@ export default function MainView({ detail, prefetched }: Props) {
             <LocationView loc={headerLocation as KnowdeLocation} />
           </div>
         )}
-        <TabPage items={items} defaultTab="detail" isLoading={isLoading} />
+        <QueryParamTabPage
+          items={items}
+          defaultTab="detail"
+          isLoading={!isLoaded}
+        />
       </div>
     </DetailContextProvider>
   );
