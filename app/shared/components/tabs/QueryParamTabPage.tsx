@@ -1,8 +1,8 @@
 import type React from "react";
 import { useSearchParams } from "react-router";
 import { TabsContent } from "~/shared/components/ui/tabs";
-import TabUI from "./TabUI";
 import type { TabUiItem } from "./TabUI";
+import TabUI from "./TabUI";
 
 export type QueryParamTabItem = {
   param: string;
@@ -37,7 +37,10 @@ export default function QueryParamTabPage({
     setSearchParams({ tab: value });
   };
 
-  const uiItems: TabUiItem[] = items.map(({ content, ...rest }) => rest);
+  const uiItems: TabUiItem[] = items.map(({ content, param, ...rest }) => ({
+    value: param,
+    ...rest,
+  }));
 
   const renderContents = () => {
     return items.map((item) => (

@@ -1,59 +1,42 @@
 import type React from "react";
-import { useLocation, useNavigate } from "react-router";
-import { TabsContent } from "~/shared/components/ui/tabs";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import type { TabUiItem } from "./TabUI";
 import TabUI from "./TabUI";
 
 export type LinkTabItem = {
-  param: string; // 一意な識別子
   href: string; // URL
   tab: React.ReactNode;
   className?: string;
-  content: React.ReactNode;
 };
 
 type Props = {
   items: LinkTabItem[];
   defaultTab?: string;
-  isLoading?: boolean;
 } & React.PropsWithChildren;
 
-export default function LinkTabPage({
-  items,
-  defaultTab,
-  isLoading,
-  children,
-}: Props) {
+export default function LinkTabPage({ items, defaultTab, children }: Props) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const firstTab = items[0]?.param;
+  const firstTab = items[0]?.href;
 
   const getCurrentTabValue = () => {
     const currentTab = items.find((item) => item.href === location.pathname);
     if (currentTab) {
-      return currentTab.param;
+      return currentTab.href;
     }
     return defaultTab ?? firstTab;
   };
   const tabValue = getCurrentTabValue();
 
   const handleTabChange = (value: string) => {
-    const selectedTab = items.find((item) => item.param === value);
-    if (selectedTab?.href) {
-      navigate(selectedTab.href);
-    }
+    navigate(value);
   };
 
-  const uiItems: TabUiItem[] = items.map(({ content, href, ...rest }) => rest);
-
-  const renderContents = () => {
-    return items.map((item) => (
-      <TabsContent value={item.param} key={item.param} className="mt-[-0.5rem]">
-        {item.content}
-      </TabsContent>
-    ));
-  };
+  const uiItems: TabUiItem[] = items.map(({ href, ...rest }) => ({
+    value: href,
+    ...rest,
+  }));
 
   return (
     <TabUI
@@ -61,9 +44,8 @@ export default function LinkTabPage({
       value={tabValue}
       onValueChange={handleTabChange}
       headerContent={children}
-      isLoading={isLoading}
     >
-      {renderContents()}
+      <Outlet />
     </TabUI>
   );
 }

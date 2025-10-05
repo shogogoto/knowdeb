@@ -3,8 +3,9 @@ import { useSwipeable } from "react-swipeable";
 import Loading from "~/shared/components/Loading";
 import { Tabs, TabsList, TabsTrigger } from "~/shared/components/ui/tabs";
 
+// TabItemからcontentを除外したUI用の型
 export type TabUiItem = {
-  param: string;
+  value: string;
   tab: React.ReactNode;
   className?: string;
 };
@@ -13,7 +14,7 @@ type Props = {
   items: TabUiItem[];
   value: string;
   onValueChange: (value: string) => void;
-  headerContent?: React.ReactNode;
+  headerContent?: React.ReactNode; // 元のTabPageのchildrenに相当
   isLoading?: boolean;
 } & React.PropsWithChildren; // childrenはTabsContentになる
 
@@ -25,7 +26,7 @@ export default function TabUI({
   isLoading,
   children,
 }: Props) {
-  const validTabs = items.map((item) => item.param);
+  const validTabs = items.map((item) => item.value);
 
   const handlers = useSwipeable({
     onSwipedLeft: () => {
@@ -46,7 +47,7 @@ export default function TabUI({
 
   const nTab = items.length;
   const tabTriggers = items.map((item) => (
-    <TabsTrigger value={item.param} key={item.param} className={item.className}>
+    <TabsTrigger value={item.value} key={item.value} className={item.className}>
       {item.tab}
     </TabsTrigger>
   ));
@@ -82,4 +83,8 @@ export default function TabUI({
       )}
     </Tabs>
   );
+}
+
+export function tabColor(light: string, dark: string) {
+  return `data-[state=active]:${light} dark:data-[state=active]:${dark}`;
 }
