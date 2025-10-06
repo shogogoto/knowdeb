@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router";
-import type { PaginationProps } from ".";
+import { type PaginationProps, numberPage } from ".";
 import PageContext from "./PageContext";
 
 type Props = PaginationProps & React.PropsWithChildren;
@@ -28,6 +28,18 @@ export function PageProvider(props: Props) {
     }
   }, [current, searchParams, setSearchParams, _pageSize]);
 
+  function handleSuccess(newTotal: number, pageSize: number) {
+    setTotal(newTotal);
+    // 再検索で有効範囲外にならないようにする
+    if (newTotal === 0) setCurrent(undefined);
+    const nPage = numberPage(newTotal, pageSize);
+    // if (total > 0 && !!current && (current < 1 || current > nPage)) {
+    //   setCurrent(1);
+    // }
+    if (current && current > newTotal) setCurrent(nPage);
+    if (!current && newTotal > 0) setCurrent(1);
+  }
+
   const value = {
     current,
     setCurrent,
@@ -35,6 +47,7 @@ export function PageProvider(props: Props) {
     setPageSize,
     total: _total,
     setTotal,
+    handleSuccess,
   };
 
   return (

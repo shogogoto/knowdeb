@@ -7,6 +7,7 @@ type PageContextType = {
   setPageSize: React.Dispatch<React.SetStateAction<number>>;
   total: number;
   setTotal: React.Dispatch<React.SetStateAction<number>>;
+  handleSuccess: (newTotal: number, pageSize: number) => void;
 };
 
 const initial: PageContextType = {
@@ -16,6 +17,7 @@ const initial: PageContextType = {
   setPageSize: () => {},
   total: 0,
   setTotal: () => {},
+  handleSuccess: () => {},
 };
 
 import { createContext } from "react";

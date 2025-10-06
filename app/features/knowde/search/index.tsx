@@ -1,9 +1,9 @@
 import { useContext, useRef } from "react";
 import { ClientOnly } from "~/shared/components/ClientOnly";
 import Loading from "~/shared/components/Loading";
-import PagingNavi, { numberPage } from "~/shared/components/Pagenation";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { PageProvider } from "~/shared/components/Pagenation/PageProvider";
+import SearchLayout from "~/shared/components/SearchLayout";
 import type { KnowdeSearchResult } from "~/shared/generated/fastAPI.schemas";
 import {
   type searchByTextKnowdeGetResponse200,
@@ -13,14 +13,15 @@ import { useHistory } from "~/shared/history/hooks";
 import { createCacheKey, useCachedSWR } from "~/shared/hooks/swr/useCache";
 import { useDebounce } from "~/shared/hooks/useDebounce";
 import { knowdeSearchCache } from "~/shared/lib/indexed";
-import SearchBar from "./SearchBar";
-import SearchContext, { SearchProvider } from "./SearchContext";
-import SearchResults from "./SearchResults";
+import KnowdeSearchBar from "./SearchBar";
+import { KnowdeSearchProvider, useKnowdeSearch } from "./SearchContext";
+import KnowdeSearchResults from "./SearchResults";
 
 function KnowdeSearchLayout() {
-  const { q, searchOption, orderBy } = useContext(SearchContext);
-  const { current, pageSize, total, setTotal, setCurrent } =
-    useContext(PageContext);
+  const {
+    params: { q, searchOption, orderBy },
+  } = useKnowdeSearch();
+  const { current, pageSize, handleSuccess } = useContext(PageContext);
 
   const params = {
     q,
@@ -49,16 +50,7 @@ function KnowdeSearchLayout() {
       fallbackData,
       onSuccess: async (data) => {
         if (data.status === 200) {
-          const total = data.data.total || 0;
-          setTotal(total);
-          // 再検索で有効範囲外にならないようにする
-          if (total === 0) setCurrent(undefined);
-          const nPage = numberPage(total, pageSize);
-          // if (total > 0 && !!current && (current < 1 || current > nPage)) {
-          //   setCurrent(1);
-          // }
-          if (current && current > total) setCurrent(nPage);
-          if (!current && total > 0) setCurrent(1);
+          handleSuccess(data.data.total || 0, pageSize);
           await knowdeSearchCache.set(cacheKey, data.data);
           // 履歴登録
           if (addedRef.current === q) return;
@@ -71,36 +63,28 @@ function KnowdeSearchLayout() {
 
   const displayData = data?.status === 200 ? data.data : fallbackData?.data;
 
-  return (
-    <div className="flex flex-col h-dvh relative">
-      <header className="flex sticky z-5 top-0 border-b">
-        <SearchBar isLoading={isLoading && !!displayData} />
-      </header>
-      <main className="flex-1 h-dvh overflow-y-auto justify-center w-full">
-        <div className="flex h-screen justify-center w-full">
-          {isLoading && !displayData ? (
-            <Loading isLoading={true} type="center-x" />
-          ) : (
-            displayData && <SearchResults data={displayData} />
-          )}
-        </div>
-      </main>
-      <footer className="flex sticky bottom-0 bg-background border-t">
-        <PagingNavi total={total} />
-      </footer>
+  const bar = <KnowdeSearchBar isLoading={isLoading && !!displayData} />;
+  const result = (
+    <div className="flex h-screen justify-center w-full">
+      {isLoading && !displayData ? (
+        <Loading isLoading={true} type="center-x" />
+      ) : (
+        displayData && <KnowdeSearchResults data={displayData} />
+      )}
     </div>
   );
+  return <SearchLayout header={bar} main={result} />;
 }
 
 export default function KnowdeSearch() {
   return (
     <ClientOnly>
       {() => (
-        <SearchProvider>
+        <KnowdeSearchProvider>
           <PageProvider pageSize={50}>
             <KnowdeSearchLayout />
           </PageProvider>
-        </SearchProvider>
+        </KnowdeSearchProvider>
       )}
     </ClientOnly>
   );

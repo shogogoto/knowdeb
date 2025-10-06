@@ -8,35 +8,12 @@ import { faker } from "@faker-js/faker";
 
 import { http, HttpResponse, delay } from "msw";
 
-import type { UserReadPublic } from "../fastAPI.schemas";
-
-export const getSearchUserUserSearchGetResponseMock = (): UserReadPublic[] =>
-  Array.from(
-    { length: faker.number.int({ min: 1, max: 10 }) },
-    (_, i) => i + 1,
-  ).map(() => ({
-    display_name: faker.helpers.arrayElement([
-      faker.helpers.arrayElement([faker.string.alpha(20), null]),
-      undefined,
-    ]),
-    profile: faker.helpers.arrayElement([
-      faker.helpers.arrayElement([faker.string.alpha(20), null]),
-      undefined,
-    ]),
-    avatar_url: faker.helpers.arrayElement([
-      faker.helpers.arrayElement([faker.string.alpha(20), null]),
-      undefined,
-    ]),
-    username: faker.helpers.arrayElement([
-      faker.helpers.arrayElement([
-        faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
-        null,
-      ]),
-      undefined,
-    ]),
-    uid: faker.string.uuid(),
-    created: `${faker.date.past().toISOString().split(".")[0]}Z`,
-  }));
+import type {
+  AchievementSnapshotResult,
+  UserReadPublic,
+  UserSearchResult,
+  UserSearchRow,
+} from "../fastAPI.schemas";
 
 export const getUserProfileUserProfileUsernameGetResponseMock = (
   overrideResponse: Partial<UserReadPublic> = {},
@@ -65,28 +42,92 @@ export const getUserProfileUserProfileUsernameGetResponseMock = (
   ...overrideResponse,
 });
 
-export const getSearchUserUserSearchGetMockHandler = (
-  overrideResponse?:
-    | UserReadPublic[]
-    | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
-      ) => Promise<UserReadPublic[]> | UserReadPublic[]),
-) => {
-  return http.get("*/user/search", async (info) => {
-    await delay(200);
+export const getSearchUserUserSearchPostResponseMock = (
+  overrideResponse: Partial<UserSearchResult> = {},
+): UserSearchResult => ({
+  total: faker.number.int({ min: undefined, max: undefined }),
+  data: Array.from(
+    { length: faker.number.int({ min: 1, max: 10 }) },
+    (_, i) => i + 1,
+  ).map(() => ({
+    user: {
+      display_name: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      profile: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      avatar_url: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
+      username: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([
+          faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+          null,
+        ]),
+        undefined,
+      ]),
+      uid: faker.string.uuid(),
+      created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    },
+    archivement: {
+      n_char: faker.number.int({ min: undefined, max: undefined }),
+      n_sentence: faker.number.int({ min: undefined, max: undefined }),
+      n_resource: faker.number.int({ min: undefined, max: undefined }),
+      created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+    },
+  })),
+  ...overrideResponse,
+});
 
-    return new HttpResponse(
-      JSON.stringify(
-        overrideResponse !== undefined
-          ? typeof overrideResponse === "function"
-            ? await overrideResponse(info)
-            : overrideResponse
-          : getSearchUserUserSearchGetResponseMock(),
-      ),
-      { status: 200, headers: { "Content-Type": "application/json" } },
-    );
-  });
-};
+export const getGetUserActivityUserActivityPostResponseMock =
+  (): UserSearchRow[] =>
+    Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      user: {
+        display_name: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        profile: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        avatar_url: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        username: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+            null,
+          ]),
+          undefined,
+        ]),
+        uid: faker.string.uuid(),
+        created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      },
+      archivement: {
+        n_char: faker.number.int({ min: undefined, max: undefined }),
+        n_sentence: faker.number.int({ min: undefined, max: undefined }),
+        n_resource: faker.number.int({ min: undefined, max: undefined }),
+        created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      },
+    }));
+
+export const getSaveUserAchievementUserAchievementBatchGetResponseMock = (
+  overrideResponse: Partial<AchievementSnapshotResult> = {},
+): AchievementSnapshotResult => ({
+  n_all_users: faker.number.int({ min: undefined, max: undefined }),
+  n_target: faker.number.int({ min: undefined, max: undefined }),
+  n_saved: faker.number.int({ min: undefined, max: undefined }),
+  ...overrideResponse,
+});
 
 export const getUserProfileUserProfileUsernameGetMockHandler = (
   overrideResponse?:
@@ -110,7 +151,78 @@ export const getUserProfileUserProfileUsernameGetMockHandler = (
     );
   });
 };
+
+export const getSearchUserUserSearchPostMockHandler = (
+  overrideResponse?:
+    | UserSearchResult
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<UserSearchResult> | UserSearchResult),
+) => {
+  return http.post("*/user/search", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSearchUserUserSearchPostResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getGetUserActivityUserActivityPostMockHandler = (
+  overrideResponse?:
+    | UserSearchRow[]
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<UserSearchRow[]> | UserSearchRow[]),
+) => {
+  return http.post("*/user/activity", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetUserActivityUserActivityPostResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getSaveUserAchievementUserAchievementBatchGetMockHandler = (
+  overrideResponse?:
+    | AchievementSnapshotResult
+    | ((
+        info: Parameters<Parameters<typeof http.get>[1]>[0],
+      ) => Promise<AchievementSnapshotResult> | AchievementSnapshotResult),
+) => {
+  return http.get("*/user/achievement/batch", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getSaveUserAchievementUserAchievementBatchGetResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
 export const getPublicUserMock = () => [
-  getSearchUserUserSearchGetMockHandler(),
   getUserProfileUserProfileUsernameGetMockHandler(),
+  getSearchUserUserSearchPostMockHandler(),
+  getGetUserActivityUserActivityPostMockHandler(),
+  getSaveUserAchievementUserAchievementBatchGetMockHandler(),
 ];

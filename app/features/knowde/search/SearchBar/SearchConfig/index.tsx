@@ -2,11 +2,12 @@ import { useContext } from "react";
 import PageContext from "~/shared/components/Pagenation/PageContext";
 import { Slider } from "~/shared/components/ui/slider";
 import { SearchByTextKnowdeGetType } from "~/shared/generated/fastAPI.schemas";
-import SearchContext from "../../SearchContext";
+import { useKnowdeSearch } from "../../SearchContext";
 import type { OrderBy } from "../types";
 
-export default function SearchConfig() {
-  const { immediateOrderBy, setImmediateOrderBy } = useContext(SearchContext);
+export default function KnowdeSearchConfig() {
+  const { immediateParams, setImmediateParams } = useKnowdeSearch();
+  const { orderBy: immediateOrderBy } = immediateParams;
   const { pageSize, setPageSize } = useContext(PageContext);
   const ranges = [
     { name: "n_detail", label: "詳細数" },
@@ -19,7 +20,7 @@ export default function SearchConfig() {
   ];
   return (
     <div className="bg-white dark:bg-gray-800 border">
-      <p className="font-medium mb-2">検索オプション</p>
+      <p className="font-medium mb-2">検索設定</p>
       <div className="mb-4">
         <h4 className="text-sm font-medium mb-1">スコア重み設定</h4>
         <div className="grid grid-cols-4 md:grid-cols-7 gap-2">
@@ -38,10 +39,10 @@ export default function SearchConfig() {
             type="checkbox"
             checked={immediateOrderBy.desc}
             onChange={(e) =>
-              setImmediateOrderBy({
-                ...immediateOrderBy,
-                desc: e.target.checked,
-              })
+              setImmediateParams((prev) => ({
+                ...prev,
+                orderBy: { ...prev.orderBy, desc: e.target.checked },
+              }))
             }
             className="mr-2"
             name="desc"
@@ -70,15 +71,18 @@ export default function SearchConfig() {
 }
 
 export function SearchOption() {
-  const { immediateSearchOption, setImmediateSearchOption } =
-    useContext(SearchContext);
+  const { immediateParams, setImmediateParams } = useKnowdeSearch();
+  const { searchOption: immediateSearchOption } = immediateParams;
   return (
     <label>
       マッチ方式
       <select
         value={immediateSearchOption}
         onChange={(e) =>
-          setImmediateSearchOption(e.target.value as SearchByTextKnowdeGetType)
+          setImmediateParams((prev) => ({
+            ...prev,
+            searchOption: e.target.value as SearchByTextKnowdeGetType,
+          }))
         }
         className="border dark:bg-gray-800"
         name="type"
@@ -99,7 +103,8 @@ type WRProps = {
 };
 
 function WeightRange({ name, label }: WRProps) {
-  const { immediateOrderBy, setImmediateOrderBy } = useContext(SearchContext);
+  const { immediateParams, setImmediateParams } = useKnowdeSearch();
+  const { orderBy: immediateOrderBy } = immediateParams;
   const val = Number(immediateOrderBy[name as keyof OrderBy]);
   return (
     <div>
@@ -114,7 +119,10 @@ function WeightRange({ name, label }: WRProps) {
         step={1}
         value={[val]}
         onValueChange={(value) =>
-          setImmediateOrderBy({ ...immediateOrderBy, [name]: value[0] })
+          setImmediateParams((prev) => ({
+            ...prev,
+            orderBy: { ...prev.orderBy, [name]: value[0] },
+          }))
         }
         className="w-full"
       />

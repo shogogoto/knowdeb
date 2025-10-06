@@ -1,20 +1,14 @@
 import { ArrowUpCircle, ChevronRight } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useSearchParams } from "react-router";
-import { useSwipeable } from "react-swipeable";
 import Loading from "~/shared/components/Loading";
-import { Card } from "~/shared/components/ui/card";
+import QueryParamTabPage, {
+  type QueryParamTabItem,
+} from "~/shared/components/tabs/QueryParamTabPage";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/shared/components/ui/collapsible";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "~/shared/components/ui/tabs";
 import type {
   Knowde,
   KnowdeDetail,
@@ -24,7 +18,7 @@ import type {
 } from "~/shared/generated/fastAPI.schemas";
 import { useHistory } from "~/shared/history/hooks";
 import { cn } from "~/shared/lib/utils";
-import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
+import { createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import { DetailContextProvider } from "./DetailContext";
 import DetailNested from "./KnowdeGroup";
@@ -105,8 +99,6 @@ type Props = {
 };
 
 export default function MainView({ detail, prefetched }: Props) {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const {
     headerKnowde,
     headerLocation,
@@ -171,31 +163,146 @@ export default function MainView({ detail, prefetched }: Props) {
   const refPred = detail && rootId && refOp ? refOp.pred(rootId) : [];
   const refSucc = detail && rootId && refOp ? refOp.succ(rootId) : [];
 
-  const validTabs = ["detail", "logic", "ref"];
-  const currentTab = searchParams.get("tab");
-  const tabValue =
-    currentTab && validTabs.includes(currentTab) ? currentTab : "detail";
+  const isLoaded = !!(detail && g && rootId && logicOp && refOp);
 
-  const handleTabChange = (value: string) => {
-    setSearchParams({ tab: value });
-  };
-
-  const handlers = useSwipeable({
-    onSwipedLeft: () => {
-      const currentIndex = validTabs.indexOf(tabValue);
-      if (currentIndex < validTabs.length - 1) {
-        handleTabChange(validTabs[currentIndex + 1]);
-      }
+  const items: QueryParamTabItem[] = [
+    {
+      param: "detail",
+      className: colors.detail.tab,
+      tab: (
+        <>
+          詳細
+          {st.detail}
+        </>
+      ),
+      content: (
+        <>
+          <CollapsibleSection
+            title="親"
+            stat={<ArrowUpCircle className="size-4" />}
+            backgroundColor={colors.detail.bgIn}
+          >
+            {isLoaded && (
+              <Parents
+                parents={graphForView(detail).location.parents}
+                borderColor={colors.detail.in}
+              />
+            )}
+          </CollapsibleSection>
+          <CollapsibleSection
+            title="子"
+            stat={st.detail}
+            backgroundColor={colors.detail.bgOut}
+          >
+            {isLoaded &&
+              belows?.map((bid) => (
+                <DetailNested
+                  startId={bid}
+                  kn={kn}
+                  g={g}
+                  key={bid}
+                  borderColor={colors.detail.out}
+                />
+              ))}
+          </CollapsibleSection>
+        </>
+      ),
     },
-    onSwipedRight: () => {
-      const currentIndex = validTabs.indexOf(tabValue);
-      if (currentIndex > 0) {
-        handleTabChange(validTabs[currentIndex - 1]);
-      }
+    {
+      param: "logic",
+      className: colors.logic.tab,
+      tab: (
+        <>
+          {st.premise}
+          論理
+          {st.conclusion}
+        </>
+      ),
+      content: (
+        <>
+          <CollapsibleSection
+            title="前提"
+            stat={st.premise}
+            backgroundColor={colors.logic.bgIn}
+          >
+            {isLoaded &&
+              logicPred.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={logicOp.pred}
+                  key={id}
+                  borderColor={colors.logic.in}
+                />
+              ))}
+          </CollapsibleSection>
+          <CollapsibleSection
+            title="結論"
+            stat={st.conclusion}
+            backgroundColor={colors.logic.bgOut}
+          >
+            {isLoaded &&
+              logicSucc.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={logicOp.succ}
+                  key={id}
+                  borderColor={colors.logic.out}
+                />
+              ))}
+          </CollapsibleSection>
+        </>
+      ),
     },
-    preventScrollOnSwipe: true,
-    trackMouse: true,
-  });
+    {
+      param: "ref",
+      className: colors.ref.tab,
+      tab: (
+        <>
+          {st.refer}
+          参照
+          {st.referred}
+        </>
+      ),
+      content: (
+        <>
+          <CollapsibleSection
+            title="参照"
+            stat={st.refer}
+            backgroundColor={colors.ref.bgIn}
+          >
+            {isLoaded &&
+              refSucc.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={refOp.succ}
+                  key={id}
+                  borderColor={colors.ref.in}
+                />
+              ))}
+          </CollapsibleSection>
+          <CollapsibleSection
+            title="被参照"
+            stat={st.referred}
+            backgroundColor={colors.ref.bgOut}
+          >
+            {isLoaded &&
+              refPred.map((id) => (
+                <KnowdeGroup2
+                  startId={id}
+                  kn={kn}
+                  getGroup={refOp.pred}
+                  key={id}
+                  borderColor={colors.ref.out}
+                />
+              ))}
+          </CollapsibleSection>
+        </>
+      ),
+    },
+  ];
 
   return (
     <DetailContextProvider
@@ -205,145 +312,17 @@ export default function MainView({ detail, prefetched }: Props) {
           : null
       }
     >
-      <div
-        {...handlers}
-        className="flex flex-col min-h-screen max-w-3xl mx-auto"
-      >
+      <div className="flex flex-col min-h-screen max-w-3xl mx-auto">
         {headerLocation.user && headerLocation.resource && (
           <div className="m-1">
             <LocationView loc={headerLocation as KnowdeLocation} />
           </div>
         )}
-        <Tabs
-          value={tabValue}
-          onValueChange={handleTabChange}
-          className="w-full flex flex-col"
-        >
-          <div className="sticky top-0 z-5 bg-background">
-            <Card
-              key={headerKnowde.uid}
-              className="w-full rounded-none border-x-0"
-            >
-              <KnowdeCardContent k={headerKnowde} />
-            </Card>
-            <TabsList className="grid w-full grid-cols-3 rounded-none">
-              <TabsTrigger value="detail" className={colors.detail.tab}>
-                詳細
-                {st.detail}
-              </TabsTrigger>
-              <TabsTrigger value="logic" className={colors.logic.tab}>
-                {st.premise}
-                論理
-                {st.conclusion}
-              </TabsTrigger>
-              <TabsTrigger value="ref" className={colors.ref.tab}>
-                {st.refer}
-                参照
-                {st.referred}
-              </TabsTrigger>
-            </TabsList>
-          </div>
-
-          {detail && g && rootId && logicOp && refOp ? (
-            <>
-              <TabsContent value="detail" className="mt-[-0.5rem]">
-                <CollapsibleSection
-                  title="親"
-                  stat={<ArrowUpCircle className="size-4" />}
-                  backgroundColor={colors.detail.bgIn}
-                >
-                  <Parents
-                    parents={graphForView(detail).location.parents}
-                    borderColor={colors.detail.in}
-                  />
-                </CollapsibleSection>
-                <CollapsibleSection
-                  title="子"
-                  stat={st.detail}
-                  backgroundColor={colors.detail.bgOut}
-                >
-                  {belows?.map((bid) => (
-                    <DetailNested
-                      startId={bid}
-                      kn={kn}
-                      g={g}
-                      key={bid}
-                      borderColor={colors.detail.out}
-                    />
-                  ))}
-                </CollapsibleSection>
-              </TabsContent>
-              <TabsContent value="logic" className="mt-[-0.5rem]">
-                <CollapsibleSection
-                  title="前提"
-                  stat={st.premise}
-                  backgroundColor={colors.logic.bgIn}
-                >
-                  {logicPred.map((id) => (
-                    <KnowdeGroup2
-                      startId={id}
-                      kn={kn}
-                      getGroup={logicOp.pred}
-                      key={id}
-                      borderColor={colors.logic.in}
-                    />
-                  ))}
-                </CollapsibleSection>
-                <CollapsibleSection
-                  title="結論"
-                  stat={st.conclusion}
-                  backgroundColor={colors.logic.bgOut}
-                >
-                  {logicSucc.map((id) => (
-                    <KnowdeGroup2
-                      startId={id}
-                      kn={kn}
-                      getGroup={logicOp.succ}
-                      key={id}
-                      borderColor={colors.logic.out}
-                    />
-                  ))}
-                </CollapsibleSection>
-              </TabsContent>
-              <TabsContent value="ref" className="mt-[-0.5rem]">
-                <CollapsibleSection
-                  title="参照"
-                  stat={st.refer}
-                  backgroundColor={colors.ref.bgIn}
-                >
-                  {refSucc.map((id) => (
-                    <KnowdeGroup2
-                      startId={id}
-                      kn={kn}
-                      getGroup={refOp.succ}
-                      key={id}
-                      borderColor={colors.ref.in}
-                    />
-                  ))}
-                </CollapsibleSection>
-                <CollapsibleSection
-                  title="被参照"
-                  stat={st.referred}
-                  backgroundColor={colors.ref.bgOut}
-                >
-                  {refPred.map((id) => (
-                    <KnowdeGroup2
-                      startId={id}
-                      kn={kn}
-                      getGroup={refOp.pred}
-                      key={id}
-                      borderColor={colors.ref.out}
-                    />
-                  ))}
-                </CollapsibleSection>
-              </TabsContent>
-            </>
-          ) : (
-            <div className="p-4">
-              <Loading type="center-x" />
-            </div>
-          )}
-        </Tabs>
+        <QueryParamTabPage
+          items={items}
+          defaultTab="detail"
+          isLoading={!isLoaded}
+        />
       </div>
     </DetailContextProvider>
   );

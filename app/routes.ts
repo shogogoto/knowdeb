@@ -20,10 +20,15 @@ export default [
 
     layout("layouts/SideViewLayout/index.tsx", [
       route("home", "routes/home.tsx"),
-      route("search", "routes/knowde/search/index.tsx"),
       route("knowde/:id", "routes/knowde/detail/index.tsx"),
       route("user/edit", "routes/user/edit.tsx"),
       route("user/:userId", "routes/user/search.tsx"),
+      route("resource/:id", "routes/resource/detail.tsx"),
+      layout("layouts/SearchTabLayout/index.tsx", {}, [
+        route("search", "routes/knowde/search/index.tsx"),
+        route("search/resource", "features/resource/search/index.tsx"),
+        route("search/user", "features/user/search/index.tsx"),
+      ]),
     ]),
   ]),
 

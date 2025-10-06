@@ -312,7 +312,7 @@ export const searchByTextKnowdeGetResponse = zod
  * @summary Detail
  */
 export const detailKnowdeSentenceSentenceIdGetParams = zod.object({
-  sentence_id: zod.string().uuid(),
+  sentence_id: zod.string(),
 });
 
 export const detailKnowdeSentenceSentenceIdGetQueryUserOauthAccountsDefault =
