@@ -14,7 +14,7 @@ import SearchResult from "./SearchResult";
 
 function _UserSearch() {
   const {
-    params: { q },
+    params: { q, desc, order_by },
   } = useUserSearch();
 
   const { current, pageSize, handleSuccess } = useContext(PageContext);
@@ -26,8 +26,10 @@ function _UserSearch() {
         page: current || 1,
         size: pageSize,
       },
+      desc,
+      order_by,
     };
-  }, [q, current, pageSize]);
+  }, [q, desc, order_by, current, pageSize]);
   const debouncedParams = useDebounce(params, 500);
 
   const { trigger, data, isMutating } = useSearchUserUserSearchPost(

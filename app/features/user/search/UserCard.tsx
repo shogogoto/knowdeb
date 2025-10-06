@@ -23,7 +23,7 @@ export function UserCard({ row }: Props) {
           <UserAvatar user={user} />
           <div className="flex items-baseline space-x-2">
             <Link
-              to="/user/$username"
+              to={`/user/${user.username || user.uid}`}
               className="font-semibold text-lg hover:underline"
             >
               {user.display_name || user.username}

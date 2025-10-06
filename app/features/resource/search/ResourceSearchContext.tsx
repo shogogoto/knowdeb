@@ -31,16 +31,13 @@ const config: SearchParamsConfig<ResourceSearch> = {
   order_by: {
     defaultValue: initialOrderBy,
     serialize: (value) => ({
-      // @ts-ignore
-      order_by:
-        value?.length === 0 ? initialOrderBy.join(",") : value?.join(","),
+      order_by: value?.join(",") ?? initialOrderBy.join(","),
     }),
     deserialize: (params) =>
-      // @ts-ignore
-      params
+      (params
         .get("order_by")
         ?.split(",")
-        .filter((s) => s.trim()) ?? initialOrderBy,
+        .filter(Boolean) as ResourceSearchBodyOrderBy) ?? initialOrderBy,
   },
 };
 
