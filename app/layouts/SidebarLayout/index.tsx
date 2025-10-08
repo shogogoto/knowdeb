@@ -7,9 +7,7 @@ import { FooterHistory } from "~/shared/history/FooterHistory";
 import MySidebar from "./MySidebar";
 import BottomNavigation from "./components/BottomNavigation";
 
-type Props = { className?: string };
-
-export default function SidebarLayout({ className }: Props) {
+export default function SidebarLayout() {
   const isMobile = useIsMobile();
   const isDocMode = useMatch("/docs/*");
   const docStyle = isDocMode ? "markdown-body p-4 list-md" : "";
@@ -17,7 +15,7 @@ export default function SidebarLayout({ className }: Props) {
     <SidebarProvider>
       <MySidebar />
       <div className={"flex flex-col w-full h-dvh  bg-white dark:bg-gray-950"}>
-        <main className={`flex-1 overflow-y-auto ${className} ${docStyle}`}>
+        <main className={`flex-1 overflow-y-auto ${docStyle}`}>
           <Outlet />
           <Toaster
             richColors
