@@ -37,18 +37,3 @@ export const LongMain: Story = {
     ),
   },
 };
-
-export const Chinko: Story = {
-  args: {
-    header: <div>Header</div>,
-    main: (
-      <div>
-        {Array.from({ length: 100 }, (_, i) => (
-          // biome-ignore lint/suspicious/noArrayIndexKey:
-          <div key={i}>Item {i}</div>
-        ))}
-      </div>
-    ),
-  },
-  globals: { viewport: { value: "mobile1" } },
-};

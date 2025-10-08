@@ -82,7 +82,7 @@ export default function PagingNavi({ total }: Props) {
 
   return (
     <Pagination>
-      <PaginationContent className="">
+      <PaginationContent>
         <PaginationItem key="prev">
           {isFirst ? (
             <DisabledPrevNext isPrev key="prev-disabled" />
