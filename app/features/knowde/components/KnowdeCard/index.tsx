@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
-import HybridTooltip from "~/shared/components/HybridTooltip";
+import StatViewItem from "~/shared/components/stats/StatViewItem";
 import { Badge } from "~/shared/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
 import {
@@ -132,10 +132,7 @@ export function KnowdeCardFooter({ k, index }: KProps & { index?: number }) {
   );
 }
 
-export function createStatView(
-  stats: KStats | undefined,
-  mobileDisabled?: boolean,
-) {
+export function createStatView(stats: KStats | undefined) {
   const f = (stat: { Icon: LucideIcon; label: string; value?: number }) =>
     stat.value != null && (
       <StatViewItem
@@ -143,7 +140,6 @@ export function createStatView(
         Icon={stat.Icon}
         label={stat.label}
         value={stat.value}
-        mobileDisabled={mobileDisabled}
       />
     );
 
@@ -203,27 +199,6 @@ function StatViews({
       {st.score}
       {items_c}
     </div>
-  );
-}
-
-function StatViewItem({
-  Icon,
-  label,
-  value,
-  mobileDisabled,
-}: {
-  Icon: LucideIcon;
-  label: string;
-  value: number | undefined;
-  mobileDisabled?: boolean;
-}) {
-  return (
-    <HybridTooltip content={label} mobileDisabled={mobileDisabled}>
-      <div className="flex items-center gap-1">
-        <Icon className="size-4 cursor-pointer text-muted-foreground" />
-        <div className="font-mono text-sm text-right">{value}</div>
-      </div>
-    </HybridTooltip>
   );
 }
 
