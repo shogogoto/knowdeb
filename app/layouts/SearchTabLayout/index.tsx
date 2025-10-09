@@ -7,22 +7,23 @@ export default function Search() {
     {
       href: "/search",
       tab: <div>知識</div>,
-      className:
-        "text-muted-foreground data-[state=active]:bg-blue-500 data-[state=active]:text-white",
+      className: tabColor("bg-blue-500"),
     },
     {
       href: "/search/resource",
       tab: <div>リソース</div>,
-      className:
-        "text-muted-foreground data-[state=active]:bg-orange-500 data-[state=active]:text-white",
+      className: tabColor("bg-orange-500"),
     },
     {
       href: "/search/user",
       tab: <div>ユーザー</div>,
-      className:
-        "text-muted-foreground data-[state=active]:bg-purple-500 data-[state=active]:text-white",
+      className: tabColor("bg-purple-500"),
     },
   ];
 
   return <LinkTabPage items={items} />;
+}
+
+function tabColor(value: string) {
+  return `text-muted-foreground data-[state=active]:${value} data-[state=active]:text-white`;
 }
