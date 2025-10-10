@@ -1,7 +1,7 @@
 import type React from "react";
 import { useContext } from "react";
-import PagingNavi from "./Pagenation";
-import PageContext from "./Pagenation/PageContext";
+import PagingNavi from "../Pagenation";
+import PageContext from "../Pagenation/PageContext";
 
 type Props = {
   header: React.ReactNode;

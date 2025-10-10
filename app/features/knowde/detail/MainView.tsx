@@ -115,7 +115,7 @@ export default function MainView({ detail, prefetched }: Props) {
       const belows = succ(g, rootId, eqEdgeType("below"));
       const logicOp = operatorGraph(g, "to");
       const refOp = operatorGraph(g, "resolved");
-      const st = createStatView(root.stats, true);
+      const st = createStatView(root.stats);
       return {
         headerKnowde: root,
         headerLocation: location,
@@ -140,7 +140,7 @@ export default function MainView({ detail, prefetched }: Props) {
       belows: [],
       logicOp: null,
       refOp: null,
-      st: createStatView(prefetched?.knowde.stats, true),
+      st: createStatView(prefetched?.knowde.stats),
     };
   }, [detail, prefetched]);
 

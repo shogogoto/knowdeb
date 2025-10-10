@@ -60,29 +60,514 @@ export const getNamaspaceNamespaceGetResponse = zod
         .describe("namespace用のhashableな表現."),
     ),
     user_id: zod.string().uuid(),
+    stats: zod
+      .record(
+        zod.string(),
+        zod
+          .object({
+            density: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe("辺の割合。高いほど、ノード同士が密に結合している"),
+            diameter: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe(
+                "最大離心距離。ネットワーク内の最も遠いノード間の距離。低いほど、ネットワークがコンパクトで情報の伝達効率が高い。非連結のグラフの場合は、最大の強連結成分に対して計算",
+              ),
+            radius: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe(
+                "各ノードからの最大距離の最小値。低いほど、中心的なノードから全体にアクセスしやすい。非連結のグラフの場合は、最大の強連結成分に対して計算",
+              ),
+            n_scc: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe(
+                "グラフがいくつの独立した「島」に分かれているか。低いほど、知識が分断されていない",
+              ),
+            average_degree: zod
+              .number()
+              .describe(
+                "一つの知識が平均していくつの他の知識と関連付いているか。高いほど、知識が密に関連し合う",
+              ),
+            n_char: zod.number().describe("テキストの絶対的なボリューム"),
+            n_sentence: zod.number().describe("知識の基本的な構成単位の数"),
+            n_term: zod.number().describe("語彙の規模"),
+            n_edge: zod.number().describe("知識間の関係性の数"),
+            n_isolation: zod.number(),
+            n_axiom: zod.number(),
+            n_unrefered: zod
+              .number()
+              .describe("他のどこからも参照されていない用語数"),
+            r_isolation: zod
+              .number()
+              .describe("低いほど、知識が相互に接続されている"),
+            r_axiom: zod
+              .number()
+              .describe("低いほど、少数の原理から多くの知識が得られている"),
+            r_unrefered: zod
+              .number()
+              .describe("低いほど、定義された用語が無駄なく活用されている"),
+          })
+          .describe("知識の量を示す指標 for API."),
+      )
+      .optional(),
   })
   .describe("リソースの分類.");
 
 /**
  * ファイルシステムと同期.
- * @summary Sync Paths
+ * @summary Sync Namespace Api
  */
-export const syncPathsNamespacePostBodyItem = zod
+export const syncNamespaceApiNamespacePostBodyItem = zod
   .object({
     title: zod.string(),
     authors: zod.array(zod.string()).optional(),
     published: zod.string().date().or(zod.null()).optional(),
-    urls: zod.array(zod.string()).optional(),
+    urls: zod.array(zod.string().url().min(1)).optional(),
     path: zod.array(zod.string()).min(1).or(zod.null()).optional(),
-    updated: zod.string().datetime({}).or(zod.null()).optional(),
+    updated: zod.string().datetime({}).optional(),
     txt_hash: zod.number().or(zod.null()).optional(),
   })
   .describe("リソースメタ情報.");
-export const syncPathsNamespacePostBody = zod.array(
-  syncPathsNamespacePostBodyItem,
+export const syncNamespaceApiNamespacePostBody = zod.array(
+  syncNamespaceApiNamespacePostBodyItem,
 );
 
-export const syncPathsNamespacePostResponseItem = zod.string();
-export const syncPathsNamespacePostResponse = zod.array(
-  syncPathsNamespacePostResponseItem,
+export const syncNamespaceApiNamespacePostResponseItem = zod.string();
+export const syncNamespaceApiNamespacePostResponse = zod.array(
+  syncNamespaceApiNamespacePostResponseItem,
 );
+
+/**
+ * テキストからsysnetを読み取って永続化.
+ * @summary Post Text
+ */
+export const postTextResourceTextPostBody = zod.object({
+  txt: zod.string(),
+  path: zod.array(zod.string()),
+});
+
+export const postTextResourceTextPostResponse = zod.record(
+  zod.string(),
+  zod.string(),
+);
+
+/**
+ * ファイルからsysnetを読み取って永続化.
+ * @summary Post Files
+ */
+export const postFilesResourcePostBody = zod.object({
+  files: zod.array(zod.instanceof(File)),
+});
+
+export const postFilesResourcePostResponse = zod.null();
+
+/**
+ * リソース詳細.
+ * @summary Get Resource Detail
+ */
+export const getResourceDetailResourceResourceIdGetParams = zod.object({
+  resource_id: zod.string(),
+});
+
+export const getResourceDetailResourceResourceIdGetResponseResourceInfoUserDisplayNameMaxOne = 32;
+export const getResourceDetailResourceResourceIdGetResponseResourceInfoUserProfileMaxOne = 160;
+export const getResourceDetailResourceResourceIdGetResponseResourceInfoUserUsernameMaxOne = 16;
+export const getResourceDetailResourceResourceIdGetResponseResourceInfoUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const getResourceDetailResourceResourceIdGetResponse = zod
+  .object({
+    network: zod
+      .object({
+        root: zod.string(),
+        g: zod
+          .object({
+            directed: zod.boolean(),
+            edges: zod.array(
+              zod
+                .object({
+                  type: zod
+                    .enum([
+                      "head",
+                      "sibling",
+                      "below",
+                      "def",
+                      "resolved",
+                      "quoterm",
+                      "to",
+                      "example",
+                      "when",
+                      "where",
+                      "num",
+                      "by",
+                      "ref",
+                      "anti",
+                      "similar",
+                    ])
+                    .describe("グラフ関係の種類."),
+                  source: zod.string(),
+                  target: zod.string(),
+                  key: zod.number(),
+                })
+                .describe("for fastapi schema."),
+            ),
+            graph: zod.record(zod.string(), zod.any()),
+            multigraph: zod.boolean(),
+            nodes: zod.array(zod.record(zod.string(), zod.string())),
+          })
+          .optional()
+          .describe("for fastapi schema."),
+      })
+      .describe("系ネットワーク."),
+    resource_info: zod
+      .object({
+        user: zod
+          .object({
+            display_name: zod
+              .string()
+              .max(
+                getResourceDetailResourceResourceIdGetResponseResourceInfoUserDisplayNameMaxOne,
+              )
+              .or(zod.null())
+              .optional(),
+            profile: zod
+              .string()
+              .max(
+                getResourceDetailResourceResourceIdGetResponseResourceInfoUserProfileMaxOne,
+              )
+              .or(zod.null())
+              .optional(),
+            avatar_url: zod.string().or(zod.null()).optional(),
+            username: zod
+              .string()
+              .max(
+                getResourceDetailResourceResourceIdGetResponseResourceInfoUserUsernameMaxOne,
+              )
+              .regex(
+                getResourceDetailResourceResourceIdGetResponseResourceInfoUserUsernameRegExpOne,
+              )
+              .or(zod.null())
+              .optional()
+              .describe(
+                "半角英数字とハイフン、アンダースコアのみが使用できます。",
+              ),
+            uid: zod.string().uuid(),
+            created: zod.string().datetime({}),
+          })
+          .describe("公開ユーザー情報."),
+        resource: zod
+          .object({
+            name: zod.string(),
+            element_id_property: zod.string().or(zod.null()).optional(),
+            uid: zod.string().uuid(),
+            authors: zod.array(zod.string()).or(zod.null()).optional(),
+            published: zod.string().date().or(zod.null()).optional(),
+            urls: zod
+              .array(zod.string().url().min(1))
+              .or(zod.null())
+              .optional(),
+            path: zod.array(zod.string()).or(zod.null()).optional(),
+            updated: zod.string().datetime({}).or(zod.null()).optional(),
+            txt_hash: zod.number().or(zod.null()).optional(),
+          })
+          .describe("LResourceのOGM, リソースのメタ情報."),
+        resource_stats: zod
+          .object({
+            density: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe("辺の割合。高いほど、ノード同士が密に結合している"),
+            diameter: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe(
+                "最大離心距離。ネットワーク内の最も遠いノード間の距離。低いほど、ネットワークがコンパクトで情報の伝達効率が高い。非連結のグラフの場合は、最大の強連結成分に対して計算",
+              ),
+            radius: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe(
+                "各ノードからの最大距離の最小値。低いほど、中心的なノードから全体にアクセスしやすい。非連結のグラフの場合は、最大の強連結成分に対して計算",
+              ),
+            n_scc: zod
+              .number()
+              .or(zod.null())
+              .nullish()
+              .describe(
+                "グラフがいくつの独立した「島」に分かれているか。低いほど、知識が分断されていない",
+              ),
+            average_degree: zod
+              .number()
+              .describe(
+                "一つの知識が平均していくつの他の知識と関連付いているか。高いほど、知識が密に関連し合う",
+              ),
+            n_char: zod.number().describe("テキストの絶対的なボリューム"),
+            n_sentence: zod.number().describe("知識の基本的な構成単位の数"),
+            n_term: zod.number().describe("語彙の規模"),
+            n_edge: zod.number().describe("知識間の関係性の数"),
+            n_isolation: zod.number(),
+            n_axiom: zod.number(),
+            n_unrefered: zod
+              .number()
+              .describe("他のどこからも参照されていない用語数"),
+            r_isolation: zod
+              .number()
+              .describe("低いほど、知識が相互に接続されている"),
+            r_axiom: zod
+              .number()
+              .describe("低いほど、少数の原理から多くの知識が得られている"),
+            r_unrefered: zod
+              .number()
+              .describe("低いほど、定義された用語が無駄なく活用されている"),
+          })
+          .describe("知識の量を示す指標 for API."),
+      })
+      .describe("リソースの所有者."),
+    uids: zod.record(zod.string(), zod.string().uuid()),
+  })
+  .describe("リソース詳細(API Return Type用).");
+
+/**
+ * リソース検索(POST).
+ * @summary Search Resource Post
+ */
+export const searchResourcePostResourceSearchPostQueryUserOauthAccountsDefault =
+  [];
+export const searchResourcePostResourceSearchPostQueryUserDisplayNameMaxOne = 32;
+export const searchResourcePostResourceSearchPostQueryUserProfileMaxOne = 160;
+export const searchResourcePostResourceSearchPostQueryUserUsernameMaxOne = 16;
+export const searchResourcePostResourceSearchPostQueryUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const searchResourcePostResourceSearchPostQueryParams = zod.object({
+  user: zod
+    .object({
+      oauth_accounts: zod
+        .array(
+          zod
+            .object({
+              id: zod.any(),
+              oauth_name: zod.string(),
+              access_token: zod.string(),
+              expires_at: zod.number().or(zod.null()).optional(),
+              refresh_token: zod.string().or(zod.null()).optional(),
+              account_id: zod.string(),
+              account_email: zod.string(),
+            })
+            .describe("Base OAuth account model."),
+        )
+        .default(
+          searchResourcePostResourceSearchPostQueryUserOauthAccountsDefault,
+        ),
+      display_name: zod
+        .string()
+        .max(searchResourcePostResourceSearchPostQueryUserDisplayNameMaxOne)
+        .or(zod.null())
+        .optional(),
+      profile: zod
+        .string()
+        .max(searchResourcePostResourceSearchPostQueryUserProfileMaxOne)
+        .or(zod.null())
+        .optional(),
+      avatar_url: zod.string().or(zod.null()).optional(),
+      username: zod
+        .string()
+        .max(searchResourcePostResourceSearchPostQueryUserUsernameMaxOne)
+        .regex(searchResourcePostResourceSearchPostQueryUserUsernameRegExpOne)
+        .or(zod.null())
+        .optional()
+        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
+      uid: zod.string().uuid(),
+      email: zod.string().email(),
+      hashed_password: zod.string(),
+      is_active: zod.boolean(),
+      is_superuser: zod.boolean(),
+      is_verified: zod.boolean(),
+      created: zod.string().datetime({}),
+    })
+    .describe("UserProtocol[UUID]を満たす.")
+    .or(zod.null())
+    .optional(),
+});
+
+export const searchResourcePostResourceSearchPostBodyQDefault = "";
+export const searchResourcePostResourceSearchPostBodyQUserDefault = "";
+export const searchResourcePostResourceSearchPostBodyPagingPageDefault = 1;
+export const searchResourcePostResourceSearchPostBodyPagingSizeDefault = 100;
+export const searchResourcePostResourceSearchPostBodyDescDefault = true;
+
+export const searchResourcePostResourceSearchPostBody = zod
+  .object({
+    q: zod.string().optional(),
+    q_user: zod.string().optional(),
+    paging: zod
+      .object({
+        page: zod
+          .number()
+          .default(searchResourcePostResourceSearchPostBodyPagingPageDefault),
+        size: zod
+          .number()
+          .default(searchResourcePostResourceSearchPostBodyPagingSizeDefault),
+      })
+      .optional()
+      .describe("クエリのページング."),
+    desc: zod
+      .boolean()
+      .default(searchResourcePostResourceSearchPostBodyDescDefault),
+    order_by: zod
+      .array(
+        zod
+          .enum(["title", "published", "updated"])
+          .or(
+            zod.enum([
+              "n_char",
+              "n_sentence",
+              "r_isolation",
+              "r_axiom",
+              "r_unrefered",
+              "average_degree",
+              "density",
+              "diameter",
+              "radius",
+            ]),
+          )
+          .or(zod.enum(["username", "display_name"])),
+      )
+      .or(zod.null())
+      .optional(),
+  })
+  .describe("リソース検索のPOST Body.");
+
+export const searchResourcePostResourceSearchPostResponseDataItemUserDisplayNameMaxOne = 32;
+export const searchResourcePostResourceSearchPostResponseDataItemUserProfileMaxOne = 160;
+export const searchResourcePostResourceSearchPostResponseDataItemUserUsernameMaxOne = 16;
+export const searchResourcePostResourceSearchPostResponseDataItemUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const searchResourcePostResourceSearchPostResponse = zod
+  .object({
+    total: zod.number(),
+    data: zod
+      .array(
+        zod
+          .object({
+            user: zod
+              .object({
+                display_name: zod
+                  .string()
+                  .max(
+                    searchResourcePostResourceSearchPostResponseDataItemUserDisplayNameMaxOne,
+                  )
+                  .or(zod.null())
+                  .optional(),
+                profile: zod
+                  .string()
+                  .max(
+                    searchResourcePostResourceSearchPostResponseDataItemUserProfileMaxOne,
+                  )
+                  .or(zod.null())
+                  .optional(),
+                avatar_url: zod.string().or(zod.null()).optional(),
+                username: zod
+                  .string()
+                  .max(
+                    searchResourcePostResourceSearchPostResponseDataItemUserUsernameMaxOne,
+                  )
+                  .regex(
+                    searchResourcePostResourceSearchPostResponseDataItemUserUsernameRegExpOne,
+                  )
+                  .or(zod.null())
+                  .optional()
+                  .describe(
+                    "半角英数字とハイフン、アンダースコアのみが使用できます。",
+                  ),
+                uid: zod.string().uuid(),
+                created: zod.string().datetime({}),
+              })
+              .describe("公開ユーザー情報."),
+            resource: zod
+              .object({
+                name: zod.string(),
+                element_id_property: zod.string().or(zod.null()).optional(),
+                uid: zod.string().uuid(),
+                authors: zod.array(zod.string()).or(zod.null()).optional(),
+                published: zod.string().date().or(zod.null()).optional(),
+                urls: zod
+                  .array(zod.string().url().min(1))
+                  .or(zod.null())
+                  .optional(),
+                path: zod.array(zod.string()).or(zod.null()).optional(),
+                updated: zod.string().datetime({}).or(zod.null()).optional(),
+                txt_hash: zod.number().or(zod.null()).optional(),
+              })
+              .describe("LResourceのOGM, リソースのメタ情報."),
+            resource_stats: zod
+              .object({
+                density: zod
+                  .number()
+                  .or(zod.null())
+                  .nullish()
+                  .describe("辺の割合。高いほど、ノード同士が密に結合している"),
+                diameter: zod
+                  .number()
+                  .or(zod.null())
+                  .nullish()
+                  .describe(
+                    "最大離心距離。ネットワーク内の最も遠いノード間の距離。低いほど、ネットワークがコンパクトで情報の伝達効率が高い。非連結のグラフの場合は、最大の強連結成分に対して計算",
+                  ),
+                radius: zod
+                  .number()
+                  .or(zod.null())
+                  .nullish()
+                  .describe(
+                    "各ノードからの最大距離の最小値。低いほど、中心的なノードから全体にアクセスしやすい。非連結のグラフの場合は、最大の強連結成分に対して計算",
+                  ),
+                n_scc: zod
+                  .number()
+                  .or(zod.null())
+                  .nullish()
+                  .describe(
+                    "グラフがいくつの独立した「島」に分かれているか。低いほど、知識が分断されていない",
+                  ),
+                average_degree: zod
+                  .number()
+                  .describe(
+                    "一つの知識が平均していくつの他の知識と関連付いているか。高いほど、知識が密に関連し合う",
+                  ),
+                n_char: zod.number().describe("テキストの絶対的なボリューム"),
+                n_sentence: zod.number().describe("知識の基本的な構成単位の数"),
+                n_term: zod.number().describe("語彙の規模"),
+                n_edge: zod.number().describe("知識間の関係性の数"),
+                n_isolation: zod.number(),
+                n_axiom: zod.number(),
+                n_unrefered: zod
+                  .number()
+                  .describe("他のどこからも参照されていない用語数"),
+                r_isolation: zod
+                  .number()
+                  .describe("低いほど、知識が相互に接続されている"),
+                r_axiom: zod
+                  .number()
+                  .describe("低いほど、少数の原理から多くの知識が得られている"),
+                r_unrefered: zod
+                  .number()
+                  .describe("低いほど、定義された用語が無駄なく活用されている"),
+              })
+              .describe("知識の量を示す指標 for API."),
+          })
+          .describe("リソースの所有者."),
+      )
+      .optional(),
+  })
+  .describe("リソース検索結果.");

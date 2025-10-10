@@ -266,6 +266,9 @@ export const getGetResourceDetailResourceResourceIdGetResponseMock = (
       r_unrefered: faker.number.int({ min: undefined, max: undefined }),
     },
   },
+  uids: {
+    [faker.string.alphanumeric(5)]: faker.string.uuid(),
+  },
   ...overrideResponse,
 });
 

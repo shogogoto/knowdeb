@@ -6,7 +6,7 @@ export default defineConfig({
       mode: "tags-split",
       target: "./app/shared/generated",
       baseUrl: "https://knowde.onrender.com",
-      // baseUrl: "http://localhost:8000",
+      // baseUrl: "http://0.0.0.0:8000",
       // baseUrl: "https://toucan-renewing-jackal.ngrok-free.app",
       client: "swr",
       httpClient: "fetch",
@@ -17,7 +17,7 @@ export default defineConfig({
       },
     },
     input: {
-      target: "http://localhost:8000/openapi.json",
+      target: "http://0.0.0.0:8000/openapi.json",
     },
     hooks: {
       afterAllFilesWrite: "npm run lint:fix",
@@ -25,12 +25,12 @@ export default defineConfig({
   },
   petstoreZod: {
     input: {
-      target: "http://localhost:8000/openapi.json",
+      target: "http://0.0.0.0:8000/openapi.json",
     },
     output: {
       mode: "tags-split",
       client: "zod",
-      target: "./app/generated",
+      target: "./app/shared/generated",
       fileExtension: ".zod.ts",
       biome: true,
     },
