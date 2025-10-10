@@ -178,6 +178,8 @@ export interface HTTPValidationError {
   detail?: ValidationError[];
 }
 
+export type KNode = Term | _KNElem;
+
 export type KStatsScore = number | null;
 
 /**
@@ -331,12 +333,15 @@ export interface Paging {
   size?: number;
 }
 
+export type ResourceDetailUids = { [key: string]: string };
+
 /**
  * リソース詳細(API Return Type用).
  */
 export interface ResourceDetail {
   network: SysNet;
   resource_info: ResourceInfo;
+  uids: ResourceDetailUids;
 }
 
 /**
@@ -488,6 +493,16 @@ export interface ResourceStats {
 export interface SysNet {
   root: string;
   g?: GraphData;
+}
+
+/**
+ * 文字列から生成される文字列関数.
+ */
+export interface Template {
+  /** @minLength 1 */
+  name: string;
+  args: string[];
+  form: string;
 }
 
 /**
@@ -726,6 +741,8 @@ export interface ValidationError {
   msg: string;
   type: string;
 }
+
+export type _KNElem = string | Template;
 
 export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams = {
   scopes?: string[];

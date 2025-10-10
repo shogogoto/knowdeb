@@ -1,3 +1,5 @@
-export default function ResourceDetail() {
-  return <div>ResourceDetail</div>;
+type Props = { id: string };
+
+export default function ResourceDetail({ id }: Props) {
+  return <div>ResourceDetail{id}</div>;
 }
