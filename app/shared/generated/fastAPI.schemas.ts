@@ -333,15 +333,18 @@ export interface Paging {
   size?: number;
 }
 
-export type ResourceDetailUids = { [key: string]: string };
+export type ResourceDetailUids = { [key: string]: KNode };
+
+export type ResourceDetailTerms = { [key: string]: Term };
 
 /**
  * リソース詳細(API Return Type用).
  */
 export interface ResourceDetail {
-  network: SysNet;
+  g: GraphData;
   resource_info: ResourceInfo;
   uids: ResourceDetailUids;
+  terms: ResourceDetailTerms;
 }
 
 /**
@@ -485,14 +488,6 @@ export interface ResourceStats {
   readonly r_axiom: number;
   /** 低いほど、定義された用語が無駄なく活用されている */
   readonly r_unrefered: number;
-}
-
-/**
- * 系ネットワーク.
- */
-export interface SysNet {
-  root: string;
-  g?: GraphData;
 }
 
 /**

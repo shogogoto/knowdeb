@@ -185,48 +185,42 @@ export const getResourceDetailResourceResourceIdGetResponseResourceInfoUserUsern
 
 export const getResourceDetailResourceResourceIdGetResponse = zod
   .object({
-    network: zod
+    g: zod
       .object({
-        root: zod.string(),
-        g: zod
-          .object({
-            directed: zod.boolean(),
-            edges: zod.array(
-              zod
-                .object({
-                  type: zod
-                    .enum([
-                      "head",
-                      "sibling",
-                      "below",
-                      "def",
-                      "resolved",
-                      "quoterm",
-                      "to",
-                      "example",
-                      "when",
-                      "where",
-                      "num",
-                      "by",
-                      "ref",
-                      "anti",
-                      "similar",
-                    ])
-                    .describe("グラフ関係の種類."),
-                  source: zod.string(),
-                  target: zod.string(),
-                  key: zod.number(),
-                })
-                .describe("for fastapi schema."),
-            ),
-            graph: zod.record(zod.string(), zod.any()),
-            multigraph: zod.boolean(),
-            nodes: zod.array(zod.record(zod.string(), zod.string())),
-          })
-          .optional()
-          .describe("for fastapi schema."),
+        directed: zod.boolean(),
+        edges: zod.array(
+          zod
+            .object({
+              type: zod
+                .enum([
+                  "head",
+                  "sibling",
+                  "below",
+                  "def",
+                  "resolved",
+                  "quoterm",
+                  "to",
+                  "example",
+                  "when",
+                  "where",
+                  "num",
+                  "by",
+                  "ref",
+                  "anti",
+                  "similar",
+                ])
+                .describe("グラフ関係の種類."),
+              source: zod.string(),
+              target: zod.string(),
+              key: zod.number(),
+            })
+            .describe("for fastapi schema."),
+        ),
+        graph: zod.record(zod.string(), zod.any()),
+        multigraph: zod.boolean(),
+        nodes: zod.array(zod.record(zod.string(), zod.string())),
       })
-      .describe("系ネットワーク."),
+      .describe("for fastapi schema."),
     resource_info: zod
       .object({
         user: zod
@@ -334,7 +328,43 @@ export const getResourceDetailResourceResourceIdGetResponse = zod
           .describe("知識の量を示す指標 for API."),
       })
       .describe("リソースの所有者."),
-    uids: zod.record(zod.string(), zod.string().uuid()),
+    uids: zod.record(
+      zod.string(),
+      zod
+        .object({
+          names: zod.array(zod.string()).optional(),
+          alias: zod
+            .string()
+            .or(zod.null())
+            .optional()
+            .describe("参照用の無意味な記号(参照を持たない)"),
+        })
+        .describe("用語.")
+        .or(
+          zod.string().or(
+            zod
+              .object({
+                name: zod.string().min(1),
+                args: zod.array(zod.string()),
+                form: zod.string(),
+              })
+              .describe("文字列から生成される文字列関数."),
+          ),
+        ),
+    ),
+    terms: zod.record(
+      zod.string(),
+      zod
+        .object({
+          names: zod.array(zod.string()).optional(),
+          alias: zod
+            .string()
+            .or(zod.null())
+            .optional()
+            .describe("参照用の無意味な記号(参照を持たない)"),
+        })
+        .describe("用語."),
+    ),
   })
   .describe("リソース詳細(API Return Type用).");
 
