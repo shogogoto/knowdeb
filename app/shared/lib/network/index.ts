@@ -1,6 +1,11 @@
-import type Graph from "graphology";
+import type { DirectedGraph } from "graphology";
+import Graph from "graphology";
 import type { Attributes } from "graphology-types";
-import type { EdgeType } from "~/shared/generated/fastAPI.schemas";
+import type {
+  EdgeData,
+  EdgeType,
+  GraphData,
+} from "~/shared/generated/fastAPI.schemas";
 
 type EdgePredicate = (attr: Attributes) => boolean;
 
@@ -55,4 +60,28 @@ export function operatorGraph(g: Graph, edgeType: EdgeType) {
     pathsToEnd: (start: string, predicate: EdgePredicate) =>
       pathsToEnd(g, start, predicate, succ),
   };
+}
+
+export function toGraph(g: GraphData): DirectedGraph {
+  const { nodes, edges } = g;
+  const graph = new Graph({
+    multi: true,
+    type: "directed",
+  });
+  function toSerializedEdge(edge: EdgeData) {
+    return {
+      attributes: {
+        etype: edge.type, // type属性はsigma.jsで使われていた
+      },
+      source: edge.source,
+      target: edge.target,
+    };
+  }
+
+  graph.import({
+    nodes: nodes.map((node) => ({ key: node.id })),
+    edges: edges.map(toSerializedEdge),
+  });
+
+  return graph;
 }

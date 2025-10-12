@@ -17,6 +17,7 @@ import type {
   UserReadPublic,
 } from "~/shared/generated/fastAPI.schemas";
 import { useHistory } from "~/shared/history/hooks";
+import { eqEdgeType, operatorGraph, succ } from "~/shared/lib/network";
 import { cn } from "~/shared/lib/utils";
 import { createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
@@ -25,7 +26,6 @@ import DetailNested from "./KnowdeGroup";
 import KnowdeGroup2 from "./KnowdeGroup/KnowdeGroup2";
 import Parents from "./KnowdeGroup/Parents";
 import { graphForView } from "./util";
-import { eqEdgeType, operatorGraph, succ } from "./util/network";
 
 type PrefetchedState = {
   knowde: Knowde;

@@ -1,7 +1,7 @@
 import type { DirectedGraph } from "graphology";
 import type { Knowde } from "~/shared/generated/fastAPI.schemas";
+import { eqEdgeType, pathsToEnd, succ } from "~/shared/lib/network";
 import KnowdeCard from "../../components/KnowdeCard";
-import { eqEdgeType, pathsToEnd, succ } from "../util/network";
 
 type Props = {
   startId: string;
