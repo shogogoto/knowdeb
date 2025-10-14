@@ -1,24 +1,13 @@
-import { toGraph } from "~/shared/lib/network";
-import { resourceDetailFiture } from "./fixture";
-
 describe("ResourceDetail", () => {
   it("get head tree", () => {
-    const { g, uids, terms } = resourceDetailFiture;
-    // const { nodes, edges } = network.g;
+    // const { g, resource_info, uids, terms } = resourceDetailFiture;
+    // const { user, resource, resource_stats } = resource_info;
     //
-    // // for (const node of nodes) {
-    // //   console.log(node.id);
-    // // }
+    // const root = resource.uid;
+    // const graph = toGraph(g);
     //
-    // const duplicateNodeIds = findDuplicateNodeIds(nodes, "id");
+    // console.log(JSON.stringify({ tree: toTree(graph, root) }));
     //
-    const graph = toGraph(g);
-
-    graph.nodes().forEach((n) => {
-      // const node = graph.getNodeAttribute(n, "id");
-      console.log(n);
-    });
-
-    expect(true).toBe(true);
+    // expect(true).toBe(false);
   });
 });

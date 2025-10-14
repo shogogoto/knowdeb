@@ -1,9 +1,10 @@
 // import type Graph from "graphology";
 // import type { Attributes } from "graphology-types";
 // import { Separator } from "~/shared/components/ui/separator";
-// import { toGraph } from "~/shared/lib/network";
-// import { resourceDetailFiture } from "./fixture";
-//
+import { eqEdgeType, succ, toGraph } from "~/shared/lib/network";
+import ResourceWireframe from "./ResourceDetailNested";
+import { resourceDetailFiture } from "./fixture";
+
 //
 // function ContentTree({
 //   graph,
@@ -50,14 +51,30 @@
 //   );
 // }
 //
-//
+
 type Props = { id: string };
 export default function ResourceDetail({ id }: Props) {
-  return <div>{id}</div>;
-  // const { g, resource_info, uids } = resourceDetailFitur;
-  // const { user, resource, resource_stats } = resource_info;
-  // const graph = toGraph(g);
-  //
+  const { g, resource_info, uids } = resourceDetailFiture;
+  const { user, resource, resource_stats } = resource_info;
+  const graph = toGraph(g);
+
+  const root = resource.uid;
+
+  return (
+    <div>
+      <h1>{resource_info.resource.name}</h1>
+      {succ(graph, root, eqEdgeType("below")).map((id) => {
+        return (
+          <ResourceWireframe
+            startId={id}
+            toLine={(id: string) => uids[id].toString()}
+            g={graph}
+            key={id}
+          />
+        );
+      })}
+    </div>
+  );
   // // headエッジを持つノードを探すことで、文章の開始点を見つける
   // const rootNodeId = graph.findNode((_node, attr: Attributes) => {
   //   // resource自身がrootになる
