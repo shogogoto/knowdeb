@@ -1,19 +1,18 @@
 import type { DirectedGraph } from "graphology";
-import type { Knowde } from "~/shared/generated/fastAPI.schemas";
 import { eqEdgeType, pathsToEnd, succ } from "~/shared/lib/network";
-import KnowdeCard from "../../components/KnowdeCard";
 
 type Props = {
   startId: string;
-  kn: (id: string) => Knowde;
+  toLine: (id: string) => string;
   g: DirectedGraph;
   className?: string;
   borderColor?: string;
 };
 
-export default function DetailNested({
+// below - siblingによる文章の骨組み
+export default function ResourceWireframe({
   startId,
-  kn,
+  toLine,
   g,
   className,
   borderColor,
@@ -23,24 +22,22 @@ export default function DetailNested({
   return (
     <div className={className}>
       {sibls.length === 0 ? (
-        <KnowdeCard k={kn(startId)} key={startId} borderColor={borderColor} />
+        <div>{toLine(startId)}</div>
       ) : (
         sibls.map((path) => {
           return path.map((id) => {
             const belows = succ(g, id, eqEdgeType("below"));
             if (belows.length === 0) {
-              return (
-                <KnowdeCard k={kn(id)} key={id} borderColor={borderColor} />
-              );
+              return <div>{toLine(id)}</div>;
             }
 
             return belows.map((bid) => {
               return (
                 <div key={bid}>
-                  <KnowdeCard k={kn(id)} key={id} borderColor={borderColor} />
-                  <DetailNested
+                  {toLine(id)}
+                  <ResourceWireframe
                     startId={bid}
-                    kn={kn}
+                    toLine={toLine}
                     g={g}
                     key={bid}
                     className="ml-1"
@@ -55,5 +52,3 @@ export default function DetailNested({
     </div>
   );
 }
-
-// Tree と stream

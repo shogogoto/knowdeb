@@ -42,14 +42,6 @@ export default function QueryParamTabPage({
     ...rest,
   }));
 
-  const renderContents = () => {
-    return items.map((item) => (
-      <TabsContent value={item.param} key={item.param} className="mt-[-0.5rem]">
-        {item.content}
-      </TabsContent>
-    ));
-  };
-
   return (
     <TabUI
       items={uiItems}
@@ -58,7 +50,15 @@ export default function QueryParamTabPage({
       headerContent={children}
       isLoading={isLoading}
     >
-      {renderContents()}
+      {items.map((item) => (
+        <TabsContent
+          value={item.param}
+          key={item.param}
+          className="mt-[-0.5rem]"
+        >
+          {item.content}
+        </TabsContent>
+      ))}
     </TabUI>
   );
 }

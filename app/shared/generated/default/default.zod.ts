@@ -7,16 +7,6 @@
 import { z as zod } from "zod";
 
 /**
- * ファイルからsysnetを読み取って永続化.
- * @summary Read File
- */
-export const readFileUploadPostBody = zod.object({
-  files: zod.array(zod.instanceof(File)),
-});
-
-export const readFileUploadPostResponse = zod.null();
-
-/**
  * Check health.
  * @summary Check Health
  */

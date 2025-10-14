@@ -1,18 +1,17 @@
 import {
   Baseline,
-  Book,
+  BookUser,
   BrainCircuit,
   Calendar,
-  FileText,
   GitFork,
+  List,
+  TextInitial,
   Users,
 } from "lucide-react";
-import type { LucideIcon } from "lucide-react";
 import { Link } from "react-router";
 import UserAvatar from "~/features/user/UserAvatar";
-import HybridTooltip from "~/shared/components/HybridTooltip";
+import StatViewItem from "~/shared/components/stats/StatViewItem";
 import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
-import { TooltipProvider } from "~/shared/components/ui/tooltip";
 import type {
   ResourceInfo,
   ResourceStats,
@@ -46,6 +45,20 @@ function ResourceCardContent({ info }: Props) {
         <UserAvatar user={user} className="size-5" />
         <span>{user.display_name || user.username}</span>
       </div>
+      {resource.authors && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <BookUser className="size-4" />
+          <span>{resource.authors.join(", ")}</span>
+        </div>
+      )}
+      {resource.published && (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="size-4" />
+          <span>
+            Published: {new Date(resource.published).toLocaleDateString()}
+          </span>
+        </div>
+      )}
       {resource.updated && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="size-4" />
@@ -59,58 +72,19 @@ function ResourceCardContent({ info }: Props) {
 }
 
 function ResourceCardFooter({ stats }: { stats: ResourceStats }) {
+  const statItems = createStatView(stats);
   return (
     <CardFooter>
-      <TooltipProvider>
-        <ResourceStatViews stats={stats} />
-      </TooltipProvider>
+      <div className="flex flex-wrap items-center gap-x-3">{statItems}</div>
     </CardFooter>
   );
 }
 
-function StatViewItem({
-  Icon,
-  label,
-  value,
-  mobileDisabled,
-}: {
-  Icon: LucideIcon;
-  label: string;
-  value: number | string | undefined;
-  mobileDisabled?: boolean;
-}) {
-  return (
-    <HybridTooltip content={label} mobileDisabled={mobileDisabled}>
-      <div className="flex items-center gap-1">
-        <Icon className="size-4 cursor-pointer text-muted-foreground" />
-        <div className="font-mono text-sm text-right">{value}</div>
-      </div>
-    </HybridTooltip>
-  );
-}
-
-function createResourceStatView(
-  stats: ResourceStats,
-  mobileDisabled?: boolean,
-) {
-  const f = (stat: {
-    Icon: LucideIcon;
-    label: string;
-    value?: number | string;
-  }) => (
-    <StatViewItem
-      key={stat.label}
-      Icon={stat.Icon}
-      label={stat.label}
-      value={stat.value}
-      mobileDisabled={mobileDisabled}
-    />
-  );
-
+function createStatView(stats: ResourceStats) {
   const items = {
-    n_char: { Icon: FileText, label: "文字数", value: stats.n_char },
-    n_sentence: { Icon: Baseline, label: "文章数", value: stats.n_sentence },
-    n_term: { Icon: Book, label: "用語数", value: stats.n_term },
+    n_char: { Icon: Baseline, label: "文字数", value: stats.n_char },
+    n_sentence: { Icon: List, label: "単文数", value: stats.n_sentence },
+    n_term: { Icon: TextInitial, label: "用語数", value: stats.n_term },
     n_edge: { Icon: GitFork, label: "関係数", value: stats.n_edge },
     avg_deg: {
       Icon: Users,
@@ -126,11 +100,12 @@ function createResourceStatView(
           : undefined,
     },
   };
-
-  return Object.values(items).map(f);
-}
-
-function ResourceStatViews({ stats }: { stats: ResourceStats }) {
-  const statItems = createResourceStatView(stats);
-  return <div className="flex flex-wrap items-center gap-x-3">{statItems}</div>;
+  return Object.values(items).map((item) => (
+    <StatViewItem
+      key={item.label}
+      Icon={item.Icon}
+      label={item.label}
+      value={item.value}
+    />
+  ));
 }
