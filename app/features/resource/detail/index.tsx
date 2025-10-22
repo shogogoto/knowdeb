@@ -1,7 +1,8 @@
 // import type Graph from "graphology";
 // import type { Attributes } from "graphology-types";
 // import { Separator } from "~/shared/components/ui/separator";
-import { eqEdgeType, succ, toGraph } from "~/shared/lib/network";
+import { toGraph } from "~/shared/lib/network";
+import { ResourceDetailProvider } from "./Context";
 import ResourceWireframe from "./ResourceDetailNested";
 import { resourceDetailFiture } from "./fixture";
 
@@ -52,28 +53,23 @@ import { resourceDetailFiture } from "./fixture";
 // }
 //
 
-type Props = { id: string };
+type Props = {
+  id: string;
+};
+
 export default function ResourceDetail({ id }: Props) {
-  const { g, resource_info, uids } = resourceDetailFiture;
+  const { g, resource_info, uids, terms } = resourceDetailFiture;
   const { user, resource, resource_stats } = resource_info;
   const graph = toGraph(g);
-
-  const root = resource.uid;
-
   return (
-    <div>
+    <ResourceDetailProvider graph={graph} terms={terms} uids={uids}>
       <h1>{resource_info.resource.name}</h1>
-      {succ(graph, root, eqEdgeType("below")).map((id) => {
-        return (
-          <ResourceWireframe
-            startId={id}
-            toLine={(id: string) => uids[id].toString()}
-            g={graph}
-            key={id}
-          />
-        );
-      })}
-    </div>
+      <ResourceWireframe
+        startId={resource.uid}
+        toLine={(id: string) => uids[id].toString()}
+        key={id}
+      />
+    </ResourceDetailProvider>
   );
   // // headエッジを持つノードを探すことで、文章の開始点を見つける
   // const rootNodeId = graph.findNode((_node, attr: Attributes) => {

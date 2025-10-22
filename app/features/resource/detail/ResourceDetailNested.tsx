@@ -1,54 +1,45 @@
-import type { DirectedGraph } from "graphology";
-import { eqEdgeType, pathsToEnd, succ } from "~/shared/lib/network";
+import { useResourceDetail } from "./Context";
+import { toAdjacent } from "./util";
 
 type Props = {
   startId: string;
   toLine: (id: string) => string;
-  g: DirectedGraph;
   className?: string;
   borderColor?: string;
 };
 
 // below - siblingによる文章の骨組み
+// belowとsiblingの先にある sentenceをさらに肉付け
 export default function ResourceWireframe({
   startId,
   toLine,
-  g,
   className,
   borderColor,
 }: Props) {
-  const sibls = pathsToEnd(g, startId, eqEdgeType("sibling"), succ);
-
+  const { graph, terms, uids } = useResourceDetail();
+  const adj = toAdjacent(startId, graph, uids, terms);
   return (
-    <div className={className}>
-      {sibls.length === 0 ? (
-        <div>{toLine(startId)}</div>
-      ) : (
-        sibls.map((path) => {
-          return path.map((id) => {
-            const belows = succ(g, id, eqEdgeType("below"));
-            if (belows.length === 0) {
-              return <div>{toLine(id)}</div>;
-            }
-
-            return belows.map((bid) => {
+    <div>
+      {adj.downArrays().map((down) => {
+        return (
+          <div key={startId} className="ml-2">
+            {down.map((elm) => {
               return (
-                <div key={bid}>
-                  {toLine(id)}
+                <p key={elm.kn.uid}>
+                  {elm.kn.sentence}
                   <ResourceWireframe
-                    startId={bid}
+                    key={elm.kn.uid}
+                    startId={elm.kn.uid}
                     toLine={toLine}
-                    g={g}
-                    key={bid}
-                    className="ml-1"
-                    borderColor={borderColor}
                   />
-                </div>
+                </p>
               );
-            });
-          });
-        })
-      )}
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
+
+export function ResourceCard() {}

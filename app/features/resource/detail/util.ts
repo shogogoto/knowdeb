@@ -34,8 +34,15 @@ export function toAdjacent(
   // @ts-ignore
   const when = succ(g, id, eqEdgeType("when")).map((wid) => uids[wid])?.[0]?.n;
   const additional = when && { when };
+  const sentenceNode = uids[id];
+  const sentence =
+    typeof sentenceNode === "string"
+      ? sentenceNode
+      : ((sentenceNode as { n: string })?.n ??
+        JSON.stringify(sentenceNode) ??
+        "<<<not defined>>>");
   const kn: ResourceKnowde = {
-    sentence: (uids[id] as string) ?? "<<<not defined>>>",
+    sentence,
     term: terms[id],
     uid: id,
     additional,
@@ -55,16 +62,16 @@ export function toAdjacent(
 
   function toEnd(et: EdgeType) {
     return pathsToEnd(g, id, eqEdgeType(et), succ).map((path) => {
-      return path.map((sid) => toAdjacent(sid, g, uids, terms));
+      return path.map((sid) => toAdjacent(sid, g, uids, terms))?.slice(1); // 自身を除く
     });
   }
 
   // 1つ下の階層の一覧を返す
   function downArrays() {
-    const retval: ResourceKnowde[][] = [];
+    const retval = [];
     for (const below of toSucc("below")) {
-      const sibs = below.toEnd("sibling")[0]?.map((e) => e.kn);
-      sibs && retval.push(sibs);
+      const siblings = below.toEnd("sibling")[0] || [];
+      retval.push([below, ...siblings]);
     }
     return retval;
   }
@@ -107,6 +114,6 @@ export function useTraceMemory() {
   };
 }
 
-export function isHeading(id: string, uids: ResourceDetailUids) {
-  return uids[id]?.toString().startsWith("#");
+export function isHeading(sentence: string) {
+  return sentence.startsWith("#");
 }
