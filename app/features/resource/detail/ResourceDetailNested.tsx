@@ -1,5 +1,6 @@
+import type { JSX } from "react";
 import { useResourceDetail } from "./Context";
-import { toAdjacent } from "./util";
+import { getHeadingLevel, toAdjacent } from "./util";
 
 type Props = {
   startId: string;
@@ -22,11 +23,11 @@ export default function ResourceWireframe({
     <div>
       {adj.downArrays().map((down) => {
         return (
-          <div key={startId} className="ml-2">
+          <div key={startId} className="ml-1">
             {down.map((elm) => {
               return (
                 <p key={elm.kn.uid}>
-                  {elm.kn.sentence}
+                  <Presenter id={elm.kn.uid} />
                   <ResourceWireframe
                     key={elm.kn.uid}
                     startId={elm.kn.uid}
@@ -42,4 +43,18 @@ export default function ResourceWireframe({
   );
 }
 
-export function ResourceCard() {}
+type PProps = {
+  id: string;
+};
+// 単文や見出しをいい感じに表示し分ける
+export function Presenter({ id }: PProps) {
+  const { graph, terms, uids } = useResourceDetail();
+  const adj = toAdjacent(id, graph, uids, terms);
+  const level = getHeadingLevel(adj.kn.sentence);
+  if (level > 0) {
+    const Tag = `h${level}` as keyof JSX.IntrinsicElements;
+    const headingText = adj.kn.sentence.replace(/^#+\s*/, "");
+    return <Tag>{headingText}</Tag>;
+  }
+  return <div>{adj.kn.sentence}</div>;
+}

@@ -19,7 +19,6 @@ describe("ResourceDetail", () => {
     const rootId = resource_info.resource.uid;
     const adj = toAdjacent(rootId, G, uids, terms);
     const arrs = adj.downArrays();
-    console.log(JSON.stringify(arrs, null, 2));
     expect(arrs[0]).toHaveLength(1); // 兄弟なし
     expect(arrs[1]).toHaveLength(3); // 3兄弟
   });

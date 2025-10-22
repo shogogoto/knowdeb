@@ -114,6 +114,11 @@ export function useTraceMemory() {
   };
 }
 
-export function isHeading(sentence: string) {
-  return sentence.startsWith("#");
+const HEADING_REGEX = /^#+/;
+export function getHeadingLevel(sentence: string): number {
+  if (!sentence) {
+    return 0;
+  }
+  const match = sentence.match(HEADING_REGEX);
+  return match ? match[0].length : 0;
 }

@@ -63,30 +63,14 @@ export default function ResourceDetail({ id }: Props) {
   const graph = toGraph(g);
   return (
     <ResourceDetailProvider graph={graph} terms={terms} uids={uids}>
-      <h1>{resource_info.resource.name}</h1>
-      <ResourceWireframe
-        startId={resource.uid}
-        toLine={(id: string) => uids[id].toString()}
-        key={id}
-      />
+      <div className="markdown-body p-4">
+        <h1>{resource_info.resource.name}</h1>
+        <ResourceWireframe
+          startId={resource.uid}
+          toLine={(id: string) => uids[id].toString()}
+          key={id}
+        />
+      </div>
     </ResourceDetailProvider>
   );
-  // // headエッジを持つノードを探すことで、文章の開始点を見つける
-  // const rootNodeId = graph.findNode((_node, attr: Attributes) => {
-  //   // resource自身がrootになる
-  //   return attr.uid === resource.uid;
-  // });
-  //
-  // if (!rootNodeId) {
-  //   // 基本的にfixtureなのでありえない
-  //   return <div>root node not found</div>;
-  // }
-  //
-  // return (
-  //   <div className="p-4">
-  //     {/* <ResourceHeader resource={resource} user={user} stats={resource_stats} /> */}
-  //     <Separator className="my-4" />
-  //     <ContentTree graph={graph} uids={uids} rootNodeId={rootNodeId} />
-  //   </div>
-  // );
 }
