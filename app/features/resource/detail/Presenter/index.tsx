@@ -35,14 +35,16 @@ export default function Presenter({ id }: Props) {
       <Link to={`/resource/${rootId}#${adj.kn.uid}`}>
         {myNumber && `${myNumber}. `}
       </Link>
-      {adj.kn.term?.names?.map((name) => (
-        <span
-          key={name}
-          className="rounded-full font-bold text-green-800  dark:text-green-500"
-        >
-          {name}
-        </span>
-      ))}
+      <div className="inline-flex items-start gap-2">
+        {adj.kn.term?.names?.map((name) => (
+          <span
+            key={name}
+            className="rounded-full font-bold text-green-800  dark:text-green-500"
+          >
+            {name}
+          </span>
+        ))}
+      </div>
       {adj.kn.term?.names?.length && ":  "}
       {adj.kn.sentence}
     </div>
