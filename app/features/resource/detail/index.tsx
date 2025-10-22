@@ -5,6 +5,7 @@ import { toGraph } from "~/shared/lib/network";
 import Backbone from "./Backbone";
 import { ResourceDetailProvider } from "./Context";
 import Presenter from "./Presenter";
+import { TraceMemoryProvider } from "./TraceMemory/Context";
 import { resourceDetailFiture } from "./fixture";
 
 //
@@ -64,14 +65,16 @@ export default function ResourceDetail({ id }: Props) {
   const graph = toGraph(g);
   return (
     <ResourceDetailProvider graph={graph} terms={terms} uids={uids}>
-      <div className="markdown-body p-4">
-        <Presenter id={resource.uid} />
-        <Backbone
-          startId={resource.uid}
-          toLine={(id: string) => uids[id].toString()}
-          key={id}
-        />
-      </div>
+      <TraceMemoryProvider>
+        <div className="markdown-body p-4">
+          <Presenter id={resource.uid} />
+          <Backbone
+            startId={resource.uid}
+            toLine={(id: string) => uids[id].toString()}
+            key={id}
+          />
+        </div>
+      </TraceMemoryProvider>
     </ResourceDetailProvider>
   );
 }

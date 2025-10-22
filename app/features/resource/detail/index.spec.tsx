@@ -1,6 +1,6 @@
 import { toGraph } from "~/shared/lib/network";
 import { resourceDetailFiture } from "./fixture";
-import { toAdjacent, useTraceMemory } from "./util";
+import { toAdjacent } from "./util";
 
 const { g, resource_info, uids, terms } = resourceDetailFiture;
 const G = toGraph(g);
@@ -21,13 +21,5 @@ describe("ResourceDetail", () => {
     const arrs = adj.downArrays();
     expect(arrs[0]).toHaveLength(1); // 兄弟なし
     expect(arrs[1]).toHaveLength(3); // 3兄弟
-  });
-
-  it("辿ったことを記憶", () => {
-    const { register, isRegistered } = useTraceMemory();
-    const id = "e4254a62-74cd-46d2-9d75-2e69a717c2ec";
-    expect(isRegistered(id)).toBe(false);
-    register(id);
-    expect(isRegistered(id)).toBe(true);
   });
 });
