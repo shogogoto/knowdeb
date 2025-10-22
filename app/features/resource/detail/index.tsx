@@ -2,8 +2,9 @@
 // import type { Attributes } from "graphology-types";
 // import { Separator } from "~/shared/components/ui/separator";
 import { toGraph } from "~/shared/lib/network";
+import Backbone from "./Backbone";
 import { ResourceDetailProvider } from "./Context";
-import ResourceWireframe from "./ResourceDetailNested";
+import Presenter from "./Presenter";
 import { resourceDetailFiture } from "./fixture";
 
 //
@@ -64,8 +65,8 @@ export default function ResourceDetail({ id }: Props) {
   return (
     <ResourceDetailProvider graph={graph} terms={terms} uids={uids}>
       <div className="markdown-body p-4">
-        <h1>{resource_info.resource.name}</h1>
-        <ResourceWireframe
+        <Presenter id={resource.uid} />
+        <Backbone
           startId={resource.uid}
           toLine={(id: string) => uids[id].toString()}
           key={id}
