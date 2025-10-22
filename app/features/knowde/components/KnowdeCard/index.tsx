@@ -108,7 +108,10 @@ export function KnowdeCardContent({ k, className, resource, query }: KProps) {
       <div className="flex flex-wrap items-center gap-x-4 text-sm text-muted-foreground">
         {resource && (
           <div className="text-sm text-muted-foreground space-x-2">
-            <Link to={`/resource/${resource.uid}`} className="hover:underline">
+            <Link
+              to={`/resource/${resource.uid}#${k.uid}`}
+              className="hover:underline"
+            >
               {resource.name}
             </Link>
             {/* <span>{resource?.authors}</span> */}

@@ -64,7 +64,12 @@ export default function ResourceDetail({ id }: Props) {
   const { user, resource, resource_stats } = resource_info;
   const graph = toGraph(g);
   return (
-    <ResourceDetailProvider graph={graph} terms={terms} uids={uids}>
+    <ResourceDetailProvider
+      graph={graph}
+      terms={terms}
+      uids={uids}
+      rootId={resource.uid}
+    >
       <TraceMemoryProvider>
         <div className="markdown-body p-4">
           <Presenter id={resource.uid} />

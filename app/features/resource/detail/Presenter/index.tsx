@@ -12,7 +12,7 @@ const HEADING_PREFIX = /^#+\s*/;
 
 // 単文や見出しをいい感じに表示し分ける
 export default function Presenter({ id }: Props) {
-  const { graph, terms, uids } = useResourceDetail();
+  const { graph, terms, uids, rootId } = useResourceDetail();
   const adj = toAdjacent(id, graph, uids, terms);
   const level = getHeadingLevel(adj.kn.sentence);
   const { register, getNumber } = useTraceMemory();
@@ -31,8 +31,10 @@ export default function Presenter({ id }: Props) {
   }
 
   return (
-    <div>
-      <Link to={`/knowde/${adj.kn.uid}`}>{myNumber && `${myNumber}. `}</Link>
+    <div id={adj.kn.uid}>
+      <Link to={`/resource/${rootId}#${adj.kn.uid}`}>
+        {myNumber && `${myNumber}. `}
+      </Link>
       {adj.kn.term?.names?.map((name) => (
         <span
           key={name}

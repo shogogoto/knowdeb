@@ -9,6 +9,7 @@ export type ResourceDetailContextState = {
   graph: DirectedGraph;
   uids: ResourceDetailUids;
   terms: ResourceDetailTerms;
+  rootId: string;
 };
 
 const ResourceDetailContext = createContext<
