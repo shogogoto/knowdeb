@@ -1,5 +1,6 @@
 import { type JSX, useEffect } from "react";
 import { Link } from "react-router";
+import { AdditionalItem } from "~/features/knowde/components/KnowdeCard";
 import { useResourceDetail } from "../Context";
 import { useTraceMemory } from "../TraceMemory/hooks";
 import { getHeadingLevel, toAdjacent } from "../util";
@@ -47,6 +48,11 @@ export default function Presenter({ id }: Props) {
       </div>
       {adj.kn.term?.names?.length && ":  "}
       {adj.kn.sentence}
+      {adj.kn.additional && (
+        <div className="text-sm text-muted-foreground">
+          <AdditionalItem additional={adj.kn.additional} />
+        </div>
+      )}
     </div>
   );
 }

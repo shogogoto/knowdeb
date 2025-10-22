@@ -17,7 +17,13 @@ export function toAdjacent(
 ) {
   // @ts-ignore
   const when = succ(g, id, eqEdgeType("when")).map((wid) => uids[wid])?.[0]?.n;
-  const additional = when && { when };
+  const by = succ(g, id, eqEdgeType("by")).map(
+    (bid) => uids[bid],
+  )?.[0] as string;
+  const where = succ(g, id, eqEdgeType("where")).map(
+    (bid) => uids[bid],
+  )?.[0] as string;
+  const additional = { when, by, where };
   const sentenceNode = uids[id];
   const sentence =
     typeof sentenceNode === "string"

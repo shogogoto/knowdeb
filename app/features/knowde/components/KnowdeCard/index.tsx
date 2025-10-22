@@ -205,7 +205,7 @@ function StatViews({
   );
 }
 
-function AdditionalItem({
+export function AdditionalItem({
   additional,
 }: { additional: KnowdeAdditional | undefined }) {
   if (!additional) {

@@ -11,12 +11,7 @@ type Props = {
 
 // below - siblingによる文章の骨組み
 // belowとsiblingの先にある sentenceをさらに肉付け
-export default function Backbone({
-  startId,
-  toLine,
-  className,
-  borderColor,
-}: Props) {
+export default function Backbone({ startId, toLine }: Props) {
   const { graph, terms, uids } = useResourceDetail();
   const adj = toAdjacent(startId, graph, uids, terms);
   return (
