@@ -1,6 +1,7 @@
 import { type JSX, useEffect } from "react";
 import { Link } from "react-router";
 import { AdditionalItem } from "~/features/knowde/components/KnowdeCard";
+import { useSelectPreventLink } from "~/shared/hooks/useSelectPrevent";
 import { useResourceDetail } from "../Context";
 import { useTraceMemory } from "../TraceMemory/hooks";
 import { getHeadingLevel, toAdjacent } from "../util";
@@ -16,9 +17,9 @@ export default function Presenter({ id }: Props) {
   const { graph, terms, uids, rootId } = useResourceDetail();
   const adj = toAdjacent(id, graph, uids, terms);
   const level = getHeadingLevel(adj.kn.sentence);
-  const { register, getNumber } = useTraceMemory();
-  const myNumber = getNumber(id);
-
+  const { register, isRegistered, getNumber, count } = useTraceMemory();
+  const myNumber = getNumber(id); // TODO: Mapが無駄に見える。Set要素に変えたい
+  const { handleMouseDown, handleClick } = useSelectPreventLink(5); // 5px を閾値とする
   useEffect(() => {
     if (level === 0) {
       register(id);
@@ -31,6 +32,7 @@ export default function Presenter({ id }: Props) {
     return <Tag>{headingText}</Tag>;
   }
 
+  // TODO: resolved関係を辿って、埋め込まれた用語の定義にジャンプするリンクを作る
   return (
     <div id={adj.kn.uid}>
       <Link to={`/resource/${rootId}#${adj.kn.uid}`}>
@@ -47,11 +49,19 @@ export default function Presenter({ id }: Props) {
         ))}
       </div>
       {adj.kn.term?.names?.length && ":  "}
-      {adj.kn.sentence}
+      <Link
+        to={`/knowde/${adj.kn.uid}`}
+        draggable="false"
+        className="!text-inherit"
+        onMouseDown={handleMouseDown}
+        onClick={handleClick}
+      >
+        {adj.kn.sentence}
+      </Link>
       {adj.kn.additional && (
-        <div className="text-sm text-muted-foreground">
+        <span className="inline-flex ml-2 text-sm text-muted-foreground">
           <AdditionalItem additional={adj.kn.additional} />
-        </div>
+        </span>
       )}
     </div>
   );
