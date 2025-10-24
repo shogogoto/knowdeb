@@ -73,11 +73,7 @@ export default function ResourceDetail({ id }: Props) {
       <TraceMemoryProvider>
         <div className="markdown-body p-4">
           <Presenter id={resource.uid} />
-          <Backbone
-            startId={resource.uid}
-            toLine={(id: string) => uids[id].toString()}
-            key={id}
-          />
+          <Backbone startId={resource.uid} key={id} />
         </div>
       </TraceMemoryProvider>
     </ResourceDetailProvider>

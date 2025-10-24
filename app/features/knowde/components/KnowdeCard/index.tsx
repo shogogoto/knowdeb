@@ -107,16 +107,14 @@ export function KnowdeCardContent({ k, className, resource, query }: KProps) {
       )}
       <div className="flex flex-wrap items-center gap-x-4 text-sm text-muted-foreground">
         {resource && (
-          <div className="text-sm text-muted-foreground space-x-2">
-            <Link
-              to={`/resource/${resource.uid}#${k.uid}`}
-              className="hover:underline"
-            >
-              {resource.name}
-            </Link>
+          <Link
+            to={`/resource/${resource.uid}#${k.uid}`}
+            className="hover:underline"
+          >
+            {resource.name}
             {/* <span>{resource?.authors}</span> */}
             {/* <span>{resource?.published}</span> */}
-          </div>
+          </Link>
         )}
         <AdditionalItem additional={k.additional} />
       </div>

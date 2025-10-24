@@ -8,8 +8,8 @@ import {
 
 type TraceMemoryContextType = {
   register: (id: string) => void;
+  isRegistered: (id: string) => boolean;
   getNumber: (id: string) => number | undefined;
-  count: number;
 };
 
 export const TraceMemoryContext = createContext<
@@ -17,6 +17,9 @@ export const TraceMemoryContext = createContext<
 >(undefined);
 
 export function TraceMemoryProvider({ children }: { children: ReactNode }) {
+  // Setで実装したかったが、Reactの非同期処理のため、Mapを採用
+  // 各コンポーネントでのregister呼び出しは非同期になされるため、
+  // setのsizeを意図通りに取得できない
   const [memory, setMemory] = useState<Map<string, number>>(new Map());
 
   const register = useCallback((id: string) => {
@@ -30,6 +33,13 @@ export function TraceMemoryProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const isRegistered = useCallback(
+    (id: string) => {
+      return memory.has(id);
+    },
+    [memory],
+  );
+
   const getNumber = useCallback(
     (id: string) => {
       return memory.get(id);
@@ -38,8 +48,8 @@ export function TraceMemoryProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo(
-    () => ({ register, getNumber, count: memory.size }),
-    [register, getNumber, memory.size],
+    () => ({ register, isRegistered, getNumber }),
+    [register, isRegistered, getNumber],
   );
 
   return (
