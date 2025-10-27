@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
+import { HashLink } from "react-router-hash-link";
 import StatViewItem from "~/shared/components/stats/StatViewItem";
 import { Badge } from "~/shared/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
@@ -107,14 +108,15 @@ export function KnowdeCardContent({ k, className, resource, query }: KProps) {
       )}
       <div className="flex flex-wrap items-center gap-x-4 text-sm text-muted-foreground">
         {resource && (
-          <Link
+          <HashLink
             to={`/resource/${resource.uid}#${k.uid}`}
             className="hover:underline"
+            scroll={(el) => el.scrollIntoView({ behavior: "auto" })} // smoothだと半端にスクロール
           >
             {resource.name}
             {/* <span>{resource?.authors}</span> */}
             {/* <span>{resource?.published}</span> */}
-          </Link>
+          </HashLink>
         )}
         <AdditionalItem additional={k.additional} />
       </div>
