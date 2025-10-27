@@ -66,6 +66,10 @@ export function toAdjacent(
     return retval;
   }
 
+  function hasName(name: string) {
+    return kn.term?.names?.some((n) => n === name);
+  }
+
   return {
     kn,
     toSucc,
@@ -78,6 +82,7 @@ export function toAdjacent(
     premises: () => toPred("to"),
     refers: () => toSucc("resolved"),
     referreds: () => toPred("resolved"),
+    hasName,
   };
 }
 

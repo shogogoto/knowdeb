@@ -2,8 +2,8 @@ import type React from "react";
 import { type JSX, useEffect, useState } from "react";
 import { Link } from "react-router";
 import { AdditionalItem } from "~/features/knowde/components/KnowdeCard";
-import { useSelectPreventLink } from "~/shared/hooks/useSelectPrevent";
 import { useResourceDetail } from "../Context";
+import LinkedSentence from "../LinkedSentence";
 import Relations from "../Relations";
 import { useTraceMemory } from "../TraceMemory/hooks";
 import { getHeadingLevel, toAdjacent } from "../util";
@@ -21,7 +21,6 @@ export default function Presenter({ id, prefix }: Props) {
   const adj = toAdjacent(id, graph, uids, terms);
   const level = getHeadingLevel(adj.kn.sentence);
   const { register, isRegistered, getNumber } = useTraceMemory();
-  const { handleMouseDown, handleClick } = useSelectPreventLink(5); // 5px を閾値とする
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -46,6 +45,7 @@ export default function Presenter({ id, prefix }: Props) {
   // TODO: resolved関係を辿って、埋め込まれた用語の定義にジャンプするリンクを作る
   return (
     <div>
+      {/* {adj.referreds().map((ref) => ref.kn.term?.names?.[0])} */}
       <span>{prefix}</span>
       <Link to={`/resource/${rootId}#${adj.kn.uid}`}>
         {`${getNumber(id)}. `}
@@ -61,16 +61,7 @@ export default function Presenter({ id, prefix }: Props) {
         ))}
       </div>
       {adj.kn.term?.names?.length && ":  "}
-      <Link
-        to={`/knowde/${adj.kn.uid}`}
-        draggable="false"
-        className="!text-inherit"
-        onMouseDown={handleMouseDown}
-        onClick={handleClick}
-        id={adj.kn.uid}
-      >
-        {adj.kn.sentence}
-      </Link>
+      <LinkedSentence adj={adj} />
       {adj.kn.additional && (
         <span className="inline-flex ml-2 text-sm text-muted-foreground">
           <AdditionalItem additional={adj.kn.additional} />

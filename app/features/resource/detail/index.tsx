@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { useHistory } from "~/shared/history/hooks";
 // import type Graph from "graphology";
 // import type { Attributes } from "graphology-types";
 // import { Separator } from "~/shared/components/ui/separator";
@@ -60,9 +62,15 @@ type Props = {
 };
 
 export default function ResourceDetail({ id }: Props) {
+  const { addHistory } = useHistory();
   const { g, resource_info, uids, terms } = resourceDetailFiture;
   const { user, resource, resource_stats } = resource_info;
   const graph = toGraph(g);
+
+  useEffect(() => {
+    addHistory({ title: resource.name });
+  }, [addHistory, resource.name]);
+
   return (
     <ResourceDetailProvider
       graph={graph}
