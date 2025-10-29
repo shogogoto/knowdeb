@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { Link, useSearchParams } from "react-router";
-import HybridTooltip from "~/shared/components/HybridTooltip";
+import { HashLink } from "react-router-hash-link";
+import StatViewItem from "~/shared/components/stats/StatViewItem";
 import { Badge } from "~/shared/components/ui/badge";
 import { Card, CardContent, CardFooter } from "~/shared/components/ui/card";
 import {
@@ -107,13 +108,15 @@ export function KnowdeCardContent({ k, className, resource, query }: KProps) {
       )}
       <div className="flex flex-wrap items-center gap-x-4 text-sm text-muted-foreground">
         {resource && (
-          <div className="text-sm text-muted-foreground space-x-2">
-            <Link to={`/resource/${resource.uid}`} className="hover:underline">
-              {resource.name}
-            </Link>
+          <HashLink
+            to={`/resource/${resource.uid}#${k.uid}`}
+            className="hover:underline"
+            scroll={(el) => el.scrollIntoView({ behavior: "auto" })} // smoothだと半端にスクロール
+          >
+            {resource.name}
             {/* <span>{resource?.authors}</span> */}
             {/* <span>{resource?.published}</span> */}
-          </div>
+          </HashLink>
         )}
         <AdditionalItem additional={k.additional} />
       </div>
@@ -132,10 +135,7 @@ export function KnowdeCardFooter({ k, index }: KProps & { index?: number }) {
   );
 }
 
-export function createStatView(
-  stats: KStats | undefined,
-  mobileDisabled?: boolean,
-) {
+export function createStatView(stats: KStats | undefined) {
   const f = (stat: { Icon: LucideIcon; label: string; value?: number }) =>
     stat.value != null && (
       <StatViewItem
@@ -143,7 +143,6 @@ export function createStatView(
         Icon={stat.Icon}
         label={stat.label}
         value={stat.value}
-        mobileDisabled={mobileDisabled}
       />
     );
 
@@ -206,28 +205,7 @@ function StatViews({
   );
 }
 
-function StatViewItem({
-  Icon,
-  label,
-  value,
-  mobileDisabled,
-}: {
-  Icon: LucideIcon;
-  label: string;
-  value: number | undefined;
-  mobileDisabled?: boolean;
-}) {
-  return (
-    <HybridTooltip content={label} mobileDisabled={mobileDisabled}>
-      <div className="flex items-center gap-1">
-        <Icon className="size-4 cursor-pointer text-muted-foreground" />
-        <div className="font-mono text-sm text-right">{value}</div>
-      </div>
-    </HybridTooltip>
-  );
-}
-
-function AdditionalItem({
+export function AdditionalItem({
   additional,
 }: { additional: KnowdeAdditional | undefined }) {
   if (!additional) {

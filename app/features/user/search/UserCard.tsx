@@ -1,12 +1,16 @@
-import { BookText, FileText, MessageSquare } from "lucide-react";
+import { Baseline, LibraryBig, List } from "lucide-react";
 import { Link } from "react-router";
+import StatViewItem from "~/shared/components/stats/StatViewItem";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "~/shared/components/ui/card";
-import type { UserSearchRow } from "~/shared/generated/fastAPI.schemas";
+import type {
+  UserAchievement,
+  UserSearchRow,
+} from "~/shared/generated/fastAPI.schemas";
 import UserAvatar from "../UserAvatar";
 
 type Props = {
@@ -37,20 +41,37 @@ export function UserCard({ row }: Props) {
           {user.profile}
         </p>
       </CardContent>
-      <CardFooter className="flex justify-end space-x-4 text-sm text-muted-foreground">
-        <div className="flex items-center">
-          <FileText className="mr-1 h-4 w-4" />
-          <span>{archivement.n_resource}</span>
-        </div>
-        <div className="flex items-center">
-          <BookText className="mr-1 h-4 w-4" />
-          <span>{archivement.n_sentence}</span>
-        </div>
-        <div className="flex items-center">
-          <MessageSquare className="mr-1 h-4 w-4" />
-          <span>{archivement.n_char}</span>
-        </div>
-      </CardFooter>
+      <UserCardFooter stats={archivement} />
     </Card>
   );
+}
+
+function UserCardFooter({ stats }: { stats: UserAchievement }) {
+  const statItems = createStatView(stats);
+  return (
+    <CardFooter className="flex space-x-4 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-x-3">{statItems}</div>
+    </CardFooter>
+  );
+}
+
+function createStatView(stats: UserAchievement) {
+  const items = {
+    n_char: { Icon: Baseline, label: "文字数", value: stats.n_char },
+    n_sentence: { Icon: List, label: "単文数", value: stats.n_sentence },
+    n_resource: {
+      Icon: LibraryBig,
+      label: "リソース数",
+      value: stats.n_resource,
+    },
+  };
+
+  return Object.values(items).map((item) => (
+    <StatViewItem
+      key={item.label}
+      Icon={item.Icon}
+      label={item.label}
+      value={item.value}
+    />
+  ));
 }

@@ -65,7 +65,7 @@ function KnowdeSearchLayout() {
 
   const bar = <KnowdeSearchBar isLoading={isLoading && !!displayData} />;
   const result = (
-    <div className="flex h-screen justify-center w-full">
+    <div className="flex justify-center w-full">
       {isLoading && !displayData ? (
         <Loading isLoading={true} type="center-x" />
       ) : (

@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "~/shared/components/ui/card";
 import { AuthProvider } from "./features/auth/AuthProvider";
+import { TooltipProvider } from "./shared/components/ui/tooltip";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -63,7 +64,9 @@ export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Outlet />
+        <TooltipProvider>
+          <Outlet />
+        </TooltipProvider>
       </AuthProvider>
     </ThemeProvider>
   );

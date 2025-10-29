@@ -7,104 +7,6 @@
 import { z as zod } from "zod";
 
 /**
- * 認証なしユーザー検索.
- * @summary Search User
- */
-export const searchUserUserSearchGetQueryDisplayNameDefault = "";
-export const searchUserUserSearchGetQueryIdDefault = "";
-export const searchUserUserSearchGetQueryUserOauthAccountsDefault = [];
-export const searchUserUserSearchGetQueryUserDisplayNameMaxOne = 32;
-export const searchUserUserSearchGetQueryUserProfileMaxOne = 160;
-export const searchUserUserSearchGetQueryUserUsernameMaxOne = 16;
-export const searchUserUserSearchGetQueryUserUsernameRegExpOne =
-  /^[a-zA-Z0-9_-]+$/;
-
-export const searchUserUserSearchGetQueryParams = zod.object({
-  display_name: zod.string().optional(),
-  id: zod.string().optional(),
-  user: zod
-    .object({
-      oauth_accounts: zod
-        .array(
-          zod
-            .object({
-              id: zod.any(),
-              oauth_name: zod.string(),
-              access_token: zod.string(),
-              expires_at: zod.number().or(zod.null()).optional(),
-              refresh_token: zod.string().or(zod.null()).optional(),
-              account_id: zod.string(),
-              account_email: zod.string(),
-            })
-            .describe("Base OAuth account model."),
-        )
-        .default(searchUserUserSearchGetQueryUserOauthAccountsDefault),
-      display_name: zod
-        .string()
-        .max(searchUserUserSearchGetQueryUserDisplayNameMaxOne)
-        .or(zod.null())
-        .optional(),
-      profile: zod
-        .string()
-        .max(searchUserUserSearchGetQueryUserProfileMaxOne)
-        .or(zod.null())
-        .optional(),
-      avatar_url: zod.string().or(zod.null()).optional(),
-      username: zod
-        .string()
-        .max(searchUserUserSearchGetQueryUserUsernameMaxOne)
-        .regex(searchUserUserSearchGetQueryUserUsernameRegExpOne)
-        .or(zod.null())
-        .optional()
-        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
-      uid: zod.string().uuid(),
-      email: zod.string().email(),
-      hashed_password: zod.string(),
-      is_active: zod.boolean(),
-      is_superuser: zod.boolean(),
-      is_verified: zod.boolean(),
-      created: zod.string().datetime({}),
-    })
-    .describe("UserProtocol[UUID]を満たす.")
-    .or(zod.null())
-    .optional(),
-});
-
-export const searchUserUserSearchGetResponseDisplayNameMaxOne = 32;
-export const searchUserUserSearchGetResponseProfileMaxOne = 160;
-export const searchUserUserSearchGetResponseUsernameMaxOne = 16;
-export const searchUserUserSearchGetResponseUsernameRegExpOne =
-  /^[a-zA-Z0-9_-]+$/;
-
-export const searchUserUserSearchGetResponseItem = zod
-  .object({
-    display_name: zod
-      .string()
-      .max(searchUserUserSearchGetResponseDisplayNameMaxOne)
-      .or(zod.null())
-      .optional(),
-    profile: zod
-      .string()
-      .max(searchUserUserSearchGetResponseProfileMaxOne)
-      .or(zod.null())
-      .optional(),
-    avatar_url: zod.string().or(zod.null()).optional(),
-    username: zod
-      .string()
-      .max(searchUserUserSearchGetResponseUsernameMaxOne)
-      .regex(searchUserUserSearchGetResponseUsernameRegExpOne)
-      .or(zod.null())
-      .optional()
-      .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
-    uid: zod.string().uuid(),
-    created: zod.string().datetime({}),
-  })
-  .describe("公開ユーザー情報.");
-export const searchUserUserSearchGetResponse = zod.array(
-  searchUserUserSearchGetResponseItem,
-);
-
-/**
  * 公開ユーザー情報.
  * @summary User Profile
  */
@@ -201,3 +103,234 @@ export const userProfileUserProfileUsernameGetResponse = zod
     created: zod.string().datetime({}),
   })
   .describe("公開ユーザー情報.");
+
+/**
+ * 認証なしユーザー検索.
+ * @summary Search User
+ */
+export const searchUserUserSearchPostQueryUserOauthAccountsDefault = [];
+export const searchUserUserSearchPostQueryUserDisplayNameMaxOne = 32;
+export const searchUserUserSearchPostQueryUserProfileMaxOne = 160;
+export const searchUserUserSearchPostQueryUserUsernameMaxOne = 16;
+export const searchUserUserSearchPostQueryUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const searchUserUserSearchPostQueryParams = zod.object({
+  user: zod
+    .object({
+      oauth_accounts: zod
+        .array(
+          zod
+            .object({
+              id: zod.any(),
+              oauth_name: zod.string(),
+              access_token: zod.string(),
+              expires_at: zod.number().or(zod.null()).optional(),
+              refresh_token: zod.string().or(zod.null()).optional(),
+              account_id: zod.string(),
+              account_email: zod.string(),
+            })
+            .describe("Base OAuth account model."),
+        )
+        .default(searchUserUserSearchPostQueryUserOauthAccountsDefault),
+      display_name: zod
+        .string()
+        .max(searchUserUserSearchPostQueryUserDisplayNameMaxOne)
+        .or(zod.null())
+        .optional(),
+      profile: zod
+        .string()
+        .max(searchUserUserSearchPostQueryUserProfileMaxOne)
+        .or(zod.null())
+        .optional(),
+      avatar_url: zod.string().or(zod.null()).optional(),
+      username: zod
+        .string()
+        .max(searchUserUserSearchPostQueryUserUsernameMaxOne)
+        .regex(searchUserUserSearchPostQueryUserUsernameRegExpOne)
+        .or(zod.null())
+        .optional()
+        .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
+      uid: zod.string().uuid(),
+      email: zod.string().email(),
+      hashed_password: zod.string(),
+      is_active: zod.boolean(),
+      is_superuser: zod.boolean(),
+      is_verified: zod.boolean(),
+      created: zod.string().datetime({}),
+    })
+    .describe("UserProtocol[UUID]を満たす.")
+    .or(zod.null())
+    .optional(),
+});
+
+export const searchUserUserSearchPostBodyQDefault = "";
+export const searchUserUserSearchPostBodyPagingPageDefault = 1;
+export const searchUserUserSearchPostBodyPagingSizeDefault = 100;
+export const searchUserUserSearchPostBodyDescDefault = true;
+
+export const searchUserUserSearchPostBody = zod
+  .object({
+    q: zod.string().optional(),
+    paging: zod
+      .object({
+        page: zod
+          .number()
+          .default(searchUserUserSearchPostBodyPagingPageDefault),
+        size: zod
+          .number()
+          .default(searchUserUserSearchPostBodyPagingSizeDefault),
+      })
+      .optional()
+      .describe("クエリのページング."),
+    desc: zod.boolean().default(searchUserUserSearchPostBodyDescDefault),
+    order_by: zod
+      .array(
+        zod.enum([
+          "username",
+          "display_name",
+          "n_char",
+          "n_sentence",
+          "n_resource",
+        ]),
+      )
+      .or(zod.null())
+      .optional(),
+  })
+  .describe("ユーザー検索パラメータ.");
+
+export const searchUserUserSearchPostResponseDataItemUserDisplayNameMaxOne = 32;
+export const searchUserUserSearchPostResponseDataItemUserProfileMaxOne = 160;
+export const searchUserUserSearchPostResponseDataItemUserUsernameMaxOne = 16;
+export const searchUserUserSearchPostResponseDataItemUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const searchUserUserSearchPostResponse = zod
+  .object({
+    total: zod.number(),
+    data: zod.array(
+      zod
+        .object({
+          user: zod
+            .object({
+              display_name: zod
+                .string()
+                .max(
+                  searchUserUserSearchPostResponseDataItemUserDisplayNameMaxOne,
+                )
+                .or(zod.null())
+                .optional(),
+              profile: zod
+                .string()
+                .max(searchUserUserSearchPostResponseDataItemUserProfileMaxOne)
+                .or(zod.null())
+                .optional(),
+              avatar_url: zod.string().or(zod.null()).optional(),
+              username: zod
+                .string()
+                .max(searchUserUserSearchPostResponseDataItemUserUsernameMaxOne)
+                .regex(
+                  searchUserUserSearchPostResponseDataItemUserUsernameRegExpOne,
+                )
+                .or(zod.null())
+                .optional()
+                .describe(
+                  "半角英数字とハイフン、アンダースコアのみが使用できます。",
+                ),
+              uid: zod.string().uuid(),
+              created: zod.string().datetime({}),
+            })
+            .describe("公開ユーザー情報."),
+          archivement: zod
+            .object({
+              n_char: zod.number(),
+              n_sentence: zod.number(),
+              n_resource: zod.number(),
+              created: zod.string().datetime({}),
+            })
+            .describe("ユーザーの作業量計."),
+        })
+        .describe("検索結果行."),
+    ),
+  })
+  .describe("検索結果.");
+
+/**
+ * 複数ユーザーの現在の成果をまとめて取得.
+ * @summary Get User Activity
+ */
+export const getUserActivityUserActivityPostBody = zod.object({
+  user_ids: zod.array(zod.string().uuid().or(zod.string())),
+});
+
+export const getUserActivityUserActivityPostResponseUserDisplayNameMaxOne = 32;
+export const getUserActivityUserActivityPostResponseUserProfileMaxOne = 160;
+export const getUserActivityUserActivityPostResponseUserUsernameMaxOne = 16;
+export const getUserActivityUserActivityPostResponseUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const getUserActivityUserActivityPostResponseItem = zod
+  .object({
+    user: zod
+      .object({
+        display_name: zod
+          .string()
+          .max(getUserActivityUserActivityPostResponseUserDisplayNameMaxOne)
+          .or(zod.null())
+          .optional(),
+        profile: zod
+          .string()
+          .max(getUserActivityUserActivityPostResponseUserProfileMaxOne)
+          .or(zod.null())
+          .optional(),
+        avatar_url: zod.string().or(zod.null()).optional(),
+        username: zod
+          .string()
+          .max(getUserActivityUserActivityPostResponseUserUsernameMaxOne)
+          .regex(getUserActivityUserActivityPostResponseUserUsernameRegExpOne)
+          .or(zod.null())
+          .optional()
+          .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
+        uid: zod.string().uuid(),
+        created: zod.string().datetime({}),
+      })
+      .describe("公開ユーザー情報."),
+    archivement: zod
+      .object({
+        n_char: zod.number(),
+        n_sentence: zod.number(),
+        n_resource: zod.number(),
+        created: zod.string().datetime({}),
+      })
+      .describe("ユーザーの作業量計."),
+  })
+  .describe("検索結果行.");
+export const getUserActivityUserActivityPostResponse = zod.array(
+  getUserActivityUserActivityPostResponseItem,
+);
+
+/**
+ * バッチ処理などで利用する成果の保存API.
+ * @summary Save User Achievement
+ */
+export const saveUserAchievementUserAchievementBatchGetQueryPageDefault = 1;
+export const saveUserAchievementUserAchievementBatchGetQuerySizeDefault = 10000;
+
+export const saveUserAchievementUserAchievementBatchGetQueryParams = zod.object(
+  {
+    page: zod
+      .number()
+      .default(saveUserAchievementUserAchievementBatchGetQueryPageDefault),
+    size: zod
+      .number()
+      .default(saveUserAchievementUserAchievementBatchGetQuerySizeDefault),
+  },
+);
+
+export const saveUserAchievementUserAchievementBatchGetResponse = zod
+  .object({
+    n_all_users: zod.number(),
+    n_target: zod.number(),
+    n_saved: zod.number(),
+  })
+  .describe("成果スナップショット実行結果.");

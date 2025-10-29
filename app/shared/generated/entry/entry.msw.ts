@@ -115,31 +115,25 @@ export const getPostTextResourceTextPostResponseMock =
 export const getGetResourceDetailResourceResourceIdGetResponseMock = (
   overrideResponse: Partial<ResourceDetail> = {},
 ): ResourceDetail => ({
-  network: {
-    root: faker.string.alpha(20),
-    g: faker.helpers.arrayElement([
-      {
-        directed: faker.datatype.boolean(),
-        edges: Array.from(
-          { length: faker.number.int({ min: 1, max: 10 }) },
-          (_, i) => i + 1,
-        ).map(() => ({
-          type: faker.helpers.arrayElement(Object.values(EdgeType)),
-          source: faker.string.alpha(20),
-          target: faker.string.alpha(20),
-          key: faker.number.int({ min: undefined, max: undefined }),
-        })),
-        graph: {},
-        multigraph: faker.datatype.boolean(),
-        nodes: Array.from(
-          { length: faker.number.int({ min: 1, max: 10 }) },
-          (_, i) => i + 1,
-        ).map(() => ({
-          [faker.string.alphanumeric(5)]: faker.string.alpha(20),
-        })),
-      },
-      undefined,
-    ]),
+  g: {
+    directed: faker.datatype.boolean(),
+    edges: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      type: faker.helpers.arrayElement(Object.values(EdgeType)),
+      source: faker.string.alpha(20),
+      target: faker.string.alpha(20),
+      key: faker.number.int({ min: undefined, max: undefined }),
+    })),
+    graph: {},
+    multigraph: faker.datatype.boolean(),
+    nodes: Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      [faker.string.alphanumeric(5)]: faker.string.alpha(20),
+    })),
   },
   resource_info: {
     user: {
@@ -264,6 +258,49 @@ export const getGetResourceDetailResourceResourceIdGetResponseMock = (
       r_isolation: faker.number.int({ min: undefined, max: undefined }),
       r_axiom: faker.number.int({ min: undefined, max: undefined }),
       r_unrefered: faker.number.int({ min: undefined, max: undefined }),
+    },
+  },
+  uids: {
+    [faker.string.alphanumeric(5)]: faker.helpers.arrayElement([
+      {
+        names: faker.helpers.arrayElement([
+          Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+          ).map(() => faker.string.alpha(20)),
+          undefined,
+        ]),
+        alias: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+      },
+      faker.helpers.arrayElement([
+        faker.string.alpha(20),
+        {
+          name: faker.string.alpha(20),
+          args: Array.from(
+            { length: faker.number.int({ min: 1, max: 10 }) },
+            (_, i) => i + 1,
+          ).map(() => faker.string.alpha(20)),
+          form: faker.string.alpha(20),
+        },
+      ]),
+    ]),
+  },
+  terms: {
+    [faker.string.alphanumeric(5)]: {
+      names: faker.helpers.arrayElement([
+        Array.from(
+          { length: faker.number.int({ min: 1, max: 10 }) },
+          (_, i) => i + 1,
+        ).map(() => faker.string.alpha(20)),
+        undefined,
+      ]),
+      alias: faker.helpers.arrayElement([
+        faker.helpers.arrayElement([faker.string.alpha(20), null]),
+        undefined,
+      ]),
     },
   },
   ...overrideResponse,

@@ -6,7 +6,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "~/shared/components/ui/sidebar";
-import favicon from "/favicon.svg";
+import favicon from "/public/favicon.svg?url";
 
 export function SiteLogo() {
   return <img src={favicon} alt="Logo" className="inline size-8" />;
