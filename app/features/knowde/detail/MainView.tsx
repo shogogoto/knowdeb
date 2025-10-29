@@ -19,7 +19,7 @@ import type {
 import { useHistory } from "~/shared/history/hooks";
 import { eqEdgeType, operatorGraph, succ } from "~/shared/lib/network";
 import { cn } from "~/shared/lib/utils";
-import { createStatView } from "../components/KnowdeCard";
+import { KnowdeCardContent, createStatView } from "../components/KnowdeCard";
 import LocationView from "../components/LocationView";
 import { DetailContextProvider } from "./DetailContext";
 import DetailNested from "./KnowdeGroup";
@@ -316,6 +316,7 @@ export default function MainView({ detail, prefetched }: Props) {
         {headerLocation.user && headerLocation.resource && (
           <div className="m-1">
             <LocationView loc={headerLocation as KnowdeLocation} />
+            <KnowdeCardContent k={headerKnowde} />
           </div>
         )}
         <QueryParamTabPage

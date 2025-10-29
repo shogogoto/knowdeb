@@ -3,6 +3,7 @@ import { type ReactNode, createContext, useContext } from "react";
 import type {
   ResourceDetailTerms,
   ResourceDetailUids,
+  ResourceInfo,
 } from "~/shared/generated/fastAPI.schemas";
 
 export type ResourceDetailContextState = {
@@ -10,6 +11,7 @@ export type ResourceDetailContextState = {
   uids: ResourceDetailUids;
   terms: ResourceDetailTerms;
   rootId: string;
+  resource_info: ResourceInfo;
 };
 
 const ResourceDetailContext = createContext<

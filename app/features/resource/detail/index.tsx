@@ -77,6 +77,7 @@ export default function ResourceDetail({ id }: Props) {
       terms={terms}
       uids={uids}
       rootId={resource.uid}
+      resource_info={resource_info}
     >
       <TraceMemoryProvider>
         <div className="markdown-body p-4">
