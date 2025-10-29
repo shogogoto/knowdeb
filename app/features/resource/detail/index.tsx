@@ -7,7 +7,9 @@ import { toGraph } from "~/shared/lib/network";
 import Backbone from "./Backbone";
 import { ResourceDetailProvider } from "./Context";
 import Presenter from "./Presenter";
+import ResourceMeta from "./ResourceMeta";
 import { TraceMemoryProvider } from "./TraceMemory/Context";
+import UserHeader from "./UserHeader";
 import { resourceDetailFiture } from "./fixture";
 
 //
@@ -81,6 +83,8 @@ export default function ResourceDetail({ id }: Props) {
     >
       <TraceMemoryProvider>
         <div className="markdown-body p-4">
+          <UserHeader user={user} />
+          <ResourceMeta info={resource_info} />
           <Presenter id={resource.uid} />
           <Backbone startId={resource.uid} key={id} />
         </div>
