@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router";
+import { HashLink } from "react-router-hash-link";
 import { useSelectPreventLink } from "~/shared/hooks/useSelectPrevent";
 import { useResourceDetail } from "./Context";
 import type { toAdjacent } from "./util";
@@ -25,23 +26,20 @@ export default function LinkedSentence({ adj }: Props) {
       onClick={handleClick}
       id={adj.kn.uid}
     >
-      {adj.kn.sentence}
-      {parts.map((part, i) => {
-        const found = refs.find((r) => r.kn.sentence === part);
+      {parts.map((part) => {
+        const found = refs.find((r) =>
+          r.kn.term?.names?.some((n) => part.includes(n)),
+        );
 
         if (found) {
           return (
-            <span key={found.kn.uid} className="text-blue-500">
+            <HashLink to={`/resource/${rootId}#${found.kn.uid}`}>
               {part}
-            </span>
+            </HashLink>
           );
         }
-        return part;
+        return <span key={part}>{part}</span>; // part;
       })}
-      {/* )<span className="text-red-500">{JSON.stringify(parts)}</span> */}
-      {/* {refs.map((r) => ( */}
-      {/*   <span className="text-blue-500">{r.kn.term?.names}</span> */}
-      {/* ))} */}
     </Link>
   );
 }
