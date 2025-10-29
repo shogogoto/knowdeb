@@ -1,7 +1,8 @@
 import type React from "react";
 import { type JSX, useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { AdditionalItem } from "~/features/knowde/components/KnowdeCard";
+import { cn } from "~/shared/lib/utils";
 import { useResourceDetail } from "../Context";
 import LinkedSentence from "../LinkedSentence";
 import Relations from "../Relations";
@@ -22,6 +23,8 @@ export default function Presenter({ id, prefix }: Props) {
   const level = getHeadingLevel(adj.kn.sentence);
   const { register, isRegistered, getNumber } = useTraceMemory();
   const [isVisible, setIsVisible] = useState(false);
+  const location = useLocation();
+  const isActive = location.hash === `#${adj.kn.uid}`;
 
   useEffect(() => {
     if (level === 0) {
@@ -44,7 +47,13 @@ export default function Presenter({ id, prefix }: Props) {
 
   // TODO: resolved関係を辿って、埋め込まれた用語の定義にジャンプするリンクを作る
   return (
-    <div>
+    <div
+      className={cn(
+        "rounded-md p-1",
+        isActive &&
+          "bg-yellow-100 text-neutral-800 dark:bg-yellow-800/30 dark:text-white",
+      )}
+    >
       {/* {adj.referreds().map((ref) => ref.kn.term?.names?.[0])} */}
       <span>{prefix}</span>
       <Link to={`/resource/${rootId}#${adj.kn.uid}`}>

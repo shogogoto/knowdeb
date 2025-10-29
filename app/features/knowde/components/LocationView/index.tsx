@@ -1,12 +1,14 @@
 import { Link } from "react-router";
+import { HashLink } from "react-router-hash-link";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { KnowdeLocation } from "~/shared/generated/fastAPI.schemas";
 
 type Props = {
   loc: KnowdeLocation;
+  knowdeId: string;
 };
 
-export default function LocationView({ loc }: Props) {
+export default function LocationView({ loc, knowdeId }: Props) {
   const { user } = loc;
   return (
     <div className="flex flex-col gap-2">
@@ -23,14 +25,14 @@ export default function LocationView({ loc }: Props) {
             {user.username || user.uid}
           </div>
           <div className="text-sm text-muted-foreground">
-            <Link
-              to={`/resource/${loc.resource.uid}`}
+            <HashLink
+              to={`/resource/${loc.resource.uid}#${knowdeId}`}
               className="hover:underline space-x-2"
             >
               <span>{loc.resource.name}</span>
               <span>{loc.resource.authors}</span>
               <span>{loc.resource.published}</span>
-            </Link>
+            </HashLink>
           </div>
         </div>
       </div>

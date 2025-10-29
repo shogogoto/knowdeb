@@ -2,6 +2,14 @@
 @import "tw-animate-css";
 @custom-variant dark (&:is(.dark *));
 
+.light {
+  @import "github-markdown-css/github-markdown-light.css";
+}
+
+.dark {
+  @import "github-markdown-css/github-markdown-dark.css";
+}
+
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
     "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";

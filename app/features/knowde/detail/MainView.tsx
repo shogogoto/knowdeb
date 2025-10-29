@@ -315,7 +315,10 @@ export default function MainView({ detail, prefetched }: Props) {
       <div className="flex flex-col min-h-screen max-w-3xl mx-auto">
         {headerLocation.user && headerLocation.resource && (
           <div className="m-1">
-            <LocationView loc={headerLocation as KnowdeLocation} />
+            <LocationView
+              loc={headerLocation as KnowdeLocation}
+              knowdeId={headerKnowde.uid}
+            />
             <KnowdeCardContent k={headerKnowde} />
           </div>
         )}
