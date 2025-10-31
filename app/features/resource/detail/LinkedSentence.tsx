@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
 import { HashLink } from "react-router-hash-link";
 import type {
   MResource,
@@ -19,7 +19,6 @@ const PATTERN = /(\{[^}]*\})/g;
 export default function LinkedSentence({ adj }: Props) {
   const { resource_info } = useResourceDetail();
   const { handleMouseDown, handleClick } = useSelectPreventLink(5); // 5px を閾値とする
-  const navigate = useNavigate();
   const { rootId } = useResourceDetail();
   const refs = adj.refers();
 
