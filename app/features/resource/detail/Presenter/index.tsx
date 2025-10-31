@@ -1,7 +1,8 @@
+import { Calendar, MapPin, User } from "lucide-react";
 import type React from "react";
 import { type JSX, useEffect, useState } from "react";
 import { Link, useLocation } from "react-router";
-import { AdditionalItem } from "~/features/knowde/components/KnowdeCard";
+import type { Additional } from "~/shared/generated/fastAPI.schemas";
 import { cn } from "~/shared/lib/utils";
 import { useResourceDetail } from "../Context";
 import LinkedSentence from "../LinkedSentence";
@@ -45,7 +46,6 @@ export default function Presenter({ id, prefix }: Props) {
     return null;
   }
 
-  // TODO: resolved関係を辿って、埋め込まれた用語の定義にジャンプするリンクを作る
   return (
     <div
       className={cn(
@@ -71,12 +71,63 @@ export default function Presenter({ id, prefix }: Props) {
       </div>
       {adj.kn.term?.names?.length && ":  "}
       <LinkedSentence adj={adj} />
-      {adj.kn.additional && (
+      {adj.kn.additional && Object.keys(adj.kn.additional).length && (
         <span className="inline-flex ml-2 text-sm text-muted-foreground">
-          <AdditionalItem additional={adj.kn.additional} />
+          <AdditionalComponent additional={adj.kn.additional} />
         </span>
       )}
       <Relations startId={adj.kn.uid} />
     </div>
+  );
+}
+
+function forDisplay(value: string | object) {
+  if (typeof value === "string") {
+    return value;
+  }
+  const { terms, uids } = useResourceDetail();
+  if (value && "uid" in value && typeof value.uid === "string") {
+    const term = terms[value.uid];
+    const sentence = uids[value.uid];
+    const s =
+      // @ts-ignore
+      sentence && "n" in sentence
+        ? sentence?.n === "<<<not defined>>>"
+          ? ""
+          : sentence?.n
+        : sentence;
+    return `${term?.names?.join(", ")}: ${s}`;
+  }
+
+  throw new Error("invalid value");
+}
+
+function AdditionalComponent({ additional }: { additional: Additional }) {
+  if (!additional) {
+    return null;
+  }
+
+  const { when, where, by } = additional || {};
+  return (
+    <>
+      {when && (
+        <span className="flex items-center">
+          <Calendar className="size-4" />
+          {forDisplay(when)}
+        </span>
+      )}
+      {where && (
+        <span className="flex items-center">
+          <MapPin className="size-4" />
+          {forDisplay(where)}
+        </span>
+      )}
+      {by && (
+        <span className="flex items-center">
+          <User className="size-4" />
+          {forDisplay(by)}
+        </span>
+      )}
+    </>
   );
 }
