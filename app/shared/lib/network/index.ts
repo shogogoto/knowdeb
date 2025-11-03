@@ -16,13 +16,16 @@ export function eqEdgeType(t: EdgeType): EdgePredicate {
 }
 
 export const succ: Accessor = (g, n, predicate) => {
+  if (!g.hasNode(n)) return [];
   return g
     .filterOutEdges(n, (_, attr) => predicate(attr))
+    .filter((e) => !!e)
     .map((e) => g.target(e));
 };
 
 // predecessor
 export const pred: Accessor = (g, n, predicate) => {
+  if (!g.hasNode(n)) return [];
   return g
     .filterInEdges(n, (_, attr) => predicate(attr))
     .map((e) => g.source(e));
