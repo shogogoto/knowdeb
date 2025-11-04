@@ -20,7 +20,6 @@ export const getNamaspaceNamespaceGetResponse = zod
             .object({
               type: zod
                 .enum([
-                  "head",
                   "sibling",
                   "below",
                   "def",
@@ -193,7 +192,6 @@ export const getResourceDetailResourceResourceIdGetResponse = zod
             .object({
               type: zod
                 .enum([
-                  "head",
                   "sibling",
                   "below",
                   "def",
@@ -367,6 +365,16 @@ export const getResourceDetailResourceResourceIdGetResponse = zod
     ),
   })
   .describe("リソース詳細(API Return Type用).");
+
+/**
+ * リソース削除.
+ * @summary Delete Resource Api
+ */
+export const deleteResourceApiResourceResourceIdDeleteParams = zod.object({
+  resource_id: zod.string(),
+});
+
+export const deleteResourceApiResourceResourceIdDeleteResponse = zod.null();
 
 /**
  * リソース検索(POST).

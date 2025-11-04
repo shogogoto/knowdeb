@@ -5,6 +5,19 @@
  * OpenAPI spec version: 0.1.0
  */
 /**
+ * 成果履歴.
+ */
+export type AchievementHistories = AchievementHistory[];
+
+/**
+ * 成果履歴.
+ */
+export interface AchievementHistory {
+  user: UserReadPublic;
+  archivements: UserAchievement[];
+}
+
+/**
  * 成果スナップショット実行結果.
  */
 export interface AchievementSnapshotResult {
@@ -123,7 +136,6 @@ export type EdgeType = (typeof EdgeType)[keyof typeof EdgeType];
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
 export const EdgeType = {
-  head: "head",
   sibling: "sibling",
   below: "below",
   def: "def",
@@ -769,7 +781,7 @@ export type SearchUserUserSearchPostParams = {
   user?: TrackUser;
 };
 
-export type SaveUserAchievementUserAchievementBatchGetParams = {
+export type SaveUserAchievementUserAchievementBatchPostParams = {
   page?: number;
   size?: number;
 };
