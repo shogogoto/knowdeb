@@ -69,6 +69,7 @@
     "react-router-hash-link": "^2.4.3",
     "react-swipeable": "^7.0.2",
     "react-textarea-autosize": "^8.5.9",
+    "recharts": "^3.3.0",
     "rehype-mermaid": "^3.0.0",
     "remark-gfm": "^4.0.1",
     "sigma": "^3.0.2",
