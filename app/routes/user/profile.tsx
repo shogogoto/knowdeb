@@ -1,7 +1,7 @@
 import { useLoaderData } from "react-router";
-import UserProfile from "~/features/user/UserProfile";
+import UserDetail from "~/features/user/UserDetail";
 import { userProfileUserProfileUsernameGet } from "~/shared/generated/public-user/public-user";
-import type { Route } from "./+types/search";
+import type { Route } from "./+types/profile";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { userId } = params;
@@ -15,7 +15,7 @@ export async function loader({ params }: Route.LoaderArgs) {
   return response.data;
 }
 
-export default function UserSearch() {
+export default function _() {
   const data = useLoaderData<typeof loader>();
-  return <UserProfile user={data} />;
+  return <UserDetail user={data} />;
 }

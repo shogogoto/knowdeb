@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import type { YAxisOrientation } from "recharts/types/state/cartesianAxisSlice";
 import type { AchievementHistories } from "~/shared/generated/fastAPI.schemas";
 
 type Props = {
@@ -48,17 +49,19 @@ function processAchievementData(aHistories: AchievementHistories): ChartData[] {
     const dateB = new Date(b.week);
     return dateA.getTime() - dateB.getTime();
   });
-
   return sortedData;
 }
 
-export default function ArchieveHistory({ aHistories }: Props) {
+export default function AchieveHistory({ aHistories }: Props) {
   const chartData = processAchievementData(aHistories);
 
   if (!chartData || chartData.length === 0) {
     return <div>表示するデータがありません。</div>;
   }
 
+  const [charY, charLine] = materials("n_char", "文字数", "#8884d8");
+  const [senY, senLine] = materials("n_sentence", "文章数", "#82ca9d", "right");
+  const [rY, rLine] = materials("n_resource", "リソース数", "#ffc658", "right");
   return (
     <div style={{ width: "100%", height: 300 }}>
       <ResponsiveContainer>
@@ -72,37 +75,49 @@ export default function ArchieveHistory({ aHistories }: Props) {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          {/* <XAxis dataKey="week" angle={-20} textAnchor="end" height={60} /> */}
           <XAxis dataKey="week" />
-          <YAxis yAxisId="char" stroke="#8884d8" />
-          <YAxis yAxisId="sentence" orientation="right" stroke="#82ca9d" />
-          <YAxis yAxisId="resource" orientation="right" stroke="#ffc658" />
+          {charY}
+          {senY}
+          {rY}
           <Tooltip contentStyle={{ backgroundColor: "#333", color: "#fff" }} />
           <Legend />
-          <Line
-            type="monotone"
-            dataKey="n_char"
-            stroke="#8884d8"
-            activeDot={{ r: 8 }}
-            name="文字数"
-            yAxisId="char"
-          />
-          <Line
-            type="monotone"
-            dataKey="n_sentence"
-            stroke="#82ca9d"
-            name="文章数"
-            yAxisId="sentence"
-          />
-          <Line
-            type="monotone"
-            dataKey="n_resource"
-            stroke="#ffc658"
-            name="リソース数"
-            yAxisId="resource"
-          />
+          {charLine}
+          {senLine}
+          {rLine}
         </LineChart>
       </ResponsiveContainer>
     </div>
   );
+}
+
+// LineとYAxisを返す
+function materials(
+  id: string,
+  caption: string,
+  stroke: string,
+  orientation?: YAxisOrientation,
+) {
+  const yAxis = (
+    <YAxis
+      yAxisId={id}
+      stroke={stroke}
+      orientation={orientation}
+      domain={[
+        (dataMin) => Math.floor(dataMin * 0.95),
+        (dataMax) => Math.ceil(dataMax * 1.05),
+      ]}
+    />
+  );
+
+  const line = (
+    <Line
+      type="monotone"
+      dataKey={id}
+      stroke={stroke}
+      //activeDot={{ r: 8 }}
+      name={caption}
+      yAxisId={id}
+    />
+  );
+  return [yAxis, line];
 }
