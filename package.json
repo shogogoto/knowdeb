@@ -46,6 +46,7 @@
     "@react-sigma/layout-forceatlas2": "^5.0.4",
     "@react-sigma/minimap": "^5.0.5",
     "@storybook/builder-vite": "^9.1.13",
+    "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.12",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.7.0",

@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import type { YAxisOrientation } from "recharts/types/state/cartesianAxisSlice";
 import type { AchievementHistories } from "~/shared/generated/fastAPI.schemas";
+import AchieveHistoryTable from "./HistoryTable";
 
 type Props = {
   aHistories: AchievementHistories;
@@ -63,29 +64,44 @@ export default function AchieveHistory({ aHistories }: Props) {
   const [senY, senLine] = materials("n_sentence", "文章数", "#82ca9d", "right");
   const [rY, rLine] = materials("n_resource", "リソース数", "#ffc658", "right");
   return (
-    <div style={{ width: "100%", height: 300 }}>
-      <ResponsiveContainer>
-        <LineChart
-          data={chartData}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
+    <div style={{ width: "100%" }}>
+      <div style={{ width: "100%", height: 300 }}>
+        <h2
+          style={{
+            textAlign: "center",
+            fontSize: "18px",
+            fontWeight: "bold",
+            marginBottom: "10px",
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="week" />
-          {charY}
-          {senY}
-          {rY}
-          <Tooltip contentStyle={{ backgroundColor: "#333", color: "#fff" }} />
-          <Legend />
-          {charLine}
-          {senLine}
-          {rLine}
-        </LineChart>
-      </ResponsiveContainer>
+          活動履歴
+        </h2>
+        <ResponsiveContainer>
+          <LineChart
+            data={chartData}
+            margin={{
+              top: 10,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="week" />
+            {charY}
+            {senY}
+            {rY}
+            <Tooltip
+              contentStyle={{ backgroundColor: "#333", color: "#fff" }}
+            />
+            <Legend />
+            {charLine}
+            {senLine}
+            {rLine}
+          </LineChart>
+        </ResponsiveContainer>
+        <AchieveHistoryTable aHistories={aHistories} />
+      </div>
     </div>
   );
 }
