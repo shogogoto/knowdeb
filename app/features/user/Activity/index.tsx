@@ -1,3 +1,4 @@
+import { ChevronDown } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -39,7 +40,8 @@ function ActivityStat({ label, latest, current }: ActivityStatProps) {
 function ActivityTitle({
   start,
   end,
-}: { start: string | undefined; end: string }) {
+  isOpen,
+}: { start: string | undefined; end: string; isOpen?: boolean }) {
   const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
@@ -63,8 +65,16 @@ function ActivityTitle({
   const days = calcDays(start, end);
 
   return (
-    <CardTitle className="flex flex-col items-center">
-      <p>{days}日間の活動量</p>
+    <CardTitle className="flex flex-col items-center w-full">
+      <div className="flex items-center justify-center relative w-full">
+        <p>{days}日間の活動量</p>
+        <ChevronDown
+          className={cn(
+            "absolute right-0 h-4 w-4 transition-transform duration-200",
+            isOpen && "rotate-180",
+          )}
+        />
+      </div>
       <p className="text-sm text-muted-foreground">
         {startDate} ~ {endDate}
       </p>
@@ -74,14 +84,22 @@ function ActivityTitle({
 
 type Props = {
   activity: UserActivity;
-};
+  isOpen?: boolean;
+} & React.HTMLAttributes<HTMLDivElement>;
 
-export default function ActivityBoard({ activity }: Props) {
+export default function ActivityBoard({ activity, isOpen, ...props }: Props) {
   const { current, latest } = activity;
   return (
-    <Card className="bg-transparent shadow-none border-none">
+    <Card
+      className="bg-transparent shadow-none border-none cursor-pointer hover:bg-accent"
+      {...props}
+    >
       <CardHeader>
-        <ActivityTitle start={latest?.created} end={current.created} />
+        <ActivityTitle
+          start={latest?.created}
+          end={current.created}
+          isOpen={isOpen}
+        />
       </CardHeader>
       <CardContent>
         {current ? (

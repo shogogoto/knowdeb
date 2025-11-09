@@ -1,5 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Loading from "~/shared/components/Loading";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/shared/components/ui/collapsible";
 import {
   useGetArchievementHistoryUserArchievementHistoryPost,
   useGetUserActivityUserActivityPost,
@@ -30,6 +35,7 @@ export default function UserDetail({
   }, [user, trigger, activityTrigger]);
 
   const isLoading = isMutating || activityIsMutating;
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="space-y-4 bg-white dark:bg-gray-800 p-6 shadow-md">
@@ -37,13 +43,19 @@ export default function UserDetail({
       <UserProfile user={user} />
       {isLoading && <Loading type="center-x" />}
       {!isLoading && activityData?.data && activityData.status === 200 && (
-        <ActivityBoard activity={activityData.data[0]} />
-      )}
-      {!isLoading && data?.data && data.status === 200 && (
-        <div className="flex flex-col space-y-10">
-          <AchieveHistoryChart aHistories={data.data} />
-          <AchieveHistoryTable aHistories={data.data} />
-        </div>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+          <CollapsibleTrigger asChild>
+            <ActivityBoard activity={activityData.data[0]} isOpen={isOpen} />
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            {data?.data && data.status === 200 && (
+              <div className="flex flex-col space-y-10">
+                <AchieveHistoryChart aHistories={data.data} />
+                <AchieveHistoryTable aHistories={data.data} />
+              </div>
+            )}
+          </CollapsibleContent>
+        </Collapsible>
       )}
     </div>
   );
