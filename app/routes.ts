@@ -22,7 +22,7 @@ export default [
       route("home", "routes/home.tsx"),
       route("knowde/:id", "routes/knowde/detail/index.tsx"),
       route("user/edit", "routes/user/edit.tsx"),
-      route("user/:userId", "routes/user/search.tsx"),
+      route("user/:userId", "routes/user/detail.tsx"),
       route("resource/:id", "routes/resource/detail.tsx"),
       layout("layouts/SearchTabLayout/index.tsx", {}, [
         route("search", "routes/knowde/search/index.tsx"),

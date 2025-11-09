@@ -295,7 +295,16 @@ export const getUserActivityUserActivityPostResponseItem = zod
         created: zod.string().datetime({}),
       })
       .describe("公開ユーザー情報."),
-    archivement: zod
+    latest: zod
+      .object({
+        n_char: zod.number(),
+        n_sentence: zod.number(),
+        n_resource: zod.number(),
+        created: zod.string().datetime({}),
+      })
+      .describe("ユーザーの作業量計.")
+      .or(zod.null()),
+    current: zod
       .object({
         n_char: zod.number(),
         n_sentence: zod.number(),
@@ -304,7 +313,7 @@ export const getUserActivityUserActivityPostResponseItem = zod
       })
       .describe("ユーザーの作業量計."),
   })
-  .describe("検索結果行.");
+  .describe("ユーザーの活動状況.");
 export const getUserActivityUserActivityPostResponse = zod.array(
   getUserActivityUserActivityPostResponseItem,
 );
@@ -313,24 +322,88 @@ export const getUserActivityUserActivityPostResponse = zod.array(
  * バッチ処理などで利用する成果の保存API.
  * @summary Save User Achievement
  */
-export const saveUserAchievementUserAchievementBatchGetQueryPageDefault = 1;
-export const saveUserAchievementUserAchievementBatchGetQuerySizeDefault = 10000;
+export const saveUserAchievementUserAchievementBatchPostQueryPageDefault = 1;
+export const saveUserAchievementUserAchievementBatchPostQuerySizeDefault = 10000;
 
-export const saveUserAchievementUserAchievementBatchGetQueryParams = zod.object(
-  {
+export const saveUserAchievementUserAchievementBatchPostQueryParams =
+  zod.object({
     page: zod
       .number()
-      .default(saveUserAchievementUserAchievementBatchGetQueryPageDefault),
+      .default(saveUserAchievementUserAchievementBatchPostQueryPageDefault),
     size: zod
       .number()
-      .default(saveUserAchievementUserAchievementBatchGetQuerySizeDefault),
-  },
-);
+      .default(saveUserAchievementUserAchievementBatchPostQuerySizeDefault),
+  });
 
-export const saveUserAchievementUserAchievementBatchGetResponse = zod
+export const saveUserAchievementUserAchievementBatchPostResponse = zod
   .object({
     n_all_users: zod.number(),
     n_target: zod.number(),
     n_saved: zod.number(),
   })
   .describe("成果スナップショット実行結果.");
+
+/**
+ * 指定ユーザーの週間成果履歴.
+ * @summary Get Archievement History
+ */
+export const getArchievementHistoryUserArchievementHistoryPostBody = zod.object(
+  {
+    user_ids: zod.array(zod.string().uuid().or(zod.string())),
+  },
+);
+
+export const getArchievementHistoryUserArchievementHistoryPostResponseUserDisplayNameMaxOne = 32;
+export const getArchievementHistoryUserArchievementHistoryPostResponseUserProfileMaxOne = 160;
+export const getArchievementHistoryUserArchievementHistoryPostResponseUserUsernameMaxOne = 16;
+export const getArchievementHistoryUserArchievementHistoryPostResponseUserUsernameRegExpOne =
+  /^[a-zA-Z0-9_-]+$/;
+
+export const getArchievementHistoryUserArchievementHistoryPostResponseItem = zod
+  .object({
+    user: zod
+      .object({
+        display_name: zod
+          .string()
+          .max(
+            getArchievementHistoryUserArchievementHistoryPostResponseUserDisplayNameMaxOne,
+          )
+          .or(zod.null())
+          .optional(),
+        profile: zod
+          .string()
+          .max(
+            getArchievementHistoryUserArchievementHistoryPostResponseUserProfileMaxOne,
+          )
+          .or(zod.null())
+          .optional(),
+        avatar_url: zod.string().or(zod.null()).optional(),
+        username: zod
+          .string()
+          .max(
+            getArchievementHistoryUserArchievementHistoryPostResponseUserUsernameMaxOne,
+          )
+          .regex(
+            getArchievementHistoryUserArchievementHistoryPostResponseUserUsernameRegExpOne,
+          )
+          .or(zod.null())
+          .optional()
+          .describe("半角英数字とハイフン、アンダースコアのみが使用できます。"),
+        uid: zod.string().uuid(),
+        created: zod.string().datetime({}),
+      })
+      .describe("公開ユーザー情報."),
+    archivements: zod.array(
+      zod
+        .object({
+          n_char: zod.number(),
+          n_sentence: zod.number(),
+          n_resource: zod.number(),
+          created: zod.string().datetime({}),
+        })
+        .describe("ユーザーの作業量計."),
+    ),
+  })
+  .describe("成果履歴.");
+export const getArchievementHistoryUserArchievementHistoryPostResponse =
+  zod.array(getArchievementHistoryUserArchievementHistoryPostResponseItem);

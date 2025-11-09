@@ -5,7 +5,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import useSwr from "swr";
-import type { Key, SWRConfiguration } from "swr";
+import type { Arguments, Key, SWRConfiguration } from "swr";
 
 import useSWRMutation from "swr/mutation";
 import type { SWRMutationConfiguration } from "swr/mutation";
@@ -490,6 +490,116 @@ export const useGetResourceDetailResourceResourceIdGet = <
     swrFn,
     swrOptions,
   );
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * リソース削除.
+ * @summary Delete Resource Api
+ */
+export type deleteResourceApiResourceResourceIdDeleteResponse200 = {
+  data: null;
+  status: 200;
+};
+
+export type deleteResourceApiResourceResourceIdDeleteResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type deleteResourceApiResourceResourceIdDeleteResponseComposite =
+  | deleteResourceApiResourceResourceIdDeleteResponse200
+  | deleteResourceApiResourceResourceIdDeleteResponse422;
+
+export type deleteResourceApiResourceResourceIdDeleteResponse =
+  deleteResourceApiResourceResourceIdDeleteResponseComposite & {
+    headers: Headers;
+  };
+
+export const getDeleteResourceApiResourceResourceIdDeleteUrl = (
+  resourceId: string,
+) => {
+  return `https://knowde.onrender.com/resource/${resourceId}`;
+};
+
+export const deleteResourceApiResourceResourceIdDelete = async (
+  resourceId: string,
+  options?: RequestInit,
+): Promise<deleteResourceApiResourceResourceIdDeleteResponse> => {
+  const res = await fetch(
+    getDeleteResourceApiResourceResourceIdDeleteUrl(resourceId),
+    {
+      ...options,
+      method: "DELETE",
+    },
+  );
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: deleteResourceApiResourceResourceIdDeleteResponse["data"] = body
+    ? JSON.parse(body)
+    : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as deleteResourceApiResourceResourceIdDeleteResponse;
+};
+
+export const getDeleteResourceApiResourceResourceIdDeleteMutationFetcher = (
+  resourceId: string,
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    __: { arg: Arguments },
+  ): Promise<deleteResourceApiResourceResourceIdDeleteResponse> => {
+    return deleteResourceApiResourceResourceIdDelete(resourceId, options);
+  };
+};
+export const getDeleteResourceApiResourceResourceIdDeleteMutationKey = (
+  resourceId: string,
+) => [`https://knowde.onrender.com/resource/${resourceId}`] as const;
+
+export type DeleteResourceApiResourceResourceIdDeleteMutationResult =
+  NonNullable<
+    Awaited<ReturnType<typeof deleteResourceApiResourceResourceIdDelete>>
+  >;
+export type DeleteResourceApiResourceResourceIdDeleteMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Delete Resource Api
+ */
+export const useDeleteResourceApiResourceResourceIdDelete = <
+  TError = Promise<HTTPValidationError>,
+>(
+  resourceId: string,
+  options?: {
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof deleteResourceApiResourceResourceIdDelete>>,
+      TError,
+      Key,
+      Arguments,
+      Awaited<ReturnType<typeof deleteResourceApiResourceResourceIdDelete>>
+    > & { swrKey?: string };
+    fetch?: RequestInit;
+  },
+) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getDeleteResourceApiResourceResourceIdDeleteMutationKey(resourceId);
+  const swrFn = getDeleteResourceApiResourceResourceIdDeleteMutationFetcher(
+    resourceId,
+    fetchOptions,
+  );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
 
   return {
     swrKey,

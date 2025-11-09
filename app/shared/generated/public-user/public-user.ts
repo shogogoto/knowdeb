@@ -5,22 +5,23 @@
  * OpenAPI spec version: 0.1.0
  */
 import useSwr from "swr";
-import type { Key, SWRConfiguration } from "swr";
+import type { Arguments, Key, SWRConfiguration } from "swr";
 
 import useSWRMutation from "swr/mutation";
 import type { SWRMutationConfiguration } from "swr/mutation";
 
 import type {
+  AchievementHistories,
   AchievementSnapshotResult,
   HTTPValidationError,
-  SaveUserAchievementUserAchievementBatchGetParams,
+  SaveUserAchievementUserAchievementBatchPostParams,
   SearchUserUserSearchPostParams,
+  UserActivities,
   UserActivityRequest,
   UserProfileUserProfileUsernameGetParams,
   UserReadPublic,
   UserSearchBody,
   UserSearchResult,
-  UserSearchRow,
 } from "../fastAPI.schemas";
 
 /**
@@ -273,7 +274,7 @@ export const useSearchUserUserSearchPost = <
  * @summary Get User Activity
  */
 export type getUserActivityUserActivityPostResponse200 = {
-  data: UserSearchRow[];
+  data: UserActivities;
   status: 200;
 };
 
@@ -369,27 +370,27 @@ export const useGetUserActivityUserActivityPost = <
  * バッチ処理などで利用する成果の保存API.
  * @summary Save User Achievement
  */
-export type saveUserAchievementUserAchievementBatchGetResponse200 = {
+export type saveUserAchievementUserAchievementBatchPostResponse200 = {
   data: AchievementSnapshotResult;
   status: 200;
 };
 
-export type saveUserAchievementUserAchievementBatchGetResponse422 = {
+export type saveUserAchievementUserAchievementBatchPostResponse422 = {
   data: HTTPValidationError;
   status: 422;
 };
 
-export type saveUserAchievementUserAchievementBatchGetResponseComposite =
-  | saveUserAchievementUserAchievementBatchGetResponse200
-  | saveUserAchievementUserAchievementBatchGetResponse422;
+export type saveUserAchievementUserAchievementBatchPostResponseComposite =
+  | saveUserAchievementUserAchievementBatchPostResponse200
+  | saveUserAchievementUserAchievementBatchPostResponse422;
 
-export type saveUserAchievementUserAchievementBatchGetResponse =
-  saveUserAchievementUserAchievementBatchGetResponseComposite & {
+export type saveUserAchievementUserAchievementBatchPostResponse =
+  saveUserAchievementUserAchievementBatchPostResponseComposite & {
     headers: Headers;
   };
 
-export const getSaveUserAchievementUserAchievementBatchGetUrl = (
-  params?: SaveUserAchievementUserAchievementBatchGetParams,
+export const getSaveUserAchievementUserAchievementBatchPostUrl = (
+  params?: SaveUserAchievementUserAchievementBatchPostParams,
 ) => {
   const normalizedParams = new URLSearchParams();
 
@@ -406,20 +407,20 @@ export const getSaveUserAchievementUserAchievementBatchGetUrl = (
     : "https://knowde.onrender.com/user/achievement/batch";
 };
 
-export const saveUserAchievementUserAchievementBatchGet = async (
-  params?: SaveUserAchievementUserAchievementBatchGetParams,
+export const saveUserAchievementUserAchievementBatchPost = async (
+  params?: SaveUserAchievementUserAchievementBatchPostParams,
   options?: RequestInit,
-): Promise<saveUserAchievementUserAchievementBatchGetResponse> => {
+): Promise<saveUserAchievementUserAchievementBatchPostResponse> => {
   const res = await fetch(
-    getSaveUserAchievementUserAchievementBatchGetUrl(params),
+    getSaveUserAchievementUserAchievementBatchPostUrl(params),
     {
       ...options,
-      method: "GET",
+      method: "POST",
     },
   );
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: saveUserAchievementUserAchievementBatchGetResponse["data"] = body
+  const data: saveUserAchievementUserAchievementBatchPostResponse["data"] = body
     ? JSON.parse(body)
     : {};
 
@@ -427,55 +428,173 @@ export const saveUserAchievementUserAchievementBatchGet = async (
     data,
     status: res.status,
     headers: res.headers,
-  } as saveUserAchievementUserAchievementBatchGetResponse;
+  } as saveUserAchievementUserAchievementBatchPostResponse;
 };
 
-export const getSaveUserAchievementUserAchievementBatchGetKey = (
-  params?: SaveUserAchievementUserAchievementBatchGetParams,
+export const getSaveUserAchievementUserAchievementBatchPostMutationFetcher = (
+  params?: SaveUserAchievementUserAchievementBatchPostParams,
+  options?: RequestInit,
+) => {
+  return (
+    _: Key,
+    __: { arg: Arguments },
+  ): Promise<saveUserAchievementUserAchievementBatchPostResponse> => {
+    return saveUserAchievementUserAchievementBatchPost(params, options);
+  };
+};
+export const getSaveUserAchievementUserAchievementBatchPostMutationKey = (
+  params?: SaveUserAchievementUserAchievementBatchPostParams,
 ) =>
   [
     "https://knowde.onrender.com/user/achievement/batch",
     ...(params ? [params] : []),
   ] as const;
 
-export type SaveUserAchievementUserAchievementBatchGetQueryResult = NonNullable<
-  Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchGet>>
->;
-export type SaveUserAchievementUserAchievementBatchGetQueryError =
+export type SaveUserAchievementUserAchievementBatchPostMutationResult =
+  NonNullable<
+    Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchPost>>
+  >;
+export type SaveUserAchievementUserAchievementBatchPostMutationError =
   Promise<HTTPValidationError>;
 
 /**
  * @summary Save User Achievement
  */
-export const useSaveUserAchievementUserAchievementBatchGet = <
+export const useSaveUserAchievementUserAchievementBatchPost = <
   TError = Promise<HTTPValidationError>,
 >(
-  params?: SaveUserAchievementUserAchievementBatchGetParams,
+  params?: SaveUserAchievementUserAchievementBatchPostParams,
   options?: {
-    swr?: SWRConfiguration<
-      Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchGet>>,
-      TError
-    > & { swrKey?: Key; enabled?: boolean };
+    swr?: SWRMutationConfiguration<
+      Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchPost>>,
+      TError,
+      Key,
+      Arguments,
+      Awaited<ReturnType<typeof saveUserAchievementUserAchievementBatchPost>>
+    > & { swrKey?: string };
     fetch?: RequestInit;
   },
 ) => {
   const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
 
-  const isEnabled = swrOptions?.enabled !== false;
   const swrKey =
     swrOptions?.swrKey ??
-    (() =>
-      isEnabled
-        ? getSaveUserAchievementUserAchievementBatchGetKey(params)
-        : null);
-  const swrFn = () =>
-    saveUserAchievementUserAchievementBatchGet(params, fetchOptions);
-
-  const query = useSwr<Awaited<ReturnType<typeof swrFn>>, TError>(
-    swrKey,
-    swrFn,
-    swrOptions,
+    getSaveUserAchievementUserAchievementBatchPostMutationKey(params);
+  const swrFn = getSaveUserAchievementUserAchievementBatchPostMutationFetcher(
+    params,
+    fetchOptions,
   );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
+
+  return {
+    swrKey,
+    ...query,
+  };
+};
+/**
+ * 指定ユーザーの週間成果履歴.
+ * @summary Get Archievement History
+ */
+export type getArchievementHistoryUserArchievementHistoryPostResponse200 = {
+  data: AchievementHistories;
+  status: 200;
+};
+
+export type getArchievementHistoryUserArchievementHistoryPostResponse422 = {
+  data: HTTPValidationError;
+  status: 422;
+};
+
+export type getArchievementHistoryUserArchievementHistoryPostResponseComposite =
+  | getArchievementHistoryUserArchievementHistoryPostResponse200
+  | getArchievementHistoryUserArchievementHistoryPostResponse422;
+
+export type getArchievementHistoryUserArchievementHistoryPostResponse =
+  getArchievementHistoryUserArchievementHistoryPostResponseComposite & {
+    headers: Headers;
+  };
+
+export const getGetArchievementHistoryUserArchievementHistoryPostUrl = () => {
+  return "https://knowde.onrender.com/user/archievement-history";
+};
+
+export const getArchievementHistoryUserArchievementHistoryPost = async (
+  userActivityRequest: UserActivityRequest,
+  options?: RequestInit,
+): Promise<getArchievementHistoryUserArchievementHistoryPostResponse> => {
+  const res = await fetch(
+    getGetArchievementHistoryUserArchievementHistoryPostUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(userActivityRequest),
+    },
+  );
+
+  const body = [204, 205, 304].includes(res.status) ? null : await res.text();
+  const data: getArchievementHistoryUserArchievementHistoryPostResponse["data"] =
+    body ? JSON.parse(body) : {};
+
+  return {
+    data,
+    status: res.status,
+    headers: res.headers,
+  } as getArchievementHistoryUserArchievementHistoryPostResponse;
+};
+
+export const getGetArchievementHistoryUserArchievementHistoryPostMutationFetcher =
+  (options?: RequestInit) => {
+    return (
+      _: Key,
+      { arg }: { arg: UserActivityRequest },
+    ): Promise<getArchievementHistoryUserArchievementHistoryPostResponse> => {
+      return getArchievementHistoryUserArchievementHistoryPost(arg, options);
+    };
+  };
+export const getGetArchievementHistoryUserArchievementHistoryPostMutationKey =
+  () => ["https://knowde.onrender.com/user/archievement-history"] as const;
+
+export type GetArchievementHistoryUserArchievementHistoryPostMutationResult =
+  NonNullable<
+    Awaited<
+      ReturnType<typeof getArchievementHistoryUserArchievementHistoryPost>
+    >
+  >;
+export type GetArchievementHistoryUserArchievementHistoryPostMutationError =
+  Promise<HTTPValidationError>;
+
+/**
+ * @summary Get Archievement History
+ */
+export const useGetArchievementHistoryUserArchievementHistoryPost = <
+  TError = Promise<HTTPValidationError>,
+>(options?: {
+  swr?: SWRMutationConfiguration<
+    Awaited<
+      ReturnType<typeof getArchievementHistoryUserArchievementHistoryPost>
+    >,
+    TError,
+    Key,
+    UserActivityRequest,
+    Awaited<
+      ReturnType<typeof getArchievementHistoryUserArchievementHistoryPost>
+    >
+  > & { swrKey?: string };
+  fetch?: RequestInit;
+}) => {
+  const { swr: swrOptions, fetch: fetchOptions } = options ?? {};
+
+  const swrKey =
+    swrOptions?.swrKey ??
+    getGetArchievementHistoryUserArchievementHistoryPostMutationKey();
+  const swrFn =
+    getGetArchievementHistoryUserArchievementHistoryPostMutationFetcher(
+      fetchOptions,
+    );
+
+  const query = useSWRMutation(swrKey, swrFn, swrOptions);
 
   return {
     swrKey,

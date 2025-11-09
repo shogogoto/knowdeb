@@ -453,7 +453,6 @@ export const detailKnowdeSentenceSentenceIdGetResponse = zod
             .object({
               type: zod
                 .enum([
-                  "head",
                   "sibling",
                   "below",
                   "def",

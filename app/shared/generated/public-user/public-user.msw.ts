@@ -9,10 +9,11 @@ import { faker } from "@faker-js/faker";
 import { http, HttpResponse, delay } from "msw";
 
 import type {
+  AchievementHistories,
   AchievementSnapshotResult,
+  UserActivities,
   UserReadPublic,
   UserSearchResult,
-  UserSearchRow,
 } from "../fastAPI.schemas";
 
 export const getUserProfileUserProfileUsernameGetResponseMock = (
@@ -84,7 +85,7 @@ export const getSearchUserUserSearchPostResponseMock = (
 });
 
 export const getGetUserActivityUserActivityPostResponseMock =
-  (): UserSearchRow[] =>
+  (): UserActivities =>
     Array.from(
       { length: faker.number.int({ min: 1, max: 10 }) },
       (_, i) => i + 1,
@@ -112,7 +113,16 @@ export const getGetUserActivityUserActivityPostResponseMock =
         uid: faker.string.uuid(),
         created: `${faker.date.past().toISOString().split(".")[0]}Z`,
       },
-      archivement: {
+      latest: faker.helpers.arrayElement([
+        {
+          n_char: faker.number.int({ min: undefined, max: undefined }),
+          n_sentence: faker.number.int({ min: undefined, max: undefined }),
+          n_resource: faker.number.int({ min: undefined, max: undefined }),
+          created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        },
+        null,
+      ]),
+      current: {
         n_char: faker.number.int({ min: undefined, max: undefined }),
         n_sentence: faker.number.int({ min: undefined, max: undefined }),
         n_resource: faker.number.int({ min: undefined, max: undefined }),
@@ -120,7 +130,7 @@ export const getGetUserActivityUserActivityPostResponseMock =
       },
     }));
 
-export const getSaveUserAchievementUserAchievementBatchGetResponseMock = (
+export const getSaveUserAchievementUserAchievementBatchPostResponseMock = (
   overrideResponse: Partial<AchievementSnapshotResult> = {},
 ): AchievementSnapshotResult => ({
   n_all_users: faker.number.int({ min: undefined, max: undefined }),
@@ -128,6 +138,46 @@ export const getSaveUserAchievementUserAchievementBatchGetResponseMock = (
   n_saved: faker.number.int({ min: undefined, max: undefined }),
   ...overrideResponse,
 });
+
+export const getGetArchievementHistoryUserArchievementHistoryPostResponseMock =
+  (): AchievementHistories =>
+    Array.from(
+      { length: faker.number.int({ min: 1, max: 10 }) },
+      (_, i) => i + 1,
+    ).map(() => ({
+      user: {
+        display_name: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        profile: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        avatar_url: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([faker.string.alpha(20), null]),
+          undefined,
+        ]),
+        username: faker.helpers.arrayElement([
+          faker.helpers.arrayElement([
+            faker.helpers.fromRegExp("^[a-zA-Z0-9_-]+$"),
+            null,
+          ]),
+          undefined,
+        ]),
+        uid: faker.string.uuid(),
+        created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      },
+      archivements: Array.from(
+        { length: faker.number.int({ min: 1, max: 10 }) },
+        (_, i) => i + 1,
+      ).map(() => ({
+        n_char: faker.number.int({ min: undefined, max: undefined }),
+        n_sentence: faker.number.int({ min: undefined, max: undefined }),
+        n_resource: faker.number.int({ min: undefined, max: undefined }),
+        created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+      })),
+    }));
 
 export const getUserProfileUserProfileUsernameGetMockHandler = (
   overrideResponse?:
@@ -177,10 +227,10 @@ export const getSearchUserUserSearchPostMockHandler = (
 
 export const getGetUserActivityUserActivityPostMockHandler = (
   overrideResponse?:
-    | UserSearchRow[]
+    | UserActivities
     | ((
         info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<UserSearchRow[]> | UserSearchRow[]),
+      ) => Promise<UserActivities> | UserActivities),
 ) => {
   return http.post("*/user/activity", async (info) => {
     await delay(200);
@@ -198,14 +248,14 @@ export const getGetUserActivityUserActivityPostMockHandler = (
   });
 };
 
-export const getSaveUserAchievementUserAchievementBatchGetMockHandler = (
+export const getSaveUserAchievementUserAchievementBatchPostMockHandler = (
   overrideResponse?:
     | AchievementSnapshotResult
     | ((
-        info: Parameters<Parameters<typeof http.get>[1]>[0],
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
       ) => Promise<AchievementSnapshotResult> | AchievementSnapshotResult),
 ) => {
-  return http.get("*/user/achievement/batch", async (info) => {
+  return http.post("*/user/achievement/batch", async (info) => {
     await delay(200);
 
     return new HttpResponse(
@@ -214,7 +264,30 @@ export const getSaveUserAchievementUserAchievementBatchGetMockHandler = (
           ? typeof overrideResponse === "function"
             ? await overrideResponse(info)
             : overrideResponse
-          : getSaveUserAchievementUserAchievementBatchGetResponseMock(),
+          : getSaveUserAchievementUserAchievementBatchPostResponseMock(),
+      ),
+      { status: 200, headers: { "Content-Type": "application/json" } },
+    );
+  });
+};
+
+export const getGetArchievementHistoryUserArchievementHistoryPostMockHandler = (
+  overrideResponse?:
+    | AchievementHistories
+    | ((
+        info: Parameters<Parameters<typeof http.post>[1]>[0],
+      ) => Promise<AchievementHistories> | AchievementHistories),
+) => {
+  return http.post("*/user/archievement-history", async (info) => {
+    await delay(200);
+
+    return new HttpResponse(
+      JSON.stringify(
+        overrideResponse !== undefined
+          ? typeof overrideResponse === "function"
+            ? await overrideResponse(info)
+            : overrideResponse
+          : getGetArchievementHistoryUserArchievementHistoryPostResponseMock(),
       ),
       { status: 200, headers: { "Content-Type": "application/json" } },
     );
@@ -224,5 +297,6 @@ export const getPublicUserMock = () => [
   getUserProfileUserProfileUsernameGetMockHandler(),
   getSearchUserUserSearchPostMockHandler(),
   getGetUserActivityUserActivityPostMockHandler(),
-  getSaveUserAchievementUserAchievementBatchGetMockHandler(),
+  getSaveUserAchievementUserAchievementBatchPostMockHandler(),
+  getGetArchievementHistoryUserArchievementHistoryPostMockHandler(),
 ];
