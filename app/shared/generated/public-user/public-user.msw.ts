@@ -11,9 +11,9 @@ import { http, HttpResponse, delay } from "msw";
 import type {
   AchievementHistories,
   AchievementSnapshotResult,
+  UserActivities,
   UserReadPublic,
   UserSearchResult,
-  UserSearchRow,
 } from "../fastAPI.schemas";
 
 export const getUserProfileUserProfileUsernameGetResponseMock = (
@@ -85,7 +85,7 @@ export const getSearchUserUserSearchPostResponseMock = (
 });
 
 export const getGetUserActivityUserActivityPostResponseMock =
-  (): UserSearchRow[] =>
+  (): UserActivities =>
     Array.from(
       { length: faker.number.int({ min: 1, max: 10 }) },
       (_, i) => i + 1,
@@ -113,7 +113,16 @@ export const getGetUserActivityUserActivityPostResponseMock =
         uid: faker.string.uuid(),
         created: `${faker.date.past().toISOString().split(".")[0]}Z`,
       },
-      archivement: {
+      latest: faker.helpers.arrayElement([
+        {
+          n_char: faker.number.int({ min: undefined, max: undefined }),
+          n_sentence: faker.number.int({ min: undefined, max: undefined }),
+          n_resource: faker.number.int({ min: undefined, max: undefined }),
+          created: `${faker.date.past().toISOString().split(".")[0]}Z`,
+        },
+        null,
+      ]),
+      current: {
         n_char: faker.number.int({ min: undefined, max: undefined }),
         n_sentence: faker.number.int({ min: undefined, max: undefined }),
         n_resource: faker.number.int({ min: undefined, max: undefined }),
@@ -218,10 +227,10 @@ export const getSearchUserUserSearchPostMockHandler = (
 
 export const getGetUserActivityUserActivityPostMockHandler = (
   overrideResponse?:
-    | UserSearchRow[]
+    | UserActivities
     | ((
         info: Parameters<Parameters<typeof http.post>[1]>[0],
-      ) => Promise<UserSearchRow[]> | UserSearchRow[]),
+      ) => Promise<UserActivities> | UserActivities),
 ) => {
   return http.post("*/user/activity", async (info) => {
     await delay(200);

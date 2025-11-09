@@ -295,7 +295,16 @@ export const getUserActivityUserActivityPostResponseItem = zod
         created: zod.string().datetime({}),
       })
       .describe("公開ユーザー情報."),
-    archivement: zod
+    latest: zod
+      .object({
+        n_char: zod.number(),
+        n_sentence: zod.number(),
+        n_resource: zod.number(),
+        created: zod.string().datetime({}),
+      })
+      .describe("ユーザーの作業量計.")
+      .or(zod.null()),
+    current: zod
       .object({
         n_char: zod.number(),
         n_sentence: zod.number(),
@@ -304,7 +313,7 @@ export const getUserActivityUserActivityPostResponseItem = zod
       })
       .describe("ユーザーの作業量計."),
   })
-  .describe("検索結果行.");
+  .describe("ユーザーの活動状況.");
 export const getUserActivityUserActivityPostResponse = zod.array(
   getUserActivityUserActivityPostResponseItem,
 );

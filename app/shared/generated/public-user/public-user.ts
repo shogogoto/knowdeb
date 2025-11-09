@@ -16,12 +16,12 @@ import type {
   HTTPValidationError,
   SaveUserAchievementUserAchievementBatchPostParams,
   SearchUserUserSearchPostParams,
+  UserActivities,
   UserActivityRequest,
   UserProfileUserProfileUsernameGetParams,
   UserReadPublic,
   UserSearchBody,
   UserSearchResult,
-  UserSearchRow,
 } from "../fastAPI.schemas";
 
 /**
@@ -274,7 +274,7 @@ export const useSearchUserUserSearchPost = <
  * @summary Get User Activity
  */
 export type getUserActivityUserActivityPostResponse200 = {
-  data: UserSearchRow[];
+  data: UserActivities;
   status: 200;
 };
 

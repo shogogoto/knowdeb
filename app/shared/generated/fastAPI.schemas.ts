@@ -576,6 +576,22 @@ export interface UserAchievement {
   created: Neo4jDateTime;
 }
 
+/**
+ * ユーザーの活動状況.
+ */
+export type UserActivities = UserActivity[];
+
+export type UserActivityLatest = UserAchievement | null;
+
+/**
+ * ユーザーの活動状況.
+ */
+export interface UserActivity {
+  user: UserReadPublic;
+  latest: UserActivityLatest;
+  current: UserAchievement;
+}
+
 export type UserActivityRequestUserIdsItem = string | string;
 
 export interface UserActivityRequest {
