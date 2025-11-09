@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import Loading from "~/shared/components/Loading";
 import {
   useGetArchievementHistoryUserArchievementHistoryPost,
   useGetUserActivityUserActivityPost,
@@ -28,16 +29,17 @@ export default function UserDetail({
     }
   }, [user, trigger, activityTrigger]);
 
+  const isLoading = isMutating || activityIsMutating;
+
   return (
     <div className="space-y-4 bg-white dark:bg-gray-800 p-6 shadow-md">
       {children}
       <UserProfile user={user} />
-      {/* {activityIsMutating && <Loading type="center-x" />} */}
-      {activityData?.data && activityData.status === 200 && (
+      {isLoading && <Loading type="center-x" />}
+      {!isLoading && activityData?.data && activityData.status === 200 && (
         <ActivityBoard activity={activityData.data[0]} />
       )}
-      {/* {isMutating && <Loading type="center-x" />} */}
-      {data?.data && data.status === 200 && (
+      {!isLoading && data?.data && data.status === 200 && (
         <div className="flex flex-col space-y-10">
           <AchieveHistoryChart aHistories={data.data} />
           <AchieveHistoryTable aHistories={data.data} />
