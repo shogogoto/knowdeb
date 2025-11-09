@@ -116,7 +116,7 @@ export const columns: ColumnDef<AchievementHistoryItem>[] = [
   },
   {
     accessorKey: "n_sentence",
-    header: "文章数",
+    header: "単文数",
   },
   {
     accessorKey: "n_resource",

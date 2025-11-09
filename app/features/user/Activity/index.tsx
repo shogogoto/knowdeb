@@ -63,7 +63,7 @@ function ActivityTitle({
   const days = calcDays(start, end);
 
   return (
-    <CardTitle>
+    <CardTitle className="flex flex-col items-center">
       <p>{days}日間の活動量</p>
       <p className="text-sm text-muted-foreground">
         {startDate} ~ {endDate}
@@ -79,7 +79,7 @@ type Props = {
 export default function ActivityBoard({ activity }: Props) {
   const { current, latest } = activity;
   return (
-    <Card>
+    <Card className="bg-transparent shadow-none border-none">
       <CardHeader>
         <ActivityTitle start={latest?.created} end={current.created} />
       </CardHeader>

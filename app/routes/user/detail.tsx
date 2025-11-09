@@ -1,7 +1,7 @@
 import { useLoaderData } from "react-router";
 import UserDetail from "~/features/user/UserDetail";
 import { userProfileUserProfileUsernameGet } from "~/shared/generated/public-user/public-user";
-import type { Route } from "./+types/profile";
+import type { Route } from "./+types/detail";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const { userId } = params;

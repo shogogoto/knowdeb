@@ -12,7 +12,6 @@ import {
 } from "recharts";
 import type { YAxisOrientation } from "recharts/types/state/cartesianAxisSlice";
 import type { AchievementHistories } from "~/shared/generated/fastAPI.schemas";
-import AchieveHistoryTable from "./HistoryTable";
 
 type Props = {
   aHistories: AchievementHistories;
@@ -53,7 +52,7 @@ function processAchievementData(aHistories: AchievementHistories): ChartData[] {
   return sortedData;
 }
 
-export default function AchieveHistory({ aHistories }: Props) {
+export default function AchieveHistoryChart({ aHistories }: Props) {
   const chartData = processAchievementData(aHistories);
 
   if (!chartData || chartData.length === 0) {
@@ -61,7 +60,7 @@ export default function AchieveHistory({ aHistories }: Props) {
   }
 
   const [charY, charLine] = materials("n_char", "文字数", "#8884d8");
-  const [senY, senLine] = materials("n_sentence", "文章数", "#82ca9d", "right");
+  const [senY, senLine] = materials("n_sentence", "単文数", "#82ca9d", "right");
   const [rY, rLine] = materials("n_resource", "リソース数", "#ffc658", "right");
   return (
     <div style={{ width: "100%" }}>
@@ -100,7 +99,6 @@ export default function AchieveHistory({ aHistories }: Props) {
             {rLine}
           </LineChart>
         </ResponsiveContainer>
-        <AchieveHistoryTable aHistories={aHistories} />
       </div>
     </div>
   );
