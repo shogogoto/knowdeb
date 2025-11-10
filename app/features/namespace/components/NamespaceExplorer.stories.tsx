@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { http, HttpResponse, delay } from "msw";
 import type { NameSpace } from "~/shared/generated/fastAPI.schemas";
 import NamespaceExplorer from "./NamespaceExplorer";
-import { mockData } from "./fixture";
+import { fixtureNs } from "./fixture";
 
 const mock = (
   overrideResponse?:
@@ -13,7 +13,7 @@ const mock = (
 ) => {
   return http.get("*/namespace", async (info) => {
     await delay(1000);
-    return new HttpResponse(JSON.stringify(mockData), {
+    return new HttpResponse(JSON.stringify(fixtureNs), {
       status: 200,
       headers: { "Content-Type": "application/json" },
     });

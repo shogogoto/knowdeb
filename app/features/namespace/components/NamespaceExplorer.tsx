@@ -144,7 +144,7 @@ export default function NamespaceExplorer() {
           className="h-full"
         />
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-2">
           <Breadcrumb path={currentPath} onPathChange={handlePathChange} />
           <TileView items={currentItems} onItemClick={handleItemClick} />
         </div>
