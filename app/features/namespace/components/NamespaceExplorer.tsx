@@ -8,6 +8,8 @@ import type {
   MResource,
   NameSpace,
 } from "~/shared/generated/fastAPI.schemas";
+import { Breadcrumb } from "./Breadcrumb";
+import { TileView } from "./TileView";
 
 function isResourceNode(node: Entry | MResource): node is MResource {
   return "authors" in node && "published" in node;
@@ -70,6 +72,7 @@ export default function NamespaceExplorer() {
   } = useGetNamaspaceNamespaceGet({ fetch: { credentials: "include" } });
   const data = fetchedData?.data;
   const [viewMode, setViewMode] = useState<"list" | "tile">("list");
+  const [currentPath, setCurrentPath] = useState<TreeDataItem[]>([]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -82,6 +85,27 @@ export default function NamespaceExplorer() {
   }
 
   const treeData = transformToTreeData(data);
+
+  // Initialize currentPath with the root nodes if it's empty
+  if (currentPath.length === 0 && treeData.length > 0) {
+    setCurrentPath([{ id: "root", name: "Home", children: treeData }]);
+  }
+
+  const currentFolder = currentPath[currentPath.length - 1];
+  const currentItems = currentFolder?.children || [];
+
+  function handleItemClick(item: TreeDataItem) {
+    if (item.children) {
+      setCurrentPath([...currentPath, item]);
+    } else {
+      // Handle file click (e.g., open file, show details)
+      console.log("File clicked:", item.name);
+    }
+  }
+
+  function handlePathChange(newPath: TreeDataItem[]) {
+    setCurrentPath(newPath);
+  }
 
   return (
     <div>
@@ -120,8 +144,9 @@ export default function NamespaceExplorer() {
           className="h-full"
         />
       ) : (
-        <div>
-          <p>Tile view is not implemented yet.</p>
+        <div className="space-y-4">
+          <Breadcrumb path={currentPath} onPathChange={handlePathChange} />
+          <TileView items={currentItems} onItemClick={handleItemClick} />
         </div>
       )}
     </div>
