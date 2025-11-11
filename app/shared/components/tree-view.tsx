@@ -4,6 +4,7 @@ import { cva } from "class-variance-authority";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { cn } from "~/shared/lib/utils";
+import type { ResourceStats } from "../generated/fastAPI.schemas";
 
 const treeVariants = cva(
   "group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 px-2 before:w-full before:opacity-0 before:bg-accent/70 before:h-[2rem] before:-z-10",
@@ -29,6 +30,9 @@ interface TreeDataItem {
   draggable?: boolean;
   droppable?: boolean;
   disabled?: boolean;
+  authors?: MResourceAuthors;
+  published?: MResourcePublished;
+  content_size?: ResourceStats | undefined;
 }
 
 type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -407,6 +411,17 @@ const TreeLeaf = React.forwardRef<
           default={defaultLeafIcon}
         />
         <span className="flex-grow text-sm truncate">{item.name}</span>
+        {(item.authors || item.published || item.content_size) && (
+          <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
+            {item.authors && item.authors.length > 0 && (
+              <span>{item.authors.join(", ")}</span>
+            )}
+            {item.published && <span className="ml-2">{item.published}</span>}
+            {item.content_size !== undefined && (
+              <span className="ml-2">{item.content_size} words</span>
+            )}
+          </div>
+        )}
         <TreeActions isSelected={selectedItemId === item.id && !item.disabled}>
           {item.actions}
         </TreeActions>

@@ -22,6 +22,19 @@ export function TileView({ items, onItemClick }: TileViewProps) {
             <File className="h-12 w-12 text-gray-500" />
           )}
           <span className="w-full truncate text-sm">{item.name}</span>
+          {(item.authors || item.published || item.content_size) && (
+            <div className="mt-1 text-xs text-gray-500">
+              {item.authors && item.authors.length > 0 && (
+                <span>{item.authors.join(", ")}</span>
+              )}
+              {item.published && <span className="ml-1">{item.published}</span>}
+              {item.content_size !== undefined && (
+                <span className="ml-1">
+                  {item.content_size.n_sentence} words
+                </span>
+              )}
+            </div>
+          )}
         </button>
       ))}
     </div>

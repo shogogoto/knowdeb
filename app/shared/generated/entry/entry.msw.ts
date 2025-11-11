@@ -552,14 +552,14 @@ export const getGetResourceDetailResourceResourceIdGetMockHandler = (
   });
 };
 
-export const getDeleteResourceApiResourceResourceIdDeleteMockHandler = (
+export const getDeleteEntryApiEntryEntryIdDeleteMockHandler = (
   overrideResponse?:
     | null
     | ((
         info: Parameters<Parameters<typeof http.delete>[1]>[0],
       ) => Promise<null> | null),
 ) => {
-  return http.delete("*/resource/:resourceId", async (info) => {
+  return http.delete("*/entry/:entryId", async (info) => {
     await delay(200);
     if (typeof overrideResponse === "function") {
       await overrideResponse(info);
@@ -596,6 +596,6 @@ export const getEntryMock = () => [
   getPostTextResourceTextPostMockHandler(),
   getPostFilesResourcePostMockHandler(),
   getGetResourceDetailResourceResourceIdGetMockHandler(),
-  getDeleteResourceApiResourceResourceIdDeleteMockHandler(),
+  getDeleteEntryApiEntryEntryIdDeleteMockHandler(),
   getSearchResourcePostResourceSearchPostMockHandler(),
 ];

@@ -498,47 +498,42 @@ export const useGetResourceDetailResourceResourceIdGet = <
 };
 /**
  * リソース削除.
- * @summary Delete Resource Api
+ * @summary Delete Entry Api
  */
-export type deleteResourceApiResourceResourceIdDeleteResponse200 = {
+export type deleteEntryApiEntryEntryIdDeleteResponse200 = {
   data: null;
   status: 200;
 };
 
-export type deleteResourceApiResourceResourceIdDeleteResponse422 = {
+export type deleteEntryApiEntryEntryIdDeleteResponse422 = {
   data: HTTPValidationError;
   status: 422;
 };
 
-export type deleteResourceApiResourceResourceIdDeleteResponseComposite =
-  | deleteResourceApiResourceResourceIdDeleteResponse200
-  | deleteResourceApiResourceResourceIdDeleteResponse422;
+export type deleteEntryApiEntryEntryIdDeleteResponseComposite =
+  | deleteEntryApiEntryEntryIdDeleteResponse200
+  | deleteEntryApiEntryEntryIdDeleteResponse422;
 
-export type deleteResourceApiResourceResourceIdDeleteResponse =
-  deleteResourceApiResourceResourceIdDeleteResponseComposite & {
+export type deleteEntryApiEntryEntryIdDeleteResponse =
+  deleteEntryApiEntryEntryIdDeleteResponseComposite & {
     headers: Headers;
   };
 
-export const getDeleteResourceApiResourceResourceIdDeleteUrl = (
-  resourceId: string,
-) => {
-  return `https://knowde.onrender.com/resource/${resourceId}`;
+export const getDeleteEntryApiEntryEntryIdDeleteUrl = (entryId: string) => {
+  return `https://knowde.onrender.com/entry/${entryId}`;
 };
 
-export const deleteResourceApiResourceResourceIdDelete = async (
-  resourceId: string,
+export const deleteEntryApiEntryEntryIdDelete = async (
+  entryId: string,
   options?: RequestInit,
-): Promise<deleteResourceApiResourceResourceIdDeleteResponse> => {
-  const res = await fetch(
-    getDeleteResourceApiResourceResourceIdDeleteUrl(resourceId),
-    {
-      ...options,
-      method: "DELETE",
-    },
-  );
+): Promise<deleteEntryApiEntryEntryIdDeleteResponse> => {
+  const res = await fetch(getDeleteEntryApiEntryEntryIdDeleteUrl(entryId), {
+    ...options,
+    method: "DELETE",
+  });
 
   const body = [204, 205, 304].includes(res.status) ? null : await res.text();
-  const data: deleteResourceApiResourceResourceIdDeleteResponse["data"] = body
+  const data: deleteEntryApiEntryEntryIdDeleteResponse["data"] = body
     ? JSON.parse(body)
     : {};
 
@@ -546,45 +541,44 @@ export const deleteResourceApiResourceResourceIdDelete = async (
     data,
     status: res.status,
     headers: res.headers,
-  } as deleteResourceApiResourceResourceIdDeleteResponse;
+  } as deleteEntryApiEntryEntryIdDeleteResponse;
 };
 
-export const getDeleteResourceApiResourceResourceIdDeleteMutationFetcher = (
-  resourceId: string,
+export const getDeleteEntryApiEntryEntryIdDeleteMutationFetcher = (
+  entryId: string,
   options?: RequestInit,
 ) => {
   return (
     _: Key,
     __: { arg: Arguments },
-  ): Promise<deleteResourceApiResourceResourceIdDeleteResponse> => {
-    return deleteResourceApiResourceResourceIdDelete(resourceId, options);
+  ): Promise<deleteEntryApiEntryEntryIdDeleteResponse> => {
+    return deleteEntryApiEntryEntryIdDelete(entryId, options);
   };
 };
-export const getDeleteResourceApiResourceResourceIdDeleteMutationKey = (
-  resourceId: string,
-) => [`https://knowde.onrender.com/resource/${resourceId}`] as const;
+export const getDeleteEntryApiEntryEntryIdDeleteMutationKey = (
+  entryId: string,
+) => [`https://knowde.onrender.com/entry/${entryId}`] as const;
 
-export type DeleteResourceApiResourceResourceIdDeleteMutationResult =
-  NonNullable<
-    Awaited<ReturnType<typeof deleteResourceApiResourceResourceIdDelete>>
-  >;
-export type DeleteResourceApiResourceResourceIdDeleteMutationError =
+export type DeleteEntryApiEntryEntryIdDeleteMutationResult = NonNullable<
+  Awaited<ReturnType<typeof deleteEntryApiEntryEntryIdDelete>>
+>;
+export type DeleteEntryApiEntryEntryIdDeleteMutationError =
   Promise<HTTPValidationError>;
 
 /**
- * @summary Delete Resource Api
+ * @summary Delete Entry Api
  */
-export const useDeleteResourceApiResourceResourceIdDelete = <
+export const useDeleteEntryApiEntryEntryIdDelete = <
   TError = Promise<HTTPValidationError>,
 >(
-  resourceId: string,
+  entryId: string,
   options?: {
     swr?: SWRMutationConfiguration<
-      Awaited<ReturnType<typeof deleteResourceApiResourceResourceIdDelete>>,
+      Awaited<ReturnType<typeof deleteEntryApiEntryEntryIdDelete>>,
       TError,
       Key,
       Arguments,
-      Awaited<ReturnType<typeof deleteResourceApiResourceResourceIdDelete>>
+      Awaited<ReturnType<typeof deleteEntryApiEntryEntryIdDelete>>
     > & { swrKey?: string };
     fetch?: RequestInit;
   },
@@ -593,9 +587,9 @@ export const useDeleteResourceApiResourceResourceIdDelete = <
 
   const swrKey =
     swrOptions?.swrKey ??
-    getDeleteResourceApiResourceResourceIdDeleteMutationKey(resourceId);
-  const swrFn = getDeleteResourceApiResourceResourceIdDeleteMutationFetcher(
-    resourceId,
+    getDeleteEntryApiEntryEntryIdDeleteMutationKey(entryId);
+  const swrFn = getDeleteEntryApiEntryEntryIdDeleteMutationFetcher(
+    entryId,
     fetchOptions,
   );
 

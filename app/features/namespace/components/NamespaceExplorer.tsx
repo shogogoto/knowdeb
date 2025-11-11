@@ -28,6 +28,9 @@ function transformToTreeData(data: NameSpace): TreeDataItem[] {
       nodesMap.set(entryData.uid, {
         id: entryData.uid,
         name: entryData.name,
+        authors: entryData.authors,
+        published: entryData.published,
+        content_size: data.stats?.[entryData.uid],
       });
     } else {
       nodesMap.set(entryData.uid, {
