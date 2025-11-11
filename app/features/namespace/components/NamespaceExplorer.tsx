@@ -1,4 +1,4 @@
-import { File, Folder, LayoutGrid, List, Trash2 } from "lucide-react";
+import { File, Folder, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useSWRMutation from "swr/mutation";
 import { type TreeDataItem, TreeView } from "~/shared/components/tree-view";
@@ -25,6 +25,7 @@ import type {
 } from "~/shared/generated/fastAPI.schemas";
 import { Breadcrumb } from "./Breadcrumb";
 import { TileView } from "./TileView";
+import ViewSwitcher from "./ViewSwitcher";
 
 function isResourceNode(node: Entry | MResource): node is MResource {
   return "authors" in node && "published" in node;
@@ -140,6 +141,7 @@ export default function NamespaceExplorer() {
 
   function handleConfirmDelete() {
     if (deleteTarget) {
+      // alert(JSON.stringify(deleteTarget.id));
       deleteEntry(deleteTarget.id);
     }
   }
@@ -169,32 +171,9 @@ export default function NamespaceExplorer() {
 
   return (
     <div>
-      <input
-        type="file"
-        id="file-input"
-        //webkitdirectory=""
-        // directory=""
-        accept=".txt, .md, .kn"
-        multiple
-      />
-
       <div className="mb-2 flex justify-end">
-        <Button
-          onClick={() => setViewMode("list")}
-          variant={viewMode === "list" ? "secondary" : "ghost"}
-          size="icon"
-        >
-          <List className="h-4 w-4" />
-        </Button>
-        <Button
-          onClick={() => setViewMode("tile")}
-          variant={viewMode === "tile" ? "secondary" : "ghost"}
-          size="icon"
-        >
-          <LayoutGrid className="h-4 w-4" />
-        </Button>
+        <ViewSwitcher mode={viewMode} setMode={setViewMode} />
       </div>
-
       {viewMode === "list" ? (
         <TreeView
           data={treeData}
