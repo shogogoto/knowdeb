@@ -492,21 +492,10 @@ const TreeIcon = ({
 
 const TreeActions = ({
   children,
-  isSelected,
 }: {
   children: React.ReactNode;
-  isSelected: boolean;
 }) => {
-  return (
-    <div
-      className={cn(
-        isSelected ? "block" : "hidden",
-        "absolute right-3 group-hover:block",
-      )}
-    >
-      {children}
-    </div>
-  );
+  return <div className="absolute right-3 block">{children}</div>;
 };
 
 export { TreeView, type TreeDataItem };
