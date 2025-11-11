@@ -299,10 +299,23 @@ const TreeNode = ({
             isOpen={value.includes(item.id)}
             default={defaultNodeIcon}
           />
-          <span className="text-sm truncate">{item.name}</span>
-          <TreeActions isSelected={selectedItemId === item.id}>
-            {item.actions}
-          </TreeActions>
+          <div className="flex-grow flex items-center">
+            <span className="text-sm truncate">{item.name}</span>
+            {(item.authors || item.published || item.content_size) && (
+              <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
+                {item.authors && item.authors.length > 0 && (
+                  <span>{item.authors.join(", ")}</span>
+                )}
+                {item.published && (
+                  <span className="ml-2">{item.published}</span>
+                )}
+                {item.content_size !== undefined && (
+                  <span className="ml-2">{item.content_size} words</span>
+                )}
+              </div>
+            )}
+          </div>
+          <TreeActions>{item.actions}</TreeActions>
         </AccordionTrigger>
         <AccordionContent className="ml-4 pl-1 border-l">
           <TreeItem
@@ -410,21 +423,21 @@ const TreeLeaf = React.forwardRef<
           isSelected={selectedItemId === item.id}
           default={defaultLeafIcon}
         />
-        <span className="flex-grow text-sm truncate">{item.name}</span>
-        {(item.authors || item.published || item.content_size) && (
-          <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
-            {item.authors && item.authors.length > 0 && (
-              <span>{item.authors.join(", ")}</span>
-            )}
-            {item.published && <span className="ml-2">{item.published}</span>}
-            {item.content_size !== undefined && (
-              <span className="ml-2">{item.content_size} words</span>
-            )}
-          </div>
-        )}
-        <TreeActions isSelected={selectedItemId === item.id && !item.disabled}>
-          {item.actions}
-        </TreeActions>
+        <div className="flex-grow flex items-center">
+          <span className="flex-grow text-sm truncate">{item.name}</span>
+          {(item.authors || item.published || item.content_size) && (
+            <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
+              {item.authors && item.authors.length > 0 && (
+                <span>{item.authors.join(", ")}</span>
+              )}
+              {item.published && <span className="ml-2">{item.published}</span>}
+              {item.content_size !== undefined && (
+                <span className="ml-2">{item.content_size} words</span>
+              )}
+            </div>
+          )}
+        </div>
+        <TreeActions>{item.actions}</TreeActions>
       </div>
     );
   },
@@ -495,7 +508,7 @@ const TreeActions = ({
 }: {
   children: React.ReactNode;
 }) => {
-  return <div className="absolute right-3 block">{children}</div>;
+  return <div className="ml-auto flex-shrink-0">{children}</div>;
 };
 
 export { TreeView, type TreeDataItem };
