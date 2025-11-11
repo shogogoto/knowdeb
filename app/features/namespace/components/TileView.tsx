@@ -7,10 +7,9 @@ import type { ExplorerTreeDataItem } from "./types";
 
 type TileViewProps = {
   items: (TreeDataItem & ExplorerTreeDataItem)[];
-  onDeleteClick: (item: TreeDataItem) => void;
 };
 
-export function TileView({ items, onDeleteClick }: TileViewProps) {
+export function TileView({ items }: TileViewProps) {
   const [currentPath, setCurrentPath] = useState<ExplorerTreeDataItem[]>([]);
   if (currentPath.length === 0 && items.length > 0) {
     setCurrentPath([{ id: "root", name: "Home", children: items }]);
@@ -57,7 +56,7 @@ export function TileView({ items, onDeleteClick }: TileViewProps) {
               className="absolute right-1 top-1"
               onClick={(e) => {
                 e.stopPropagation();
-                onDeleteClick(item);
+                //onDeleteClick(item);
               }}
             >
               <Trash2 className="h-4 w-4" />

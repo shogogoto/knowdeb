@@ -1,28 +1,13 @@
-import { File, Folder, Trash2 } from "lucide-react";
+import { File, Folder } from "lucide-react";
 import { useState } from "react";
-import useSWRMutation from "swr/mutation";
 import { TreeView } from "~/shared/components/tree-view";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "~/shared/components/ui/alert-dialog";
-import { Button } from "~/shared/components/ui/button";
-import {
-  deleteEntryApiEntryEntryIdDelete,
-  getDeleteEntryApiEntryEntryIdDeleteMutationKey,
-  useGetNamaspaceNamespaceGet,
-} from "~/shared/generated/entry/entry";
+import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
 import type {
   Entry,
   MResource,
   NameSpace,
 } from "~/shared/generated/fastAPI.schemas";
+import DeleteButton from "./DeleteButton";
 import { TileView } from "./TileView";
 import ViewSwitcher from "./ViewSwitcher";
 import type { ExplorerTreeDataItem } from "./types";
@@ -31,10 +16,7 @@ function isResourceNode(node: Entry | MResource): node is MResource {
   return "authors" in node && "published" in node;
 }
 
-function transformToTreeData(
-  data: NameSpace,
-  onDelete: (item: ExplorerTreeDataItem | undefined) => void,
-): ExplorerTreeDataItem[] {
+function transformToTreeData(data: NameSpace): ExplorerTreeDataItem[] {
   const nodesMap = new Map<string, ExplorerTreeDataItem>();
   const rootNodes: ExplorerTreeDataItem[] = [];
 
@@ -46,18 +28,7 @@ function transformToTreeData(
     const commonData = {
       id: entryData.uid,
       name: entryData.name,
-      actions: (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(nodesMap.get(entryData.uid));
-          }}
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
-      ),
+      actions: <DeleteButton entryId={entryData.uid} name={entryData.name} />,
     };
 
     if (isResourceNode(entryData)) {
@@ -110,20 +81,6 @@ export default function NamespaceExplorer() {
   } = useGetNamaspaceNamespaceGet({ fetch: { credentials: "include" } });
   const data = fetchedData?.data;
   const [viewMode, setViewMode] = useState<"list" | "tile">("list");
-  const [deleteTarget, setDeleteTarget] = useState<ExplorerTreeDataItem | null>(
-    null,
-  );
-  const { trigger: deleteEntry } = useSWRMutation(
-    getDeleteEntryApiEntryEntryIdDeleteMutationKey(deleteTarget?.id ?? ""),
-    (_, { arg }: { arg: string }) => deleteEntryApiEntryEntryIdDelete(arg),
-    {
-      onSuccess: () => {
-        setDeleteTarget(null);
-        mutate(); // Re-fetch the namespace data
-      },
-    },
-  );
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -133,20 +90,7 @@ export default function NamespaceExplorer() {
   if (!data) {
     return <div>no entries.</div>;
   }
-
-  function handleDeleteRequest(item: ExplorerTreeDataItem | undefined) {
-    if (!item) return;
-    setDeleteTarget(item);
-  }
-
-  function handleConfirmDelete() {
-    if (deleteTarget) {
-      deleteEntry(deleteTarget.id);
-    }
-  }
-
-  const treeData = transformToTreeData(data, handleDeleteRequest);
-
+  const treeData = transformToTreeData(data);
   function renderTreeContent(item: ExplorerTreeDataItem) {
     return (
       <>
@@ -179,29 +123,8 @@ export default function NamespaceExplorer() {
           renderContent={renderTreeContent}
         />
       ) : (
-        <TileView items={treeData} onDeleteClick={handleDeleteRequest} />
+        <TileView items={treeData} />
       )}
-
-      <AlertDialog
-        open={deleteTarget !== null}
-        onOpenChange={() => setDeleteTarget(null)}
-      >
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete "
-              {deleteTarget?.name}".
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete}>
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 }
