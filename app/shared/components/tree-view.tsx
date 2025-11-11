@@ -4,7 +4,6 @@ import { cva } from "class-variance-authority";
 import { ChevronRight } from "lucide-react";
 import React from "react";
 import { cn } from "~/shared/lib/utils";
-import type { ResourceStats } from "../generated/fastAPI.schemas";
 
 const treeVariants = cva(
   "group hover:before:opacity-100 before:absolute before:rounded-lg before:left-0 px-2 before:w-full before:opacity-0 before:bg-accent/70 before:h-[2rem] before:-z-10",
@@ -30,9 +29,6 @@ interface TreeDataItem {
   draggable?: boolean;
   droppable?: boolean;
   disabled?: boolean;
-  authors?: MResourceAuthors;
-  published?: MResourcePublished;
-  content_size?: ResourceStats | undefined;
 }
 
 type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
@@ -43,6 +39,7 @@ type TreeProps = React.HTMLAttributes<HTMLDivElement> & {
   defaultNodeIcon?: unknown;
   defaultLeafIcon?: unknown;
   onDocumentDrag?: (sourceItem: TreeDataItem, targetItem: TreeDataItem) => void;
+  renderContent?: (item: TreeDataItem) => React.ReactNode;
 };
 
 const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
@@ -56,6 +53,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
       defaultNodeIcon,
       className,
       onDocumentDrag,
+      renderContent,
       ...props
     },
     ref,
@@ -136,6 +134,7 @@ const TreeView = React.forwardRef<HTMLDivElement, TreeProps>(
           handleDragStart={handleDragStart}
           handleDrop={handleDrop}
           draggedItem={draggedItem}
+          renderContent={renderContent}
           {...props}
         />
         <div
@@ -174,6 +173,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
       handleDragStart,
       handleDrop,
       draggedItem,
+      renderContent,
       ...props
     },
     ref,
@@ -197,6 +197,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                   handleDragStart={handleDragStart}
                   handleDrop={handleDrop}
                   draggedItem={draggedItem}
+                  renderContent={renderContent}
                 />
               ) : (
                 <TreeLeaf
@@ -207,6 +208,7 @@ const TreeItem = React.forwardRef<HTMLDivElement, TreeItemProps>(
                   handleDragStart={handleDragStart}
                   handleDrop={handleDrop}
                   draggedItem={draggedItem}
+                  renderContent={renderContent}
                 />
               )}
             </li>
@@ -228,6 +230,7 @@ const TreeNode = ({
   handleDragStart,
   handleDrop,
   draggedItem,
+  renderContent,
 }: {
   item: TreeDataItem;
   handleSelectChange: (item: TreeDataItem | undefined) => void;
@@ -238,6 +241,7 @@ const TreeNode = ({
   handleDragStart?: (item: TreeDataItem) => void;
   handleDrop?: (item: TreeDataItem) => void;
   draggedItem: TreeDataItem | null;
+  renderContent?: (item: TreeDataItem) => React.ReactNode;
 }) => {
   const [value, setValue] = React.useState(
     expandedItemIds.includes(item.id) ? [item.id] : [],
@@ -300,19 +304,10 @@ const TreeNode = ({
             default={defaultNodeIcon}
           />
           <div className="flex-grow flex items-center">
-            <span className="text-sm truncate">{item.name}</span>
-            {(item.authors || item.published || item.content_size) && (
-              <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
-                {item.authors && item.authors.length > 0 && (
-                  <span>{item.authors.join(", ")}</span>
-                )}
-                {item.published && (
-                  <span className="ml-2">{item.published}</span>
-                )}
-                {item.content_size !== undefined && (
-                  <span className="ml-2">{item.content_size} words</span>
-                )}
-              </div>
+            {renderContent ? (
+              renderContent(item)
+            ) : (
+              <span className="text-sm truncate">{item.name}</span>
             )}
           </div>
           <TreeActions>{item.actions}</TreeActions>
@@ -328,6 +323,7 @@ const TreeNode = ({
             handleDragStart={handleDragStart}
             handleDrop={handleDrop}
             draggedItem={draggedItem}
+            renderContent={renderContent}
           />
         </AccordionContent>
       </AccordionPrimitive.Item>
@@ -345,6 +341,7 @@ const TreeLeaf = React.forwardRef<
     handleDragStart?: (item: TreeDataItem) => void;
     handleDrop?: (item: TreeDataItem) => void;
     draggedItem: TreeDataItem | null;
+    renderContent?: (item: TreeDataItem) => React.ReactNode;
   }
 >(
   (
@@ -357,6 +354,7 @@ const TreeLeaf = React.forwardRef<
       handleDragStart,
       handleDrop,
       draggedItem,
+      renderContent,
       ...props
     },
     ref,
@@ -424,17 +422,10 @@ const TreeLeaf = React.forwardRef<
           default={defaultLeafIcon}
         />
         <div className="flex-grow flex items-center">
-          <span className="flex-grow text-sm truncate">{item.name}</span>
-          {(item.authors || item.published || item.content_size) && (
-            <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
-              {item.authors && item.authors.length > 0 && (
-                <span>{item.authors.join(", ")}</span>
-              )}
-              {item.published && <span className="ml-2">{item.published}</span>}
-              {item.content_size !== undefined && (
-                <span className="ml-2">{item.content_size} words</span>
-              )}
-            </div>
+          {renderContent ? (
+            renderContent(item)
+          ) : (
+            <span className="flex-grow text-sm truncate">{item.name}</span>
           )}
         </div>
         <TreeActions>{item.actions}</TreeActions>

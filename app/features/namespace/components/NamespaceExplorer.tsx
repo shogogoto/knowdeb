@@ -1,7 +1,7 @@
 import { File, Folder, Trash2 } from "lucide-react";
 import { useState } from "react";
 import useSWRMutation from "swr/mutation";
-import { type TreeDataItem, TreeView } from "~/shared/components/tree-view";
+import { TreeView } from "~/shared/components/tree-view";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,9 +23,9 @@ import type {
   MResource,
   NameSpace,
 } from "~/shared/generated/fastAPI.schemas";
-import { Breadcrumb } from "./Breadcrumb";
 import { TileView } from "./TileView";
 import ViewSwitcher from "./ViewSwitcher";
+import type { ExplorerTreeDataItem } from "./types";
 
 function isResourceNode(node: Entry | MResource): node is MResource {
   return "authors" in node && "published" in node;
@@ -33,10 +33,10 @@ function isResourceNode(node: Entry | MResource): node is MResource {
 
 function transformToTreeData(
   data: NameSpace,
-  onDelete: (item: TreeDataItem | undefined) => void,
-): TreeDataItem[] {
-  const nodesMap = new Map<string, TreeDataItem>();
-  const rootNodes: TreeDataItem[] = [];
+  onDelete: (item: ExplorerTreeDataItem | undefined) => void,
+): ExplorerTreeDataItem[] {
+  const nodesMap = new Map<string, ExplorerTreeDataItem>();
+  const rootNodes: ExplorerTreeDataItem[] = [];
 
   if (!data.g?.nodes) return [];
 
@@ -110,9 +110,9 @@ export default function NamespaceExplorer() {
   } = useGetNamaspaceNamespaceGet({ fetch: { credentials: "include" } });
   const data = fetchedData?.data;
   const [viewMode, setViewMode] = useState<"list" | "tile">("list");
-  const [currentPath, setCurrentPath] = useState<TreeDataItem[]>([]);
-  const [deleteTarget, setDeleteTarget] = useState<TreeDataItem | null>(null);
-
+  const [deleteTarget, setDeleteTarget] = useState<ExplorerTreeDataItem | null>(
+    null,
+  );
   const { trigger: deleteEntry } = useSWRMutation(
     getDeleteEntryApiEntryEntryIdDeleteMutationKey(deleteTarget?.id ?? ""),
     (_, { arg }: { arg: string }) => deleteEntryApiEntryEntryIdDelete(arg),
@@ -134,39 +134,34 @@ export default function NamespaceExplorer() {
     return <div>no entries.</div>;
   }
 
-  function handleDeleteRequest(item: TreeDataItem | undefined) {
+  function handleDeleteRequest(item: ExplorerTreeDataItem | undefined) {
     if (!item) return;
     setDeleteTarget(item);
   }
 
   function handleConfirmDelete() {
     if (deleteTarget) {
-      // alert(JSON.stringify(deleteTarget.id));
       deleteEntry(deleteTarget.id);
     }
   }
 
   const treeData = transformToTreeData(data, handleDeleteRequest);
 
-  // Initialize currentPath with the root nodes if it's empty
-  if (currentPath.length === 0 && treeData.length > 0) {
-    setCurrentPath([{ id: "root", name: "Home", children: treeData }]);
-  }
-
-  const currentFolder = currentPath[currentPath.length - 1];
-  const currentItems = currentFolder?.children || [];
-
-  function handleItemClick(item: TreeDataItem) {
-    if (item.children) {
-      setCurrentPath([...currentPath, item]);
-    } else {
-      // Handle file click (e.g., open file, show details)
-      console.log("File clicked:", item.name);
-    }
-  }
-
-  function handlePathChange(newPath: TreeDataItem[]) {
-    setCurrentPath(newPath);
+  function renderTreeContent(item: ExplorerTreeDataItem) {
+    return (
+      <>
+        <span className="text-sm truncate">{item.name}</span>
+        <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
+          {item.authors && item.authors.length > 0 && (
+            <span>{item.authors.join(", ")}</span>
+          )}
+          {item.published && <span className="ml-2">{item.published}</span>}
+          {item.content_size !== undefined && (
+            <span className="ml-2">{item.content_size.n_sentence} words</span>
+          )}
+        </div>
+      </>
+    );
   }
 
   return (
@@ -181,16 +176,10 @@ export default function NamespaceExplorer() {
           defaultLeafIcon={File}
           expandAll
           className="h-full"
+          renderContent={renderTreeContent}
         />
       ) : (
-        <div className="space-y-2">
-          <Breadcrumb path={currentPath} onPathChange={handlePathChange} />
-          <TileView
-            items={currentItems}
-            onItemClick={handleItemClick}
-            onDeleteClick={handleDeleteRequest}
-          />
-        </div>
+        <TileView items={treeData} onDeleteClick={handleDeleteRequest} />
       )}
 
       <AlertDialog
