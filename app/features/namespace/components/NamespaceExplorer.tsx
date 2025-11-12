@@ -1,6 +1,5 @@
 import { File, Folder, Link2 } from "lucide-react";
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import { Link } from "react-router";
 import Loading from "~/shared/components/Loading";
 import { TreeView } from "~/shared/components/tree-view";
@@ -11,7 +10,7 @@ import type {
   MResource,
   NameSpace,
 } from "~/shared/generated/fastAPI.schemas";
-import DeleteButton from "./DeleteButton";
+import EntryDeleteButton from "./DeleteButton";
 import { TileView } from "./TileView";
 import ViewSwitcher from "./ViewSwitcher";
 import type { ExplorerTreeDataItem } from "./types";
@@ -23,7 +22,6 @@ function isResourceNode(node: Entry | MResource): node is MResource {
 function transformToTreeData(
   data: NameSpace,
   mutate: () => void,
-  navigate: (path: string) => void,
 ): ExplorerTreeDataItem[] {
   const nodesMap = new Map<string, ExplorerTreeDataItem>();
   const rootNodes: ExplorerTreeDataItem[] = [];
@@ -43,7 +41,7 @@ function transformToTreeData(
               <Link2 />
             </Link>
           </Button>
-          <DeleteButton
+          <EntryDeleteButton
             entryId={entryData.uid}
             name={entryData.name}
             refresh={mutate}
@@ -93,7 +91,11 @@ function transformToTreeData(
   return rootNodes;
 }
 
-export default function NamespaceExplorer() {
+type Props = {
+  updater?: () => void;
+};
+
+export default function NamespaceExplorer({ updater }: Props) {
   const {
     data: fetchedData,
     error,
@@ -102,13 +104,17 @@ export default function NamespaceExplorer() {
   } = useGetNamaspaceNamespaceGet({ fetch: { credentials: "include" } });
   const data = fetchedData?.data;
   const [viewMode, setViewMode] = useState<"list" | "tile">("list");
-  const navigate = useNavigate();
 
   if (isLoading) return <Loading type="center-x" />;
   if (error) return <div>Error fetching data.</div>;
   if (!data) return <div>no entries.</div>;
 
-  const treeData = transformToTreeData(data, mutate, navigate);
+  function batchMutate() {
+    mutate();
+    updater?.();
+  }
+
+  const treeData = transformToTreeData(data, batchMutate);
   function renderTreeContent(item: ExplorerTreeDataItem) {
     return (
       <div onKeyUp={item.onClick} key={item.id}>

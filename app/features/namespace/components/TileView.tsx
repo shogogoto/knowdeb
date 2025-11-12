@@ -4,7 +4,7 @@ import { useNavigate } from "react-router";
 import type { TreeDataItem } from "~/shared/components/tree-view";
 import { Button } from "~/shared/components/ui/button";
 import { Breadcrumb } from "./Breadcrumb";
-import DeleteButton from "./DeleteButton";
+import EntryDeleteButton from "./DeleteButton";
 import type { ExplorerTreeDataItem } from "./types";
 
 type TileViewProps = {
@@ -54,7 +54,7 @@ export function TileView({ items, mutate }: TileViewProps) {
               <TileDetail item={item} />
             </Button>
             <div className="absolute right-1 top-1">
-              <DeleteButton
+              <EntryDeleteButton
                 entryId={item.id}
                 name={item.name}
                 refresh={mutate}

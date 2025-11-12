@@ -21,7 +21,7 @@ type Props = {
   refresh?: () => void;
 };
 
-export default function DeleteButton({ entryId, name, refresh }: Props) {
+export default function EntryDeleteButton({ entryId, name, refresh }: Props) {
   const [open, setOpen] = useState(false);
   const { mutate } = useSWRConfig();
 

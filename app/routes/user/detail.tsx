@@ -1,5 +1,6 @@
 import { useLoaderData } from "react-router";
 import UserDetail from "~/features/user/UserDetail";
+import useUserDetail from "~/features/user/UserDetail/hooks";
 import { userProfileUserProfileUsernameGet } from "~/shared/generated/public-user/public-user";
 import type { Route } from "./+types/detail";
 
@@ -17,5 +18,6 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export default function _() {
   const data = useLoaderData<typeof loader>();
-  return <UserDetail user={data} />;
+  const props = useUserDetail({ user: data });
+  return <UserDetail user={data} {...props} />;
 }
