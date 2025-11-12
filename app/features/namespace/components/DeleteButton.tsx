@@ -18,9 +18,10 @@ import { useDeleteEntryApiEntryEntryIdDelete } from "~/shared/generated/entry/en
 type Props = {
   entryId: string;
   name: string;
+  refresh?: () => void;
 };
 
-export default function DeleteButton({ entryId, name }: Props) {
+export default function DeleteButton({ entryId, name, refresh }: Props) {
   const [open, setOpen] = useState(false);
   const { mutate } = useSWRConfig();
 
@@ -32,6 +33,7 @@ export default function DeleteButton({ entryId, name }: Props) {
         mutate(
           (key) => typeof key === "string" && key.startsWith("/namaspace"),
         );
+        refresh?.();
       },
     },
   });

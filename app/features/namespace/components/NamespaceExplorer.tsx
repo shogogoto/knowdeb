@@ -1,6 +1,10 @@
-import { File, Folder } from "lucide-react";
+import { File, Folder, Link2 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router";
+import { Link } from "react-router";
+import Loading from "~/shared/components/Loading";
 import { TreeView } from "~/shared/components/tree-view";
+import { Button } from "~/shared/components/ui/button";
 import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
 import type {
   Entry,
@@ -16,7 +20,11 @@ function isResourceNode(node: Entry | MResource): node is MResource {
   return "authors" in node && "published" in node;
 }
 
-function transformToTreeData(data: NameSpace): ExplorerTreeDataItem[] {
+function transformToTreeData(
+  data: NameSpace,
+  mutate: () => void,
+  navigate: (path: string) => void,
+): ExplorerTreeDataItem[] {
   const nodesMap = new Map<string, ExplorerTreeDataItem>();
   const rootNodes: ExplorerTreeDataItem[] = [];
 
@@ -28,7 +36,20 @@ function transformToTreeData(data: NameSpace): ExplorerTreeDataItem[] {
     const commonData = {
       id: entryData.uid,
       name: entryData.name,
-      actions: <DeleteButton entryId={entryData.uid} name={entryData.name} />,
+      actions: (
+        <>
+          <Button variant="ghost" asChild>
+            <Link to={`/resource/${entryData.uid}`}>
+              <Link2 />
+            </Link>
+          </Button>
+          <DeleteButton
+            entryId={entryData.uid}
+            name={entryData.name}
+            refresh={mutate}
+          />
+        </>
+      ),
     };
 
     if (isResourceNode(entryData)) {
@@ -81,19 +102,16 @@ export default function NamespaceExplorer() {
   } = useGetNamaspaceNamespaceGet({ fetch: { credentials: "include" } });
   const data = fetchedData?.data;
   const [viewMode, setViewMode] = useState<"list" | "tile">("list");
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-  if (error) {
-    return <div>Error fetching data.</div>;
-  }
-  if (!data) {
-    return <div>no entries.</div>;
-  }
-  const treeData = transformToTreeData(data);
+  const navigate = useNavigate();
+
+  if (isLoading) return <Loading type="center-x" />;
+  if (error) return <div>Error fetching data.</div>;
+  if (!data) return <div>no entries.</div>;
+
+  const treeData = transformToTreeData(data, mutate, navigate);
   function renderTreeContent(item: ExplorerTreeDataItem) {
     return (
-      <>
+      <div onKeyUp={item.onClick} key={item.id}>
         <span className="text-sm truncate">{item.name}</span>
         <div className="ml-2 flex-shrink-0 text-xs text-gray-500">
           {item.authors && item.authors.length > 0 && (
@@ -101,10 +119,12 @@ export default function NamespaceExplorer() {
           )}
           {item.published && <span className="ml-2">{item.published}</span>}
           {item.content_size !== undefined && (
-            <span className="ml-2">{item.content_size.n_sentence} words</span>
+            <span className="ml-2">
+              {data?.stats?.[item.id.replaceAll("-", "")].n_sentence} words
+            </span>
           )}
         </div>
-      </>
+      </div>
     );
   }
 
@@ -123,7 +143,7 @@ export default function NamespaceExplorer() {
           renderContent={renderTreeContent}
         />
       ) : (
-        <TileView items={treeData} />
+        <TileView items={treeData} mutate={mutate} />
       )}
     </div>
   );
