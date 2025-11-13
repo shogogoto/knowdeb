@@ -368,13 +368,13 @@ export const getResourceDetailResourceResourceIdGetResponse = zod
 
 /**
  * リソース削除.
- * @summary Delete Resource Api
+ * @summary Delete Entry Api
  */
-export const deleteResourceApiResourceResourceIdDeleteParams = zod.object({
-  resource_id: zod.string(),
+export const deleteEntryApiEntryEntryIdDeleteParams = zod.object({
+  entry_id: zod.string().uuid(),
 });
 
-export const deleteResourceApiResourceResourceIdDeleteResponse = zod.null();
+export const deleteEntryApiEntryEntryIdDeleteResponse = zod.null();
 
 /**
  * リソース検索(POST).
