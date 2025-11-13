@@ -6,6 +6,7 @@ import { TreeView } from "~/shared/components/tree-view";
 import { Button } from "~/shared/components/ui/button";
 import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
 import type {
+  EdgeData,
   Entry,
   MResource,
   NameSpace,
@@ -34,46 +35,74 @@ function transformToTreeData(
     const commonData = {
       id: entryData.uid,
       name: entryData.name,
-      actions: (
-        <>
-          <Button variant="ghost" asChild>
-            <Link to={`/resource/${entryData.uid}`}>
-              <Link2 />
-            </Link>
-          </Button>
-          <EntryDeleteButton
-            entryId={entryData.uid}
-            name={entryData.name}
-            refresh={mutate}
-          />
-        </>
-      ),
     };
 
+    const actions: React.ReactNode[] = [];
+
     if (isResourceNode(entryData)) {
+      actions.push(
+        <Button variant="ghost" asChild>
+          <Link to={`/resource/${entryData.uid}`}>
+            <Link2 />
+          </Link>
+        </Button>,
+      );
+      actions.push(
+        <EntryDeleteButton
+          entryId={entryData.uid}
+          name={entryData.name}
+          refresh={mutate}
+        />,
+      );
       nodesMap.set(entryData.uid, {
         ...commonData,
         authors: entryData.authors,
         published: entryData.published,
         content_size: data.stats?.[entryData.uid],
+        actions: <>{actions}</>,
       });
     } else {
+      // フォルダの場合、後でchildrenが空かどうかを判断するために仮のchildren配列を持たせる
       nodesMap.set(entryData.uid, {
         ...commonData,
         children: [],
+        actions: <>{actions}</>, // 初期状態ではゴミ箱ボタンなし
       });
     }
   });
 
   if (!data.g.edges) {
-    return Array.from(nodesMap.values());
+    // エッジがない場合、すべてのノードがルートノード
+    // この時点でフォルダのchildrenが空なので、ゴミ箱ボタンを追加
+    nodesMap.forEach((node) => {
+      if (
+        // @ts-ignore
+        !isResourceNode(node) &&
+        node.children &&
+        node.children.length === 0
+      ) {
+        node.actions = (
+          <>
+            {node.actions}
+            <EntryDeleteButton
+              entryId={node.id}
+              name={node.name}
+              refresh={mutate}
+            />
+          </>
+        );
+      }
+      rootNodes.push(node);
+    });
+    return rootNodes;
   }
 
   const childUids = new Set<string>();
 
-  // biome-ignore lint/suspicious/noExplicitAny: The actual edge type from the API seems to be { source: { uid: string }, target: { uid: string } }
-  data.g.edges.forEach((edge: any) => {
+  data.g.edges.forEach((edge: EdgeData) => {
+    // @ts-ignore
     const sourceNode = nodesMap.get(edge.source.uid);
+    // @ts-ignore
     const targetNode = nodesMap.get(edge.target.uid);
 
     if (sourceNode && targetNode && sourceNode.children) {
@@ -85,6 +114,19 @@ function transformToTreeData(
   nodesMap.forEach((node) => {
     if (!childUids.has(node.id)) {
       rootNodes.push(node);
+    }
+    // @ts-ignore
+    if (!isResourceNode(node) && node.children && node.children.length === 0) {
+      node.actions = (
+        <>
+          {node.actions}
+          <EntryDeleteButton
+            entryId={node.id}
+            name={node.name}
+            refresh={mutate}
+          />
+        </>
+      );
     }
   });
 

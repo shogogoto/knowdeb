@@ -1,6 +1,7 @@
 import { Trash2 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import {
   AlertDialog,
@@ -27,15 +28,6 @@ export default function EntryDeleteButton({ entryId, name, refresh }: Props) {
 
   const { trigger } = useDeleteEntryApiEntryEntryIdDelete(entryId, {
     fetch: { credentials: "include" },
-    swr: {
-      onSuccess: () => {
-        setOpen(false);
-        mutate(
-          (key) => typeof key === "string" && key.startsWith("/namaspace"),
-        );
-        refresh?.();
-      },
-    },
   });
 
   function handleClick(e: React.MouseEvent<HTMLButtonElement>) {
@@ -43,8 +35,17 @@ export default function EntryDeleteButton({ entryId, name, refresh }: Props) {
     setOpen(true);
   }
 
-  function handleConfirmDelete() {
-    trigger();
+  async function handleConfirmDelete() {
+    const result = await trigger();
+    if (result && result.status >= 200 && result.status < 300) {
+      setOpen(false);
+      mutate((key) => typeof key === "string" && key.startsWith("/namaspace"));
+      refresh?.();
+      toast.success(`"${name}"の削除に成功しました.`);
+    } else {
+      const message = JSON.stringify(result?.data?.detail) || "不明なエラー";
+      toast.error(`"${name}"の削除に失敗しました. ${message}}`);
+    }
   }
 
   return (
@@ -54,15 +55,16 @@ export default function EntryDeleteButton({ entryId, name, refresh }: Props) {
       </Button>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+          <AlertDialogTitle>エントリ削除</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. This will permanently delete "{name}".
+            "{name}"を削除しますか？
+            <p>id: {entryId}</p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>キャンセル</AlertDialogCancel>
           <AlertDialogAction onClick={handleConfirmDelete}>
-            Continue
+            確定
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
