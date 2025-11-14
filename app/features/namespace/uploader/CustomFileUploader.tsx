@@ -47,7 +47,7 @@ export default function CustomFileUploader({ acceptExt, setFiles }: Props) {
       : directoryName;
 
   return (
-    <div className="relative w-80 h-10 border border-gray-300 rounded-md overflow-hidden">
+    <div className="relative w-full max-w-md h-10 border border-gray-300 rounded-md overflow-hidden">
       <input
         id="directory-upload"
         type="file"

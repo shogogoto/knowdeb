@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import Uploader from "./Uploader";
+import ResourceUploader from "./Uploader";
 
 const meta = {
-  component: Uploader,
-} satisfies Meta<typeof Uploader>;
+  component: ResourceUploader,
+} satisfies Meta<typeof ResourceUploader>;
 
 export default meta;
 
