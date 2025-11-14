@@ -23,6 +23,7 @@ export default function CustomFileUploader({ acceptExt, setFiles }: Props) {
       const files = e.target.files;
       if (files && files.length > 0) {
         const filteredFiles = Array.from(files).filter((file) => {
+          if (acceptExt?.length === 0) return true;
           return acceptExt?.some((ext) => file.name.endsWith(ext));
         });
         setFiles(filteredFiles);
