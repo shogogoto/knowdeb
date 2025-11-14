@@ -27,14 +27,12 @@ export default function AcceptExtensions({ exts = [], setExts }: Props) {
 
   return (
     <div className="space-y-2 rounded-md border p-4">
-      <p className="text-base font-semibold text-gray-800">
-        拡張子を選択してください
-      </p>
-      <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-md border bg-gray-50 p-2">
+      <p className="text-base font-semibold">拡張子を選択してください</p>
+      <div className="flex min-h-[2.5rem] flex-wrap items-center gap-2 rounded-md border bg-muted p-2">
         {exts.map((ext) => (
           <div
             key={ext}
-            className="flex items-center gap-x-1.5 rounded-md bg-gray-200 px-2 py-1 text-sm font-medium text-gray-800"
+            className="flex items-center gap-x-1.5 rounded-md bg-secondary px-2 py-1 text-sm font-medium text-secondary-foreground"
           >
             <span>{ext}</span>
             <button
@@ -43,7 +41,7 @@ export default function AcceptExtensions({ exts = [], setExts }: Props) {
               onClick={() => {
                 handleRemoveExt(ext);
               }}
-              className="rounded-full text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+              className="rounded-full text-muted-foreground hover:text-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
             >
               <X className="h-3.5 w-3.5" />
             </button>

@@ -48,7 +48,7 @@ export default function CustomFileUploader({ acceptExt, setFiles }: Props) {
       : directoryName;
 
   return (
-    <div className="relative w-full max-w-md h-10 border border-gray-300 rounded-md overflow-hidden">
+    <div className="relative w-full max-w-md h-10 border rounded-md overflow-hidden">
       <input
         id="directory-upload"
         type="file"
@@ -59,13 +59,8 @@ export default function CustomFileUploader({ acceptExt, setFiles }: Props) {
         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-20"
         accept={acceptExt?.join(",")}
       />
-      <div className="absolute inset-0 flex items-center bg-gray-100 text-gray-700 hover:bg-gray-200 transition duration-150 z-10">
-        {/* <span className="shrink-0 rounded-md border-0 bg-accent px-4 py-2 text-accent-foreground hover:bg-accent/80 font-medium ml-1"> */}
-        {/*   フォルダ選択 */}
-        {/* </span> */}
-        <span className="truncate ml-3 text-sm text-gray-600">
-          {displayLabel}
-        </span>
+      <div className="absolute inset-0 flex items-center bg-background text-muted-foreground hover:bg-accent hover:text-accent-foreground transition duration-150 z-10 px-3">
+        <span className="truncate text-sm">{displayLabel}</span>
       </div>
     </div>
   );
