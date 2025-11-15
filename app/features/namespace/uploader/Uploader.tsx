@@ -47,7 +47,7 @@ export default function Uploader() {
   const isUploading = uploadingIndex !== null;
 
   return (
-    <div className="space-y-4 p-4 w-full max-w-md">
+    <div className="space-y-4 p-4 w-full max-w-2xl">
       <AcceptExtensions exts={exts} setExts={setExts} />
       <CustomFileUploader
         acceptExt={exts}
@@ -61,7 +61,7 @@ export default function Uploader() {
       />
       {files && files.length > 0 && (
         <div>
-          <ul className="overflow-y-auto rounded-md border p-2 text-sm">
+          <ul className="overflow-auto rounded-md border p-2 text-sm">
             {files.map((file, index) => (
               <li key={`${file.name}-${index}`} className="truncate">
                 <UploadUnit

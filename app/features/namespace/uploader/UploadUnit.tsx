@@ -19,16 +19,24 @@ export default function UploadUnit({
   const { data, trigger, isMutating, error } = usePostFilesResourcePost({
     fetch: { credentials: "include" },
   });
+  const [uploadErrorMessage, setUploadErrorMessage] = useState<string | null>(
+    null,
+  );
 
   const handleUpload = useCallback(async () => {
+    setUploadErrorMessage(null); // Reset error message on new upload
     try {
-      // const result = await trigger({ files: [file] });
       const result = await trigger({ files: [file] });
       if (result && result.status >= 200 && result.status < 300) {
         onSuccess();
+      } else if (result && result.status >= 400) {
+        setUploadErrorMessage(`[${result.status}]${result.data}`);
       }
     } catch (e) {
       console.error(e);
+      setUploadErrorMessage(
+        e instanceof Error ? e.message : "不明なエラーが発生しました",
+      );
     } finally {
       onComplete();
     }
@@ -44,13 +52,16 @@ export default function UploadUnit({
     <div className="p-1">
       <p className="truncate">{file.name}</p>
       <UploadingProgress isUploading={isMutating} isFinished={!!data} />
-      {error && (
-        <p className="text-sm text-red-500">
-          {error instanceof Error ? error.message : "An unknown error occurred"}
+      {(error || uploadErrorMessage) && (
+        <p className="text-sm text-red-500 break-words overflow-x-auto">
+          {uploadErrorMessage ||
+            (error instanceof Error
+              ? error.message
+              : "不明なエラーが発生しました")}
         </p>
       )}
-      {data && !error && !isMutating && (
-        <p className="text-sm text-green-500">✓ Upload successful</p>
+      {data && !error && !isMutating && !uploadErrorMessage && (
+        <p className="text-sm text-green-500">✓ アップロードに成功しました</p>
       )}
     </div>
   );
