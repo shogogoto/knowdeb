@@ -4,6 +4,7 @@ import { Progress } from "~/shared/components/ui/progress";
 import AcceptExtensions from "./AcceptExtensions";
 import CustomFileUploader from "./CustomFileUploader";
 import UploadUnit from "./UploadUnit";
+import { fileWithoutTopDirectory } from "./utils";
 
 export default function Uploader() {
   const [files, setFiles] = useState<File[] | null>(null);
@@ -60,12 +61,11 @@ export default function Uploader() {
       />
       {files && files.length > 0 && (
         <div>
-          <p>{files.length} files selected.</p>
           <ul className="overflow-y-auto rounded-md border p-2 text-sm">
             {files.map((file, index) => (
               <li key={`${file.name}-${index}`} className="truncate">
                 <UploadUnit
-                  file={file}
+                  file={fileWithoutTopDirectory(file)}
                   isUploading={uploadingIndex === index}
                   onSuccess={handleSuccess}
                   onComplete={handleComplete}
