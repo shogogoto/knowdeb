@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "~/shared/components/ui/dialog";
+import { useGetNamaspaceNamespaceGet } from "~/shared/generated/entry/entry";
 import { useAuth } from "../auth/AuthProvider";
 import UserDetail from "../user/UserDetail";
 import useUserDetail from "../user/UserDetail/hooks";
@@ -16,6 +17,15 @@ import useUserDetail from "../user/UserDetail/hooks";
 export default function Home() {
   const { user } = useAuth();
   const props = useUserDetail({ user });
+  const nsprops = useGetNamaspaceNamespaceGet({
+    fetch: { credentials: "include" },
+  });
+
+  function reflesh() {
+    props.triggerUserDetail();
+    nsprops.mutate();
+  }
+
   return (
     <AuthGuard>
       <Dialog>
@@ -28,7 +38,10 @@ export default function Home() {
           </DialogTrigger>
         </UserDetail>
         <div className="mt-8">
-          <NamespaceExplorer updater={props.triggerUserDetail} />
+          <NamespaceExplorer
+            updater={props.triggerUserDetail}
+            nsprops={nsprops}
+          />
         </div>
         <DialogContent className="sm:max-w-[40vw] max-h-[90vh] overflow-y-auto justify-center">
           <div className="absolute right-4 top-4">
@@ -38,7 +51,7 @@ export default function Home() {
               </Button>
             </DialogClose>
           </div>
-          <Uploader />
+          <Uploader refresh={reflesh} />
         </DialogContent>
       </Dialog>
     </AuthGuard>

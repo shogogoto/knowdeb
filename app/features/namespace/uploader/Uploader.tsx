@@ -6,7 +6,11 @@ import CustomFileUploader from "./CustomFileUploader";
 import UploadUnit from "./UploadUnit";
 import { fileWithoutTopDirectory } from "./utils";
 
-export default function Uploader() {
+type Props = {
+  refresh?: () => void;
+};
+
+export default function Uploader({ refresh }: Props) {
   const [files, setFiles] = useState<File[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
@@ -30,6 +34,7 @@ export default function Uploader() {
       setUploadingIndex(nextIndex);
     } else {
       setUploadingIndex(null); // 全て完了
+      refresh?.();
     }
   }
 
