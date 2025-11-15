@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Progress } from "~/shared/components/ui/progress";
 import { usePostFilesResourcePost } from "~/shared/generated/entry/entry";
 
@@ -19,6 +19,7 @@ export default function UploadUnit({
   const { data, trigger, isMutating, error } = usePostFilesResourcePost({
     fetch: { credentials: "include" },
   });
+  const [progress, setProgress] = useState(0);
 
   const handleUpload = useCallback(async () => {
     try {
@@ -40,12 +41,39 @@ export default function UploadUnit({
     }
   }, [isUploading, handleUpload]);
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout | undefined;
+    if (isMutating) {
+      setProgress(0); // Reset progress on new upload
+      timer = setInterval(() => {
+        setProgress((prev) => {
+          if (prev >= 90) {
+            clearInterval(timer);
+            return 90;
+          }
+          return prev + 10;
+        });
+      }, 100);
+    }
+    return () => {
+      clearInterval(timer);
+    };
+  }, [isMutating]);
+
+  useEffect(() => {
+    if (data) {
+      setProgress(100);
+    }
+  }, [data]);
+
+  const showProgress = isMutating || (data && !error);
+
   // ここで triggerの結果、成功、失敗、エラー内容などを表示したい
   //   元は isMutatingなどで処理中である場合にそれを示す
   return (
     <div className="p-1">
       <p className="truncate">{file.name}</p>
-      {isMutating && <Progress value={100} className="w-full h-1" />}
+      {showProgress && <Progress value={progress} className="w-full h-1" />}
       {error && (
         <p className="text-sm text-red-500">
           {error instanceof Error ? error.message : "An unknown error occurred"}
