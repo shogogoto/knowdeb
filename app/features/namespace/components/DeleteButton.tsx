@@ -2,7 +2,6 @@ import { Trash2 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { useSWRConfig } from "swr";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,7 +23,6 @@ type Props = {
 
 export default function EntryDeleteButton({ entryId, name, refresh }: Props) {
   const [open, setOpen] = useState(false);
-  const { mutate } = useSWRConfig();
 
   const { trigger } = useDeleteEntryApiEntryEntryIdDelete(entryId, {
     fetch: { credentials: "include" },
@@ -39,7 +37,6 @@ export default function EntryDeleteButton({ entryId, name, refresh }: Props) {
     const result = await trigger();
     if (result && result.status >= 200 && result.status < 300) {
       setOpen(false);
-      mutate((key) => typeof key === "string" && key.startsWith("/namaspace"));
       refresh?.();
       toast.success(`"${name}"の削除に成功しました.`);
     } else {
