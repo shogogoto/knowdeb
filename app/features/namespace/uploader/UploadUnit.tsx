@@ -19,7 +19,6 @@ export default function UploadUnit({
   const { data, trigger, isMutating, error } = usePostFilesResourcePost({
     fetch: { credentials: "include" },
   });
-  const [progress, setProgress] = useState(0);
 
   const handleUpload = useCallback(async () => {
     try {
@@ -41,9 +40,31 @@ export default function UploadUnit({
     }
   }, [isUploading, handleUpload]);
 
+  return (
+    <div className="p-1">
+      <p className="truncate">{file.name}</p>
+      <UploadingProgress isUploading={isMutating} isFinished={!!data} />
+      {error && (
+        <p className="text-sm text-red-500">
+          {error instanceof Error ? error.message : "An unknown error occurred"}
+        </p>
+      )}
+      {data && !error && !isMutating && (
+        <p className="text-sm text-green-500">✓ Upload successful</p>
+      )}
+    </div>
+  );
+}
+
+function UploadingProgress({
+  isUploading,
+  isFinished,
+}: { isUploading: boolean; isFinished: boolean }) {
+  const [progress, setProgress] = useState(0);
+
   useEffect(() => {
     let timer: NodeJS.Timeout | undefined;
-    if (isMutating) {
+    if (isUploading) {
       setProgress(0); // Reset progress on new upload
       timer = setInterval(() => {
         setProgress((prev) => {
@@ -58,30 +79,15 @@ export default function UploadUnit({
     return () => {
       clearInterval(timer);
     };
-  }, [isMutating]);
+  }, [isUploading]);
 
   useEffect(() => {
-    if (data) {
+    if (isFinished) {
       setProgress(100);
     }
-  }, [data]);
+  }, [isFinished]);
 
-  const showProgress = isMutating || (data && !error);
-
-  // ここで triggerの結果、成功、失敗、エラー内容などを表示したい
-  //   元は isMutatingなどで処理中である場合にそれを示す
   return (
-    <div className="p-1">
-      <p className="truncate">{file.name}</p>
-      {showProgress && <Progress value={progress} className="w-full h-1" />}
-      {error && (
-        <p className="text-sm text-red-500">
-          {error instanceof Error ? error.message : "An unknown error occurred"}
-        </p>
-      )}
-      {data && !error && !isMutating && (
-        <p className="text-sm text-green-500">✓ Upload successful</p>
-      )}
-    </div>
+    <>{isUploading && <Progress value={progress} className="w-full h-1" />}</>
   );
 }
