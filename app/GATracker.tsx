@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 
 // ★ あなたの GA4 測定IDに置き換えてください
 const MEASUREMENT_ID: string = "G-02M34HWF8J";
