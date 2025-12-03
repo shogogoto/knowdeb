@@ -1,6 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import mdx from "@mdx-js/rollup";
+import netlify from "@netlify/vite-plugin";
 import netlifyPlugin from "@netlify/vite-plugin-react-router";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
@@ -23,6 +24,7 @@ export default defineConfig({
     process.env.VITEST ? reactVitest() : reactRouter(), // storybookのテスト解消
     tsconfigPaths(),
     process.env.NETLIFY ? netlifyPlugin() : undefined,
+    netlify(),
     {
       enforce: "pre",
       ...mdx({

@@ -4,7 +4,6 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
-    "postbuild": "cp build/server/server.js build/server/index.js",
     "dev": "react-router dev --host 0.0.0.0",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc --noEmit",
@@ -92,6 +91,7 @@
     "@chromatic-com/storybook": "^4.1.1",
     "@cloudinary-util/types": "^1.6.0",
     "@faker-js/faker": "^9.7.0",
+    "@netlify/vite-plugin": "^2.7.14",
     "@netlify/vite-plugin-react-router": "^2.1.2",
     "@react-router/dev": "^7.10.0",
     "@shadcn/ui": "^0.0.4",
