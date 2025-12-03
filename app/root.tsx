@@ -8,6 +8,7 @@ import {
 } from "react-router";
 import type { Route } from "./+types/root";
 import "./app.css";
+import "katex/dist/katex.min.css";
 import { ThemeProvider } from "~/shared/components/theme/ThemeProvider";
 import ThemeScript from "~/shared/components/theme/ThemeScript";
 import {
@@ -43,6 +44,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta
+          name="google-site-verification"
+          content="ytGE3nm0GuzZqCaimeh68mNCtG7hpr3WQG5YCRWq8iY"
+        />
         <Meta />
         <Links />
         <ThemeScript />
