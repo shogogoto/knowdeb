@@ -1,7 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import mdx from "@mdx-js/rollup";
-import netlifyPlugin from "@netlify/vite-plugin-react-router";
 import { reactRouter } from "@react-router/dev/vite";
 import tailwindcss from "@tailwindcss/vite";
 import reactVitest from "@vitejs/plugin-react";
@@ -9,7 +8,9 @@ import remarkGfm from "remark-gfm";
 import { defineConfig } from "vite";
 import mkcert from "vite-plugin-mkcert";
 import tsconfigPaths from "vite-tsconfig-paths";
-// import { storybookTest } from "@storybook/addon-vitest/vitest-plugin";
+// import netlifyReactRouter from "@netlify/vite-plugin-react-router";
+// import netlifyPlugin from "@netlify/vite-plugin-react-router";
+// import netlify from "@netlify/vite-plugin";
 //
 const dirname =
   typeof __dirname !== "undefined"
@@ -22,7 +23,9 @@ export default defineConfig({
     tailwindcss(),
     process.env.VITEST ? reactVitest() : reactRouter(), // storybookのテスト解消
     tsconfigPaths(),
-    process.env.NETLIFY ? netlifyPlugin() : undefined,
+    // netlifyPlugin(),
+    // netlifyReactRouter(),
+    // netlify(),
     {
       enforce: "pre",
       ...mdx({
