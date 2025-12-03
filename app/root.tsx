@@ -18,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "~/shared/components/ui/card";
+import GATracker from "./GATracker";
 import { AuthProvider } from "./features/auth/AuthProvider";
 import { TooltipProvider } from "./shared/components/ui/tooltip";
 
@@ -42,6 +43,26 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <head>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-02M34HWF8J"
+        />
+
+        <script
+          // biome-ignore lint/security/noDangerouslySetInnerHtml:
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+
+                // ★ 重要な修正: 自動ページビュー計測を無効化する
+                gtag('config', 'G-02M34HWF8J', {
+                  send_page_view: false
+                });
+            `,
+          }}
+        />
         <script
           // biome-ignore lint/security/noDangerouslySetInnerHtml:
           dangerouslySetInnerHTML={{
@@ -72,7 +93,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             style={{ display: "none", visibility: "hidden" }}
           />
         </noscript>
-
         {children}
         <ScrollRestoration />
         <Scripts />
@@ -88,6 +108,7 @@ export async function loader(args: Route.LoaderArgs) {
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <ThemeProvider>
+      <GATracker />
       <AuthProvider>
         <TooltipProvider>
           <Outlet />
