@@ -502,6 +502,8 @@ export interface ResourceStats {
   readonly r_unrefered: number;
 }
 
+export type Sentency = string;
+
 /**
  * 文字列から生成される文字列関数.
  */
@@ -765,7 +767,7 @@ export interface ValidationError {
   type: string;
 }
 
-export type _KNElem = string | Template;
+export type _KNElem = Sentency | Template;
 
 export type OauthGoogleJwtAuthorizeGoogleAuthorizeGetParams = {
   scopes?: string[];
