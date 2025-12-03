@@ -10,6 +10,7 @@ async function updateAvatarUrl(imageUrl: string) {
     method: "PATCH",
     body: formData,
   });
+  // @ts-ignore
   return await editUserProfile({ request, params: {}, context: {} });
 }
 
