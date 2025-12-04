@@ -37,14 +37,31 @@ export function ThemeProvider({
   storageKey = "vite-ui-theme",
   ...props
 }: Props) {
-  const [theme, setThemeState] = useState<Theme>(
-    () =>
-      (typeof window !== "undefined" &&
-        // @ts-ignore
-        (window.__theme || (getItem(storageKey) as Theme))) ||
-      defaultTheme,
-  );
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === "undefined") {
+      // サーバー側 (SSR/プリレンダリング): defaultTheme で統一
+      return defaultTheme;
+    }
+    // クライアント側 (初回レンダリング): ThemeScriptが設定した値を優先
+    // localStorageへのアクセスはまだ行わない
+    // @ts-ignore
+    return window.__theme || defaultTheme;
+  });
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies:
+  useEffect(() => {
+    // local storageへのアクセスをクライアントで行う
+    const persistedTheme = getItem(storageKey) as Theme;
+    if (persistedTheme && persistedTheme !== theme) {
+      setThemeState(persistedTheme);
+    }
+
+    applyThemeClass(theme);
+    // 依存配列は空にし、コンポーネントがマウントされた時（＝クライアント側が有効な時）
+    // に一度だけ実行
+  }, []);
+
+  // テーマが変更されたら、DOM クラスを適用
   useEffect(() => {
     applyThemeClass(theme);
   }, [theme]);
