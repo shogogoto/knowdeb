@@ -20,6 +20,7 @@ import {
 } from "~/shared/components/ui/card";
 import GATracker from "./GATracker";
 import { AuthProvider } from "./features/auth/AuthProvider";
+import { ClientOnly } from "./shared/components/ClientOnly";
 import { TooltipProvider } from "./shared/components/ui/tooltip";
 
 export const links: Route.LinksFunction = () => [
@@ -108,7 +109,7 @@ export async function loader(args: Route.LoaderArgs) {
 export default function App({ loaderData }: Route.ComponentProps) {
   return (
     <ThemeProvider>
-      <GATracker />
+      <ClientOnly>{() => <GATracker />}</ClientOnly>
       <AuthProvider>
         <TooltipProvider>
           <Outlet />

@@ -14,7 +14,7 @@ declare global {
 /**
  * React Router の URL変更を監視し、GA4に手動でページビューを送信する
  */
-const GATracker = () => {
+export default function GATracker() {
   // 1. useLocation フックで現在のルーティング情報を取得
   const location = useLocation();
 
@@ -37,6 +37,4 @@ const GATracker = () => {
 
   // このコンポーネントは UI に何も表示しない
   return null;
-};
-
-export default GATracker;
+}
