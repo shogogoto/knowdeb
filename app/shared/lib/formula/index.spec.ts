@@ -1,6 +1,8 @@
-import { extractFormulas, replacePlaceHolder } from ".";
+import { extractFormulas, inject2list, replacePlaceHolder } from ".";
 
 const ps = "^@;"; // place holder
+
+const injection = "X";
 
 const casesExtract = [
   ["$(n+1)^2$", ["(n+1)^2"], ps],
@@ -16,15 +18,21 @@ describe("extractFormula", () => {
     expect(extractFormulas(input as string)).toEqual(output);
     expect(replacePlaceHolder(input as string, ps)).toEqual(placed);
   });
-});
 
-// Splitsentence -> formulaとrefと文字列に分解
-// マッチしたもので区切った文字列配列に分解
-//   マッチ部分はplaceholderに変換
-//   formulaのsplit
-//   用語のsplit
-//   混在してる場合
-//   splitしたものを変換
-// formulaを TeX, refをリンク, 文字列はspanに変換して結合
-//
-//
+  it("inject2list", () => {
+    expect(inject2list(ps, ps, [injection])).toEqual([injection]);
+    expect(inject2list(`aaa${ps}`, ps, [injection])).toEqual([
+      "aaa",
+      injection,
+    ]);
+    expect(inject2list(`${ps}aaa`, ps, [injection])).toEqual([
+      injection,
+      "aaa",
+    ]);
+    expect(inject2list(`aaa${ps}aaa`, ps, [injection])).toEqual([
+      "aaa",
+      injection,
+      "aaa",
+    ]);
+  });
+});
