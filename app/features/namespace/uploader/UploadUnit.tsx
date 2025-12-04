@@ -30,7 +30,10 @@ export default function UploadUnit({
       if (result && result.status >= 200 && result.status < 300) {
         onSuccess();
       } else if (result && result.status >= 400) {
-        setUploadErrorMessage(`[${result.status}]${result.data}`);
+        setUploadErrorMessage(
+          // @ts-ignore
+          `[${result.status}]${result.data?.detail?.message}`,
+        );
       }
     } catch (e) {
       console.error(e);
@@ -53,7 +56,7 @@ export default function UploadUnit({
       <p className="truncate">{file.name}</p>
       <UploadingProgress isUploading={isMutating} isFinished={!!data} />
       {(error || uploadErrorMessage) && (
-        <p className="text-sm text-red-500 break-words overflow-x-auto">
+        <p className="text-sm text-red-500 break-words overflow-x-auto whitespace-pre-wrap">
           {uploadErrorMessage ||
             (error instanceof Error
               ? error.message
