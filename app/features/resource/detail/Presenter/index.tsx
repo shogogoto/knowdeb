@@ -1,15 +1,15 @@
 import { Calendar, MapPin, User } from "lucide-react";
 import type React from "react";
 import { type JSX, useEffect, useState } from "react";
-import { Link, useLocation } from "react-router";
+import { useLocation } from "react-router";
 import type { Additional } from "~/shared/generated/fastAPI.schemas";
+import { toFormulas } from "~/shared/lib/formula";
 import { cn } from "~/shared/lib/utils";
 import { useResourceDetail } from "../Context";
-import LinkedSentence from "../LinkedSentence";
+import RefLinkSentence from "../LinkedSentence";
 import Relations from "../Relations";
 import { useTraceMemory } from "../TraceMemory/hooks";
 import { getHeadingLevel, toAdjacent } from "../util";
-
 type Props = {
   id: string;
   prefix?: React.ReactNode;
@@ -26,6 +26,7 @@ export default function Presenter({ id, prefix }: Props) {
   const [isVisible, setIsVisible] = useState(false);
   const location = useLocation();
   const isActive = location.hash === `#${adj.kn.uid}`;
+  const refs = adj.refers();
 
   useEffect(() => {
     if (level === 0) {
@@ -56,27 +57,38 @@ export default function Presenter({ id, prefix }: Props) {
     >
       {/* {adj.referreds().map((ref) => ref.kn.term?.names?.[0])} */}
       <span>{prefix}</span>
-      <Link to={`/resource/${rootId}#${adj.kn.uid}`}>
-        {`${getNumber(id)}. `}
-      </Link>
-      <div className="inline-flex items-start gap-2">
-        {adj.kn.term?.names?.map((name) => (
-          <span
-            key={name}
-            className="rounded-full font-bold text-green-800  dark:text-green-500"
-          >
-            {name}
+      <div id={adj.kn.uid}>
+        <div className="inline-flex items-start gap-2">
+          {adj.kn.term?.names?.map((name) => (
+            <span
+              key={name}
+              className="rounded-full font-bold text-green-800  dark:text-green-500"
+            >
+              {name}
+            </span>
+          ))}
+        </div>
+        {adj.kn.term?.names?.length && ":  "}
+        {toFormulas(adj.kn.sentence).map((formulaOrString) => {
+          if (typeof formulaOrString === "string") {
+            return (
+              <RefLinkSentence
+                key={formulaOrString}
+                sentence={formulaOrString}
+                refers={refs}
+              />
+            );
+          }
+
+          return formulaOrString;
+        })}
+        {adj.kn.additional && Object.keys(adj.kn.additional).length && (
+          <span className="inline-flex ml-2 text-sm text-muted-foreground">
+            <AdditionalComponent additional={adj.kn.additional} />
           </span>
-        ))}
+        )}
+        <Relations startId={adj.kn.uid} />
       </div>
-      {adj.kn.term?.names?.length && ":  "}
-      <LinkedSentence adj={adj} />
-      {adj.kn.additional && Object.keys(adj.kn.additional).length && (
-        <span className="inline-flex ml-2 text-sm text-muted-foreground">
-          <AdditionalComponent additional={adj.kn.additional} />
-        </span>
-      )}
-      <Relations startId={adj.kn.uid} />
     </div>
   );
 }
