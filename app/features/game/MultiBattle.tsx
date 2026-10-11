@@ -13,6 +13,7 @@ import {
   gameRequest,
   playerStats,
   remainingHp,
+  rollPlayerDamage,
 } from "./battle";
 import type { GameSave } from "./domain";
 import type { GameState } from "./state";
@@ -59,6 +60,9 @@ export default function MultiBattle({
   const [result, setResult] = useState<TurnResult>();
   const [retry, setRetry] = useState<TurnInput>();
   const sending = useRef(false);
+  const retryDamage = useRef<
+    { key: string; values: Record<string, number> } | undefined
+  >(undefined);
   const resultEnemies = useRef(battle?.enemies ?? []);
   const resultQuizIndices = useRef(battle?.quizIndices);
   if (!result) {
@@ -91,6 +95,17 @@ export default function MultiBattle({
     setBusy(true);
     onBusy(true);
     setError(undefined);
+    const damageKey = `${battle.id}:${battle.turn}`;
+    const damageByEnemy =
+      retryDamage.current?.key === damageKey
+        ? retryDamage.current.values
+        : Object.fromEntries(
+            live.map((enemy) => [
+              enemy.id,
+              rollPlayerDamage(stats.attack, context.balance),
+            ]),
+          );
+    retryDamage.current = { key: damageKey, values: damageByEnemy };
     const request = input ?? {
       battle_id: battle.id,
       turn: battle.turn,
@@ -105,7 +120,7 @@ export default function MultiBattle({
               ? selected.length === 0
               : quiz.correct.length === selected.length &&
                 quiz.correct.every((id) => selected.includes(id)));
-          return correct && currentHp[enemy.id] <= stats.attack;
+          return correct && currentHp[enemy.id] <= damageByEnemy[enemy.id];
         })
         .map((enemy) => enemy.id),
       retreat,
@@ -119,13 +134,14 @@ export default function MultiBattle({
             Math.max(
               0,
               currentHp[enemy.id] -
-                (resolved.results[enemy.id] ? stats.attack : 0),
+                (resolved.results[enemy.id] ? damageByEnemy[enemy.id] : 0),
             ),
           ]),
         ),
       );
       setResult(resolved);
       setRetry(undefined);
+      retryDamage.current = undefined;
       onSaved(resolved.state);
     } catch (cause) {
       setRetry(request);

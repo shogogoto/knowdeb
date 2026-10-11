@@ -68,6 +68,7 @@ const enemies = [0, 1].map((index) => ({
   relations: 0,
   region: 2,
 }));
+const stableBalance = { ...defaultBalance, damage_variance_percent: 0 };
 function initial(deadline = Date.now() + 45000): GameSave {
   const save = enterDungeon(newSave(), "book", "本", 1);
   if (!save.run) throw new Error("Missing run");
@@ -96,7 +97,7 @@ function Fixture({ deadline }: { deadline?: number }) {
       <MultiBattle
         save={save}
         content={content}
-        context={{ balance: defaultBalance, enemies }}
+        context={{ balance: stableBalance, enemies }}
         onSaved={(state) => setSave(state.save)}
         onFinished={async () => undefined}
         onBusy={() => undefined}
@@ -116,7 +117,7 @@ it("uses sealed turn assignments immediately even while context still has the ol
         <MultiBattle
           save={save}
           content={content}
-          context={{ balance: defaultBalance, enemies }}
+          context={{ balance: stableBalance, enemies }}
           onSaved={() => undefined}
           onFinished={async () => undefined}
           onBusy={() => undefined}
@@ -222,7 +223,7 @@ it("keeps damaged enemy HP across turns without sending it to the server", async
           save={save}
           content={content}
           context={{
-            balance: defaultBalance,
+            balance: stableBalance,
             enemies: enemies.map((enemy) => ({ ...enemy, hp: 15 })),
           }}
           onSaved={(state) => setSave(state.save)}

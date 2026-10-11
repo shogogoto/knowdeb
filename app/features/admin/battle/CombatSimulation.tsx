@@ -15,9 +15,12 @@ import {
   type CombatSimulationResult,
   requestCombatSimulation,
 } from "./api";
+import type { BattleSettings } from "./api";
 
-export default function CombatSimulation() {
-  const [input, setInput] = useState<CombatSimulationInput>({
+export default function CombatSimulation({
+  settings,
+}: { settings: BattleSettings }) {
+  const [input, setInput] = useState<Omit<CombatSimulationInput, "balance">>({
     player: { hp: 35, attack: 10, defense: 1 },
     enemy: { hp: 28, attack: 16 },
   });
@@ -34,7 +37,7 @@ export default function CombatSimulation() {
       <div>
         <h3 className="font-semibold">戦闘の試算</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          1対1の戦闘を本番と同じ計算で試算します。正解なら敵へダメージ、不正解・未回答ならプレイヤーへダメージです。同時に攻撃するわけではありません。敵には現在、守備力はありません。
+          1対1の戦闘を現在の設定で試算します。正解なら敵へダメージ、不正解・未回答ならプレイヤーへダメージです。表には基本値と乱数を含む幅を表示します。敵には現在、守備力はありません。
         </p>
       </div>
       <form
@@ -47,6 +50,7 @@ export default function CombatSimulation() {
             const result = await requestCombatSimulation({
               player: { ...input.player },
               enemy: { ...input.enemy },
+              balance: settings,
             });
             setResults((previous) => [
               ...previous,
@@ -145,8 +149,11 @@ export default function CombatSimulation() {
                     "守",
                     "敵HP",
                     "敵の攻",
-                    "正解時 → 敵",
-                    "誤答時 → 自分",
+                    "攻倍率",
+                    "守除数",
+                    "乱数幅",
+                    "正解時 → 敵（幅）",
+                    "誤答時 → 自分（幅）",
                     "撃破までの正解",
                     "敗北までの誤答",
                   ].map((heading) => (
@@ -163,8 +170,23 @@ export default function CombatSimulation() {
                     <TableCell>{result.player.defense}</TableCell>
                     <TableCell>{result.enemy.hp}</TableCell>
                     <TableCell>{result.enemy.attack}</TableCell>
-                    <TableCell>{result.damage_to_enemy}</TableCell>
-                    <TableCell>{result.damage_to_player}</TableCell>
+                    <TableCell>
+                      {result.balance.damage_attack_multiplier}
+                    </TableCell>
+                    <TableCell>
+                      {result.balance.damage_defense_divisor}
+                    </TableCell>
+                    <TableCell>
+                      ±{result.balance.damage_variance_percent}%
+                    </TableCell>
+                    <TableCell>
+                      {result.damage_to_enemy}（{result.damage_to_enemy_min}〜
+                      {result.damage_to_enemy_max}）
+                    </TableCell>
+                    <TableCell>
+                      {result.damage_to_player}（{result.damage_to_player_min}〜
+                      {result.damage_to_player_max}）
+                    </TableCell>
                     <TableCell>
                       {result.correct_answers_to_defeat === null
                         ? "撃破不可"

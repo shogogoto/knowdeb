@@ -32,10 +32,15 @@ export async function requestEnemyBalanceSimulation(input: {
 export type CombatSimulationInput = {
   player: { hp: number; attack: number; defense: number };
   enemy: { hp: number; attack: number };
+  balance: BattleSettings;
 };
 export type CombatSimulationResult = CombatSimulationInput & {
   damage_to_enemy: number;
   damage_to_player: number;
+  damage_to_enemy_min: number;
+  damage_to_enemy_max: number;
+  damage_to_player_min: number;
+  damage_to_player_max: number;
   correct_answers_to_defeat: number | null;
   incorrect_answers_to_defeat: number;
 };

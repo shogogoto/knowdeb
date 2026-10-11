@@ -2,6 +2,7 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
+import { defaultBalance } from "~/features/game/battle";
 import CombatSimulation from "./CombatSimulation";
 import type { CombatSimulationInput } from "./api";
 
@@ -16,6 +17,10 @@ const server = setupServer(
         ...input,
         damage_to_enemy: 10,
         damage_to_player: 15,
+        damage_to_enemy_min: 8,
+        damage_to_enemy_max: 12,
+        damage_to_player_min: 12,
+        damage_to_player_max: 18,
         correct_answers_to_defeat: 3,
         incorrect_answers_to_defeat: 3,
       });
@@ -30,7 +35,7 @@ afterEach(() => {
 afterAll(() => server.close());
 
 it("uses server damage results and retains earlier inputs while editing", async () => {
-  render(<CombatSimulation />);
+  render(<CombatSimulation settings={defaultBalance} />);
   const user = userEvent.setup();
   await user.click(
     screen.getByRole("button", { name: "戦闘を試算して比較に追加" }),
@@ -40,6 +45,7 @@ it("uses server damage results and retains earlier inputs while editing", async 
     {
       player: { hp: 35, attack: 10, defense: 1 },
       enemy: { hp: 28, attack: 16 },
+      balance: defaultBalance,
     },
   ]);
   expect(within(table).getByText("15")).toBeVisible();
@@ -57,7 +63,7 @@ it("uses server damage results and retains earlier inputs while editing", async 
 });
 
 it("shows API errors without losing existing comparison rows", async () => {
-  render(<CombatSimulation />);
+  render(<CombatSimulation settings={defaultBalance} />);
   const user = userEvent.setup();
   const submit = screen.getByRole("button", {
     name: "戦闘を試算して比較に追加",

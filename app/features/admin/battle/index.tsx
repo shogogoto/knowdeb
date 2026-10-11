@@ -25,6 +25,14 @@ const fields = {
   region_hp: ["達成度帯ごとのHP上昇", 0, 100, 1],
   region_attack: ["達成度帯ごとの攻上昇", 0, 100, 1],
   enemy_variance_percent: ["敵能力のばらつき（±%）", 0, 50, 1],
+  damage_attack_multiplier: ["攻撃力の倍率", 0, 10, 0.1],
+  damage_defense_divisor: [
+    "守備力の除数（大きいほど軽減が小さい）",
+    0.1,
+    100,
+    0.1,
+  ],
+  damage_variance_percent: ["ダメージの乱数幅（±%）", 0, 50, 1],
   enemy_types: ["領域ごとの敵の種類数", 1, 20, 1],
   enemy_types_per_region: ["領域が進むごとの種類数の増加", 0, 20, 1],
   min_quizzes_per_enemy: ["敵ごとのクイズ数（下限）", 1, 100, 1],
@@ -50,6 +58,16 @@ const groups = [
       "attack_per_point",
       "defense_per_point",
       "seconds_per_point",
+    ],
+  },
+  {
+    label: "ダメージ計算",
+    description:
+      "基本ダメージは攻撃力×倍率 − 守備力÷除数です。乱数幅の範囲で攻撃ごとに変化し、最低1ダメージを与えます（攻撃力0を除く）。",
+    keys: [
+      "damage_attack_multiplier",
+      "damage_defense_divisor",
+      "damage_variance_percent",
     ],
   },
   {
@@ -213,7 +231,7 @@ export default function BattleSettingsManager() {
             )}
           />
         )}
-        {settings && <CombatSimulation />}
+        {settings && <CombatSimulation settings={settings} />}
       </div>
     </section>
   );

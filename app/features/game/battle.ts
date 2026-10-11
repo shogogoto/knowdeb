@@ -32,6 +32,9 @@ export const defaultBalance = {
   region_hp: 5,
   region_attack: 2,
   enemy_variance_percent: 10,
+  damage_attack_multiplier: 1,
+  damage_defense_divisor: 2,
+  damage_variance_percent: 20,
   enemy_types: 3,
   enemy_types_per_region: 0,
   min_quizzes_per_enemy: 1,
@@ -60,6 +63,18 @@ export type TurnResult = {
   results: Record<string, boolean>;
   damage: number;
 };
+
+export function rollPlayerDamage(attack: number, balance: GameBalance): number {
+  const nominal = Math.max(
+    attack === 0 ? 0 : 1,
+    Math.floor(attack * balance.damage_attack_multiplier),
+  );
+  if (nominal === 0) return 0;
+  const spread = balance.damage_variance_percent / 100;
+  const minimum = Math.max(1, Math.floor(nominal * (1 - spread)));
+  const maximum = Math.max(1, Math.floor(nominal * (1 + spread)));
+  return minimum + Math.floor(Math.random() * (maximum - minimum + 1));
+}
 
 export function playerStats(
   allocation: Allocation | undefined,
