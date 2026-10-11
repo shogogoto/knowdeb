@@ -46,6 +46,19 @@ const fields = {
     1,
   ],
 } as const;
+const rangePairs = {
+  min_quizzes_per_enemy: {
+    label: "敵ごとのクイズ数",
+    upper: "max_quizzes_per_enemy",
+  },
+  min_enemies: {
+    label: "同時出現数",
+    upper: "max_encounter_enemies",
+  },
+} as const;
+const rangeUpperKeys = new Set<string>(
+  Object.values(rangePairs).map((pair) => pair.upper),
+);
 const groups = [
   {
     label: "プレイヤーの初期値",
@@ -177,6 +190,54 @@ export default function BattleSettingsManager() {
                   </div>
                   <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                     {group.keys.map((kind) => {
+                      if (rangeUpperKeys.has(kind)) return null;
+                      const pair =
+                        kind in rangePairs
+                          ? rangePairs[kind as keyof typeof rangePairs]
+                          : undefined;
+                      if (pair) {
+                        return (
+                          <fieldset
+                            key={kind}
+                            aria-label={pair.label}
+                            className="flex min-w-0 flex-col gap-3 px-4 py-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between"
+                          >
+                            <span className="text-sm font-medium">
+                              {pair.label}
+                            </span>
+                            <div className="flex items-end gap-2">
+                              {[kind, pair.upper].map((bound, index) => {
+                                const [label, min, max, step] = fields[bound];
+                                return (
+                                  <div key={bound} className="space-y-1">
+                                    <Label htmlFor={`battle-${bound}`}>
+                                      {index === 0 ? "下限" : "上限"}
+                                    </Label>
+                                    <Input
+                                      id={`battle-${bound}`}
+                                      aria-label={label}
+                                      type="number"
+                                      min={min}
+                                      max={max}
+                                      step={step}
+                                      required
+                                      disabled={saving}
+                                      className="w-24 sm:w-28"
+                                      value={settings[bound]}
+                                      onChange={(event) =>
+                                        setSettings({
+                                          ...settings,
+                                          [bound]: Number(event.target.value),
+                                        })
+                                      }
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </fieldset>
+                        );
+                      }
                       const [label, min, max, step] = fields[kind];
                       return (
                         <div
