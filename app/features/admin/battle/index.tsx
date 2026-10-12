@@ -62,8 +62,7 @@ const groups = [
   },
   {
     label: "ダメージ計算",
-    description:
-      "基本ダメージは攻撃力×倍率 − 守備力÷除数です。乱数幅の範囲で攻撃ごとに変化し、最低1ダメージを与えます（攻撃力0を除く）。",
+    description: "ダメージ = max(1, 攻 × 倍率 − 守 ÷ 除数) ± 乱数",
     keys: [
       "damage_attack_multiplier",
       "damage_defense_divisor",
@@ -127,9 +126,6 @@ export default function BattleSettingsManager() {
         </p>
       )}
       <div className="space-y-6">
-        <p className="text-sm text-muted-foreground">
-          編集中の値で、各設定のすぐ下から試算できます。試算には保存不要で、以前の結果も比較できます。
-        </p>
         {saved && <output className="block">ゲーム設定を保存しました</output>}
         {settings && (
           <div className="space-y-4">
@@ -232,9 +228,6 @@ export default function BattleSettingsManager() {
                             >
                               {label}
                             </Label>
-                            <span className="mt-1 block text-xs font-normal text-muted-foreground">
-                              範囲 {min}–{max}
-                            </span>
                           </div>
                           <Input
                             id={`battle-${kind}`}
