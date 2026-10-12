@@ -7,7 +7,7 @@ import { MemoryRouter } from "react-router";
 import { vi } from "vitest";
 import MultiBattle from "./MultiBattle";
 import type { DungeonContent } from "./api";
-import { type TurnInput, defaultBalance } from "./battle";
+import { type BattleTransport, type TurnInput, defaultBalance } from "./battle";
 import { type GameSave, enterDungeon, newSave } from "./domain";
 
 vi.mock("~/features/quiz/QuizPreviewPrompt", () => ({
@@ -105,6 +105,42 @@ function Fixture({ deadline }: { deadline?: number }) {
     </MemoryRouter>
   );
 }
+it("locks synthetic answers per enemy and supports quizzes with no correct option", async () => {
+  const simulatedContent = structuredClone(content);
+  simulatedContent.quizzes[1].no_correct_option = true;
+  simulatedContent.quizzes[1].correct = [];
+  const transport = vi.fn(async (_path: string, body: unknown) => {
+    requests.push(body as TurnInput);
+    return {
+      results: { enemy0: true, enemy1: false },
+      damage: 11,
+      state: { revision: 1, save: { ...initial(), battle: null } },
+    };
+  });
+  render(
+    <MemoryRouter>
+      <MultiBattle
+        save={initial()}
+        content={simulatedContent}
+        context={{ balance: stableBalance, enemies }}
+        simulation
+        transport={transport as BattleTransport}
+        onSaved={() => undefined}
+        onFinished={async () => undefined}
+        onBusy={() => undefined}
+      />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "正解" }));
+  expect(transport).not.toHaveBeenCalled();
+  await user.click(screen.getByRole("button", { name: "敵0" }));
+  expect(screen.getByRole("button", { name: "不正解" })).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "敵1" }));
+  await user.click(screen.getByRole("button", { name: "不正解" }));
+  await waitFor(() => expect(transport).toHaveBeenCalledTimes(1));
+  expect(requests[0].answers).toEqual({ enemy0: ["a0"], enemy1: ["a1"] });
+});
 it("uses sealed turn assignments immediately even while context still has the old question", async () => {
   function AssignedFixture() {
     const save = initial();

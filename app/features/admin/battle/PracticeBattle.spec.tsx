@@ -183,8 +183,9 @@ it("uses real battle UI with draft settings, records results and replays without
   expect(
     screen.queryByRole("button", { name: "本番の通報操作" }),
   ).not.toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "正解の選択肢" }));
-  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  expect(screen.queryByText("正解の選択肢")).not.toBeInTheDocument();
+  expect(screen.queryByText("模擬問題")).not.toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "正解" }));
   await screen.findByText("模擬ターン精算");
   expect(screen.queryByTitle("単文詳細を開く")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "続ける" }));
@@ -196,6 +197,29 @@ it("uses real battle UI with draft settings, records results and replays without
   expect(
     screen.getByRole("progressbar", { name: "プレイヤーHP" }),
   ).toHaveAttribute("aria-valuenow", "60");
+});
+
+it("confirms an incorrect synthetic answer and applies incoming damage", async () => {
+  render(
+    <MemoryRouter>
+      <PracticeBattle settings={draft} />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  const start = screen.getByRole("button", {
+    name: "現在の設定で模擬戦を開始",
+  });
+  await waitFor(() => expect(start).toBeEnabled());
+  await user.click(start);
+  await user.click(await screen.findByRole("button", { name: "不正解" }));
+  await screen.findByText("模擬ターン精算");
+  expect(screen.getByText("模擬敵 · 不正解")).toBeInTheDocument();
+  expect(
+    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
+  ).toHaveAttribute("aria-valuenow", "49");
+  expect(turns).toHaveLength(1);
+  expect(turns[0]).toMatchObject({ turn: { answers: { enemy: [] } } });
+  expect(screen.queryByText("正解の選択肢")).not.toBeInTheDocument();
 });
 
 it("settles unanswered timeout through practice only and reports it separately", async () => {

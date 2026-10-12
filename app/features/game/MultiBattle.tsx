@@ -282,11 +282,12 @@ export default function MultiBattle({
                   <p>
                     {enemy.name} · {result.results[id] ? "正解" : "不正解"}
                   </p>
-                  <QuizPreviewPrompt
-                    quiz={content.quizzes[enemy.quizIndex]}
-                    showCorrectAnswer
-                    allowDetails={!simulation}
-                  />
+                  {!simulation && (
+                    <QuizPreviewPrompt
+                      quiz={content.quizzes[enemy.quizIndex]}
+                      showCorrectAnswer
+                    />
+                  )}
                 </section>
               )
             );
@@ -336,33 +337,83 @@ export default function MultiBattle({
           <p className="text-xs text-muted-foreground">
             敵を切り替えて回答。一度確定した答えは変更できません。全問回答か時間切れで一括精算します。
           </p>
-          {live.map((enemy, index) => (
-            <div
-              key={`${enemy.id}:${battle.turn}:${enemy.quizIndex}`}
-              hidden={index !== active}
-            >
-              <QuizAttempt
-                quiz={content.quizzes[enemy.quizIndex]}
-                compactMobile
-                allowReport={!simulation}
-                disabled={busy || !!retry || remaining === 0}
-                canSubmit={() =>
-                  Date.now() + clockOffset < (run.answerDeadline ?? 0)
-                }
-                onConfirm={(selected) => {
-                  setAnswers((current) => ({
-                    ...current,
-                    [enemy.id]: selected,
-                  }));
-                  const next = live.findIndex(
-                    (candidate) =>
-                      candidate.id !== enemy.id && !(candidate.id in answers),
-                  );
-                  if (next >= 0) setActive(next);
-                }}
-              />
-            </div>
-          ))}
+          {live.map((enemy, index) => {
+            const quiz = content.quizzes[enemy.quizIndex];
+            const confirm = (selected: string[]) => {
+              if (
+                busy ||
+                retry ||
+                enemy.id in answers ||
+                Date.now() + clockOffset >= (run.answerDeadline ?? 0)
+              )
+                return;
+              setAnswers((current) => ({ ...current, [enemy.id]: selected }));
+              const next = live.findIndex(
+                (candidate) =>
+                  candidate.id !== enemy.id && !(candidate.id in answers),
+              );
+              if (next >= 0) setActive(next);
+            };
+            const correct = quiz.no_correct_option ? [] : quiz.correct;
+            const incorrect = correct.length
+              ? []
+              : [Object.keys(quiz.options)[0]];
+            return (
+              <div
+                key={`${enemy.id}:${battle.turn}:${enemy.quizIndex}`}
+                hidden={index !== active}
+              >
+                {simulation ? (
+                  <div className="space-y-3 rounded-md border p-3">
+                    <p className="text-sm">
+                      模擬回答：結果を選んで確定します。
+                    </p>
+                    <div className="flex gap-2">
+                      <Button
+                        disabled={
+                          busy ||
+                          !!retry ||
+                          remaining === 0 ||
+                          enemy.id in answers
+                        }
+                        onClick={() => confirm(correct)}
+                      >
+                        正解
+                      </Button>
+                      <Button
+                        variant="outline"
+                        disabled={
+                          busy ||
+                          !!retry ||
+                          remaining === 0 ||
+                          enemy.id in answers
+                        }
+                        onClick={() => confirm(incorrect)}
+                      >
+                        不正解
+                      </Button>
+                    </div>
+                    {enemy.id in answers && (
+                      <p className="text-xs text-muted-foreground">
+                        回答確定済み
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <QuizAttempt
+                    quiz={quiz}
+                    compactMobile
+                    allowReport={!simulation}
+                    disabled={busy || !!retry || remaining === 0}
+                    canSubmit={() =>
+                      Date.now() + clockOffset < (run.answerDeadline ?? 0)
+                    }
+                    onConfirm={confirm}
+                  />
+                )}
+              </div>
+            );
+          })}
           <Button
             variant="outline"
             disabled={busy || !!retry}
