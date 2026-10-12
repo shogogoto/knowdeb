@@ -7,7 +7,9 @@ import BattleDialog from "./BattleDialog";
 import EnemyAvatar from "./EnemyAvatar";
 import type { DungeonContent } from "./api";
 import {
+  type BattleTransport,
   type CombatContext,
+  type GameBalance,
   type TurnInput,
   type TurnResult,
   gameRequest,
@@ -28,6 +30,9 @@ export default function MultiBattle({
   onFinished,
   onBusy,
   clockOffset = 0,
+  transport = gameRequest,
+  simulation = false,
+  rollDamage = (attack, balance) => rollPlayerDamage(attack, balance),
 }: {
   save: GameSave;
   content: DungeonContent;
@@ -38,6 +43,9 @@ export default function MultiBattle({
   onFinished: () => Promise<void>;
   onBusy: (busy: boolean) => void;
   clockOffset?: number;
+  transport?: BattleTransport;
+  simulation?: boolean;
+  rollDamage?: (attack: number, balance: GameBalance, key: string) => number;
 }) {
   const marker = useRef(save.battle);
   if (save.battle) marker.current = save.battle;
@@ -102,7 +110,11 @@ export default function MultiBattle({
         : Object.fromEntries(
             live.map((enemy) => [
               enemy.id,
-              rollPlayerDamage(stats.attack, context.balance),
+              rollDamage(
+                stats.attack,
+                context.balance,
+                `${battle.turn}:${enemy.id}`,
+              ),
             ]),
           );
     retryDamage.current = { key: damageKey, values: damageByEnemy };
@@ -126,7 +138,7 @@ export default function MultiBattle({
       retreat,
     };
     try {
-      const resolved = await gameRequest<TurnResult>("battle/turn", request);
+      const resolved = await transport<TurnResult>("battle/turn", request);
       setHp(
         Object.fromEntries(
           live.map((enemy) => [
@@ -219,6 +231,7 @@ export default function MultiBattle({
       playerName={playerName}
       busy={busy}
       enemyPanel={enemyPanel}
+      simulation={simulation}
     >
       {error && (
         <div role="alert" className="space-y-2 text-destructive">
@@ -238,7 +251,7 @@ export default function MultiBattle({
                 onClick={() => {
                   setBusy(true);
                   onBusy(true);
-                  void gameRequest<GameState>("battle/abandon", {}, "POST")
+                  void transport<GameState>("battle/abandon", {}, "POST")
                     .then((state) => {
                       setResult({ state, results: {}, damage: 0 });
                       setRetry(undefined);
@@ -272,6 +285,7 @@ export default function MultiBattle({
                   <QuizPreviewPrompt
                     quiz={content.quizzes[enemy.quizIndex]}
                     showCorrectAnswer
+                    allowDetails={!simulation}
                   />
                 </section>
               )
@@ -286,7 +300,7 @@ export default function MultiBattle({
               }
               setBusy(true);
               onBusy(true);
-              void gameRequest<GameState>("battle/next", {
+              void transport<GameState>("battle/next", {
                 battle_id: save.battle.id,
                 turn: save.battle.turn,
               })
@@ -330,6 +344,7 @@ export default function MultiBattle({
               <QuizAttempt
                 quiz={content.quizzes[enemy.quizIndex]}
                 compactMobile
+                allowReport={!simulation}
                 disabled={busy || !!retry || remaining === 0}
                 canSubmit={() =>
                   Date.now() + clockOffset < (run.answerDeadline ?? 0)

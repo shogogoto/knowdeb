@@ -6,9 +6,11 @@ import { quizOptionLabel } from "./relationPresentation";
 /** Shared quiz-to-detail navigation; keeps the answering screen mounted. */
 export default function QuizPreviewPrompt({
   showCorrectAnswer = false,
+  allowDetails = true,
   ...props
 }: Omit<ComponentProps<typeof QuizPrompt>, "renderSubject" | "renderObject"> & {
   showCorrectAnswer?: boolean;
+  allowDetails?: boolean;
 }) {
   const { openPreview, preview } = useTanbunPreview();
   const { quiz } = props;
@@ -17,6 +19,7 @@ export default function QuizPreviewPrompt({
     role: "target" | "correct",
     sentence?: string,
   ) {
+    if (!allowDetails) return content;
     return (
       <button
         type="button"

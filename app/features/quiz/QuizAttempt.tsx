@@ -32,6 +32,7 @@ type Props = {
   canSubmit?: () => boolean;
   /** Game turns confirm locally; history and correctness arrive only at turn end. */
   onConfirm?: (selected: string[]) => void;
+  allowReport?: boolean;
 };
 
 export default function QuizAttempt({
@@ -46,6 +47,7 @@ export default function QuizAttempt({
   onSubmittingChange,
   canSubmit,
   onConfirm,
+  allowReport = true,
 }: Props) {
   const { mutate } = useSWRConfig();
   const [selected, setSelected] = useState<string[]>([]);
@@ -201,7 +203,12 @@ export default function QuizAttempt({
         </p>
       )}
       <div className="flex items-center justify-between gap-2">
-        <QuizReportButton quizId={quiz.quiz_id} compactMobile={compactMobile} />
+        {allowReport && (
+          <QuizReportButton
+            quizId={quiz.quiz_id}
+            compactMobile={compactMobile}
+          />
+        )}
         {actionInfo && (
           <div className="min-w-0 flex-1 text-xs text-muted-foreground">
             {actionInfo}

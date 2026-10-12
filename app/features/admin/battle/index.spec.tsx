@@ -8,6 +8,7 @@ import BattleSettingsManager from ".";
 const saved = vi.fn();
 const simulated = vi.fn();
 const server = setupServer(
+  http.get("*/admin/game/dungeons", () => HttpResponse.json([])),
   http.get("*/admin/settings/game-balance", () => HttpResponse.json(defaults)),
   http.put("*/admin/settings/game-balance", async ({ request }) => {
     const body = await request.json();

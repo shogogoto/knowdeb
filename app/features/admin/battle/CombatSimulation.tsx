@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/shared/components/ui/table";
+import PracticeBattle from "./PracticeBattle";
 import {
   type CombatSimulationInput,
   type CombatSimulationResult,
@@ -120,6 +121,7 @@ export default function CombatSimulation({
           {busy ? "試算中…" : "戦闘を試算して比較に追加"}
         </Button>
       </form>
+      <PracticeBattle settings={settings} />
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}

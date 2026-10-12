@@ -2,6 +2,49 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "https://knowde.onrender.com";
 export type { GameBalance as BattleSettings } from "~/features/game/battle";
 import type { GameBalance as BattleSettings } from "~/features/game/battle";
+import type {
+  Allocation,
+  CombatContext,
+  TurnInput,
+  TurnResult,
+} from "~/features/game/battle";
+import type { GameState } from "~/features/game/state";
+
+export type PracticeInput = {
+  user_id: string;
+  resource_id: string;
+  level: number;
+  balance: BattleSettings;
+  allocation: Allocation | null;
+  seed: number;
+};
+export type PracticeSession = {
+  state: GameState;
+  context: CombatContext;
+  seed: number;
+  server_now: number;
+};
+export const requestPractice = (
+  input: PracticeInput,
+): Promise<PracticeSession> =>
+  requestSimulation("practice", input, "模擬戦を準備できませんでした。");
+export const requestPracticeTurn = (
+  session: PracticeSession,
+  turn: TurnInput,
+): Promise<TurnResult> =>
+  requestSimulation(
+    "practice/turn",
+    { session, turn },
+    "模擬戦を精算できませんでした。",
+  );
+export const requestPracticeNext = (
+  session: PracticeSession,
+): Promise<GameState> =>
+  requestSimulation(
+    "practice/next",
+    session,
+    "次の模擬ターンを開始できませんでした。",
+  );
 
 export type EnemyBalanceSimulation = {
   power: number;

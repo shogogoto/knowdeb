@@ -20,6 +20,7 @@ export default function BattleDialog({
   children,
   busy,
   enemyPanel,
+  simulation = false,
 }: {
   run: Run;
   playerName?: string;
@@ -27,6 +28,7 @@ export default function BattleDialog({
   children: ReactNode;
   busy: boolean;
   enemyPanel?: ReactNode;
+  simulation?: boolean;
 }) {
   const [open, setOpen] = useState(true);
   return (
@@ -48,7 +50,7 @@ export default function BattleDialog({
           <DialogHeader className="shrink-0 pr-7 text-left">
             <DialogTitle className="flex items-center gap-2">
               <Swords className="size-4" />
-              敵と遭遇
+              {simulation ? "模擬戦（保存されません）" : "敵と遭遇"}
             </DialogTitle>
             <DialogDescription className="truncate">
               {run.name} · 第{run.readIds.length}地点

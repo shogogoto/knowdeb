@@ -8,6 +8,7 @@ import type { CombatSimulationInput } from "./api";
 
 const requests: CombatSimulationInput[] = [];
 const server = setupServer(
+  http.get("*/admin/game/dungeons", () => HttpResponse.json([])),
   http.post(
     "*/admin/settings/game-balance/simulate-combat",
     async ({ request }) => {

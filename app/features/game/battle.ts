@@ -66,7 +66,11 @@ export type TurnResult = {
   damage: number;
 };
 
-export function rollPlayerDamage(attack: number, balance: GameBalance): number {
+export function rollPlayerDamage(
+  attack: number,
+  balance: GameBalance,
+  random: () => number = Math.random,
+): number {
   const nominal = Math.max(
     attack === 0 ? 0 : 1,
     Math.floor(attack * balance.damage_attack_multiplier),
@@ -75,8 +79,14 @@ export function rollPlayerDamage(attack: number, balance: GameBalance): number {
   const spread = balance.damage_variance_percent / 100;
   const minimum = Math.max(1, Math.floor(nominal * (1 - spread)));
   const maximum = Math.max(1, Math.floor(nominal * (1 + spread)));
-  return minimum + Math.floor(Math.random() * (maximum - minimum + 1));
+  return minimum + Math.floor(random() * (maximum - minimum + 1));
 }
+
+export type BattleTransport = <T>(
+  path: string,
+  body?: unknown,
+  method?: string,
+) => Promise<T>;
 
 export function playerStats(
   allocation: Allocation | undefined,
