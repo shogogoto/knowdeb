@@ -139,6 +139,28 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
+it("explains a missing deployment route without confusing it with missing data", async () => {
+  server.use(
+    http.post("*/admin/settings/game-balance/practice", () =>
+      HttpResponse.json({ detail: "Not Found" }, { status: 404 }),
+    ),
+  );
+  render(
+    <MemoryRouter>
+      <PracticeBattle settings={draft} />
+    </MemoryRouter>,
+  );
+  const start = screen.getByRole("button", {
+    name: "現在の設定で模擬戦を開始",
+  });
+  await waitFor(() => expect(start).toBeEnabled());
+  await userEvent.setup().click(start);
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "模擬戦APIがサーバーに未反映",
+  );
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+});
+
 it("uses real battle UI with draft settings, records results and replays without live writes", async () => {
   render(
     <MemoryRouter>

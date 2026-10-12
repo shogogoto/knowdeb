@@ -121,6 +121,15 @@ async function requestSimulation<T>(
     const body = (await response.json().catch(() => undefined)) as
       | { detail?: string }
       | undefined;
+    if (
+      path.startsWith("practice") &&
+      response.status === 404 &&
+      body?.detail === "Not Found"
+    ) {
+      throw new Error(
+        "模擬戦APIがサーバーに未反映です。バックエンドのデプロイ完了後に再度お試しください。",
+      );
+    }
     throw new Error(typeof body?.detail === "string" ? body.detail : fallback);
   }
   return response.json();
