@@ -48,11 +48,11 @@ it("uses server damage results and retains earlier inputs while editing", async 
       balance: defaultBalance,
     },
   ]);
-  expect(within(table).getByText("15")).toBeVisible();
+  expect(table).toHaveTextContent("15（12〜18）");
   const attack = screen.getByLabelText("プレイヤーの攻撃力");
   await user.clear(attack);
   await user.type(attack, "20");
-  expect(within(table).getAllByText("10")).toHaveLength(2);
+  expect(table).toHaveTextContent("10（8〜12）");
   await user.click(
     screen.getByRole("button", { name: "戦闘を試算して比較に追加" }),
   );

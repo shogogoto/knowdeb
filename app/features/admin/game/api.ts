@@ -33,9 +33,10 @@ export function listAdminGameDungeons(): Promise<AdminGameDungeon[]> {
 export function rebuildAdminDungeonEnemies(
   userId: string,
   resourceId: string,
+  reroll = true,
 ): Promise<EnemyPoolRebuildResult> {
   return request(
-    `/admin/users/${encodeURIComponent(userId)}/game/dungeons/${encodeURIComponent(resourceId)}/enemies/rebuild`,
+    `/admin/users/${encodeURIComponent(userId)}/game/dungeons/${encodeURIComponent(resourceId)}/enemies/rebuild?reroll=${reroll}`,
     { method: "POST" },
   );
 }

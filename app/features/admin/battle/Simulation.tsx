@@ -26,13 +26,14 @@ const range = (values: number[]) => {
 export default function Simulation({
   settings,
   labels,
+  mode = "stats",
 }: {
   settings: BattleSettings;
   labels: Partial<Record<keyof BattleSettings, string>>;
+  mode?: "stats" | "roster";
 }) {
   const [power, setPower] = useState(100);
   const [achievement, setAchievement] = useState(1);
-  const [relations, setRelations] = useState(3);
   const [results, setResults] = useState<
     (EnemyBalanceSimulation & { id: string })[]
   >([]);
@@ -50,7 +51,7 @@ export default function Simulation({
         balance: { ...settings },
         power,
         achievement,
-        average_relations: relations,
+        average_relations: 0,
       });
       setSelected(results.length);
       setResults((previous) => [
@@ -68,17 +69,21 @@ export default function Simulation({
 
   return (
     <section
-      aria-label="敵の試算"
+      aria-label={
+        mode === "stats" ? "敵能力の試算" : "ロスター・同時出現数の試算"
+      }
       className="space-y-4 rounded-lg border p-4 sm:p-5"
     >
       <div>
-        <h3 className="font-semibold">敵の試算</h3>
+        <h3 className="font-semibold">
+          {mode === "stats" ? "敵能力の試算" : "ロスター・同時出現数の試算"}
+        </h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          編集中の設定で試算し、条件ごとの結果を比較できます。保存は不要です。結果はこの画面を離れるまで残ります。関係数は各敵で同じ値、個体差はサンプル敵を使います。
+          この上の設定を編集して試算できます。保存は不要です。結果は条件変更後も残ります。実際の生成と同じ計算を使用し、クイズの割り当てと個体差は再現可能なサンプルです。
         </p>
       </div>
       <form onSubmit={simulate} className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {[
             {
               label: "ダンジョンのPower",
@@ -96,33 +101,31 @@ export default function Simulation({
               min: 1,
               max: 20,
             },
-            {
-              label: "敵の単文の平均関係数",
-              name: "平均関係数",
-              value: relations,
-              setter: setRelations,
-              min: 0,
-              max: 1000000,
-            },
-          ].map((field) => (
-            <div className="space-y-1 text-sm" key={field.name}>
-              <Label htmlFor={`simulation-${field.name}`}>{field.label}</Label>
-              <Input
-                id={`simulation-${field.name}`}
-                aria-label={`試算する${field.name}`}
-                type="number"
-                required
-                min={field.min}
-                max={field.max}
-                step={1}
-                value={field.value}
-                onChange={(event) => field.setter(Number(event.target.value))}
-              />
-            </div>
-          ))}
+          ]
+            .filter((field) => mode === "stats" || field.name !== "Power")
+            .map((field) => (
+              <div className="space-y-1 text-sm" key={field.name}>
+                <Label htmlFor={`simulation-${mode}-${field.name}`}>
+                  {field.label}
+                </Label>
+                <Input
+                  id={`simulation-${mode}-${field.name}`}
+                  aria-label={`${mode === "stats" ? "敵能力" : "ロスター"}の試算に使う${field.name}`}
+                  type="number"
+                  required
+                  min={field.min}
+                  max={field.max}
+                  step={1}
+                  value={field.value}
+                  onChange={(event) => field.setter(Number(event.target.value))}
+                />
+              </div>
+            ))}
         </div>
         <Button type="submit" disabled={busy}>
-          {busy ? "試算中…" : "試算して比較に追加"}
+          {busy
+            ? "試算中…"
+            : `${mode === "stats" ? "敵能力" : "ロスター"}を試算して比較に追加`}
         </Button>
       </form>
       {error && (
@@ -151,21 +154,29 @@ export default function Simulation({
             試算の行を選ぶと、そのときの設定と敵一覧を下に表示します。
           </p>
           <div className="overflow-x-auto rounded-md border">
-            <Table aria-label="試算比較" className="whitespace-nowrap">
+            <Table aria-label={`${mode}試算比較`} className="whitespace-nowrap">
               <TableHeader>
                 <TableRow>
                   <TableHead>試算</TableHead>
-                  <TableHead>Power</TableHead>
+                  {mode === "stats" && <TableHead>Power</TableHead>}
                   <TableHead>領域</TableHead>
-                  <TableHead>平均関係数</TableHead>
-                  <TableHead>ばらつき</TableHead>
+                  {mode === "stats" && <TableHead>ばらつき</TableHead>}
                   <TableHead>補正値の変更</TableHead>
-                  <TableHead>母集団</TableHead>
-                  <TableHead>敵の種類</TableHead>
-                  <TableHead>クイズ数 / 敵</TableHead>
-                  <TableHead>HP</TableHead>
-                  <TableHead>攻撃力</TableHead>
-                  <TableHead>同時出現</TableHead>
+                  {mode === "roster" ? (
+                    <>
+                      <TableHead>母集団</TableHead>
+                      <TableHead>敵の種類（予定→実際）</TableHead>
+                      <TableHead>固定問数 / 敵</TableHead>
+                      <TableHead>割り当て済み</TableHead>
+                      <TableHead>未割り当て</TableHead>
+                      <TableHead>同時出現</TableHead>
+                    </>
+                  ) : (
+                    <>
+                      <TableHead>HP</TableHead>
+                      <TableHead>攻撃力</TableHead>
+                    </>
+                  )}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -194,12 +205,13 @@ export default function Simulation({
                         )}
                       </Button>
                     </TableCell>
-                    <TableCell>{result.power}</TableCell>
+                    {mode === "stats" && <TableCell>{result.power}</TableCell>}
                     <TableCell>{result.achievement}</TableCell>
-                    <TableCell>{result.average_relations}</TableCell>
-                    <TableCell>
-                      ±{result.balance.enemy_variance_percent}%
-                    </TableCell>
+                    {mode === "stats" && (
+                      <TableCell>
+                        ±{result.balance.enemy_variance_percent}%
+                      </TableCell>
+                    )}
                     <TableCell className="min-w-32 max-w-64 whitespace-normal text-xs">
                       {index === 0
                         ? "基準"
@@ -218,21 +230,36 @@ export default function Simulation({
                             )
                             .join(" / ") || "基準と同じ"}
                     </TableCell>
-                    <TableCell>{result.pool_quiz_count}問</TableCell>
-                    <TableCell>{result.enemies.length}種類</TableCell>
-                    <TableCell>
-                      {range(result.enemies.map((enemy) => enemy.quiz_count))}問
-                    </TableCell>
-                    <TableCell>
-                      {range(result.enemies.map((enemy) => enemy.hp))}
-                    </TableCell>
-                    <TableCell>
-                      {range(result.enemies.map((enemy) => enemy.attack))}
-                    </TableCell>
-                    <TableCell>
-                      {result.min_encounter_enemies}〜
-                      {result.max_encounter_enemies}体
-                    </TableCell>
+                    {mode === "roster" ? (
+                      <>
+                        <TableCell>{result.pool_quiz_count}問</TableCell>
+                        <TableCell>
+                          {result.requested_enemy_types}→{result.enemies.length}
+                          種類
+                        </TableCell>
+                        <TableCell>
+                          {range(
+                            result.enemies.map((enemy) => enemy.quiz_count),
+                          )}
+                          問
+                        </TableCell>
+                        <TableCell>{result.assigned_quiz_count}問</TableCell>
+                        <TableCell>{result.unassigned_quiz_count}問</TableCell>
+                        <TableCell>
+                          {result.min_encounter_enemies}〜
+                          {result.max_encounter_enemies}体
+                        </TableCell>
+                      </>
+                    ) : (
+                      <>
+                        <TableCell>
+                          {range(result.enemies.map((enemy) => enemy.hp))}
+                        </TableCell>
+                        <TableCell>
+                          {range(result.enemies.map((enemy) => enemy.attack))}
+                        </TableCell>
+                      </>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
@@ -241,6 +268,11 @@ export default function Simulation({
           {current && (
             <section aria-label="選択した試算の敵" className="space-y-3">
               <h4 className="font-medium">試算 {selected + 1} の敵一覧</h4>
+              {current.warnings?.map((warning) => (
+                <p key={warning} className="text-sm text-amber-500">
+                  {warning}
+                </p>
+              ))}
               <details className="rounded-md border p-3 text-sm">
                 <summary className="cursor-pointer">
                   この試算に使ったゲームバランス設定
@@ -255,24 +287,32 @@ export default function Simulation({
                 </dl>
               </details>
               <div className="overflow-x-auto rounded-md border">
-                <Table aria-label="試算の敵一覧">
+                <Table aria-label={`${mode}試算の敵一覧`}>
                   <TableHeader>
                     <TableRow>
                       <TableHead>敵</TableHead>
-                      <TableHead>固定クイズ数</TableHead>
-                      <TableHead>HP</TableHead>
-                      <TableHead>攻撃力</TableHead>
-                      <TableHead>関係数</TableHead>
+                      {mode === "roster" ? (
+                        <TableHead>固定クイズ数</TableHead>
+                      ) : (
+                        <>
+                          <TableHead>HP</TableHead>
+                          <TableHead>攻撃力</TableHead>
+                        </>
+                      )}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {current.enemies.map((enemy) => (
                       <TableRow key={enemy.index}>
                         <TableCell>敵 {enemy.index}</TableCell>
-                        <TableCell>{enemy.quiz_count}問</TableCell>
-                        <TableCell>{enemy.hp}</TableCell>
-                        <TableCell>{enemy.attack}</TableCell>
-                        <TableCell>{enemy.relations}</TableCell>
+                        {mode === "roster" ? (
+                          <TableCell>{enemy.quiz_count}問</TableCell>
+                        ) : (
+                          <>
+                            <TableCell>{enemy.hp}</TableCell>
+                            <TableCell>{enemy.attack}</TableCell>
+                          </>
+                        )}
                       </TableRow>
                     ))}
                   </TableBody>

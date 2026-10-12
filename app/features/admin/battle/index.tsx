@@ -19,9 +19,6 @@ const fields = {
   enemy_attack: ["敵の基礎攻", 1, 1000, 1],
   power_hp: ["PowerのHP補正", 0, 100, 0.1],
   power_attack: ["Powerの攻補正", 0, 100, 0.1],
-  relation_hp: ["関係数のHP補正", 0, 100, 0.1],
-  relation_attack: ["関係数の攻補正", 0, 100, 0.1],
-  relation_cap: ["関係数の上限", 0, 1000, 1],
   region_hp: ["達成度帯ごとのHP上昇", 0, 100, 1],
   region_attack: ["達成度帯ごとの攻上昇", 0, 100, 1],
   enemy_variance_percent: ["敵能力のばらつき（±%）", 0, 50, 1],
@@ -35,22 +32,12 @@ const fields = {
   damage_variance_percent: ["ダメージの乱数幅（±%）", 0, 50, 1],
   enemy_types: ["領域ごとの敵の種類数", 1, 20, 1],
   enemy_types_per_region: ["領域が進むごとの種類数の増加", 0, 20, 1],
-  min_quizzes_per_enemy: ["敵ごとのクイズ数（下限）", 1, 100, 1],
-  max_quizzes_per_enemy: ["敵ごとのクイズ数（上限）", 1, 100, 1],
+  quizzes_per_enemy_coefficient: ["達成度あたりの固定クイズ数", 0.1, 5, 0.1],
   min_enemies: ["同時出現数（下限）", 1, 20, 1],
   max_encounter_enemies: ["同時出現数（上限）", 1, 20, 1],
-  max_encounter_enemies_per_region: [
-    "領域が進むごとの同時出現上限の増加",
-    0,
-    20,
-    1,
-  ],
+  encounter_growth_rate: ["同時出現数の増加率", 0, 10, 0.1],
 } as const;
 const rangePairs = {
-  min_quizzes_per_enemy: {
-    label: "敵ごとのクイズ数",
-    upper: "max_quizzes_per_enemy",
-  },
   min_enemies: {
     label: "同時出現数",
     upper: "max_encounter_enemies",
@@ -86,15 +73,12 @@ const groups = [
   {
     label: "敵ステータスの計算",
     description:
-      "敵のHP・攻撃力は固定値ではありません。各敵のクイズセットとダンジョンのPowerから導出し、達成度帯が上がるごとに補正します。敵ごとのばらつきはIDに基づいて固定され、設定変更は既存の敵にも即時反映されます。",
+      "基礎値＋log(1＋Power)の補正＋達成度帯の補正から計算します。関係数は使いません。個体差は種類IDごとに固定され、能力設定は既存の敵にも即反映します。",
     keys: [
       "enemy_hp",
       "enemy_attack",
       "power_hp",
       "power_attack",
-      "relation_hp",
-      "relation_attack",
-      "relation_cap",
       "region_hp",
       "region_attack",
       "enemy_variance_percent",
@@ -103,15 +87,14 @@ const groups = [
   {
     label: "敵ロスターと遭遇の抽選",
     description:
-      "母集団クイズを敵の種類に分け、各敵に固定セットとして持たせます。再選出時にクイズの割当てが変わり、戦闘時にはロスターから敵数・敵の種類を抽選します。",
+      "種類数＝初期数＋(達成度−1)×増加数、固定問数＝達成度×係数。セット間の共有・未割り当てを許可します。変更はダンジョン母集団画面の「敵だけ再構成」で反映。出現範囲は基準の両端×[1＋(達成度−1)×増加率]から抽選し、次の戦闘で反映。同種の複数出現も許可。小数は切り上げ、安全上限は20体です。",
     keys: [
       "enemy_types",
       "enemy_types_per_region",
-      "min_quizzes_per_enemy",
-      "max_quizzes_per_enemy",
+      "quizzes_per_enemy_coefficient",
       "min_enemies",
       "max_encounter_enemies",
-      "max_encounter_enemies_per_region",
+      "encounter_growth_rate",
     ],
   },
 ] as const;
@@ -145,34 +128,31 @@ export default function BattleSettingsManager() {
       )}
       <div className="space-y-6">
         <p className="text-sm text-muted-foreground">
-          敵の能力はPower・単文の関係数・領域の補正と、敵ごとの固定された個体差から計算します。種類数と同時出現上限は領域1の値を基準に増加させられます（最大20）。
+          編集中の値で、各設定のすぐ下から試算できます。試算には保存不要で、以前の結果も比較できます。
         </p>
         {saved && <output className="block">ゲーム設定を保存しました</output>}
         {settings && (
-          <form
-            className="space-y-4"
-            onSubmit={(event) => {
-              event.preventDefault();
-              setError(undefined);
-              setSaved(false);
-              if (
-                settings.min_quizzes_per_enemy >
-                  settings.max_quizzes_per_enemy ||
-                settings.min_enemies > settings.max_encounter_enemies
-              ) {
-                setError("下限は上限以下にしてください。");
-                return;
-              }
-              setSaving(true);
-              void requestBattleSettings(settings)
-                .then((value) => {
-                  setSettings(value);
-                  setSaved(true);
-                })
-                .catch((cause) => setError(cause.message))
-                .finally(() => setSaving(false));
-            }}
-          >
+          <div className="space-y-4">
+            <form
+              id="game-settings"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setError(undefined);
+                setSaved(false);
+                if (settings.min_enemies > settings.max_encounter_enemies) {
+                  setError("下限は上限以下にしてください。");
+                  return;
+                }
+                setSaving(true);
+                void requestBattleSettings(settings)
+                  .then((value) => {
+                    setSettings(value);
+                    setSaved(true);
+                  })
+                  .catch((cause) => setError(cause.message))
+                  .finally(() => setSaving(false));
+              }}
+            />
             <div className="space-y-5">
               {groups.map((group) => (
                 <section
@@ -215,6 +195,7 @@ export default function BattleSettingsManager() {
                                     </Label>
                                     <Input
                                       id={`battle-${bound}`}
+                                      form="game-settings"
                                       aria-label={label}
                                       type="number"
                                       min={min}
@@ -257,6 +238,7 @@ export default function BattleSettingsManager() {
                           </div>
                           <Input
                             id={`battle-${kind}`}
+                            form="game-settings"
                             type="number"
                             min={min}
                             max={max}
@@ -276,23 +258,31 @@ export default function BattleSettingsManager() {
                       );
                     })}
                   </div>
+                  {group.label === "ダメージ計算" && (
+                    <CombatSimulation settings={settings} />
+                  )}
+                  {(group.label === "敵ステータスの計算" ||
+                    group.label === "敵ロスターと遭遇の抽選") && (
+                    <Simulation
+                      settings={settings}
+                      mode={
+                        group.label === "敵ステータスの計算"
+                          ? "stats"
+                          : "roster"
+                      }
+                      labels={Object.fromEntries(
+                        group.keys.map((key) => [key, fields[key][0]]),
+                      )}
+                    />
+                  )}
                 </section>
               ))}
             </div>
-            <Button disabled={saving} type="submit">
+            <Button disabled={saving} type="submit" form="game-settings">
               {saving ? "保存中…" : "保存"}
             </Button>
-          </form>
+          </div>
         )}
-        {settings && (
-          <Simulation
-            settings={settings}
-            labels={Object.fromEntries(
-              Object.entries(fields).map(([key, value]) => [key, value[0]]),
-            )}
-          />
-        )}
-        {settings && <CombatSimulation settings={settings} />}
       </div>
     </section>
   );

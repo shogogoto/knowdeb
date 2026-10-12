@@ -103,6 +103,7 @@ function GameDungeonManager() {
     direction: "ascending",
   });
   const [target, setTarget] = useState<AdminGameDungeon>();
+  const [reroll, setReroll] = useState(true);
   const [poolTarget, setPoolTarget] = useState<AdminGameDungeon>();
   const [loading, setLoading] = useState(true);
   const [mutating, setMutating] = useState(false);
@@ -166,6 +167,7 @@ function GameDungeonManager() {
       const result = await rebuildAdminDungeonEnemies(
         target.user_id,
         target.resource_id,
+        reroll,
       );
       if (result.preparing) {
         toast.success(
@@ -176,7 +178,7 @@ function GameDungeonManager() {
       }
       toast.success(
         result.region_count
-          ? `${result.region_count}領域・クイズ${result.quiz_count}問の母集団と敵セットを再選出しました`
+          ? `${result.region_count}領域を${reroll ? "母集団から" : "敵だけ"}再構成しました（母集団${result.quiz_count}問）`
           : "再構築できる母集団がありません",
       );
       setTarget(undefined);
@@ -300,9 +302,29 @@ function GameDungeonManager() {
                           item.status === "母集団あり" ||
                           item.region_count === 0
                         }
-                        onClick={() => setTarget(item)}
+                        onClick={() => {
+                          setReroll(true);
+                          setTarget(item);
+                        }}
                       >
                         <Swords /> 母集団・敵を再選出
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          mutating ||
+                          item.status === "battle" ||
+                          item.region_count === 0 ||
+                          item.status === "母集団あり"
+                        }
+                        onClick={() => {
+                          setReroll(false);
+                          setTarget(item);
+                        }}
+                      >
+                        敵だけ再構成
                       </Button>
                     </div>
                   </TableCell>
@@ -331,11 +353,17 @@ function GameDungeonManager() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              このダンジョンの母集団を再選出しますか？
+              {reroll
+                ? "このダンジョンの母集団から再構成しますか？"
+                : "このダンジョンの敵だけ再構成しますか？"}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {target?.user_email} · {target?.resource_name}
-              。準備済みクイズから領域ごとの母集団を重複なく選び直し、敵セットも作り直します。攻略状況・HP・復習履歴は変更しません。戦闘中は実行できません。
+              。全領域が対象です。
+              {reroll
+                ? "PageRank順に母集団を選び直し、敵セットも作り直します。"
+                : "母集団を維持し、最新設定で敵の固定セットを作り直します。"}
+              攻略状況・HP・復習履歴は変更しません。戦闘中は実行できません。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

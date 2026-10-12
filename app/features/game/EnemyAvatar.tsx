@@ -2,7 +2,7 @@ import { Bug, Ghost, Skull } from "lucide-react";
 
 // Stable appearance for the same resource and encounter, without remote assets.
 export default function EnemyAvatar({ identity }: { identity: string }) {
-  const seed = [...identity].reduce(
+  const seed = [...identity.split("#", 1)[0]].reduce(
     (value, char) => (value * 31 + char.charCodeAt(0)) >>> 0,
     0,
   );

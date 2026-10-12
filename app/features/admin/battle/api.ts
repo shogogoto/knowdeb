@@ -18,6 +18,11 @@ export type EnemyBalanceSimulation = {
     attack: number;
     relations: number;
   }[];
+  requested_enemy_types: number;
+  requested_quiz_count: number;
+  assigned_quiz_count: number;
+  unassigned_quiz_count: number;
+  warnings: string[];
 };
 
 export async function requestEnemyBalanceSimulation(input: {

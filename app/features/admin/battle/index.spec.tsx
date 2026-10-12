@@ -30,6 +30,11 @@ const server = setupServer(
       balance: input.balance,
       min_encounter_enemies: 1,
       max_encounter_enemies: 3,
+      requested_enemy_types: 3,
+      requested_quiz_count: 1,
+      assigned_quiz_count: 3,
+      unassigned_quiz_count: 2,
+      warnings: [],
       enemies: [
         { index: 1, quiz_count: 2, hp: 28, attack: 16, relations: 3 },
         { index: 2, quiz_count: 2, hp: 30, attack: 17, relations: 3 },
@@ -52,7 +57,8 @@ it("saves player time and live enemy corrections without quiz-type weights", asy
   expect(
     screen.getByRole("region", { name: "敵ステータスの計算" }),
   ).toBeInTheDocument();
-  expect(screen.getAllByRole("spinbutton")).toHaveLength(36);
+  expect(screen.queryByLabelText("関係数のHP補正")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("達成度あたりの固定クイズ数")).toHaveValue(1);
   expect(screen.getByLabelText("敵能力のばらつき（±%）")).toHaveValue(10);
   expect(base).toHaveAttribute("min", "5");
   expect(base).toHaveAttribute("max", "300");
@@ -79,24 +85,30 @@ it("retains trials for comparison and lets users revisit their original settings
   render(<BattleSettingsManager />);
   await waitFor(() =>
     expect(
-      screen.getByRole("button", { name: "試算して比較に追加" }),
+      screen.getByRole("button", { name: "敵能力を試算して比較に追加" }),
     ).toBeEnabled(),
   );
   const user = userEvent.setup();
-  await user.click(screen.getByRole("button", { name: "試算して比較に追加" }));
-  const comparison = await screen.findByRole("table", { name: "試算比較" });
-  expect(within(comparison).getAllByRole("row")).toHaveLength(2);
-  expect(screen.getByRole("table", { name: "試算の敵一覧" })).toHaveTextContent(
-    "28",
+  await user.click(
+    screen.getByRole("button", { name: "敵能力を試算して比較に追加" }),
   );
-  const power = screen.getByLabelText("試算するPower");
+  const comparison = await screen.findByRole("table", {
+    name: "stats試算比較",
+  });
+  expect(within(comparison).getAllByRole("row")).toHaveLength(2);
+  expect(
+    screen.getByRole("table", { name: "stats試算の敵一覧" }),
+  ).toHaveTextContent("28");
+  const power = screen.getByLabelText("敵能力の試算に使うPower");
   await user.clear(power);
   await user.type(power, "250");
   const weight = screen.getByLabelText("PowerのHP補正");
   await user.clear(weight);
   await user.type(weight, "2");
   expect(within(comparison).getAllByRole("row")).toHaveLength(2);
-  await user.click(screen.getByRole("button", { name: "試算して比較に追加" }));
+  await user.click(
+    screen.getByRole("button", { name: "敵能力を試算して比較に追加" }),
+  );
   await waitFor(() =>
     expect(within(comparison).getAllByRole("row")).toHaveLength(3),
   );
@@ -128,18 +140,18 @@ it("retains trials for comparison and lets users revisit their original settings
     balance: defaults,
     power: 100,
     achievement: 1,
-    average_relations: 3,
+    average_relations: 0,
   });
   expect(simulated).toHaveBeenNthCalledWith(2, {
     balance: { ...defaults, power_hp: 2 },
     power: 250,
     achievement: 1,
-    average_relations: 3,
+    average_relations: 0,
   });
   expect(saved).not.toHaveBeenCalled();
   await user.click(screen.getByRole("button", { name: "結果をクリア" }));
   expect(
-    screen.queryByRole("table", { name: "試算比較" }),
+    screen.queryByRole("table", { name: "stats試算比較" }),
   ).not.toBeInTheDocument();
 });
 it("reports failures without claiming settings were saved", async () => {
@@ -158,4 +170,30 @@ it("reports failures without claiming settings were saved", async () => {
   expect(
     screen.queryByText("ゲーム設定を保存しました"),
   ).not.toBeInTheDocument();
+});
+
+it("places independent simulations next to their settings without saving", async () => {
+  render(<BattleSettingsManager />);
+  await screen.findByLabelText("初期HP");
+  const stats = screen.getByRole("region", { name: "敵ステータスの計算" });
+  const roster = screen.getByRole("region", { name: "敵ロスターと遭遇の抽選" });
+  expect(
+    within(stats).getByRole("region", { name: "敵能力の試算" }),
+  ).toBeInTheDocument();
+  expect(
+    within(roster).getByRole("region", { name: "ロスター・同時出現数の試算" }),
+  ).toBeInTheDocument();
+  const user = userEvent.setup();
+  await user.click(
+    within(roster).getByRole("button", {
+      name: "ロスターを試算して比較に追加",
+    }),
+  );
+  const comparison = await within(roster).findByRole("table", {
+    name: "roster試算比較",
+  });
+  expect(comparison).toHaveTextContent("未割り当て");
+  expect(within(stats).queryByRole("table")).not.toBeInTheDocument();
+  expect(document.querySelector("form form")).toBeNull();
+  expect(saved).not.toHaveBeenCalled();
 });
