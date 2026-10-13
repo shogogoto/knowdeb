@@ -26,6 +26,7 @@ type Props = {
   onAnswered?: (isCorrect: boolean) => void;
   completed?: boolean;
   compactMobile?: boolean;
+  enterToSubmit?: boolean;
   actionInfo?: ReactNode;
   disabled?: boolean;
   onSubmittingChange?: (submitting: boolean) => void;
@@ -42,6 +43,7 @@ export default function QuizAttempt({
   onAnswered,
   completed = false,
   compactMobile = false,
+  enterToSubmit = false,
   actionInfo,
   disabled = false,
   onSubmittingChange,
@@ -203,7 +205,9 @@ export default function QuizAttempt({
         })}
       </div>
       <p className="hidden text-xs text-muted-foreground sm:block">
-        ↑↓ 選択肢を移動 · Enter/Space で選択
+        {enterToSubmit
+          ? "↑↓ 選択肢を移動 · Spaceで選択 · Enterで確定"
+          : "↑↓ 選択肢を移動 · Enter/Space で選択"}
       </p>
       {answer && (
         <Alert>

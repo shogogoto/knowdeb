@@ -222,10 +222,10 @@ export default function MultiBattle({
   const displayed = live[active] ?? live[0];
   const enemyPanel = (
     <div
-      className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-2 space-y-2"
+      className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
       aria-label="敵一覧"
     >
-      <div className="flex flex-wrap gap-1">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {live.map((enemy, index) => (
           <button
             key={enemy.id}
@@ -252,23 +252,43 @@ export default function MultiBattle({
                 focusAnswerChoice(event.key === "ArrowDown" ? "first" : "last");
               }
             }}
-            className={`rounded-md border p-1 ${active === index ? "border-primary" : "border-transparent"}`}
+            className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${active === index ? "border-primary bg-background" : "border-transparent hover:bg-background/60"}`}
           >
-            <EnemyAvatar identity={enemy.id} />
-            <span className="block text-xs">
-              {enemy.id in answers ? "確定" : index + 1}
+            <EnemyAvatar identity={enemy.id} large />
+            <span className="min-w-0 flex-1 space-y-1">
+              <span className="block truncate text-sm font-medium">
+                {enemy.name}
+              </span>
+              <span className="block text-xs tabular-nums text-muted-foreground">
+                {enemy.id in answers ? "回答確定" : `敵 ${index + 1}`} · HP{" "}
+                {currentHp[enemy.id]}/{enemy.hp}
+              </span>
+              <span
+                role="progressbar"
+                tabIndex={-1}
+                aria-label={`${enemy.name}のHP`}
+                aria-valuenow={currentHp[enemy.id]}
+                aria-valuemin={0}
+                aria-valuemax={enemy.hp}
+                className="block h-1.5 overflow-hidden rounded-full bg-rose-500/15"
+              >
+                <span
+                  className="block h-full bg-rose-500"
+                  style={{
+                    width: `${Math.min(100, (currentHp[enemy.id] / enemy.hp) * 100)}%`,
+                  }}
+                />
+              </span>
             </span>
           </button>
         ))}
       </div>
       {displayed && (
-        <p className="text-sm tabular-nums">
-          {displayed.name}
-          <br />
-          HP {currentHp[displayed.id]}/{displayed.hp} · 攻 {displayed.attack}
+        <p className="text-xs text-muted-foreground">
+          ←→ 敵を切替 · ↓ 回答欄へ · 選択中: {displayed.name}（攻{" "}
+          {displayed.attack}）
         </p>
       )}
-      <p className="text-xs text-muted-foreground">←→ 敵を切替 · ↓ 回答欄へ</p>
     </div>
   );
   return (
@@ -278,6 +298,17 @@ export default function MultiBattle({
       playerName={playerName}
       busy={busy}
       enemyPanel={enemyPanel}
+      footer={
+        !result && (
+          <Button
+            variant="outline"
+            disabled={busy || !!retry}
+            onClick={() => void submitTurn(true)}
+          >
+            撤退する
+          </Button>
+        )
+      }
       simulation={simulation}
       remainingTimeMs={!result ? remainingMs : undefined}
       totalTimeSeconds={run?.answerSeconds ?? undefined}
@@ -321,7 +352,7 @@ export default function MultiBattle({
         </div>
       )}
       {result ? (
-        <div className="space-y-3">
+        <div className="space-y-3" data-battle-result>
           <output>{save.battleFeedback}</output>
           {Object.keys(result.results).map((id) => {
             const enemy = live.find((item) => item.id === id);
@@ -358,6 +389,7 @@ export default function MultiBattle({
           })}
           <Button
             disabled={busy}
+            data-battle-advance
             onClick={() => {
               if (!save.battle) {
                 void onFinished();
@@ -436,6 +468,7 @@ export default function MultiBattle({
                 key={`${enemy.id}:${battle.turn}:${enemy.quizIndex}`}
                 hidden={index !== active}
                 ref={index === active ? activeAnswerArea : undefined}
+                data-active-answer={index === active ? "" : undefined}
               >
                 {simulation ? (
                   <div className="space-y-3 rounded-md border p-3">
@@ -480,11 +513,6 @@ export default function MultiBattle({
                                     [enemy.id]: choice,
                                   }))
                                 }
-                                onKeyDown={(event) => {
-                                  if (event.key !== "Enter") return;
-                                  event.preventDefault();
-                                  event.currentTarget.form?.requestSubmit();
-                                }}
                                 className="size-4 accent-primary"
                               />
                               {choice === "correct" ? "正解" : "不正解"}
@@ -494,6 +522,7 @@ export default function MultiBattle({
                       </fieldset>
                       <Button
                         type="submit"
+                        data-battle-submit
                         disabled={
                           busy ||
                           !!retry ||
@@ -505,7 +534,7 @@ export default function MultiBattle({
                         回答を確定
                       </Button>
                       <p className="text-xs text-muted-foreground">
-                        ↑↓で選択 · Enterで確定
+                        Spaceで選択 · Enterで確定
                       </p>
                     </form>
                     {enemy.id in answers && (
@@ -518,6 +547,7 @@ export default function MultiBattle({
                   <QuizAttempt
                     quiz={quiz}
                     compactMobile
+                    enterToSubmit
                     allowReport={!simulation}
                     disabled={busy || !!retry || remaining === 0}
                     canSubmit={() =>
@@ -529,13 +559,6 @@ export default function MultiBattle({
               </div>
             );
           })}
-          <Button
-            variant="outline"
-            disabled={busy || !!retry}
-            onClick={() => void submitTurn(true)}
-          >
-            撤退する
-          </Button>
         </>
       )}
     </BattleDialog>

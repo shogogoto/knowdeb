@@ -18,6 +18,7 @@ export default function BattleDialog({
   playerName,
   player,
   children,
+  footer,
   busy,
   enemyPanel,
   simulation = false,
@@ -28,6 +29,7 @@ export default function BattleDialog({
   playerName?: string;
   player?: UserReadPublic;
   children: ReactNode;
+  footer?: ReactNode;
   busy: boolean;
   enemyPanel?: ReactNode;
   simulation?: boolean;
@@ -65,8 +67,41 @@ export default function BattleDialog({
         }}
       >
         <DialogContent
-          className="flex max-h-[92dvh] flex-col overflow-hidden p-3 sm:max-w-3xl sm:p-5"
+          className="flex max-h-[96dvh] flex-col gap-3 overflow-hidden p-3 sm:max-w-5xl sm:p-5"
           data-dashboard-swipe-ignore
+          onKeyDownCapture={(event) => {
+            if (
+              event.key !== "Enter" ||
+              event.altKey ||
+              event.ctrlKey ||
+              event.metaKey
+            )
+              return;
+            const root = event.currentTarget;
+            const target = event.target;
+            if (
+              target instanceof HTMLElement &&
+              target.closest(
+                "[data-battle-advance], [data-battle-submit], button[data-quiz-submit], button:not([data-quiz-option-index]), input, select, textarea, a",
+              )
+            )
+              return;
+            const advance = root.querySelector<HTMLButtonElement>(
+              "[data-battle-result] [data-battle-advance]:not(:disabled)",
+            );
+            if (advance) {
+              event.preventDefault();
+              advance.click();
+              return;
+            }
+            const submit = root.querySelector<HTMLButtonElement>(
+              "[data-active-answer] [data-battle-submit]:not(:disabled), [data-active-answer] button[data-quiz-submit]:not(:disabled)",
+            );
+            if (submit) {
+              event.preventDefault();
+              submit.click();
+            }
+          }}
         >
           <DialogHeader className="shrink-0 pr-7 text-left">
             <DialogTitle className="flex items-center gap-2">
@@ -77,6 +112,38 @@ export default function BattleDialog({
               {run.name} · 第{run.readIds.length}地点
             </DialogDescription>
           </DialogHeader>
+          {enemyPanel ?? (
+            <section
+              aria-label="敵"
+              className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
+            >
+              <h3 className="flex items-center gap-2 text-sm font-medium text-rose-500">
+                <EnemyAvatar
+                  identity={run.enemyId ?? `${run.resourceId}:${run.kills}`}
+                />
+                敵
+              </h3>
+              <p className="text-sm tabular-nums">
+                敵HP {run.enemyHp}/{run.enemyMaxHp}
+              </p>
+              <div
+                role="progressbar"
+                tabIndex={-1}
+                aria-label="敵HP"
+                aria-valuenow={run.enemyHp}
+                aria-valuemin={0}
+                aria-valuemax={run.enemyMaxHp}
+                className="h-2 overflow-hidden rounded-full bg-rose-500/15"
+              >
+                <div
+                  className="h-full bg-rose-500 transition-[width]"
+                  style={{
+                    width: `${Math.min(100, (run.enemyHp / run.enemyMaxHp) * 100)}%`,
+                  }}
+                />
+              </div>
+            </section>
+          )}
           {timeRatio !== undefined && (
             <div
               aria-label="クイズの持ち時間"
@@ -111,47 +178,16 @@ export default function BattleDialog({
               </div>
             </div>
           )}
-          <div className="min-h-0 overflow-y-auto space-y-3 pr-1">
-            <div className="grid grid-cols-2 gap-2">
-              <PlayerStatus run={run} name={playerName} player={player} />
-              {enemyPanel ?? (
-                <section
-                  aria-label="敵"
-                  className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
-                >
-                  <h3 className="flex items-center gap-2 text-sm font-medium text-rose-500">
-                    <EnemyAvatar
-                      identity={run.enemyId ?? `${run.resourceId}:${run.kills}`}
-                    />
-                    敵
-                  </h3>
-                  <p className="text-sm tabular-nums">
-                    敵HP {run.enemyHp}/{run.enemyMaxHp}
-                  </p>
-                  <div
-                    role="progressbar"
-                    tabIndex={-1}
-                    aria-label="敵HP"
-                    aria-valuenow={run.enemyHp}
-                    aria-valuemin={0}
-                    aria-valuemax={run.enemyMaxHp}
-                    className="h-2 overflow-hidden rounded-full bg-rose-500/15"
-                  >
-                    <div
-                      className="h-full bg-rose-500 transition-[width]"
-                      style={{
-                        width: `${Math.min(100, (run.enemyHp / run.enemyMaxHp) * 100)}%`,
-                      }}
-                    />
-                  </div>
-                </section>
-              )}
-            </div>
+          <div className="min-h-0 flex-1 overflow-y-auto space-y-3 pr-1">
             {children}
           </div>
-          <p className="shrink-0 text-xs text-muted-foreground">
-            閉じても制限時間は進みます。
-          </p>
+          <div className="shrink-0 space-y-2 border-t pt-2">
+            <PlayerStatus run={run} name={playerName} player={player} />
+            {footer}
+            <p className="text-xs text-muted-foreground">
+              閉じても制限時間は進みます。
+            </p>
+          </div>
         </DialogContent>
       </Dialog>
     </>
