@@ -35,24 +35,21 @@ export default function FormulaSettings({
 }) {
   if (kind === "damage") {
     return (
-      <div className="divide-y">
-        <FormulaRow>
-          <span>基本ダメージ = max(1,</span>
-          <span className="inline-flex items-center gap-2">
-            攻 × {input("damage_attack_multiplier")}
-          </span>
-          <span>−</span>
-          <span className="inline-flex items-center gap-2">
-            守 ÷ {input("damage_defense_divisor")}
-          </span>
-          <span>)</span>
-        </FormulaRow>
-        <FormulaRow>
-          <span>ダメージの乱数 = 1 ±</span>
+      <FormulaRow>
+        <span>ダメージ ≈ max(1, (</span>
+        <span className="inline-flex items-center gap-2">
+          攻 × {input("damage_attack_multiplier")}
+        </span>
+        <span>−</span>
+        <span className="inline-flex items-center gap-2">
+          守 ÷ {input("damage_defense_divisor")}
+        </span>
+        <span>) × (1 ±</span>
+        <span className="inline-flex items-center gap-2">
           {input("damage_variance_percent")}
-          <span>%</span>
-        </FormulaRow>
-      </div>
+          %))
+        </span>
+      </FormulaRow>
     );
   }
   if (kind === "stats") {
