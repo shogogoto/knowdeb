@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "~/shared/components/ui/dialog";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
+import MusicControls from "./MusicControls";
 import PathTerms from "./PathTerms";
 import RegionEnemies from "./RegionEnemies";
 import type { DungeonContent, PathKnowledge, RegionEnemy } from "./api";
@@ -627,6 +628,7 @@ export default function ExplorationMap({
           )}
         </div>
         <div className="pointer-events-auto flex shrink-0 gap-1">
+          <MusicControls />
           <RegionEnemies
             enemies={enemiesByRegion}
             quizzes={quizzes}

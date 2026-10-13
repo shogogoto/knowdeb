@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it } from "vitest";
 import BattleDialog from "./BattleDialog";
@@ -57,4 +57,26 @@ it("does not dismiss while a game save is in progress", async () => {
   );
   await userEvent.setup().keyboard("{Escape}");
   expect(screen.getByRole("dialog")).toBeInTheDocument();
+});
+
+it("closes music settings before closing the battle with Escape", async () => {
+  render(
+    <BattleDialog run={battle()} busy={false}>
+      <button type="button">回答</button>
+    </BattleDialog>,
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "BGM設定" }));
+  expect(screen.getByRole("slider", { name: "BGM音量" })).toBeVisible();
+  await user.keyboard("{Escape}");
+  await waitFor(() =>
+    expect(
+      screen.queryByRole("slider", { name: "BGM音量" }),
+    ).not.toBeInTheDocument(),
+  );
+  expect(screen.getByRole("dialog", { name: "敵と遭遇" })).toBeVisible();
+  await user.keyboard("{Escape}");
+  expect(
+    screen.queryByRole("dialog", { name: "敵と遭遇" }),
+  ).not.toBeInTheDocument();
 });

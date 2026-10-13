@@ -31,6 +31,7 @@ import { tanbunDetailCache } from "~/shared/lib/indexed";
 import BattleDialog from "./BattleDialog";
 import ExplorationMap from "./Map";
 import MultiBattle from "./MultiBattle";
+import { useGameMusic } from "./MusicControls";
 import PlayerStatus from "./PlayerStatus";
 import StatEditor from "./StatEditor";
 import { useAdventureAccess } from "./access";
@@ -162,6 +163,7 @@ export function GamePlay({
   const { mutate } = useSWRConfig();
   const { openPreview, preview } = useTanbunPreview();
   const run = save.run;
+  useGameMusic(run ? "explore" : null);
   const resourceId = run?.resourceId ?? selectedId;
   const parked = save.dungeons?.[resourceId];
   const { data: dungeonPreparation } = useSWR(

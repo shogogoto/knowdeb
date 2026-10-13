@@ -1,5 +1,5 @@
 import { Swords } from "lucide-react";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import {
   Dialog,
@@ -10,6 +10,7 @@ import {
 } from "~/shared/components/ui/dialog";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import EnemyAvatar from "./EnemyAvatar";
+import MusicControls, { useGameMusic } from "./MusicControls";
 import PlayerStatus from "./PlayerStatus";
 import type { Run } from "./domain";
 
@@ -37,6 +38,8 @@ export default function BattleDialog({
   totalTimeSeconds?: number;
 }) {
   const [open, setOpen] = useState(true);
+  const content = useRef<HTMLDivElement>(null);
+  useGameMusic("battle");
   const timeRatio =
     totalTimeSeconds && remainingTimeMs !== undefined
       ? Math.min(1, Math.max(0, remainingTimeMs / (totalTimeSeconds * 1000)))
@@ -67,6 +70,16 @@ export default function BattleDialog({
         }}
       >
         <DialogContent
+          ref={content}
+          onOpenAutoFocus={(event) => {
+            const target = content.current?.querySelector<HTMLButtonElement>(
+              '[aria-label="敵一覧"] button:not(:disabled), button[data-quiz-option-index]:not(:disabled), button[data-simulation-option]:not(:disabled)',
+            );
+            if (target) {
+              event.preventDefault();
+              target.focus();
+            }
+          }}
           className="flex max-h-[96dvh] flex-col gap-3 overflow-hidden p-3 sm:max-w-5xl sm:p-5"
           data-dashboard-swipe-ignore
           onKeyDownCapture={(event) => {
@@ -103,7 +116,10 @@ export default function BattleDialog({
             }
           }}
         >
-          <DialogHeader className="shrink-0 pr-7 text-left">
+          <DialogHeader className="shrink-0 pr-20 text-left">
+            <div className="absolute right-10 top-2 sm:top-3">
+              <MusicControls />
+            </div>
             <DialogTitle className="flex items-center gap-2">
               <Swords className="size-4" />
               {simulation ? "模擬戦（保存されません）" : "敵と遭遇"}
