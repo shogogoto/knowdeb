@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { defaultBalance, playerStats, remainingHp } from "./battle";
+import {
+  damageEffect,
+  defaultBalance,
+  playerStats,
+  remainingHp,
+} from "./battle";
 import { enterDungeon, newSave } from "./domain";
 
 describe("allocated stats and browser-local enemy HP", () => {
@@ -23,5 +28,38 @@ describe("allocated stats and browser-local enemy HP", () => {
     };
     expect(remainingHp({ e: 7 }, [enemy])).toEqual({ e: 7 });
     expect(remainingHp({ e: 7 }, [{ ...enemy, hp: 5 }])).toEqual({ e: 5 });
+  });
+});
+
+describe("four damage effect bands", () => {
+  it("uses ordered boundaries with equality belonging to the higher band", () => {
+    expect(
+      [89, 90, 109, 110, 114, 115, 120].map(
+        (damage) => damageEffect(damage, 100, defaultBalance).level,
+      ),
+    ).toEqual([0, 1, 1, 2, 2, 3, 3]);
+  });
+  it("scales thresholds with variance and uses configured labels", () => {
+    const settings = {
+      ...defaultBalance,
+      damage_variance_percent: 10,
+      damage_effect_label_4: "大当たり",
+    };
+    expect(damageEffect(105, 100, settings).level).toBe(2);
+    expect(damageEffect(108, 100, settings)).toEqual({
+      level: 3,
+      label: "大当たり",
+    });
+  });
+  it("uses the ordinary hit for zero variance even if thresholds were customized", () => {
+    expect(
+      damageEffect(10, 10, {
+        ...defaultBalance,
+        damage_variance_percent: 0,
+        damage_effect_threshold_1: -90,
+        damage_effect_threshold_2: -80,
+        damage_effect_threshold_3: -70,
+      }),
+    ).toEqual({ level: 1, label: "HIT" });
   });
 });

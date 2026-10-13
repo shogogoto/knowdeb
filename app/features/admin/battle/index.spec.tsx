@@ -70,6 +70,9 @@ it("saves player time and live enemy corrections without quiz-type weights", asy
   expect(hpGrowth).toHaveValue(20);
   await user.clear(hpGrowth);
   await user.type(hpGrowth, "30");
+  const effectLabel = screen.getByLabelText("演出4の文言");
+  await user.clear(effectLabel);
+  await user.type(effectLabel, "大当たり");
   const enemyTypes = screen.getByLabelText("領域ごとの敵の種類数");
   await user.clear(enemyTypes);
   await user.type(enemyTypes, "4");
@@ -84,6 +87,7 @@ it("saves player time and live enemy corrections without quiz-type weights", asy
     ...defaults,
     power_hp: 2,
     region_hp_growth_percent: 30,
+    damage_effect_label_4: "大当たり",
     enemy_types: 4,
   });
 });

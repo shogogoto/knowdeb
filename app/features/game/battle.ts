@@ -37,6 +37,13 @@ export const defaultBalance = {
   damage_attack_multiplier: 1,
   damage_defense_divisor: 2,
   damage_variance_percent: 20,
+  damage_effect_threshold_1: -50,
+  damage_effect_threshold_2: 50,
+  damage_effect_threshold_3: 75,
+  damage_effect_label_1: "かすり",
+  damage_effect_label_2: "HIT",
+  damage_effect_label_3: "NICE!",
+  damage_effect_label_4: "会心!",
   enemy_types: 3,
   enemy_types_per_region: 1,
   quizzes_per_enemy_coefficient: 1,
@@ -89,6 +96,42 @@ export type BattleTransport = <T>(
   body?: unknown,
   method?: string,
 ) => Promise<T>;
+
+export function damageEffect(
+  damage: number,
+  attack: number,
+  balance: GameBalance,
+) {
+  const settings = { ...defaultBalance, ...balance };
+  const nominal = Math.max(
+    1,
+    Math.floor(attack * settings.damage_attack_multiplier),
+  );
+  const spread = settings.damage_variance_percent / 100;
+  const position =
+    spread === 0
+      ? 0
+      : Math.max(-100, Math.min(100, ((damage / nominal - 1) / spread) * 100));
+  // Round away floating-point noise at the configured boundaries.
+  const normalized = Math.round(position * 1e6) / 1e6;
+  const level =
+    spread === 0
+      ? 1
+      : normalized < settings.damage_effect_threshold_1
+        ? 0
+        : normalized < settings.damage_effect_threshold_2
+          ? 1
+          : normalized < settings.damage_effect_threshold_3
+            ? 2
+            : 3;
+  const labels = [
+    settings.damage_effect_label_1,
+    settings.damage_effect_label_2,
+    settings.damage_effect_label_3,
+    settings.damage_effect_label_4,
+  ];
+  return { level, label: labels[level] };
+}
 
 export function playerStats(
   allocation: Allocation | undefined,

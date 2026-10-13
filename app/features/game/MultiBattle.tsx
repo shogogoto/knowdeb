@@ -12,6 +12,7 @@ import {
   type GameBalance,
   type TurnInput,
   type TurnResult,
+  damageEffect,
   gameRequest,
   playerStats,
   remainingHp,
@@ -67,6 +68,9 @@ export default function MultiBattle({
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<TurnResult>();
   const [retry, setRetry] = useState<TurnInput>();
+  const [hitEffects, setHitEffects] = useState<
+    Record<string, { damage: number; level: number; label: string }>
+  >({});
   const sending = useRef(false);
   const retryDamage = useRef<
     { key: string; values: Record<string, number> } | undefined
@@ -152,6 +156,23 @@ export default function MultiBattle({
         ),
       );
       setResult(resolved);
+      setHitEffects(
+        Object.fromEntries(
+          live
+            .filter((enemy) => resolved.results[enemy.id])
+            .map((enemy) => [
+              enemy.id,
+              {
+                damage: damageByEnemy[enemy.id],
+                ...damageEffect(
+                  damageByEnemy[enemy.id],
+                  stats.attack,
+                  context.balance,
+                ),
+              },
+            ]),
+        ),
+      );
       setRetry(undefined);
       retryDamage.current = undefined;
       onSaved(resolved.state);
@@ -282,6 +303,21 @@ export default function MultiBattle({
                   <p>
                     {enemy.name} · {result.results[id] ? "正解" : "不正解"}
                   </p>
+                  {hitEffects[id] && (
+                    <p
+                      aria-label={`${enemy.name}へのダメージ`}
+                      className={`motion-safe:animate-in motion-safe:zoom-in-95 duration-300 ${
+                        [
+                          "text-sm text-muted-foreground",
+                          "font-medium",
+                          "text-lg font-bold text-emerald-500",
+                          "text-xl font-black text-amber-500",
+                        ][hitEffects[id].level]
+                      }`}
+                    >
+                      {hitEffects[id].label} · {hitEffects[id].damage}ダメージ
+                    </p>
+                  )}
                   {!simulation && (
                     <QuizPreviewPrompt
                       quiz={content.quizzes[enemy.quizIndex]}
@@ -309,6 +345,7 @@ export default function MultiBattle({
                   setAnswers({});
                   setActive(0);
                   setResult(undefined);
+                  setHitEffects({});
                   onSaved(state);
                 })
                 .catch((cause) => setError(cause.message))

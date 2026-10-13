@@ -3,6 +3,10 @@ import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
 import CombatSimulation from "./CombatSimulation";
+import DamageEffectSettings, {
+  effectLabelKeys,
+  effectThresholdKeys,
+} from "./DamageEffectSettings";
 import FormulaSettings from "./FormulaSettings";
 import Simulation from "./Simulation";
 import { type BattleSettings, requestBattleSettings } from "./api";
@@ -196,6 +200,22 @@ export default function BattleSettingsManager() {
                   setError("下限は上限以下にしてください。");
                   return;
                 }
+                const thresholds = effectThresholdKeys.map(
+                  (key) => settings[key],
+                );
+                if (
+                  !(
+                    thresholds[0] < thresholds[1] &&
+                    thresholds[1] < thresholds[2]
+                  )
+                ) {
+                  setError("演出の区切りは小さい順に設定してください。");
+                  return;
+                }
+                if (effectLabelKeys.some((key) => !settings[key].trim())) {
+                  setError("演出の文言を入力してください。");
+                  return;
+                }
                 setSaving(true);
                 void requestBattleSettings(settings)
                   .then((value) => {
@@ -250,6 +270,16 @@ export default function BattleSettingsManager() {
                         );
                       })}
                     </div>
+                  )}
+                  {group.label === "ダメージ計算" && (
+                    <DamageEffectSettings
+                      settings={settings}
+                      disabled={saving}
+                      onChange={(value) => {
+                        setSaved(false);
+                        setSettings(value);
+                      }}
+                    />
                   )}
                   {group.label === "ダメージ計算" && (
                     <CombatSimulation settings={settings} />

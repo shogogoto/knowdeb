@@ -187,6 +187,9 @@ it("uses real battle UI with draft settings, records results and replays without
   expect(screen.queryByText("模擬問題")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "正解" }));
   await screen.findByText("模擬ターン精算");
+  expect(screen.getByLabelText("模擬敵へのダメージ")).toHaveTextContent(
+    "HIT · 10ダメージ",
+  );
   expect(screen.queryByTitle("単文詳細を開く")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "続ける" }));
   const comparison = screen.getByRole("table", { name: "模擬戦の比較" });
