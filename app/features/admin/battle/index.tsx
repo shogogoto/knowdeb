@@ -1,8 +1,9 @@
-import { Fragment, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
 import CombatSimulation from "./CombatSimulation";
+import FormulaSettings from "./FormulaSettings";
 import Simulation from "./Simulation";
 import { type BattleSettings, requestBattleSettings } from "./api";
 
@@ -37,15 +38,6 @@ const fields = {
   max_encounter_enemies: ["同時出現数の上端", 1, 20, 1],
   encounter_growth_rate: ["同時出現数の増加率", 0, 10, 0.1],
 } as const;
-const rangePairs = {
-  min_enemies: {
-    label: "同時出現数",
-    upper: "max_encounter_enemies",
-  },
-} as const;
-const rangeUpperKeys = new Set<string>(
-  Object.values(rangePairs).map((pair) => pair.upper),
-);
 const groups = [
   {
     label: "プレイヤーの初期値",
@@ -62,7 +54,7 @@ const groups = [
   },
   {
     label: "ダメージ計算",
-    description: "ダメージ = max(1, 攻 × 倍率 − 守 ÷ 除数) ± 乱数",
+    formula: "damage",
     keys: [
       "damage_attack_multiplier",
       "damage_defense_divisor",
@@ -71,8 +63,7 @@ const groups = [
   },
   {
     label: "敵ステータスの計算",
-    description:
-      "能力 = (基礎値 + log(1 + Power) × Power補正) × [1 + (達成度帯 − 1) × 成長率 / 100] × 個体差",
+    formula: "stats",
     keys: [
       "enemy_hp",
       "enemy_attack",
@@ -85,12 +76,10 @@ const groups = [
   },
   {
     label: "敵ロスターと遭遇の抽選",
+    formula: "roster",
     rules: [
-      "種類数 = 初期数 + (達成度 − 1) × 増加数",
-      "固定問数 = 達成度 × 係数",
       "クイズセット間の共有・未割り当てを許可",
       "ロスターの変更は「ダンジョン母集団 → 敵だけ再構成」で反映",
-      "出現範囲 = 基準の両端 × [1 + (達成度 − 1) × 増加率]",
       "出現数は範囲内から抽選し、設定変更は次の戦闘から反映",
       "同じ種類の敵も複数出現",
       "小数は切り上げ、同時出現は最大20体",
@@ -111,6 +100,35 @@ export default function BattleSettingsManager() {
   const [error, setError] = useState<string>();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const settingInput = (kind: keyof typeof fields, compact = false) => {
+    const [label, min, max, step] = fields[kind];
+    return (
+      <Input
+        id={`battle-${kind}`}
+        form="game-settings"
+        aria-label={label}
+        title={label}
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        required
+        disabled={saving}
+        className={compact ? "w-20 shrink-0" : "w-28 shrink-0"}
+        value={settings?.[kind] ?? ""}
+        onChange={(event) => {
+          setSaved(false);
+          setSettings(
+            (current) =>
+              current && {
+                ...current,
+                [kind]: Number(event.target.value),
+              },
+          );
+        }}
+      />
+    );
+  };
   useEffect(() => {
     let active = true;
     requestBattleSettings().then(
@@ -166,11 +184,6 @@ export default function BattleSettingsManager() {
                 >
                   <div className="border-b bg-muted/40 px-4 py-3">
                     <h3 className="font-medium">{group.label}</h3>
-                    {"description" in group && (
-                      <p className="mt-1 text-sm text-muted-foreground">
-                        {group.description}
-                      </p>
-                    )}
                     {"rules" in group && (
                       <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                         {group.rules.map((rule) => (
@@ -179,93 +192,34 @@ export default function BattleSettingsManager() {
                       </ul>
                     )}
                   </div>
-                  <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-                    {group.keys.map((kind) => {
-                      if (rangeUpperKeys.has(kind)) return null;
-                      const pair =
-                        kind in rangePairs
-                          ? rangePairs[kind as keyof typeof rangePairs]
-                          : undefined;
-                      if (pair) {
+                  {"formula" in group ? (
+                    <FormulaSettings
+                      kind={group.formula}
+                      input={(kind) => settingInput(kind, true)}
+                    />
+                  ) : (
+                    <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
+                      {group.keys.map((kind) => {
+                        const [label] = fields[kind];
                         return (
-                          <fieldset
+                          <div
                             key={kind}
-                            aria-label={pair.label}
-                            className="flex min-w-0 items-center justify-between gap-3 px-4 py-3"
+                            className="flex min-w-0 items-center justify-between gap-4 px-4 py-3"
                           >
-                            <span className="text-sm font-medium">
-                              {pair.label}
-                            </span>
-                            <div className="flex items-center gap-2">
-                              {[kind, pair.upper].map((bound, index) => {
-                                const [label, min, max, step] = fields[bound];
-                                return (
-                                  <Fragment key={bound}>
-                                    <Input
-                                      id={`battle-${bound}`}
-                                      form="game-settings"
-                                      aria-label={label}
-                                      type="number"
-                                      min={min}
-                                      max={max}
-                                      step={step}
-                                      required
-                                      disabled={saving}
-                                      className="w-20"
-                                      value={settings[bound]}
-                                      onChange={(event) =>
-                                        setSettings({
-                                          ...settings,
-                                          [bound]: Number(event.target.value),
-                                        })
-                                      }
-                                    />
-                                    {index === 0 && (
-                                      <span aria-hidden="true">〜</span>
-                                    )}
-                                  </Fragment>
-                                );
-                              })}
+                            <div className="min-w-0">
+                              <Label
+                                htmlFor={`battle-${kind}`}
+                                className="whitespace-normal"
+                              >
+                                {label}
+                              </Label>
                             </div>
-                          </fieldset>
-                        );
-                      }
-                      const [label, min, max, step] = fields[kind];
-                      return (
-                        <div
-                          key={kind}
-                          className="flex min-w-0 items-center justify-between gap-4 px-4 py-3"
-                        >
-                          <div className="min-w-0">
-                            <Label
-                              htmlFor={`battle-${kind}`}
-                              className="whitespace-normal"
-                            >
-                              {label}
-                            </Label>
+                            {settingInput(kind)}
                           </div>
-                          <Input
-                            id={`battle-${kind}`}
-                            form="game-settings"
-                            type="number"
-                            min={min}
-                            max={max}
-                            step={step}
-                            required
-                            disabled={saving}
-                            className="w-28 shrink-0"
-                            value={settings[kind]}
-                            onChange={(event) => {
-                              setSettings({
-                                ...settings,
-                                [kind]: Number(event.target.value),
-                              });
-                            }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </div>
+                        );
+                      })}
+                    </div>
+                  )}
                   {group.label === "ダメージ計算" && (
                     <CombatSimulation settings={settings} />
                   )}

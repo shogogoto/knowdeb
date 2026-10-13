@@ -1,0 +1,112 @@
+import type { ReactNode } from "react";
+
+export type FormulaField =
+  | "damage_attack_multiplier"
+  | "damage_defense_divisor"
+  | "damage_variance_percent"
+  | "enemy_hp"
+  | "enemy_attack"
+  | "power_hp"
+  | "power_attack"
+  | "region_hp_growth_percent"
+  | "region_attack_growth_percent"
+  | "enemy_variance_percent"
+  | "enemy_types"
+  | "enemy_types_per_region"
+  | "quizzes_per_enemy_coefficient"
+  | "min_enemies"
+  | "max_encounter_enemies"
+  | "encounter_growth_rate";
+
+function FormulaRow({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-3 px-4 py-3 text-sm tabular-nums">
+      {children}
+    </div>
+  );
+}
+
+export default function FormulaSettings({
+  kind,
+  input,
+}: {
+  kind: "damage" | "stats" | "roster";
+  input: (field: FormulaField) => ReactNode;
+}) {
+  if (kind === "damage") {
+    return (
+      <div className="divide-y">
+        <FormulaRow>
+          <span>基本ダメージ = max(1,</span>
+          <span className="inline-flex items-center gap-2">
+            攻 × {input("damage_attack_multiplier")}
+          </span>
+          <span>−</span>
+          <span className="inline-flex items-center gap-2">
+            守 ÷ {input("damage_defense_divisor")}
+          </span>
+          <span>)</span>
+        </FormulaRow>
+        <FormulaRow>
+          <span>ダメージの乱数 = 1 ±</span>
+          {input("damage_variance_percent")}
+          <span>%</span>
+        </FormulaRow>
+      </div>
+    );
+  }
+  if (kind === "stats") {
+    return (
+      <div className="divide-y">
+        {(["hp", "attack"] as const).map((stat) => (
+          <FormulaRow key={stat}>
+            <span>{stat === "hp" ? "HP" : "攻撃力"} = (</span>
+            {input(stat === "hp" ? "enemy_hp" : "enemy_attack")}
+            <span>+ log(1 + Power) ×</span>
+            {input(stat === "hp" ? "power_hp" : "power_attack")}
+            <span>) ×</span>
+            <span>[1 + (達成度帯 − 1) ×</span>
+            <span className="inline-flex items-center gap-2">
+              {input(
+                stat === "hp"
+                  ? "region_hp_growth_percent"
+                  : "region_attack_growth_percent",
+              )}
+              %]
+            </span>
+            <span>× 個体差</span>
+          </FormulaRow>
+        ))}
+        <FormulaRow>
+          <span>個体差 = 1 ±</span>
+          {input("enemy_variance_percent")}
+          <span>%</span>
+          <span className="text-muted-foreground">種類IDごとに固定</span>
+        </FormulaRow>
+      </div>
+    );
+  }
+  return (
+    <div className="divide-y">
+      <FormulaRow>
+        <span>種類数 =</span>
+        {input("enemy_types")}
+        <span>+ (達成度帯 − 1) ×</span>
+        {input("enemy_types_per_region")}
+      </FormulaRow>
+      <FormulaRow>
+        <span>固定問数 = 達成度帯 ×</span>
+        {input("quizzes_per_enemy_coefficient")}
+      </FormulaRow>
+      <FormulaRow>
+        <span>同時出現数 = (</span>
+        <span className="inline-flex items-center gap-2">
+          {input("min_enemies")}〜{input("max_encounter_enemies")}
+        </span>
+        <span>) × [1 + (達成度帯 − 1) ×</span>
+        {input("encounter_growth_rate")}
+        <span>]</span>
+      </FormulaRow>
+    </div>
+  );
+}
