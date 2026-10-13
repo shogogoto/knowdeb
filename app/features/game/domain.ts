@@ -111,6 +111,37 @@ export function resumeEvent(save: GameSave): GameSave {
   };
 }
 
+/** Defeat returns the player to the entrance; recovery costs one extra move. */
+export function recoverAtEntrance(save: GameSave): GameSave {
+  const run = save.run;
+  if (!run || run.phase !== "defeated") return save;
+  return {
+    ...save,
+    maps: {
+      ...save.maps,
+      [run.resourceId]: {
+        ...(save.maps?.[run.resourceId] ?? {
+          current: ENTRANCE,
+          places: [],
+          edges: [],
+        }),
+        current: ENTRANCE,
+      },
+    },
+    battle: null,
+    battleFeedback: undefined,
+    run: {
+      ...run,
+      hp: run.maxHp,
+      enemyHp: 0,
+      moves: run.moves + 1,
+      phase: "rest",
+      answerDeadline: null,
+      answerSeconds: null,
+    },
+  };
+}
+
 /** A lap is a reward, not a dead end. Continue without healing or extra moves. */
 export function continueExploring(save: GameSave): GameSave {
   if (save.run?.phase !== "cleared" || save.battleFeedback) return save;

@@ -60,11 +60,13 @@ import {
   enterDungeon,
   move,
   newSave,
+  recoverAtEntrance,
   resumeEvent,
 } from "./domain";
 import {
   ENTRANCE,
   PLACES_PER_REGION,
+  RECOVERY,
   dungeonMap,
   explore,
   knownKnowledge,
@@ -237,7 +239,11 @@ export function GamePlay({
         : current,
     );
   }, [refreshedContent, refreshResource, refreshRegions, save.content]);
-  const map = run ? dungeonMap(save, run) : undefined;
+  const savedMap = run ? dungeonMap(save, run) : undefined;
+  const map =
+    savedMap && run?.phase === "defeated"
+      ? { ...savedMap, current: ENTRANCE }
+      : savedMap;
   const validationIds = [
     ...new Set([
       ...(content?.knowledge.map((item) => item.uid) ?? []),
@@ -648,6 +654,24 @@ export function GamePlay({
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "冒険を再開できませんでした。",
+      );
+    } finally {
+      pendingMove.current = false;
+      setBusy(false);
+    }
+  }
+  async function recoverAtSanctuary() {
+    if (!run || busy || pendingMove.current || run.phase !== "defeated") return;
+    pendingMove.current = true;
+    setBusy(true);
+    setError(undefined);
+    try {
+      await update(recoverAtEntrance(save));
+    } catch (cause) {
+      setError(
+        cause instanceof Error
+          ? cause.message
+          : "回復場所へ移動できませんでした。",
       );
     } finally {
       pendingMove.current = false;
@@ -1080,6 +1104,7 @@ export function GamePlay({
                       : undefined
                   }
                   canTravel={(id) =>
+                    (id === RECOVERY && run.phase === "defeated") ||
                     run.phase === "path" ||
                     (run.phase === "cleared" && run.moves < MOVES_PER_EVENT) ||
                     (id === ENTRANCE &&
@@ -1090,7 +1115,11 @@ export function GamePlay({
                   knowledge={content?.knowledge ?? []}
                   onOpen={(sentenceId) => openPreview({ sentenceId })}
                   onMove={(sentenceId, kind) => {
-                    if (sentenceId === ENTRANCE && run.phase === "defeated")
+                    if (sentenceId === RECOVERY) void recoverAtSanctuary();
+                    else if (
+                      sentenceId === ENTRANCE &&
+                      run.phase === "defeated"
+                    )
                       void restartAtEntrance();
                     else void advance(sentenceId, kind);
                   }}
@@ -1294,7 +1323,7 @@ export function GamePlay({
                     <div aria-live="polite" className="rounded-lg border p-4">
                       <h3 className="font-semibold">冒険失敗</h3>
                       <p className="mt-2 text-sm">
-                        攻略は振り出しへ。復習履歴とXPは失われません。
+                        入口へ戻りました。マップの回復場所へ移動すると、1歩使ってHPが全回復します。冒険の再開には次の冒険権が必要です。復習履歴とXPは失われません。
                       </p>
                     </div>
                   ) : null}

@@ -19,7 +19,12 @@ import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import PathTerms from "./PathTerms";
 import RegionEnemies from "./RegionEnemies";
 import type { DungeonContent, PathKnowledge, RegionEnemy } from "./api";
-import { type DungeonMap, ENTRANCE, PLACES_PER_REGION } from "./exploration";
+import {
+  type DungeonMap,
+  ENTRANCE,
+  PLACES_PER_REGION,
+  RECOVERY,
+} from "./exploration";
 import { directionalPlace } from "./navigation";
 
 export type MapCandidate = {
@@ -199,6 +204,7 @@ export default function ExplorationMap({
         : { x: entranceX + level * 230, y: 220 + row * 150 },
     );
   }
+  positions.set(RECOVERY, { x: entranceX, y: 370 });
   const candidateLevel = (levels.get(map.current) ?? 0) + 1;
   for (const item of fresh) {
     const row = columns.get(candidateLevel) ?? 0;
@@ -304,7 +310,10 @@ export default function ExplorationMap({
     !unavailableIds.includes(selected ?? "") &&
     (selected !== map.current ||
       (selected === ENTRANCE && Boolean(onRestart))) &&
-    Boolean(selected && (allIds.includes(selected) || candidate));
+    Boolean(
+      selected &&
+        (selected === RECOVERY || allIds.includes(selected) || candidate),
+    );
   const index = map.places.findIndex((place) => place.id === map.current);
   const selectedDungeon = dungeons.find(
     (item) => worldId(item.id) === selected,
@@ -417,6 +426,7 @@ export default function ExplorationMap({
                 ) : null;
               })}
               {[
+                { from: ENTRANCE, to: RECOVERY, kind: "relation" as const },
                 ...map.edges,
                 ...fresh.map((item) => ({
                   from: map.current,
@@ -484,6 +494,41 @@ export default function ExplorationMap({
                 </button>
               );
             })}
+            <button
+              type="button"
+              aria-label="回復場所"
+              aria-pressed={selected === RECOVERY}
+              tabIndex={focused === RECOVERY ? 0 : -1}
+              ref={(node) => {
+                if (node) nodes.current.set(RECOVERY, node);
+                else nodes.current.delete(RECOVERY);
+              }}
+              onFocus={() => {
+                setFocused(RECOVERY);
+                setSelected(RECOVERY);
+              }}
+              onClick={(event) => {
+                keyboardNavigation.current = event.detail === 0;
+                setSelected(RECOVERY);
+                if (
+                  keyboardNavigation.current &&
+                  !disabled &&
+                  canTravel(RECOVERY)
+                )
+                  onMove(RECOVERY);
+              }}
+              className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected === RECOVERY ? "border-primary ring-2 ring-primary/30" : "border-emerald-500/50"}`}
+              style={{
+                left: positions.get(RECOVERY)?.x,
+                top: positions.get(RECOVERY)?.y,
+              }}
+            >
+              <span className="block text-xs text-emerald-500">入口の施設</span>
+              <span className="font-medium">回復場所</span>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                敗北時に利用可能 · 1歩
+              </span>
+            </button>
             {[...allIds, ...fresh.map((item) => item.knowledge.uid)].map(
               (id, i) => {
                 const point = positions.get(id);
@@ -702,6 +747,8 @@ export default function ExplorationMap({
               )}
               {selectedDungeon ? (
                 <h3 className="font-medium">{selectedDungeon.name}</h3>
+              ) : selected === RECOVERY ? (
+                <h3 className="font-medium">回復場所</h3>
               ) : (
                 <PathTerms knowledge={chosen} />
               )}
@@ -713,9 +760,11 @@ export default function ExplorationMap({
               <p className="mt-2 text-sm leading-relaxed">
                 {selectedDungeon
                   ? "ダンジョンへ移動"
-                  : selected === ENTRANCE
-                    ? "ダンジョンの入口"
-                    : (chosen?.sentence ?? "単文詳細を開く")}
+                  : selected === RECOVERY
+                    ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
+                    : selected === ENTRANCE
+                      ? "ダンジョンの入口"
+                      : (chosen?.sentence ?? "単文詳細を開く")}
               </p>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -738,20 +787,25 @@ export default function ExplorationMap({
                     else onMove(selected, candidate?.kind);
                   }}
                   aria-label={
-                    selected === ENTRANCE && onRestart
-                      ? "冒険を再開"
-                      : candidate
-                        ? undefined
-                        : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
+                    selected === RECOVERY
+                      ? "回復場所へ移動・1歩"
+                      : selected === ENTRANCE && onRestart
+                        ? "冒険を再開"
+                        : candidate
+                          ? undefined
+                          : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
                   }
                 >
-                  {selected === ENTRANCE && onRestart
-                    ? "冒険を再開"
-                    : candidate
-                      ? candidate.kind === "detour" && map.current !== ENTRANCE
-                        ? "見たよ · 寄り道へ"
-                        : "見たよ · この道へ"
-                      : "移動 · １歩"}
+                  {selected === RECOVERY
+                    ? "回復場所へ · 1歩"
+                    : selected === ENTRANCE && onRestart
+                      ? "冒険を再開"
+                      : candidate
+                        ? candidate.kind === "detour" &&
+                          map.current !== ENTRANCE
+                          ? "見たよ · 寄り道へ"
+                          : "見たよ · この道へ"
+                        : "移動 · １歩"}
                 </Button>
               )}
               {!selectedDungeon &&

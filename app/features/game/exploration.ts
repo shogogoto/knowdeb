@@ -2,6 +2,7 @@ import type { DungeonContent, PathKnowledge } from "./api";
 import type { GameSave, Run } from "./domain";
 
 export const ENTRANCE = "@entrance";
+export const RECOVERY = "@recovery";
 export const PLACES_PER_REGION = 5;
 export type DungeonMap = {
   current: string;
