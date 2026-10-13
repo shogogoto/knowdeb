@@ -8,12 +8,14 @@ export default function SectionHeaderTabs({
   compact = false,
   active: controlledActive,
   onSelect,
+  id,
 }: {
   sections: readonly { id: string; label: string; progress?: string }[];
   label: string;
   compact?: boolean;
   active?: string;
   onSelect?: (id: string) => void;
+  id?: string;
 }) {
   const [searchParams, setSearchParams] = useSearchParams();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -71,6 +73,8 @@ export default function SectionHeaderTabs({
           }}
           type="button"
           role="tab"
+          id={id ? `${id}-${section.id}` : undefined}
+          aria-controls={id ? `${id}-${section.id}-panel` : undefined}
           aria-label={section.label}
           aria-selected={active === section.id}
           title={`Ctrl+${index + 1}`}

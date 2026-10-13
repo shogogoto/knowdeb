@@ -1,21 +1,35 @@
 import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router";
 import { useAuth } from "~/features/auth/AuthProvider";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "~/shared/components/ui/tabs";
-import BrokenQuizManager from "./brokenQuizzes";
+import SectionHeaderTabs from "~/shared/components/SectionHeaderTabs";
+import { Tabs, TabsContent } from "~/shared/components/ui/tabs";
 import GameAdminManager from "./game";
 import ImageManager from "./images";
 import LevelSettingsManager from "./levels";
-import OrphanedTanbunManager from "./orphanedTanbuns";
+import MaintenanceManager, { maintenanceSections } from "./maintenance";
 import PageRankManager from "./pagerank";
 import PowerSettingsManager from "./power";
 import AdminUserManager from "./users";
 import WorkloadSettingsManager from "./workload";
+
+const sections = [
+  { id: "users", label: "ユーザー" },
+  { id: "workload", label: "負荷制御" },
+  { id: "levels", label: "レベル" },
+  { id: "game", label: "ゲーム" },
+  { id: "power", label: "Power" },
+  { id: "pagerank", label: "PageRank" },
+  { id: "images", label: "画像" },
+  { id: "maintenance", label: "メンテナンス" },
+] as const;
+
+function tabPath(tab: string) {
+  return tab === "game"
+    ? "/admin/game/balance"
+    : tab === "maintenance"
+      ? "/admin/maintenance/orphans"
+      : `/admin/${tab}`;
+}
 
 export default function Admin() {
   const { user, isLoading } = useAuth();
@@ -23,28 +37,20 @@ export default function Admin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const view = searchParams.get("view");
+  const requested = routeTab || view || sections[0].id;
+  const legacyMaintenance = maintenanceSections.some((s) => s.id === requested);
+  const activeTab = legacyMaintenance
+    ? "maintenance"
+    : sections.some((s) => s.id === requested)
+      ? requested
+      : sections[0].id;
   useEffect(() => {
-    if (!routeTab && view) {
-      navigate(`/admin/${view}`, { replace: true });
-    } else if (!routeTab) {
-      navigate("/admin/orphans", { replace: true });
+    if (legacyMaintenance) {
+      navigate(`/admin/maintenance/${requested}`, { replace: true });
+    } else if (!routeTab || activeTab !== requested) {
+      navigate(tabPath(activeTab), { replace: true });
     }
-  }, [navigate, routeTab, view]);
-
-  const tab = routeTab || "orphans";
-  const allowedTabs = [
-    "orphans",
-    "misplaced",
-    "broken-quizzes",
-    "users",
-    "workload",
-    "levels",
-    "game",
-    "power",
-    "pagerank",
-    "images",
-  ];
-  const activeTab = allowedTabs.includes(tab) ? tab : "orphans";
+  }, [navigate, routeTab, requested, activeTab, legacyMaintenance]);
 
   if (isLoading) {
     return <p className="p-6 text-sm text-muted-foreground">確認中…</p>;
@@ -59,56 +65,80 @@ export default function Admin() {
     );
   }
   return (
-    <Tabs
-      value={activeTab}
-      onValueChange={(value) =>
-        navigate(value === "game" ? "/admin/game/balance" : `/admin/${value}`)
-      }
-      className="gap-0"
-    >
+    <Tabs value={activeTab} className="gap-0">
       <div className="flex justify-center border-b px-4 py-2 sm:px-6">
-        <TabsList className="h-auto flex-wrap justify-center">
-          <TabsTrigger value="orphans">孤立Tanbun</TabsTrigger>
-          <TabsTrigger value="misplaced">配置切れTanbun</TabsTrigger>
-          <TabsTrigger value="broken-quizzes">参照切れQuiz</TabsTrigger>
-          <TabsTrigger value="users">ユーザー</TabsTrigger>
-          <TabsTrigger value="workload">負荷制御</TabsTrigger>
-          <TabsTrigger value="levels">レベル</TabsTrigger>
-          <TabsTrigger value="game">ゲーム</TabsTrigger>
-          <TabsTrigger value="power">Power</TabsTrigger>
-          <TabsTrigger value="pagerank">PageRank</TabsTrigger>
-          <TabsTrigger value="images">画像</TabsTrigger>
-        </TabsList>
+        <SectionHeaderTabs
+          id="admin-tabs"
+          sections={sections}
+          label="管理画面の表示切り替え"
+          compact
+          active={activeTab}
+          onSelect={(value) => navigate(tabPath(value))}
+        />
       </div>
-      <TabsContent value="orphans" className="mt-0">
-        <OrphanedTanbunManager kind="orphaned" />
-      </TabsContent>
-      <TabsContent value="misplaced" className="mt-0">
-        <OrphanedTanbunManager kind="misplaced" />
-      </TabsContent>
-      <TabsContent value="broken-quizzes" className="mt-0">
-        <BrokenQuizManager />
-      </TabsContent>
-      <TabsContent value="users" className="mt-0">
+      <TabsContent
+        value="users"
+        id="admin-tabs-users-panel"
+        aria-labelledby="admin-tabs-users"
+        className="mt-0"
+      >
         <AdminUserManager />
       </TabsContent>
-      <TabsContent value="workload" className="mt-0">
+      <TabsContent
+        value="workload"
+        id="admin-tabs-workload-panel"
+        aria-labelledby="admin-tabs-workload"
+        className="mt-0"
+      >
         <WorkloadSettingsManager />
       </TabsContent>
-      <TabsContent value="levels" className="mt-0">
+      <TabsContent
+        value="levels"
+        id="admin-tabs-levels-panel"
+        aria-labelledby="admin-tabs-levels"
+        className="mt-0"
+      >
         <LevelSettingsManager />
       </TabsContent>
-      <TabsContent value="game" className="mt-0">
+      <TabsContent
+        value="game"
+        id="admin-tabs-game-panel"
+        aria-labelledby="admin-tabs-game"
+        className="mt-0"
+      >
         <GameAdminManager />
       </TabsContent>
-      <TabsContent value="power" className="mt-0">
+      <TabsContent
+        value="power"
+        id="admin-tabs-power-panel"
+        aria-labelledby="admin-tabs-power"
+        className="mt-0"
+      >
         <PowerSettingsManager />
       </TabsContent>
-      <TabsContent value="pagerank" className="mt-0">
+      <TabsContent
+        value="pagerank"
+        id="admin-tabs-pagerank-panel"
+        aria-labelledby="admin-tabs-pagerank"
+        className="mt-0"
+      >
         <PageRankManager />
       </TabsContent>
-      <TabsContent value="images" className="mt-0">
+      <TabsContent
+        value="images"
+        id="admin-tabs-images-panel"
+        aria-labelledby="admin-tabs-images"
+        className="mt-0"
+      >
         <ImageManager />
+      </TabsContent>
+      <TabsContent
+        value="maintenance"
+        id="admin-tabs-maintenance-panel"
+        aria-labelledby="admin-tabs-maintenance"
+        className="mt-0"
+      >
+        <MaintenanceManager />
       </TabsContent>
     </Tabs>
   );
