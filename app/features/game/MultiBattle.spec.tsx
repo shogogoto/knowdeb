@@ -239,83 +239,95 @@ it("retreat batches only confirmed answers and keeps unanswered questions out of
   expect(requests[0].answers).toEqual({ enemy0: ["a0"] });
 });
 
-it("keeps damaged enemy HP across turns without sending it to the server", async () => {
-  server.use(
-    http.post("*/game/battle/turn", async ({ request }) => {
-      const body = (await request.json()) as TurnInput;
-      requests.push(body);
-      const save = initial();
-      if (!save.battle) throw new Error("Missing battle");
-      save.battle.turn = body.turn + 1;
-      save.battle.enemies = save.battle.enemies.filter(
-        (id) => !body.defeated.includes(id),
+it.each([false, true])(
+  "answers consecutive turns entirely by keyboard (simulation=%s)",
+  async (simulation) => {
+    server.use(
+      http.post("*/game/battle/turn", async ({ request }) => {
+        const body = (await request.json()) as TurnInput;
+        requests.push(body);
+        const save = initial();
+        if (!save.battle) throw new Error("Missing battle");
+        save.battle.turn = body.turn + 1;
+        save.battle.enemies = save.battle.enemies.filter(
+          (id) => !body.defeated.includes(id),
+        );
+        save.battleFeedback = "ターン精算完了";
+        if (save.run) save.run.answerDeadline = undefined;
+        return HttpResponse.json({
+          results: { enemy0: true, enemy1: true },
+          damage: 0,
+          state: { revision: 2, save },
+        });
+      }),
+      http.post("*/game/battle/next", () => {
+        const save = initial();
+        if (save.battle) {
+          save.battle.turn = 1;
+          save.battle.quizIndices = { enemy0: 1, enemy1: 0 };
+        }
+        return HttpResponse.json({ revision: 3, save });
+      }),
+    );
+    function TwoTurnFixture() {
+      const [save, setSave] = useState(initial);
+      return (
+        <MemoryRouter>
+          <MultiBattle
+            simulation={simulation}
+            save={save}
+            content={content}
+            context={{
+              balance: stableBalance,
+              enemies: enemies.map((enemy) => ({ ...enemy, hp: 15 })),
+            }}
+            onSaved={(state) => setSave(state.save)}
+            onFinished={async () => undefined}
+            onBusy={() => undefined}
+          />
+        </MemoryRouter>
       );
-      save.battleFeedback = "ターン精算完了";
-      if (save.run) save.run.answerDeadline = undefined;
-      return HttpResponse.json({
-        results: { enemy0: true, enemy1: true },
-        damage: 0,
-        state: { revision: 2, save },
+    }
+    render(<TwoTurnFixture />);
+    const user = userEvent.setup();
+    async function answerBoth(reverse = false) {
+      const first = await screen.findByRole("button", {
+        name: simulation ? "正解" : reverse ? "選択肢二" : "選択肢一",
       });
-    }),
-    http.post("*/game/battle/next", () => {
-      const save = initial();
-      if (save.battle) {
-        save.battle.turn = 1;
-        save.battle.quizIndices = { enemy0: 1, enemy1: 0 };
+      await waitFor(() => expect(first).toHaveFocus());
+      await user.keyboard(" {Enter}");
+      const second = screen.getByRole("button", {
+        name: simulation ? "正解" : reverse ? "選択肢一" : "選択肢二",
+      });
+      await waitFor(() => expect(second).toHaveFocus());
+      await user.keyboard("{ArrowDown}");
+      if (simulation) {
+        expect(screen.getByRole("button", { name: "不正解" })).toHaveFocus();
+        await user.keyboard("{ArrowUp}");
       }
-      return HttpResponse.json({ revision: 3, save });
-    }),
-  );
-  function TwoTurnFixture() {
-    const [save, setSave] = useState(initial);
-    return (
-      <MemoryRouter>
-        <MultiBattle
-          save={save}
-          content={content}
-          context={{
-            balance: stableBalance,
-            enemies: enemies.map((enemy) => ({ ...enemy, hp: 15 })),
-          }}
-          onSaved={(state) => setSave(state.save)}
-          onFinished={async () => undefined}
-          onBusy={() => undefined}
-        />
-      </MemoryRouter>
-    );
-  }
-  render(<TwoTurnFixture />);
-  const user = userEvent.setup();
-  async function answerBoth(reverse = false) {
-    await user.click(
-      screen.getByRole("button", { name: reverse ? "選択肢二" : "選択肢一" }),
-    );
-    await user.click(screen.getByRole("button", { name: "回答を確定" }));
-    await user.click(
-      screen.getByRole("button", { name: reverse ? "選択肢一" : "選択肢二" }),
-    );
-    await user.click(screen.getByRole("button", { name: "回答を確定" }));
-    await user.click(
-      await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
-    );
-    await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
-    await screen.findByText("ターン精算完了");
-  }
-  await answerBoth();
-  expect(requests[0].defeated).toEqual([]);
-  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "5",
-  );
-  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "5",
-  );
-  await user.click(screen.getByRole("button", { name: "次のターン" }));
-  await answerBoth(true);
-  expect(requests[1].turn).toBe(1);
-  expect(requests[1].answers).toEqual({ enemy0: ["a1"], enemy1: ["a0"] });
-  expect(requests[1].defeated).toEqual(["enemy0", "enemy1"]);
-  expect(requests[1]).not.toHaveProperty("hp");
-});
+      await user.keyboard(" {Enter}");
+      const process = await screen.findByRole("button", {
+        name: "結果を処理 · 1/2",
+      });
+      await waitFor(() => expect(process).toHaveFocus());
+      await user.keyboard("{Enter}");
+      await user.keyboard("{Enter}");
+      await screen.findByText("ターン精算完了");
+    }
+    await user.keyboard("{ArrowDown}");
+    await answerBoth();
+    expect(requests[0].defeated).toEqual([]);
+    expect(
+      screen.getByRole("progressbar", { name: "敵0のHP" }),
+    ).toHaveAttribute("aria-valuenow", "5");
+    expect(
+      screen.getByRole("progressbar", { name: "敵1のHP" }),
+    ).toHaveAttribute("aria-valuenow", "5");
+    await user.keyboard("{Enter}");
+    await answerBoth(true);
+    expect(requests[1].turn).toBe(1);
+    expect(requests[1].answers).toEqual({ enemy0: ["a1"], enemy1: ["a0"] });
+    expect(requests[1].defeated).toEqual(["enemy0", "enemy1"]);
+    expect(requests[1]).not.toHaveProperty("hp");
+  },
+);

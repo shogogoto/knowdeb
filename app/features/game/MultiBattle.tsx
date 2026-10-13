@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import QuizAttempt from "~/features/quiz/QuizAttempt";
 import QuizPreviewPrompt from "~/features/quiz/QuizPreviewPrompt";
 import { Button } from "~/shared/components/ui/button";
@@ -67,6 +73,8 @@ export default function MultiBattle({
     Record<string, "correct" | "incorrect">
   >({});
   const activeAnswerArea = useRef<HTMLDivElement>(null);
+  const resultAdvance = useRef<HTMLButtonElement>(null);
+  const pendingAnswerFocus = useRef(false);
   const [frozenRemainingMs, setFrozenRemainingMs] = useState<number>();
   const [active, setActive] = useState(0);
   const [now, setNow] = useState(Date.now);
@@ -111,16 +119,31 @@ export default function MultiBattle({
     : [];
   const nextResultId = resultIds[resultIndex];
   const stats = playerStats(save.allocation, context.balance);
-  function focusAnswerChoice(direction: "first" | "last" = "first") {
-    const selector = simulation
-      ? "button[data-simulation-option]:not(:disabled)"
-      : "button[data-quiz-option-index]:not(:disabled)";
-    const choices =
-      activeAnswerArea.current?.querySelectorAll<HTMLElement>(selector);
-    const choice =
-      direction === "first" ? choices?.[0] : choices?.[choices.length - 1];
-    choice?.focus();
-  }
+  const focusAnswerChoice = useCallback(
+    (direction: "first" | "last" = "first") => {
+      const selector = simulation
+        ? "button[data-simulation-option]:not(:disabled)"
+        : "button[data-quiz-option-index]:not(:disabled)";
+      const choices =
+        activeAnswerArea.current?.querySelectorAll<HTMLElement>(selector);
+      const choice =
+        direction === "first" ? choices?.[0] : choices?.[choices.length - 1];
+      choice?.focus();
+      return Boolean(choice);
+    },
+    [simulation],
+  );
+  // Answer buttons are replaced/disabled during confirmation and turn changes.
+  // Wait for React to commit the new question instead of racing a paint callback.
+  useLayoutEffect(() => {
+    if (result && !busy) resultAdvance.current?.focus();
+  }, [busy, result]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: Active changes commit a different answer area's ref; focus only when explicitly requested.
+  useLayoutEffect(() => {
+    if (!busy && !result && pendingAnswerFocus.current && focusAnswerChoice()) {
+      pendingAnswerFocus.current = false;
+    }
+  }, [active, busy, result, focusAnswerChoice]);
   const remainingMs =
     frozenRemainingMs ??
     (run?.answerDeadline
@@ -407,6 +430,7 @@ export default function MultiBattle({
             );
           })}
           <Button
+            ref={resultAdvance}
             disabled={busy}
             data-battle-advance
             onClick={() => {
@@ -450,6 +474,7 @@ export default function MultiBattle({
                 turn: save.battle.turn,
               })
                 .then((state) => {
+                  pendingAnswerFocus.current = true;
                   setAnswers({});
                   setSimulationChoices({});
                   setFrozenRemainingMs(undefined);
@@ -509,8 +534,8 @@ export default function MultiBattle({
                   candidate.id !== enemy.id && !(candidate.id in answers),
               );
               if (next >= 0) {
+                pendingAnswerFocus.current = true;
                 setActive(next);
-                requestAnimationFrame(() => focusAnswerChoice());
               }
             };
             const correct = quiz.no_correct_option ? [] : quiz.correct;
@@ -565,6 +590,26 @@ export default function MultiBattle({
                                   return { ...current, [enemy.id]: choice };
                                 })
                               }
+                              onKeyDown={(event) => {
+                                if (
+                                  event.key !== "ArrowDown" &&
+                                  event.key !== "ArrowUp"
+                                )
+                                  return;
+                                event.preventDefault();
+                                event.stopPropagation();
+                                const choices = Array.from(
+                                  activeAnswerArea.current?.querySelectorAll<HTMLButtonElement>(
+                                    "button[data-simulation-option]:not(:disabled)",
+                                  ) ?? [],
+                                );
+                                const next =
+                                  (choices.indexOf(event.currentTarget) +
+                                    (event.key === "ArrowDown" ? 1 : -1) +
+                                    choices.length) %
+                                  choices.length;
+                                choices[next]?.focus();
+                              }}
                               className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary ${selected ? "border-primary bg-primary/10" : "hover:bg-muted"}`}
                             >
                               {choice === "correct" ? "正解" : "不正解"}
