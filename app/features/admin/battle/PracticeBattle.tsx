@@ -255,9 +255,6 @@ export default function PracticeBattle({
       className="space-y-3 rounded-lg border p-4"
     >
       <h3 className="font-semibold">実戦形式の模擬戦</h3>
-      <p className="text-sm text-muted-foreground">
-        準備済み領域の母集団を使い、編集中の設定で模擬敵を生成します。クイズを解く代わりに「正解」「不正解」を選んで確定できます。実際の戦闘画面・計算を使用しますが、冒険状態・回答履歴・XP・設定は保存しません。未回答のまま時間切れも試せます。閉じても時間は進みます。
-      </p>
       <form
         className="space-y-3"
         onSubmit={(event) => {

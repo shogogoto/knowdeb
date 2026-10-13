@@ -78,9 +78,6 @@ export default function Simulation({
         <h3 className="font-semibold">
           {mode === "stats" ? "敵能力の試算" : "ロスター・同時出現数の試算"}
         </h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          この上の設定を編集して試算できます。保存は不要です。結果は条件変更後も残ります。実際の生成と同じ計算を使用し、クイズの割り当てと個体差は再現可能なサンプルです。
-        </p>
       </div>
       <form onSubmit={simulate} className="space-y-3">
         <div className="grid gap-3 sm:grid-cols-2">
@@ -321,11 +318,7 @@ export default function Simulation({
             </section>
           )}
         </>
-      ) : (
-        <p className="text-sm text-muted-foreground">
-          条件や補正値を変えて試算すると、比較行が追加されます。
-        </p>
-      )}
+      ) : null}
     </section>
   );
 }

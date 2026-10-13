@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
@@ -33,8 +33,8 @@ const fields = {
   enemy_types: ["領域ごとの敵の種類数", 1, 20, 1],
   enemy_types_per_region: ["領域が進むごとの種類数の増加", 0, 20, 1],
   quizzes_per_enemy_coefficient: ["達成度あたりの固定クイズ数", 0.1, 5, 0.1],
-  min_enemies: ["同時出現数（下限）", 1, 20, 1],
-  max_encounter_enemies: ["同時出現数（上限）", 1, 20, 1],
+  min_enemies: ["同時出現数の下端", 1, 20, 1],
+  max_encounter_enemies: ["同時出現数の上端", 1, 20, 1],
   encounter_growth_rate: ["同時出現数の増加率", 0, 10, 0.1],
 } as const;
 const rangePairs = {
@@ -176,19 +176,16 @@ export default function BattleSettingsManager() {
                           <fieldset
                             key={kind}
                             aria-label={pair.label}
-                            className="flex min-w-0 flex-col gap-3 px-4 py-3 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between"
+                            className="flex min-w-0 items-center justify-between gap-3 px-4 py-3"
                           >
                             <span className="text-sm font-medium">
                               {pair.label}
                             </span>
-                            <div className="flex items-end gap-2">
+                            <div className="flex items-center gap-2">
                               {[kind, pair.upper].map((bound, index) => {
                                 const [label, min, max, step] = fields[bound];
                                 return (
-                                  <div key={bound} className="space-y-1">
-                                    <Label htmlFor={`battle-${bound}`}>
-                                      {index === 0 ? "下限" : "上限"}
-                                    </Label>
+                                  <Fragment key={bound}>
                                     <Input
                                       id={`battle-${bound}`}
                                       form="game-settings"
@@ -199,7 +196,7 @@ export default function BattleSettingsManager() {
                                       step={step}
                                       required
                                       disabled={saving}
-                                      className="w-24 sm:w-28"
+                                      className="w-20"
                                       value={settings[bound]}
                                       onChange={(event) =>
                                         setSettings({
@@ -208,7 +205,10 @@ export default function BattleSettingsManager() {
                                         })
                                       }
                                     />
-                                  </div>
+                                    {index === 0 && (
+                                      <span aria-hidden="true">〜</span>
+                                    )}
+                                  </Fragment>
                                 );
                               })}
                             </div>

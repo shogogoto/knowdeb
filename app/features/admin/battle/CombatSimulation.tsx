@@ -37,9 +37,6 @@ export default function CombatSimulation({
     >
       <div>
         <h3 className="font-semibold">戦闘の試算</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          1対1の戦闘を現在の設定で試算します。正解なら敵へダメージ、不正解・未回答ならプレイヤーへダメージです。表には基本値と乱数を含む幅を表示します。敵には現在、守備力はありません。
-        </p>
       </div>
       <form
         className="space-y-3"
