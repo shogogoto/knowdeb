@@ -18,6 +18,22 @@ const preparations: PracticeInput[] = [];
 const turns: unknown[] = [];
 const draft = { ...defaultBalance, base_hp: 60, damage_variance_percent: 0 };
 const server = setupServer(
+  http.get("*/admin/users", () =>
+    HttpResponse.json([
+      {
+        uid: "user",
+        email: "admin@test",
+        display_name: "管理者",
+        username: null,
+      },
+      {
+        uid: "other",
+        email: "player@test",
+        display_name: "プレイヤーB",
+        username: null,
+      },
+    ]),
+  ),
   http.get("*/admin/game/dungeons", () =>
     HttpResponse.json([
       {
@@ -139,6 +155,27 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
+it("selects a player independently of the dungeon owner", async () => {
+  render(
+    <MemoryRouter>
+      <PracticeBattle settings={draft} />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  const player = screen.getByRole("combobox", { name: "プレイヤー" });
+  await waitFor(() => expect(player).toBeEnabled());
+  await user.selectOptions(player, "other");
+  const start = screen.getByRole("button", {
+    name: "現在の設定で模擬戦を開始",
+  });
+  await waitFor(() => expect(start).toBeEnabled());
+  await user.click(start);
+  await screen.findByRole("heading", { name: "模擬戦（保存されません）" });
+  expect(preparations[0].user_id).toBe("user");
+  expect(preparations[0].player_user_id).toBe("other");
+  expect(preparations[0].allocation).toBeNull();
+});
+
 it("explains a missing deployment route without confusing it with missing data", async () => {
   server.use(
     http.post("*/admin/settings/game-balance/practice", () =>
@@ -185,7 +222,8 @@ it("uses real battle UI with draft settings, records results and replays without
   ).not.toBeInTheDocument();
   expect(screen.queryByText("正解の選択肢")).not.toBeInTheDocument();
   expect(screen.queryByText("模擬問題")).not.toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "正解" }));
+  await user.click(screen.getByRole("radio", { name: /^正解$/ }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
   await screen.findByText("模擬ターン精算");
   expect(screen.getByLabelText("模擬敵へのダメージ")).toHaveTextContent(
     "HIT · 10ダメージ",
@@ -214,7 +252,8 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
   });
   await waitFor(() => expect(start).toBeEnabled());
   await user.click(start);
-  await user.click(await screen.findByRole("button", { name: "不正解" }));
+  await user.click(await screen.findByRole("radio", { name: "不正解" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
   await screen.findByText("模擬ターン精算");
   expect(screen.getByText("模擬敵 · 不正解")).toBeInTheDocument();
   expect(

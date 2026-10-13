@@ -21,6 +21,7 @@ import {
   TableRow,
 } from "~/shared/components/ui/table";
 import { type AdminGameDungeon, listAdminGameDungeons } from "../game/api";
+import { type AdminUserItem, listAdminUsers } from "../users/api";
 import {
   type BattleSettings,
   type PracticeSession,
@@ -32,6 +33,7 @@ import {
 type RecordResult = {
   id: string;
   name: string;
+  playerName?: string;
   level: number;
   seed: number;
   settings: BattleSettings;
@@ -45,11 +47,17 @@ type RecordResult = {
   damage: number;
   seconds: number;
 };
-type Session = PracticeSession & { id: string; name: string; level: number };
+type Session = PracticeSession & {
+  id: string;
+  name: string;
+  level: number;
+  playerName?: string;
+};
 type Counts = Omit<
   RecordResult,
   | "id"
   | "name"
+  | "playerName"
   | "level"
   | "seed"
   | "settings"
@@ -83,6 +91,9 @@ export default function PracticeBattle({
 }: { settings: BattleSettings }) {
   const [dungeons, setDungeons] = useState<AdminGameDungeon[]>([]);
   const [target, setTarget] = useState("");
+  const [users, setUsers] = useState<AdminUserItem[]>([]);
+  const [playerId, setPlayerId] = useState("");
+  const [usersError, setUsersError] = useState<string>();
   const [level, setLevel] = useState(1);
   const [seed, setSeed] = useState(1);
   const [useUserAllocation, setUseUserAllocation] = useState(true);
@@ -101,6 +112,21 @@ export default function PracticeBattle({
   const selected = dungeons.find(
     (dungeon) => `${dungeon.user_id}:${dungeon.resource_id}` === target,
   );
+  const selectedPlayerId = playerId || selected?.user_id || users[0]?.uid || "";
+  const selectedPlayer = users.find((user) => user.uid === selectedPlayerId);
+  useEffect(() => {
+    let mounted = true;
+    void listAdminUsers()
+      .then((items) => {
+        if (mounted) setUsers(items);
+      })
+      .catch((cause) => {
+        if (mounted) setUsersError(cause.message);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
   useEffect(() => {
     let mounted = true;
     void listAdminGameDungeons()
@@ -150,6 +176,7 @@ export default function PracticeBattle({
     try {
       const prepared = await requestPractice({
         user_id: selected.user_id,
+        player_user_id: selectedPlayerId,
         resource_id: selected.resource_id,
         level,
         seed,
@@ -160,6 +187,10 @@ export default function PracticeBattle({
         ...prepared,
         id: crypto.randomUUID(),
         name: selected.resource_name,
+        playerName:
+          selectedPlayer?.display_name ||
+          selectedPlayer?.username ||
+          selectedPlayer?.email,
         level,
       };
       setInitial(structuredClone(value));
@@ -229,6 +260,7 @@ export default function PracticeBattle({
           ...total,
           id: current.id,
           name: current.name,
+          playerName: current.playerName,
           level: current.level,
           seed: current.seed,
           settings: { ...current.context.balance },
@@ -262,6 +294,31 @@ export default function PracticeBattle({
           void start();
         }}
       >
+        <div className="space-y-1">
+          <Label htmlFor="practice-player">プレイヤー</Label>
+          <select
+            id="practice-player"
+            className="h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm"
+            value={selectedPlayerId}
+            disabled={busy || !!active || !users.length}
+            onChange={(event) => setPlayerId(event.target.value)}
+          >
+            {!users.length && (
+              <option value={selectedPlayerId}>ダンジョンの所有者</option>
+            )}
+            {users.map((user) => (
+              <option key={user.uid} value={user.uid}>
+                {user.display_name || user.username || user.email}
+                {user.display_name || user.username ? ` · ${user.email}` : ""}
+              </option>
+            ))}
+          </select>
+          {usersError && (
+            <p role="alert" className="text-sm text-destructive">
+              {usersError}
+            </p>
+          )}
+        </div>
         <Label htmlFor="practice-dungeon">模擬戦のダンジョン</Label>
         <select
           id="practice-dungeon"
@@ -414,7 +471,7 @@ export default function PracticeBattle({
           save={active.state.save}
           content={active.state.save.content as DungeonContent}
           context={active.context}
-          playerName="模擬プレイヤー"
+          playerName={active.playerName ?? "模擬プレイヤー"}
           transport={transport}
           rollDamage={(attack, balance, key) =>
             rollPlayerDamage(attack, balance, randomFor(active.seed, key))
@@ -464,6 +521,7 @@ export default function PracticeBattle({
                   </TableCell>
                   <TableCell>{r.seed}</TableCell>
                   <TableCell className="whitespace-nowrap">
+                    {r.playerName && <p>{r.playerName}</p>}
                     HP {r.player.maxHp}／攻 {r.player.attack}／守{" "}
                     {r.player.defense}／{r.player.answerSeconds}秒
                   </TableCell>

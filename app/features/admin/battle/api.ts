@@ -13,6 +13,7 @@ import type { GameState } from "~/features/game/state";
 
 export type PracticeInput = {
   user_id: string;
+  player_user_id?: string;
   resource_id: string;
   level: number;
   balance: BattleSettings;
