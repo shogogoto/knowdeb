@@ -210,7 +210,7 @@ it("separates the dungeon header and player HUD, and offers non-adjacent known t
     .click(screen.getByRole("button", { name: "入口へ移動" }));
   expect(onMove).toHaveBeenCalledWith("@entrance", undefined);
 });
-it("uses arrows to focus places, Enter to open/confirm, and Escape to return without travel", async () => {
+it("previews places on arrow focus, travels with one Enter, and dismisses with Escape", async () => {
   const onMove = vi.fn();
   render(
     <ExplorationMap
@@ -231,24 +231,17 @@ it("uses arrows to focus places, Enter to open/confirm, and Escape to return wit
   screen.getByLabelText("探索マップをスクロール").focus();
   await user.keyboard("{ArrowRight}");
   expect(screen.getByRole("button", { name: /未探索.*知識C/ })).toHaveFocus();
-  expect(screen.queryByLabelText("選択した地点")).not.toBeInTheDocument();
+  expect(screen.getByLabelText("選択した地点")).toHaveTextContent("知識C");
   await user.keyboard("{Enter}");
-  await vi.waitFor(() =>
-    expect(
-      screen.getByRole("button", { name: "見たよ · この道へ" }),
-    ).toHaveFocus(),
-  );
-  expect(onMove).not.toHaveBeenCalled();
+  expect(onMove).toHaveBeenCalledOnce();
+  expect(onMove).toHaveBeenCalledWith("c", "relation");
   await user.keyboard("{Escape}");
   expect(screen.getByRole("button", { name: /未探索.*知識C/ })).toHaveFocus();
   expect(screen.queryByLabelText("選択した地点")).not.toBeInTheDocument();
   await user.keyboard("{ArrowLeft}");
   expect(screen.getByRole("button", { name: /現在地.*知識B/ })).toHaveFocus();
   await user.keyboard("{ArrowLeft}{Enter}");
-  await vi.waitFor(() =>
-    expect(screen.getByRole("button", { name: "知識Aへ移動" })).toHaveFocus(),
-  );
-  await user.keyboard("{Enter}");
+  expect(onMove).toHaveBeenCalledTimes(2);
   expect(onMove).toHaveBeenCalledWith("a", undefined);
 });
 
@@ -356,6 +349,9 @@ it("enters app fullscreen, supports Escape, and restores focus without moving", 
   await user.click(screen.getByRole("button", { name: "マップを全画面表示" }));
   expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
   await user.keyboard("{Escape}");
+  expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
+  expect(screen.queryByLabelText("選択した地点")).not.toBeInTheDocument();
+  await user.keyboard("{Escape}");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   await vi.waitFor(() =>
     expect(
@@ -400,6 +396,8 @@ it("requests browser fullscreen and retains the app fallback when permission is 
     );
     expect(request).toHaveBeenCalledWith({ navigationUI: "hide" });
     expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
+    await user.keyboard("{Escape}");
+    expect(screen.queryByLabelText("選択した地点")).not.toBeInTheDocument();
     await user.keyboard("{Escape}");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   } finally {

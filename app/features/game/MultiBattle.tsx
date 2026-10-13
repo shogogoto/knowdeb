@@ -18,6 +18,7 @@ import {
   remainingHp,
   rollPlayerDamage,
 } from "./battle";
+import { playBattleSound } from "./battleSound";
 import type { GameSave } from "./domain";
 import type { GameState } from "./state";
 
@@ -72,6 +73,11 @@ export default function MultiBattle({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<TurnResult>();
+  const [resultIndex, setResultIndex] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [turnDamageByEnemy, setTurnDamageByEnemy] = useState<
+    Record<string, number>
+  >({});
   const [retry, setRetry] = useState<TurnInput>();
   const [hitEffects, setHitEffects] = useState<
     Record<string, { damage: number; level: number; label: string }>
@@ -98,6 +104,12 @@ export default function MultiBattle({
       quizIndex: quizIndices?.[enemy.id] ?? enemy.quizIndex,
     }));
   const currentHp = remainingHp(hp, live);
+  const resultIds = result
+    ? live
+        .filter((enemy) => enemy.id in result.results)
+        .map((enemy) => enemy.id)
+    : [];
+  const nextResultId = resultIds[resultIndex];
   const stats = playerStats(save.allocation, context.balance);
   function focusAnswerChoice(direction: "first" | "last" = "first") {
     const selector = simulation
@@ -161,39 +173,13 @@ export default function MultiBattle({
     };
     try {
       const resolved = await transport<TurnResult>("battle/turn", request);
-      setHp(
-        Object.fromEntries(
-          live.map((enemy) => [
-            enemy.id,
-            Math.max(
-              0,
-              currentHp[enemy.id] -
-                (resolved.results[enemy.id] ? damageByEnemy[enemy.id] : 0),
-            ),
-          ]),
-        ),
-      );
       setResult(resolved);
-      setHitEffects(
-        Object.fromEntries(
-          live
-            .filter((enemy) => resolved.results[enemy.id])
-            .map((enemy) => [
-              enemy.id,
-              {
-                damage: damageByEnemy[enemy.id],
-                ...damageEffect(
-                  damageByEnemy[enemy.id],
-                  stats.attack,
-                  context.balance,
-                ),
-              },
-            ]),
-        ),
-      );
+      setResultIndex(0);
+      setTurnDamageByEnemy(damageByEnemy);
+      setHitEffects({});
       setRetry(undefined);
       retryDamage.current = undefined;
-      onSaved(resolved.state);
+      if (Object.keys(resolved.results).length === 0) onSaved(resolved.state);
     } catch (cause) {
       setRetry(request);
       setError(
@@ -353,19 +339,52 @@ export default function MultiBattle({
       )}
       {result ? (
         <div className="space-y-3" data-battle-result>
-          <output>{save.battleFeedback}</output>
-          {Object.keys(result.results).map((id) => {
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-sm text-muted-foreground" aria-live="polite">
+              {nextResultId
+                ? `結果 ${resultIndex + 1}/${resultIds.length} を処理します`
+                : resultIds.length > 0
+                  ? "全ての結果を処理しました"
+                  : "戦闘結果を確認してください"}
+            </p>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              aria-pressed={soundEnabled}
+              onClick={() => setSoundEnabled((enabled) => !enabled)}
+            >
+              効果音 {soundEnabled ? "オン" : "オフ"}
+            </Button>
+          </div>
+          {!nextResultId && <output>{result.state.save.battleFeedback}</output>}
+          {resultIds.map((id, index) => {
             const enemy = live.find((item) => item.id === id);
+            const processed = index < resultIndex;
+            const correct = result.results[id];
             return (
               enemy && (
-                <section key={id} className="rounded-md border p-2 space-y-2">
-                  <p>
-                    {enemy.name} · {result.results[id] ? "正解" : "不正解"}
+                <section
+                  key={id}
+                  aria-current={index === resultIndex ? "step" : undefined}
+                  className={`rounded-md border p-3 space-y-2 transition-colors duration-300 ${
+                    processed
+                      ? correct
+                        ? "border-emerald-500/60 bg-emerald-500/10"
+                        : "border-rose-500/50 bg-rose-500/10"
+                      : index === resultIndex
+                        ? "border-primary/70 bg-primary/5"
+                        : "border-border opacity-60"
+                  }`}
+                >
+                  <p className="font-medium">
+                    {enemy.name} ·{" "}
+                    {processed ? (correct ? "正解" : "不正解") : "未処理"}
                   </p>
-                  {hitEffects[id] && (
+                  {processed && hitEffects[id] && (
                     <p
                       aria-label={`${enemy.name}へのダメージ`}
-                      className={`motion-safe:animate-in motion-safe:zoom-in-95 duration-300 ${
+                      className={`motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:slide-in-from-top-2 duration-500 ${
                         [
                           "text-sm text-muted-foreground",
                           "font-medium",
@@ -377,7 +396,7 @@ export default function MultiBattle({
                       {hitEffects[id].label} · {hitEffects[id].damage}ダメージ
                     </p>
                   )}
-                  {!simulation && (
+                  {processed && !simulation && (
                     <QuizPreviewPrompt
                       quiz={content.quizzes[enemy.quizIndex]}
                       showCorrectAnswer
@@ -391,6 +410,35 @@ export default function MultiBattle({
             disabled={busy}
             data-battle-advance
             onClick={() => {
+              if (nextResultId) {
+                const id = nextResultId;
+                if (result.results[id]) {
+                  const damage = turnDamageByEnemy[id] ?? 0;
+                  const effect = damageEffect(
+                    damage,
+                    stats.attack,
+                    context.balance,
+                  );
+                  setHp((current) => ({
+                    ...current,
+                    [id]: Math.max(0, (current[id] ?? 0) - damage),
+                  }));
+                  setHitEffects((current) => ({
+                    ...current,
+                    [id]: {
+                      damage,
+                      ...effect,
+                    },
+                  }));
+                  if (soundEnabled) playBattleSound(true, effect.level);
+                } else if (soundEnabled) {
+                  playBattleSound(false);
+                }
+                const nextIndex = resultIndex + 1;
+                setResultIndex(nextIndex);
+                if (nextIndex >= resultIds.length) onSaved(result.state);
+                return;
+              }
               if (!save.battle) {
                 void onFinished();
                 return;
@@ -407,6 +455,8 @@ export default function MultiBattle({
                   setFrozenRemainingMs(undefined);
                   setActive(0);
                   setResult(undefined);
+                  setResultIndex(0);
+                  setTurnDamageByEnemy({});
                   setHitEffects({});
                   onSaved(state);
                 })
@@ -417,7 +467,11 @@ export default function MultiBattle({
                 });
             }}
           >
-            {save.battle ? "次のターン" : "続ける"}
+            {nextResultId
+              ? `結果を処理 · ${resultIndex + 1}/${resultIds.length}`
+              : save.battle
+                ? "次のターン"
+                : "続ける"}
           </Button>
         </div>
       ) : (

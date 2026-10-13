@@ -7,9 +7,21 @@ import { defaultBalance as defaults } from "~/features/game/battle";
 import BattleSettingsManager from ".";
 const saved = vi.fn();
 const simulated = vi.fn();
+const practiceStarted = vi.fn();
 const server = setupServer(
+  http.get("*/admin/users", () => HttpResponse.json([])),
   http.get("*/admin/game/dungeons", () => HttpResponse.json([])),
   http.get("*/admin/settings/game-balance", () => HttpResponse.json(defaults)),
+  http.post(
+    "*/admin/settings/game-balance/practice/simulation",
+    async ({ request }) => {
+      practiceStarted(await request.json());
+      return HttpResponse.json(
+        { detail: "試算リクエストを確認" },
+        { status: 409 },
+      );
+    },
+  ),
   http.put("*/admin/settings/game-balance", async ({ request }) => {
     const body = await request.json();
     saved(body);
@@ -180,6 +192,47 @@ it("reports failures without claiming settings were saved", async () => {
   expect(
     screen.queryByText("ゲーム設定を保存しました"),
   ).not.toBeInTheDocument();
+});
+
+it("practices with the selected historical enemy trial and current unsaved initial values", async () => {
+  render(<BattleSettingsManager />);
+  await screen.findByLabelText("初期HP");
+  const user = userEvent.setup();
+  await user.click(
+    screen.getByRole("button", { name: "敵能力を試算して比較に追加" }),
+  );
+  await screen.findByRole("table", { name: "stats試算比較" });
+  const power = screen.getByLabelText("敵能力の試算に使うPower");
+  await user.clear(power);
+  await user.type(power, "250");
+  await user.click(
+    screen.getByRole("button", { name: "敵能力を試算して比較に追加" }),
+  );
+  await screen.findByRole("heading", { name: "試算 2 の敵一覧" });
+  await user.click(screen.getByRole("button", { name: "試算 1" }));
+  const initialHp = screen.getByLabelText("初期HP");
+  await user.clear(initialHp);
+  await user.type(initialHp, "70");
+  const enemyHp = screen.getByLabelText("敵の基礎HP");
+  await user.clear(enemyHp);
+  await user.type(enemyHp, "99");
+  await user.click(
+    screen.getByRole("button", { name: "現在の設定で模擬戦を開始" }),
+  );
+  await screen.findByText("試算リクエストを確認");
+  expect(practiceStarted).toHaveBeenCalledWith(
+    expect.objectContaining({
+      balance: { ...defaults, base_hp: 70, enemy_hp: 99 },
+      simulation: expect.objectContaining({
+        power: 100,
+        balance: defaults,
+        enemies: expect.arrayContaining([
+          expect.objectContaining({ hp: 28, attack: 16 }),
+        ]),
+      }),
+    }),
+  );
+  expect(saved).not.toHaveBeenCalled();
 });
 
 it("places independent simulations next to their settings without saving", async () => {

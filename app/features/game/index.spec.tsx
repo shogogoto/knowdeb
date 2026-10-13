@@ -579,6 +579,9 @@ it("records seen knowledge and a batch turn, then retreats after remount without
   ]);
   expect(state.save.run?.enemyId).toBe("book:0:enemy:0");
   await user.click(screen.getByRole("button", { name: "不正解を送信" }));
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
+  );
   expect(
     await screen.findByText("正解 0/1 · 撃破 0体 · HP -11"),
   ).toBeInTheDocument();
@@ -705,12 +708,17 @@ it.each([false, true])(
     }
     expect(screen.getByTestId("pathname")).toHaveTextContent("/game/status");
     expect(screen.getByRole("dialog", { name: "ステータス" })).toBeVisible();
-    expect(await screen.findByText("育成ポイント 3 / 3")).toBeVisible();
-    const input = screen.getByRole("spinbutton", { name: "HP" });
-    await user.clear(input);
-    await user.type(input, "3");
+    expect(
+      await screen.findByLabelText("未使用の育成ポイント"),
+    ).toHaveTextContent(/3\s*\/\s*3/);
+    const increase = screen.getByRole("button", {
+      name: "最大HPにポイントを割り振る",
+    });
+    await user.click(increase);
+    await user.click(increase);
+    await user.click(increase);
     await user.click(screen.getByRole("button", { name: "割り振りを保存" }));
-    await screen.findByText("現在のHP 35/50");
+    await screen.findByText("現在HP 35/50");
     expect(requests).toEqual([{ hp: 3, attack: 0, defense: 0, seconds: 0 }]);
     fireEvent.click(
       screen.getByRole("button", { name: "ブラウザで戻る", hidden: true }),

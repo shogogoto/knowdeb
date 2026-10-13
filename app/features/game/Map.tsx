@@ -299,8 +299,8 @@ export default function ExplorationMap({
   }
   function closeSelection() {
     const previous = selected;
-    setSelected(undefined);
     if (previous) focusPlace(previous);
+    setSelected(undefined);
   }
   const chosen = selected ? sentences.get(selected) : undefined;
   const candidate = candidates.find((item) => item.knowledge.uid === selected);
@@ -330,6 +330,7 @@ export default function ExplorationMap({
         // biome-ignore lint/a11y/noNoninteractiveTabindex: map entry point supports spatial keyboard navigation.
         tabIndex={0}
         onKeyDown={(event) => {
+          if (event.defaultPrevented) return;
           if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey)
             return;
           if (event.key.startsWith("Arrow")) {
@@ -340,6 +341,10 @@ export default function ExplorationMap({
             focusPlace(
               directionalPlace(positions, origin, event.key) ?? origin,
             );
+          } else if (event.key === "Escape" && selected) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeSelection();
           } else if (
             event.target === event.currentTarget &&
             event.key === "Enter"
@@ -573,6 +578,8 @@ export default function ExplorationMap({
                             candidates.find((item) => item.knowledge.uid === id)
                               ?.kind,
                           );
+                      } else if (keyboardNavigation.current) {
+                        primaryAction.current?.focus();
                       }
                     }}
                     className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${current ? "border-primary ring-4 ring-primary/20" : unexplored ? "border-dashed border-primary/60" : "border-border"}`}

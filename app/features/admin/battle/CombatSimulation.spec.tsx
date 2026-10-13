@@ -36,7 +36,7 @@ afterEach(() => {
 afterAll(() => server.close());
 
 it("uses server damage results and retains earlier inputs while editing", async () => {
-  render(<CombatSimulation settings={defaultBalance} />);
+  const { rerender } = render(<CombatSimulation settings={defaultBalance} />);
   const user = userEvent.setup();
   await user.click(
     screen.getByRole("button", { name: "戦闘を試算して比較に追加" }),
@@ -50,14 +50,21 @@ it("uses server damage results and retains earlier inputs while editing", async 
     },
   ]);
   expect(table).toHaveTextContent("15（12〜18）");
-  const attack = screen.getByLabelText("プレイヤーの攻撃力");
+  expect(screen.queryByLabelText("プレイヤーの攻撃力")).not.toBeInTheDocument();
+  const attack = screen.getByLabelText("敵の攻撃力");
   await user.clear(attack);
   await user.type(attack, "20");
+  rerender(
+    <CombatSimulation
+      settings={{ ...defaultBalance, base_hp: 80, base_attack: 24 }}
+    />,
+  );
   expect(table).toHaveTextContent("10（8〜12）");
   await user.click(
     screen.getByRole("button", { name: "戦闘を試算して比較に追加" }),
   );
   expect(await within(table).findByText("20")).toBeVisible();
+  expect(requests[1].player).toEqual({ hp: 80, attack: 24, defense: 1 });
   expect(within(table).getAllByRole("row")).toHaveLength(3);
   await user.click(screen.getByRole("button", { name: "戦闘試算をクリア" }));
   expect(screen.queryByRole("table")).not.toBeInTheDocument();

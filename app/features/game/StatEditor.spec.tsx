@@ -18,11 +18,15 @@ it("previews allocation, enforces the total budget, and resets freely", async ()
   await user.click(hp);
   await user.click(hp);
   await user.click(hp);
-  expect(screen.getByText("0/ 3")).toBeVisible();
+  expect(screen.getByLabelText("未使用の育成ポイント")).toHaveTextContent(
+    /0\s*\/\s*3/,
+  );
   expect(screen.getByText("50")).toBeVisible();
   expect(hp).toBeDisabled();
   await user.click(screen.getByRole("button", { name: "振り直す" }));
-  expect(screen.getByText("3/ 3")).toBeVisible();
+  expect(screen.getByLabelText("未使用の育成ポイント")).toHaveTextContent(
+    /3\s*\/\s*3/,
+  );
   expect(screen.getByText("35")).toBeVisible();
 });
 

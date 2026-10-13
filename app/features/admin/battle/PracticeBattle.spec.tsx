@@ -4,9 +4,17 @@ import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { MemoryRouter } from "react-router";
 import { vi } from "vitest";
-import { defaultBalance } from "~/features/game/battle";
+import {
+  defaultBalance,
+  emptyAllocation,
+  playerStats,
+} from "~/features/game/battle";
 import PracticeBattle from "./PracticeBattle";
-import type { PracticeInput, PracticeSession } from "./api";
+import type {
+  EnemyBalanceSimulation,
+  PracticeSession,
+  SimulatedPracticeInput,
+} from "./api";
 
 vi.mock("~/features/tanbun/detail/Preview", () => ({
   useTanbunPreview: () => ({ openPreview: vi.fn(), preview: null }),
@@ -22,9 +30,24 @@ vi.mock("~/features/user/UserAvatar", () => ({
       <img alt={user.display_name ?? ""} src={user.avatar_url} />
     ) : null,
 }));
-const preparations: PracticeInput[] = [];
+const preparations: SimulatedPracticeInput[] = [];
 const turns: unknown[] = [];
 const draft = { ...defaultBalance, base_hp: 60, damage_variance_percent: 0 };
+const trial: EnemyBalanceSimulation = {
+  power: 250,
+  achievement: 2,
+  balance: defaultBalance,
+  pool_quiz_count: 10,
+  average_relations: 0,
+  min_encounter_enemies: 1,
+  max_encounter_enemies: 1,
+  requested_enemy_types: 1,
+  requested_quiz_count: 1,
+  assigned_quiz_count: 1,
+  unassigned_quiz_count: 9,
+  warnings: [],
+  enemies: [{ index: 1, quiz_count: 1, hp: 5, attack: 12, relations: 0 }],
+};
 const server = setupServer(
   http.get("*/admin/users", () =>
     HttpResponse.json([
@@ -58,73 +81,74 @@ const server = setupServer(
       },
     ]),
   ),
-  http.post("*/admin/settings/game-balance/practice", async ({ request }) => {
-    const input = (await request.json()) as PracticeInput;
-    preparations.push(input);
-    const quiz = {
-      quiz_id: "quiz",
-      quiz_type: "sent2term",
-      prompt: { subject: "模擬問題", answer_kind: "term" },
-      statement: "説明",
-      options: { yes: "正解の選択肢", no: "誤答の選択肢" },
-      correct: ["yes"],
-      no_correct_option: false,
-      created: "2026-10-12T00:00:00Z",
-    };
-    return HttpResponse.json({
-      seed: input.seed,
-      server_now: Date.now(),
-      context: {
-        balance: input.balance,
-        enemies: [
-          {
-            id: "enemy",
-            name: "模擬敵",
-            quizIndex: 0,
-            quizIndexes: [0],
-            hp: 5,
-            attack: 12,
-            relations: 0,
-            region: 0,
-          },
-        ],
-      },
-      state: {
-        revision: 0,
-        save: {
-          version: 2,
-          clears: {},
-          allocation: { hp: 0, attack: 0, defense: 0, seconds: 0 },
-          content: { knowledge: [], quizzes: [quiz] },
-          run: {
-            resourceId: "book",
-            name: "模擬用の本",
-            hp: 60,
-            maxHp: 60,
-            attack: 10,
-            defense: 1,
-            moves: 0,
-            kills: 0,
-            enemyHp: 0,
-            enemyMaxHp: 1,
-            quizCursor: 0,
-            readIds: [],
-            phase: "battle",
-            answerSeconds: 45,
-            answerDeadline: Date.now() + 45000,
-          },
-          battle: {
-            id: "practice-1",
-            turn: 0,
-            region: 0,
-            checkpoint: "@entrance",
-            enemies: ["enemy"],
-            quizIndices: { enemy: 0 },
+  http.post(
+    "*/admin/settings/game-balance/practice/simulation",
+    async ({ request }) => {
+      const input = (await request.json()) as SimulatedPracticeInput;
+      preparations.push(input);
+      const stats = playerStats(emptyAllocation, input.balance);
+      const quiz = {
+        quiz_id: "quiz",
+        quiz_type: "sent2term",
+        prompt: { subject: "模擬問題", answer_kind: "term" },
+        statement: "説明",
+        options: { yes: "正解の選択肢", no: "誤答の選択肢" },
+        correct: ["yes"],
+        no_correct_option: false,
+        created: "2026-10-12T00:00:00Z",
+      };
+      return HttpResponse.json({
+        seed: input.seed,
+        server_now: Date.now(),
+        context: {
+          balance: input.balance,
+          enemies: [
+            {
+              id: "enemy",
+              name: "模擬敵",
+              quizIndex: 0,
+              quizIndexes: [0],
+              hp: input.simulation.enemies[0].hp,
+              attack: input.simulation.enemies[0].attack,
+              relations: 0,
+              region: 0,
+            },
+          ],
+        },
+        state: {
+          revision: 0,
+          save: {
+            version: 2,
+            clears: {},
+            allocation: { hp: 0, attack: 0, defense: 0, seconds: 0 },
+            content: { knowledge: [], quizzes: [quiz] },
+            run: {
+              resourceId: "book",
+              name: "模擬用の本",
+              hp: stats.maxHp,
+              ...stats,
+              moves: 0,
+              kills: 0,
+              enemyHp: 0,
+              enemyMaxHp: 1,
+              quizCursor: 0,
+              readIds: [],
+              phase: "battle",
+              answerDeadline: Date.now() + stats.answerSeconds * 1000,
+            },
+            battle: {
+              id: "practice-1",
+              turn: 0,
+              region: 0,
+              checkpoint: "@entrance",
+              enemies: ["enemy"],
+              quizIndices: { enemy: 0 },
+            },
           },
         },
-      },
-    });
-  }),
+      });
+    },
+  ),
   http.post(
     "*/admin/settings/game-balance/practice/turn",
     async ({ request }) => {
@@ -165,10 +189,10 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-it("selects a player independently of the dungeon owner", async () => {
+it("selects a player's appearance while using draft initial stats and the enemy trial", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} />
+      <PracticeBattle settings={draft} simulation={trial} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();
@@ -185,20 +209,23 @@ it("selects a player independently of the dungeon owner", async () => {
     "src",
     "https://example.com/player-b.png",
   );
-  expect(preparations[0].user_id).toBe("user");
-  expect(preparations[0].player_user_id).toBe("other");
-  expect(preparations[0].allocation).toBeNull();
+  expect(preparations[0]).toEqual({
+    balance: draft,
+    simulation: trial,
+    seed: 1,
+  });
+  expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 });
 
 it("explains a missing deployment route without confusing it with missing data", async () => {
   server.use(
-    http.post("*/admin/settings/game-balance/practice", () =>
+    http.post("*/admin/settings/game-balance/practice/simulation", () =>
       HttpResponse.json({ detail: "Not Found" }, { status: 404 }),
     ),
   );
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} />
+      <PracticeBattle settings={draft} simulation={trial} />
     </MemoryRouter>,
   );
   const start = screen.getByRole("button", {
@@ -215,7 +242,7 @@ it("explains a missing deployment route without confusing it with missing data",
 it("uses real battle UI with draft settings, records results and replays without live writes", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} />
+      <PracticeBattle settings={draft} simulation={trial} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();
@@ -238,6 +265,9 @@ it("uses real battle UI with draft settings, records results and replays without
   expect(screen.queryByText("模擬問題")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "正解" }));
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
+  );
   await screen.findByText("模擬ターン精算");
   expect(screen.getByLabelText("模擬敵へのダメージ")).toHaveTextContent(
     "HIT · 10ダメージ",
@@ -257,7 +287,7 @@ it("uses real battle UI with draft settings, records results and replays without
 it("confirms an incorrect synthetic answer and applies incoming damage", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} />
+      <PracticeBattle settings={draft} simulation={trial} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();
@@ -266,8 +296,11 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
   });
   await waitFor(() => expect(start).toBeEnabled());
   await user.click(start);
-  await user.click(await screen.findByRole("radio", { name: "不正解" }));
+  await user.click(await screen.findByRole("button", { name: "不正解" }));
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
+  );
   await screen.findByText("模擬ターン精算");
   expect(screen.getByText("模擬敵 · 不正解")).toBeInTheDocument();
   expect(
@@ -281,7 +314,7 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
 it("settles unanswered timeout through practice only and reports it separately", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} />
+      <PracticeBattle settings={draft} simulation={trial} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();

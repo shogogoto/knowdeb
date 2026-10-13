@@ -134,10 +134,12 @@ it("locks synthetic answers per enemy and supports quizzes with no correct optio
   const user = userEvent.setup();
   await user.click(screen.getByRole("button", { name: "正解" }));
   expect(transport).not.toHaveBeenCalled();
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
   await user.click(screen.getByRole("button", { name: "敵0" }));
   expect(screen.getByRole("button", { name: "不正解" })).toBeDisabled();
   await user.click(screen.getByRole("button", { name: "敵1" }));
   await user.click(screen.getByRole("button", { name: "不正解" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
   await waitFor(() => expect(transport).toHaveBeenCalledTimes(1));
   expect(requests[0].answers).toEqual({ enemy0: ["a0"], enemy1: ["a1"] });
 });
@@ -187,6 +189,20 @@ it("confirms locally without revealing correctness, locks answers, and sends onc
   await user.click(screen.getByRole("button", { name: "敵1" }));
   await user.click(screen.getByRole("button", { name: "選択肢二" }));
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
+  );
+  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "0",
+  );
+  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "10",
+  );
+  expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
+  expect(screen.getAllByText("解答後の詳細プレビュー")).toHaveLength(1);
+  await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
   await screen.findByText("ターン精算完了");
   expect(requests).toEqual([
     {
@@ -280,11 +296,22 @@ it("keeps damaged enemy HP across turns without sending it to the server", async
       screen.getByRole("button", { name: reverse ? "選択肢一" : "選択肢二" }),
     );
     await user.click(screen.getByRole("button", { name: "回答を確定" }));
+    await user.click(
+      await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
+    );
+    await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
     await screen.findByText("ターン精算完了");
   }
   await answerBoth();
   expect(requests[0].defeated).toEqual([]);
-  expect(screen.getByText(/HP 5\/15/)).toBeVisible();
+  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "5",
+  );
+  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "5",
+  );
   await user.click(screen.getByRole("button", { name: "次のターン" }));
   await answerBoth(true);
   expect(requests[1].turn).toBe(1);

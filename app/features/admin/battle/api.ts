@@ -70,6 +70,21 @@ export type EnemyBalanceSimulation = {
   warnings: string[];
 };
 
+export type SimulatedPracticeInput = {
+  simulation: EnemyBalanceSimulation;
+  balance: BattleSettings;
+  seed: number;
+};
+
+export const requestSimulatedPractice = (
+  input: SimulatedPracticeInput,
+): Promise<PracticeSession> =>
+  requestSimulation(
+    "practice/simulation",
+    input,
+    "試算結果から模擬戦を準備できませんでした。",
+  );
+
 export async function requestEnemyBalanceSimulation(input: {
   balance: BattleSettings;
   power: number;

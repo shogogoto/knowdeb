@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { emptyAllocation, playerStats } from "~/features/game/battle";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
@@ -10,21 +11,19 @@ import {
   TableHeader,
   TableRow,
 } from "~/shared/components/ui/table";
-import PracticeBattle from "./PracticeBattle";
-import {
-  type CombatSimulationInput,
-  type CombatSimulationResult,
-  requestCombatSimulation,
-} from "./api";
+import { type CombatSimulationResult, requestCombatSimulation } from "./api";
 import type { BattleSettings } from "./api";
 
 export default function CombatSimulation({
   settings,
 }: { settings: BattleSettings }) {
-  const [input, setInput] = useState<Omit<CombatSimulationInput, "balance">>({
-    player: { hp: 35, attack: 10, defense: 1 },
-    enemy: { hp: 28, attack: 16 },
-  });
+  const stats = playerStats(emptyAllocation, settings);
+  const player = {
+    hp: stats.maxHp,
+    attack: stats.attack,
+    defense: stats.defense,
+  };
+  const [enemy, setEnemy] = useState({ hp: 28, attack: 16 });
   const [results, setResults] = useState<
     (CombatSimulationResult & { id: string })[]
   >([]);
@@ -46,8 +45,8 @@ export default function CombatSimulation({
           setError(undefined);
           try {
             const result = await requestCombatSimulation({
-              player: { ...input.player },
-              enemy: { ...input.enemy },
+              player,
+              enemy: { ...enemy },
               balance: settings,
             });
             setResults((previous) => [
@@ -66,59 +65,46 @@ export default function CombatSimulation({
         }}
       >
         <div className="grid gap-3 sm:grid-cols-2">
-          {(["player", "enemy"] as const).map((side) => (
-            <fieldset key={side} className="space-y-3 rounded-md border p-3">
-              <legend className="px-1 text-sm font-medium">
-                {side === "player" ? "プレイヤー" : "敵"}
-              </legend>
-              {(
-                ["hp", "attack", ...(side === "player" ? ["defense"] : [])] as (
-                  | "hp"
-                  | "attack"
-                  | "defense"
-                )[]
-              ).map((stat) => {
-                const label = `${side === "player" ? "プレイヤー" : "敵"}の${{ hp: "HP", attack: "攻撃力", defense: "守備力" }[stat]}`;
-                return (
-                  <div
-                    key={stat}
-                    className="flex items-center justify-between gap-3"
-                  >
-                    <Label htmlFor={`combat-${side}-${stat}`}>{label}</Label>
-                    <Input
-                      id={`combat-${side}-${stat}`}
-                      className="w-28"
-                      type="number"
-                      required
-                      min={stat === "hp" ? 1 : 0}
-                      max={100000}
-                      step={1}
-                      value={
-                        stat === "defense"
-                          ? input.player.defense
-                          : input[side][stat]
-                      }
-                      onChange={(event) =>
-                        setInput({
-                          ...input,
-                          [side]: {
-                            ...input[side],
-                            [stat]: Number(event.target.value),
-                          },
-                        })
-                      }
-                    />
-                  </div>
-                );
-              })}
-            </fieldset>
-          ))}
+          <fieldset className="space-y-3 rounded-md border p-3">
+            <legend className="px-1 text-sm font-medium">
+              プレイヤーの初期値
+            </legend>
+            <p className="text-sm tabular-nums">
+              HP {player.hp} · 攻 {player.attack} · 守 {player.defense}
+            </p>
+          </fieldset>
+          <fieldset className="space-y-3 rounded-md border p-3">
+            <legend className="px-1 text-sm font-medium">敵</legend>
+            {(["hp", "attack"] as const).map((stat) => {
+              const label = `敵の${{ hp: "HP", attack: "攻撃力" }[stat]}`;
+              return (
+                <div
+                  key={stat}
+                  className="flex items-center justify-between gap-3"
+                >
+                  <Label htmlFor={`combat-enemy-${stat}`}>{label}</Label>
+                  <Input
+                    id={`combat-enemy-${stat}`}
+                    className="w-28"
+                    type="number"
+                    required
+                    min={stat === "hp" ? 1 : 0}
+                    max={100000}
+                    step={1}
+                    value={enemy[stat]}
+                    onChange={(event) =>
+                      setEnemy({ ...enemy, [stat]: Number(event.target.value) })
+                    }
+                  />
+                </div>
+              );
+            })}
+          </fieldset>
         </div>
         <Button type="submit" disabled={busy}>
           {busy ? "試算中…" : "戦闘を試算して比較に追加"}
         </Button>
       </form>
-      <PracticeBattle settings={settings} />
       {error && (
         <p role="alert" className="text-sm text-destructive">
           {error}

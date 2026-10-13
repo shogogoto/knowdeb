@@ -92,7 +92,10 @@ export default function StatEditor({
       <div className="flex items-end justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
         <div>
           <p className="text-xs text-muted-foreground">未使用の育成ポイント</p>
-          <p className="text-xl font-semibold tabular-nums">
+          <p
+            aria-label="未使用の育成ポイント"
+            className="text-xl font-semibold tabular-nums"
+          >
             {remaining}
             <span className="ml-1 text-sm font-normal text-muted-foreground">
               / {budget}

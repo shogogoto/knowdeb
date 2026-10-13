@@ -10,6 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "~/shared/components/ui/table";
+import PracticeBattle from "./PracticeBattle";
 import {
   type BattleSettings,
   type EnemyBalanceSimulation,
@@ -315,6 +316,13 @@ export default function Simulation({
                   </TableBody>
                 </Table>
               </div>
+              {mode === "stats" && (
+                <PracticeBattle
+                  settings={settings}
+                  simulation={current}
+                  simulationName={`試算 ${selected + 1}`}
+                />
+              )}
             </section>
           )}
         </>
