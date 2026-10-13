@@ -82,7 +82,7 @@ export default function BattleDialog({
             if (
               target instanceof HTMLElement &&
               target.closest(
-                "[data-battle-advance], [data-battle-submit], button[data-quiz-submit], button:not([data-quiz-option-index]), input, select, textarea, a",
+                "[data-battle-advance], [data-battle-submit], button[data-quiz-submit], button:not([data-quiz-option-index]):not([data-simulation-option]), input, select, textarea, a",
               )
             )
               return;

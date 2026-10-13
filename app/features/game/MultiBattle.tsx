@@ -101,7 +101,7 @@ export default function MultiBattle({
   const stats = playerStats(save.allocation, context.balance);
   function focusAnswerChoice(direction: "first" | "last" = "first") {
     const selector = simulation
-      ? 'input[type="radio"]'
+      ? "button[data-simulation-option]:not(:disabled)"
       : "button[data-quiz-option-index]:not(:disabled)";
     const choices =
       activeAnswerArea.current?.querySelectorAll<HTMLElement>(selector);
@@ -484,39 +484,37 @@ export default function MultiBattle({
                           confirm(choice === "correct" ? correct : incorrect);
                       }}
                     >
-                      <fieldset
-                        disabled={
-                          busy ||
-                          !!retry ||
-                          remaining === 0 ||
-                          enemy.id in answers
-                        }
-                        className="grid grid-cols-2 gap-2"
-                      >
+                      <fieldset className="grid grid-cols-2 gap-2">
                         <legend className="sr-only">模擬回答</legend>
                         {(["correct", "incorrect"] as const).map((choice) => {
                           const selected =
                             simulationChoices[enemy.id] === choice;
                           return (
-                            <label
+                            <button
                               key={choice}
-                              className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary ${selected ? "border-primary bg-primary/10" : "hover:bg-muted"}`}
+                              type="button"
+                              data-simulation-option
+                              aria-pressed={selected}
+                              disabled={
+                                busy ||
+                                !!retry ||
+                                remaining === 0 ||
+                                enemy.id in answers
+                              }
+                              onClick={() =>
+                                setSimulationChoices((current) => {
+                                  if (current[enemy.id] === choice) {
+                                    const next = { ...current };
+                                    delete next[enemy.id];
+                                    return next;
+                                  }
+                                  return { ...current, [enemy.id]: choice };
+                                })
+                              }
+                              className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary ${selected ? "border-primary bg-primary/10" : "hover:bg-muted"}`}
                             >
-                              <input
-                                type="radio"
-                                name={`simulation-answer-${battle.turn}-${enemy.id}`}
-                                value={choice}
-                                checked={selected}
-                                onChange={() =>
-                                  setSimulationChoices((current) => ({
-                                    ...current,
-                                    [enemy.id]: choice,
-                                  }))
-                                }
-                                className="size-4 accent-primary"
-                              />
                               {choice === "correct" ? "正解" : "不正解"}
-                            </label>
+                            </button>
                           );
                         })}
                       </fieldset>
@@ -534,7 +532,7 @@ export default function MultiBattle({
                         回答を確定
                       </Button>
                       <p className="text-xs text-muted-foreground">
-                        Spaceで選択 · Enterで確定
+                        Spaceで選択/解除 · Enterで確定
                       </p>
                     </form>
                     {enemy.id in answers && (
