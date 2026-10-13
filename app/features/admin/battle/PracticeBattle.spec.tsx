@@ -92,10 +92,10 @@ const server = setupServer(
     async ({ request }) => {
       const input = (await request.json()) as SimulatedPracticeInput;
       preparations.push(input);
-      const stats = playerStats(
-        input.allocation ?? emptyAllocation,
-        input.balance,
-      );
+      const points =
+        input.allocation ??
+        (input.player_user_id ? userPoints : emptyAllocation);
+      const stats = playerStats(points, input.balance);
       const quiz = {
         quiz_id: "quiz",
         quiz_type: "sent2term",
@@ -129,7 +129,7 @@ const server = setupServer(
           save: {
             version: 2,
             clears: {},
-            allocation: input.allocation ?? emptyAllocation,
+            allocation: points,
             content: { knowledge: [], quizzes: [quiz] },
             run: {
               resourceId: "book",
@@ -213,6 +213,10 @@ it("selects a player's appearance while using draft initial stats and the enemy 
     name: "現在の設定で模擬戦を開始",
   });
   await waitFor(() => expect(start).toBeEnabled());
+  expect(screen.getByLabelText("攻ポイント")).toBeDisabled();
+  expect(
+    screen.getByRole("checkbox", { name: "実プレイヤーの割り振りを使用" }),
+  ).toBeChecked();
   await user.click(start);
   await screen.findByRole("heading", { name: "模擬戦（保存されません）" });
   expect(document.querySelector('img[alt="プレイヤーB"]')).toHaveAttribute(
@@ -223,9 +227,12 @@ it("selects a player's appearance while using draft initial stats and the enemy 
     balance: draft,
     simulation: trial,
     seed: 1,
-    allocation: userPoints,
+    allocation: null,
+    player_user_id: "other",
   });
-  expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
+  ).toHaveAttribute("aria-valuenow", "70");
 });
 
 it("explains a missing deployment route without confusing it with missing data", async () => {
@@ -273,16 +280,19 @@ it("keeps practice visible before any trial and can use a real dungeon", async (
   const start = screen.getByRole("button", {
     name: "現在の設定で模擬戦を開始",
   });
+  await screen.findByRole("option", { name: /プレイヤーB/ });
+  await user.selectOptions(screen.getByLabelText("プレイヤー"), "other");
   await waitFor(() => expect(start).toBeEnabled());
   await user.click(start);
   await screen.findByText("ダンジョンの条件を確認");
   expect(requestInput).toEqual({
     user_id: "user",
+    player_user_id: "other",
     resource_id: "book",
     level: 1,
     seed: 1,
     balance: draft,
-    allocation: emptyAllocation,
+    allocation: null,
   });
   expect(preparations).toHaveLength(0);
 });
@@ -298,6 +308,10 @@ it("loads real points and edits only the disposable player before starting", asy
   await user.selectOptions(screen.getByLabelText("プレイヤー"), "other");
   const attack = screen.getByLabelText("攻ポイント");
   await waitFor(() => expect(attack).toHaveValue(8));
+  await user.click(
+    screen.getByRole("checkbox", { name: "実プレイヤーの割り振りを使用" }),
+  );
+  expect(attack).toBeEnabled();
   await user.clear(attack);
   await user.type(attack, "9");
   expect(

@@ -110,6 +110,7 @@ export default function PracticeBattle({
 }) {
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [playerId, setPlayerId] = useState("");
+  const [useSavedAllocation, setUseSavedAllocation] = useState(true);
   const [usersError, setUsersError] = useState<string>();
   const [allocation, setAllocation] = useState<Allocation>({
     ...emptyAllocation,
@@ -139,7 +140,11 @@ export default function PracticeBattle({
   const turnStarted = useRef(Date.now());
   const selectedPlayerId = playerId;
   const selectedPlayer = users.find((user) => user.uid === selectedPlayerId);
-  const draftPlayer = playerStats(allocation, settings);
+  const actualPlayer = !!playerId && useSavedAllocation;
+  const draftPlayer = playerStats(
+    actualPlayer ? savedAllocation : allocation,
+    settings,
+  );
   const trial = trials.find((item) => item.id === trialId) ?? trials[0];
   const simulation = trial?.simulation;
   const simulationName = trial?.name;
@@ -258,7 +263,8 @@ export default function PracticeBattle({
       const options = {
         seed,
         balance: { ...settings },
-        allocation: { ...allocation },
+        allocation: actualPlayer ? null : { ...allocation },
+        ...(actualPlayer ? { player_user_id: playerId } : {}),
       };
       const prepared =
         source === "trial" && simulation
@@ -410,7 +416,10 @@ export default function PracticeBattle({
             className="h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm"
             value={selectedPlayerId}
             disabled={busy || !!active}
-            onChange={(event) => setPlayerId(event.target.value)}
+            onChange={(event) => {
+              setPlayerId(event.target.value);
+              setUseSavedAllocation(true);
+            }}
           >
             <option value="">初期値のプレイヤー</option>
             {users.map((user) => (
@@ -436,8 +445,25 @@ export default function PracticeBattle({
           </span>
           {allocationLoading && <span>ポイント読み込み中…</span>}
         </div>
+        {selectedPlayer && (
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={useSavedAllocation}
+              disabled={busy || !!active}
+              onChange={(event) => setUseSavedAllocation(event.target.checked)}
+            />
+            実プレイヤーの割り振りを使用
+          </label>
+        )}
         <fieldset
-          disabled={busy || !!active || allocationLoading || !!allocationError}
+          disabled={
+            busy ||
+            !!active ||
+            allocationLoading ||
+            !!allocationError ||
+            actualPlayer
+          }
           className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           <legend className="mb-2 text-sm">加算ポイント（模擬戦用）</legend>
@@ -460,7 +486,7 @@ export default function PracticeBattle({
                 max={10000}
                 step={1}
                 required
-                value={allocation[stat]}
+                value={actualPlayer ? savedAllocation[stat] : allocation[stat]}
                 onChange={(event) =>
                   setAllocation((current) => ({
                     ...current,
@@ -475,7 +501,13 @@ export default function PracticeBattle({
           type="button"
           variant="outline"
           size="sm"
-          disabled={busy || !!active || allocationLoading || !!allocationError}
+          disabled={
+            busy ||
+            !!active ||
+            allocationLoading ||
+            !!allocationError ||
+            actualPlayer
+          }
           onClick={() => setAllocation({ ...savedAllocation })}
         >
           読み込んだポイントに戻す

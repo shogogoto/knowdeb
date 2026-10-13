@@ -74,7 +74,8 @@ export type SimulatedPracticeInput = {
   simulation: EnemyBalanceSimulation;
   balance: BattleSettings;
   seed: number;
-  allocation?: Allocation;
+  player_user_id?: string;
+  allocation?: Allocation | null;
 };
 
 export type PracticeEnemyTrial = {
