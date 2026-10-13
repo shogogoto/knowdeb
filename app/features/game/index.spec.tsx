@@ -848,6 +848,34 @@ it("does not spend a move or record knowledge if the server roster is missing", 
   expect(markTanbunSeen).not.toHaveBeenCalled();
 });
 
+it("accepts a prepared hex quiz ID when the displayed quiz ID has hyphens", async () => {
+  const content = await loadDungeon("book");
+  const id = "a946e99b-072a-420a-a0ef-80bf4fc7f7bf";
+  content.quizzes[0].quiz_id = id;
+  vi.mocked(loadDungeonRegionQuizPool).mockResolvedValue({
+    ready: true,
+    level: 1,
+    required_quizzes: 5,
+    available_quizzes: 5,
+    quiz_ids: [id.replaceAll("-", "")],
+    enemies: [
+      {
+        id: "book:0:enemy:0",
+        name: "領域 1の敵 1",
+        quiz_ids: [id.replaceAll("-", "")],
+      },
+    ],
+  });
+  renderGame();
+  const user = await enter();
+  await user.click(
+    await screen.findByRole("button", { name: "見たよ · この道へ" }),
+  );
+  await waitFor(() => expect(state.save.run?.moves).toBe(1));
+  expect(markTanbunSeen).toHaveBeenCalledWith("sentence");
+  expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+});
+
 it("shows terms on knowledge offered as the next path", async () => {
   renderGame();
   await enter();

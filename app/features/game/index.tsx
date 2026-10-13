@@ -424,9 +424,16 @@ export function GamePlay({
         return;
       }
       const availableQuizIds = new Set(
-        dungeonContent.quizzes.map((quiz) => quiz.quiz_id),
+        dungeonContent.quizzes.map((quiz) =>
+          quiz.quiz_id.replaceAll("-", "").toLowerCase(),
+        ),
       );
-      if (population.quiz_ids.some((quizId) => !availableQuizIds.has(quizId))) {
+      if (
+        population.quiz_ids.some(
+          (quizId) =>
+            !availableQuizIds.has(quizId.replaceAll("-", "").toLowerCase()),
+        )
+      ) {
         setError(
           "領域のクイズを読み込めませんでした。画面を再読み込みしてください。",
         );
