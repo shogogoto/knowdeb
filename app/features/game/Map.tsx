@@ -31,6 +31,12 @@ export default function ExplorationMap({
   map,
   knowledge,
   candidates = [],
+  dungeonId,
+  dungeons = [],
+  dungeonConnections = [],
+  onDungeon,
+  onRestart,
+  canTravel = () => true,
   unavailableIds = [],
   enemiesByRegion = {},
   quizzes = [],
@@ -48,6 +54,12 @@ export default function ExplorationMap({
   map: DungeonMap;
   knowledge: PathKnowledge[];
   candidates?: MapCandidate[];
+  dungeonId?: string;
+  dungeons?: { id: string; name: string }[];
+  dungeonConnections?: { from: string; to: string }[];
+  onDungeon?: (id: string) => void;
+  onRestart?: () => void;
+  canTravel?: (id: string) => boolean;
   unavailableIds?: string[];
   enemiesByRegion?: Record<string, RegionEnemy[]>;
   quizzes?: DungeonContent["quizzes"];
@@ -165,6 +177,7 @@ export default function ExplorationMap({
   );
   const levels = new Map<string, number>([[ENTRANCE, 0]]);
   const positions = new Map<string, { x: number; y: number }>();
+  const entranceX = 360 + Math.ceil(dungeons.length / 4) * 230;
   const columns = new Map<number, number>();
   for (const id of allIds) {
     const parent = map.edges.find((edge) => edge.to === id);
@@ -176,8 +189,8 @@ export default function ExplorationMap({
     positions.set(
       id,
       narrow
-        ? { x: 360 + row * 200, y: 220 + level * 150 }
-        : { x: 360 + level * 230, y: 220 + row * 150 },
+        ? { x: entranceX + row * 200, y: 220 + level * 150 }
+        : { x: entranceX + level * 230, y: 220 + row * 150 },
     );
   }
   const candidateLevel = (levels.get(map.current) ?? 0) + 1;
@@ -188,15 +201,28 @@ export default function ExplorationMap({
       item.knowledge.uid,
       narrow
         ? {
-            x: 360 + row * 200,
+            x: entranceX + row * 200,
             y: 220 + candidateLevel * 150,
           }
         : {
-            x: 360 + candidateLevel * 230,
+            x: entranceX + candidateLevel * 230,
             y: 220 + row * 150,
           },
     );
   }
+  const worldId = (id: string) =>
+    `@dungeon:${id.replaceAll("-", "").toLowerCase()}`;
+  for (const [index, dungeon] of dungeons.entries()) {
+    positions.set(worldId(dungeon.id), {
+      x: entranceX - 230 * (Math.floor(index / 4) + 1),
+      y: 220 + (index % 4) * 150,
+    });
+  }
+  const worldPosition = (id: string) =>
+    id.replaceAll("-", "").toLowerCase() ===
+    dungeonId?.replaceAll("-", "").toLowerCase()
+      ? positions.get(ENTRANCE)
+      : positions.get(worldId(id));
   const width = Math.max(
     1200,
     ...[...positions.values()].map((p) => p.x + 460),
@@ -225,7 +251,7 @@ export default function ExplorationMap({
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-center when the canvas moves into/out of the fullscreen portal.
   useEffect(() => {
     center();
-  }, [currentPosition?.x, currentPosition?.y, zoom, fullscreen]);
+  }, [currentPosition?.x, currentPosition?.y, zoom, fullscreen, dungeonId]);
   // The fullscreen portal mounts after the first effect; resize also happens on rotation.
   // biome-ignore lint/correctness/useExhaustiveDependencies: center uses current canvas dimensions.
   useEffect(() => {
@@ -235,6 +261,7 @@ export default function ExplorationMap({
     observer.observe(element);
     return () => observer.disconnect();
   }, [currentPosition?.x, currentPosition?.y, zoom, fullscreen]);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: switching dungeons must clear selection even if both current locations are the entrance.
   useEffect(() => {
     if (map.current) {
       setSelected(undefined);
@@ -243,7 +270,7 @@ export default function ExplorationMap({
         nodes.current.get(map.current)?.focus({ preventScroll: true });
       }
     }
-  }, [map.current]);
+  }, [map.current, dungeonId]);
   function focusPlace(id: string) {
     setFocused(id);
     const node = nodes.current.get(id);
@@ -266,10 +293,15 @@ export default function ExplorationMap({
   const candidate = candidates.find((item) => item.knowledge.uid === selected);
   const canMove =
     !disabled &&
+    canTravel(selected ?? "") &&
     !unavailableIds.includes(selected ?? "") &&
-    selected !== map.current &&
+    (selected !== map.current ||
+      (selected === ENTRANCE && Boolean(onRestart))) &&
     Boolean(selected && (allIds.includes(selected) || candidate));
   const index = map.places.findIndex((place) => place.id === map.current);
+  const selectedDungeon = dungeons.find(
+    (item) => worldId(item.id) === selected,
+  );
   const canvas = (
     <section
       ref={mapElement}
@@ -346,6 +378,37 @@ export default function ExplorationMap({
               width={width}
               height={height}
             >
+              {dungeons.map((dungeon) => {
+                const from = positions.get(ENTRANCE);
+                const to = positions.get(worldId(dungeon.id));
+                return from && to ? (
+                  <line
+                    key={`world-${dungeon.id}`}
+                    x1={from.x + 80}
+                    y1={from.y + 38}
+                    x2={to.x + 80}
+                    y2={to.y + 38}
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    opacity="0.35"
+                  />
+                ) : null;
+              })}
+              {dungeonConnections.map((edge) => {
+                const from = worldPosition(edge.from);
+                const to = worldPosition(edge.to);
+                return from && to ? (
+                  <line
+                    key={`unlock-${edge.from}-${edge.to}`}
+                    x1={from.x + 80}
+                    y1={from.y + 38}
+                    x2={to.x + 80}
+                    y2={to.y + 38}
+                    stroke="currentColor"
+                    strokeWidth="3"
+                  />
+                ) : null;
+              })}
               {[
                 ...map.edges,
                 ...fresh.map((item) => ({
@@ -370,6 +433,40 @@ export default function ExplorationMap({
                 ) : null;
               })}
             </svg>
+            {dungeons.map((dungeon) => {
+              const id = worldId(dungeon.id);
+              const point = positions.get(id);
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  aria-label={`ダンジョン ${dungeon.name}`}
+                  aria-pressed={selected === id}
+                  tabIndex={focused === id ? 0 : -1}
+                  ref={(node) => {
+                    if (node) nodes.current.set(id, node);
+                    else nodes.current.delete(id);
+                  }}
+                  onFocus={() => setFocused(id)}
+                  onClick={(event) => {
+                    setSelected(id);
+                    if (event.detail === 0)
+                      requestAnimationFrame(() =>
+                        primaryAction.current?.focus(),
+                      );
+                  }}
+                  className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg ${selected === id ? "border-primary ring-2 ring-primary/30" : "border-emerald-500/50"}`}
+                  style={{ left: point?.x, top: point?.y }}
+                >
+                  <span className="block text-xs text-emerald-500">
+                    開放済みダンジョン
+                  </span>
+                  <span className="line-clamp-2 font-medium">
+                    {dungeon.name}
+                  </span>
+                </button>
+              );
+            })}
             {[...allIds, ...fresh.map((item) => item.knowledge.uid)].map(
               (id, i) => {
                 const point = positions.get(id);
@@ -574,48 +671,72 @@ export default function ExplorationMap({
                   {Math.floor(map.places.length / PLACES_PER_REGION) + 1}
                 </p>
               )}
-              <PathTerms knowledge={chosen} />
+              {selectedDungeon ? (
+                <h3 className="font-medium">{selectedDungeon.name}</h3>
+              ) : (
+                <PathTerms knowledge={chosen} />
+              )}
               {unavailableIds.includes(selected) && (
                 <p className="mt-2 text-xs text-muted-foreground">
                   現在利用できない単文です。開拓履歴は保持されています。
                 </p>
               )}
               <p className="mt-2 text-sm leading-relaxed">
-                {selected === ENTRANCE
-                  ? "ダンジョンの入口"
-                  : (chosen?.sentence ?? "単文詳細を開く")}
+                {selectedDungeon
+                  ? "ダンジョンへ移動"
+                  : selected === ENTRANCE
+                    ? "ダンジョンの入口"
+                    : (chosen?.sentence ?? "単文詳細を開く")}
               </p>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
+              {selectedDungeon && (
+                <Button
+                  ref={primaryAction}
+                  disabled={disabled}
+                  onClick={() => onDungeon?.(selectedDungeon.id)}
+                >
+                  このダンジョンへ移動
+                </Button>
+              )}
               {canMove && (
                 <Button
                   size="sm"
                   ref={primaryAction}
                   className="min-h-11 flex-1"
-                  onClick={() => onMove(selected, candidate?.kind)}
+                  onClick={() => {
+                    if (selected === ENTRANCE && onRestart) onRestart();
+                    else onMove(selected, candidate?.kind);
+                  }}
                   aria-label={
-                    candidate
-                      ? undefined
-                      : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
+                    selected === ENTRANCE && onRestart
+                      ? "冒険を再開"
+                      : candidate
+                        ? undefined
+                        : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
                   }
                 >
-                  {candidate
-                    ? candidate.kind === "detour" && map.current !== ENTRANCE
-                      ? "見たよ · 寄り道へ"
-                      : "見たよ · この道へ"
-                    : "移動 · １歩"}
+                  {selected === ENTRANCE && onRestart
+                    ? "冒険を再開"
+                    : candidate
+                      ? candidate.kind === "detour" && map.current !== ENTRANCE
+                        ? "見たよ · 寄り道へ"
+                        : "見たよ · この道へ"
+                      : "移動 · １歩"}
                 </Button>
               )}
-              {selected !== ENTRANCE && !unavailableIds.includes(selected) && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  ref={canMove ? undefined : primaryAction}
-                  onClick={() => onOpen(selected)}
-                >
-                  詳細
-                </Button>
-              )}
+              {!selectedDungeon &&
+                selected !== ENTRANCE &&
+                !unavailableIds.includes(selected) && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    ref={canMove ? undefined : primaryAction}
+                    onClick={() => onOpen(selected)}
+                  >
+                    詳細
+                  </Button>
+                )}
             </div>
           </section>
         )}

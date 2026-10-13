@@ -15,6 +15,54 @@ const map: DungeonMap = {
     { from: "a", to: "b", kind: "relation" },
   ],
 };
+
+it("places other dungeons left of the entrance and navigates them with arrows and Enter", async () => {
+  const travel = vi.fn();
+  render(
+    <ExplorationMap
+      map={map}
+      knowledge={[]}
+      dungeonId="book"
+      dungeons={[{ id: "other", name: "別の本" }]}
+      onDungeon={travel}
+      onMove={vi.fn()}
+      onOpen={vi.fn()}
+      disabled={false}
+    />,
+  );
+  const entrance = screen.getByRole("button", { name: /^入口入口$/ });
+  const other = screen.getByRole("button", { name: "ダンジョン 別の本" });
+  expect(Number.parseFloat(other.style.left)).toBeLessThan(
+    Number.parseFloat(entrance.style.left),
+  );
+  const user = userEvent.setup();
+  await user.click(entrance);
+  await user.keyboard("{ArrowLeft}");
+  expect(other).toHaveFocus();
+  await user.keyboard("{Enter}");
+  await user.click(
+    screen.getByRole("button", { name: "このダンジョンへ移動" }),
+  );
+  expect(travel).toHaveBeenCalledWith("other");
+});
+
+it("allows restarting from the entrance node itself when defeated there", async () => {
+  const restart = vi.fn();
+  render(
+    <ExplorationMap
+      map={{ current: ENTRANCE, places: [], edges: [] }}
+      knowledge={[]}
+      onMove={vi.fn()}
+      onOpen={vi.fn()}
+      onRestart={restart}
+      disabled={false}
+    />,
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: /現在地 · 入口/ }));
+  await user.click(screen.getByRole("button", { name: "冒険を再開" }));
+  expect(restart).toHaveBeenCalledOnce();
+});
 it("shows the frontier region even when opening a new path from an older region", async () => {
   const knowledge = { uid: "new", sentence: "次の道" };
   render(

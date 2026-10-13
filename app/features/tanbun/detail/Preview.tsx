@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { createContext, useContext, useState } from "react";
 import { Link } from "react-router";
 import useSWR from "swr";
 import { getQuizChain } from "~/features/quiz/api";
@@ -22,6 +22,9 @@ type PreviewTarget =
       sentence?: string;
     };
 
+const ContainedPreviewContext = createContext(false);
+export const ContainedTanbunPreviews = ContainedPreviewContext.Provider;
+
 /** 元のTL・回答フォームをアンマウントせず詳細だけ開く。 */
 export function useTanbunPreview() {
   const [target, setTarget] = useState<PreviewTarget>();
@@ -43,6 +46,9 @@ export function TanbunPreviewDialog({
   target: PreviewTarget;
   onClose: () => void;
 }) {
+  const contained = useContext(ContainedPreviewContext);
+  const [nestedId, setNestedId] = useState<string>();
+  const [history, setHistory] = useState<string[]>([]);
   const quizId = "quizId" in target ? target.quizId : undefined;
   const {
     data: chain,
@@ -58,7 +64,7 @@ export function TanbunPreviewDialog({
       shouldRetryOnError: false,
     },
   );
-  const sentenceId =
+  const resolvedId =
     "sentenceId" in target
       ? target.sentenceId
       : chain?.links.find(
@@ -73,6 +79,7 @@ export function TanbunPreviewDialog({
                   sentence.sentence === target.sentence,
               )),
         )?.sentence_id;
+  const sentenceId = nestedId ?? resolvedId;
   return (
     <Dialog
       open
@@ -83,6 +90,24 @@ export function TanbunPreviewDialog({
       <DialogContent
         className="max-h-[92dvh] min-w-0 overflow-y-auto p-3 sm:max-w-4xl sm:p-5"
         data-dashboard-swipe-ignore
+        onClickCapture={(event) => {
+          if (!contained) return;
+          const anchor = (event.target as Element).closest("a[href]");
+          if (!anchor) return;
+          const path = new URL(
+            (anchor as HTMLAnchorElement).href,
+            window.location.href,
+          ).pathname;
+          const match = path.match(/^\/tanbun\/([^/]+)\/?$/);
+          if (!match) return;
+          event.preventDefault();
+          event.stopPropagation();
+          const next = canonicalSentenceId(decodeURIComponent(match[1]));
+          if (sentenceId && next !== canonicalSentenceId(sentenceId)) {
+            setHistory((previous) => [...previous, sentenceId]);
+            setNestedId(next);
+          }
+        }}
       >
         <DialogHeader>
           <DialogTitle>単文詳細</DialogTitle>
@@ -91,7 +116,22 @@ export function TanbunPreviewDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center justify-between gap-2">
-          {sentenceId ? (
+          {contained ? (
+            history.length > 0 ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setNestedId(history.at(-1));
+                  setHistory((previous) => previous.slice(0, -1));
+                }}
+              >
+                戻る
+              </Button>
+            ) : (
+              <span />
+            )
+          ) : sentenceId ? (
             <Link
               to={`/tanbun/${canonicalSentenceId(sentenceId)}`}
               className="text-sm text-primary hover:underline"

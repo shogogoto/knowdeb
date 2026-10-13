@@ -9,7 +9,7 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { SWRConfig } from "swr";
 import { getQuizChain } from "~/features/quiz/api";
 import { historyCache, tanbunDetailCache } from "~/shared/lib/indexed";
-import { TanbunPreviewDialog } from "./Preview";
+import { ContainedTanbunPreviews, TanbunPreviewDialog } from "./Preview";
 import { canonicalSentenceId, invalidateTanbunDetails } from "./cache";
 import { fixtureDetail1 } from "./fixture";
 import TanbunChainView from "./index";
@@ -30,6 +30,49 @@ beforeEach(async () => {
   );
 });
 afterEach(() => vi.unstubAllGlobals());
+
+it("contained detail links stay inside the floating preview and can go back", async () => {
+  wrap(
+    <Routes>
+      <Route
+        path="/review"
+        element={
+          <ContainedTanbunPreviews value={true}>
+            <TanbunPreviewDialog
+              target={{ sentenceId: fixtureDetail1.uid }}
+              onClose={() => undefined}
+            />
+          </ContainedTanbunPreviews>
+        }
+      />
+      <Route path="/tanbun/:id" element={<p>ゲーム外へ移動</p>} />
+    </Routes>,
+  );
+  await screen.findByRole("navigation", { name: "保存場所" });
+  expect(
+    screen.queryByRole("link", { name: "単文ページを開く" }),
+  ).not.toBeInTheDocument();
+  const nested = screen
+    .getAllByRole("link")
+    .find(
+      (link) =>
+        link.getAttribute("href")?.startsWith("/tanbun/") &&
+        !link
+          .getAttribute("href")
+          ?.includes(canonicalSentenceId(fixtureDetail1.uid)),
+    );
+  expect(nested).toBeDefined();
+  fireEvent.click(nested as HTMLElement);
+  expect(await screen.findByRole("button", { name: "戻る" })).toBeVisible();
+  expect(screen.getByRole("dialog")).toBeVisible();
+  expect(screen.queryByText("ゲーム外へ移動")).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole("button", { name: "戻る" }));
+  await waitFor(() =>
+    expect(
+      screen.queryByRole("button", { name: "戻る" }),
+    ).not.toBeInTheDocument(),
+  );
+});
 
 function wrap(element: React.ReactNode) {
   return render(

@@ -27,6 +27,12 @@ export type GameSave = {
   version: 2;
   clears: Record<string, number>;
   visitedDungeons?: string[];
+  unlockedDungeons?: {
+    sourceId: string;
+    resourceId: string;
+    name: string;
+    achievement: number;
+  }[];
   run?: Run;
   content?: DungeonContent;
   battleFeedback?: string | null;

@@ -9,7 +9,10 @@ import { invalidateGamification } from "~/features/gamification/invalidate";
 import QuizPreviewPrompt from "~/features/quiz/QuizPreviewPrompt";
 import { invalidateStudyPlanPreparationCache } from "~/features/quiz/api";
 import { markTanbunSeen } from "~/features/review/api";
-import { useTanbunPreview } from "~/features/tanbun/detail/Preview";
+import {
+  ContainedTanbunPreviews,
+  useTanbunPreview,
+} from "~/features/tanbun/detail/Preview";
 import { canonicalSentenceId } from "~/features/tanbun/detail/cache";
 import UserAvatar from "~/features/user/UserAvatar";
 import Loading from "~/shared/components/Loading";
@@ -76,12 +79,14 @@ export default function Game() {
   return (
     <AuthGuard>
       {user && (
-        <GamePlay
-          key={user.uid}
-          userId={user.uid}
-          player={user}
-          playerName={user.display_name || user.username || undefined}
-        />
+        <ContainedTanbunPreviews value={true}>
+          <GamePlay
+            key={user.uid}
+            userId={user.uid}
+            player={user}
+            playerName={user.display_name || user.username || undefined}
+          />
+        </ContainedTanbunPreviews>
       )}
     </AuthGuard>
   );
@@ -174,7 +179,11 @@ export function GamePlay({
       ? ["game-dungeon", userId, resourceId]
       : null,
     () => loadDungeon(resourceId),
-    { revalidateOnFocus: false, dedupingInterval: 30_000 },
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 30_000,
+      refreshInterval: (data) => (data && data.quizzes.length === 0 ? 5000 : 0),
+    },
   );
   const content = run
     ? (save.content ?? loadedContent)
@@ -193,7 +202,12 @@ export function GamePlay({
       ? ["game-dungeon-refresh", userId, refreshResource, refreshRegions]
       : null,
     () => loadDungeon(refreshResource ?? "", refreshRegions),
-    { revalidateOnFocus: false, errorRetryCount: 3, errorRetryInterval: 5000 },
+    {
+      revalidateOnFocus: false,
+      errorRetryCount: 3,
+      errorRetryInterval: 5000,
+      refreshInterval: save.content?.quizzes.length === 0 ? 5000 : 0,
+    },
   );
   const appliedRefresh = useRef<{
     source?: typeof refreshedContent;
@@ -380,7 +394,13 @@ export function GamePlay({
     sentenceId: string,
     kind: "relation" | "detour" = "detour",
   ) {
-    if (pendingMove.current || !run || run.phase !== "path" || !content) return;
+    if (
+      pendingMove.current ||
+      !run ||
+      !["path", "cleared"].includes(run.phase) ||
+      !content
+    )
+      return;
     const currentMap = dungeonMap(save, run);
     const isNewPlace =
       sentenceId !== ENTRANCE &&
@@ -400,7 +420,9 @@ export function GamePlay({
     setBusy(true);
     setError(undefined);
     try {
-      const explored = explore(save, sentenceId, kind);
+      const traveling =
+        run.phase === "cleared" ? continueExploring(save) : save;
+      const explored = explore(traveling, sentenceId, kind);
       if (explored === save) return;
       const region =
         dungeonMap(explored, explored.run ?? run).places.find(
@@ -523,23 +545,114 @@ export function GamePlay({
       setBusy(false);
     }
   }
-  async function leave() {
+  async function switchDungeon(resourceId: string) {
     if (pendingMove.current || answerRequestPending.current) return;
     if (run?.phase === "battle" || feedback) return;
+    if (!run || resourceId === run.resourceId) return;
+    const destination = growth?.resources.find(
+      (item) =>
+        canonicalSentenceId(item.resource_id) ===
+        canonicalSentenceId(resourceId),
+    );
+    if (!destination) return;
+    const allowed = [
+      ...(save.visitedDungeons ?? []),
+      ...Object.keys(save.dungeons ?? {}),
+      ...(save.unlockedDungeons ?? []).map((item) => item.resourceId),
+    ];
+    if (
+      !allowed.some(
+        (id) => canonicalSentenceId(id) === canonicalSentenceId(resourceId),
+      )
+    )
+      return;
     setBusy(true);
+    pendingMove.current = true;
+    setError(undefined);
     try {
-      await update(parkDungeon(save));
+      const preparation = await loadDungeonPreparation(destination.resource_id);
+      const parkedSave = parkDungeon(save);
+      const paused = parkedSave.dungeons?.[destination.resource_id];
+      const otherDungeons = { ...parkedSave.dungeons };
+      delete otherDungeons[destination.resource_id];
+      let entering = paused
+        ? {
+            ...parkedSave,
+            dungeons: otherDungeons,
+            run: paused.run,
+            content: paused.content,
+          }
+        : enterDungeon(
+            parkedSave,
+            destination.resource_id,
+            destination.resource_name ?? "ダンジョン",
+            level ?? 1,
+          );
+      const loaded =
+        entering.content ??
+        (await loadDungeon(
+          destination.resource_id,
+          preparation.prepared_regions,
+        ));
+      if (!loaded.knowledge.length)
+        throw new Error("このダンジョンには探索できる知識がありません。");
+      const stats = playerStats(save.allocation, balance ?? defaultBalance);
+      if (entering.run)
+        entering = {
+          ...entering,
+          content: loaded,
+          run: {
+            ...entering.run,
+            ...stats,
+            hp: Math.min(run.hp, stats.maxHp),
+            moves: run.moves,
+            kills: paused?.run.phase === "cleared" ? 0 : entering.run.kills,
+            phase:
+              run.hp === 0
+                ? "defeated"
+                : run.moves >= MOVES_PER_EVENT
+                  ? "rest"
+                  : "path",
+          },
+        };
+      await update(entering);
+      setSelectedId(destination.resource_id);
+      void retryCombat();
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "撤退を保存できませんでした。",
+        cause instanceof Error
+          ? cause.message
+          : "ダンジョンを移動できませんでした。",
       );
-      return;
     } finally {
+      pendingMove.current = false;
       setBusy(false);
     }
-    setFeedback(undefined);
-    setSelectedId("");
-    void navigate("/game");
+  }
+  async function restartAtEntrance() {
+    if (!run || busy || pendingMove.current || !access.data?.available) return;
+    pendingMove.current = true;
+    setBusy(true);
+    try {
+      const restarting = enterDungeon(
+        { ...save, run: undefined, battle: null, battleFeedback: undefined },
+        run.resourceId,
+        run.name,
+        level ?? 1,
+      );
+      const stats = playerStats(save.allocation, balance ?? defaultBalance);
+      if (restarting.run)
+        restarting.run = { ...restarting.run, ...stats, hp: stats.maxHp };
+      await update({ ...restarting, content }, true);
+      void access.mutate();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "冒険を再開できませんでした。",
+      );
+    } finally {
+      pendingMove.current = false;
+      setBusy(false);
+    }
   }
   async function startEvent() {
     const needsAccess = !parked || parked.run.phase !== "path";
@@ -913,15 +1026,55 @@ export function GamePlay({
                 )}
               {map && (
                 <ExplorationMap
-                  key={run.resourceId}
+                  dungeonId={run.resourceId}
+                  dungeons={resources
+                    .filter(
+                      (item) =>
+                        item.resource_id !== run.resourceId &&
+                        [
+                          ...(save.visitedDungeons ?? []),
+                          ...Object.keys(save.dungeons ?? {}),
+                          ...(save.unlockedDungeons ?? []).map(
+                            (value) => value.resourceId,
+                          ),
+                        ].some(
+                          (id) =>
+                            canonicalSentenceId(id) ===
+                            canonicalSentenceId(item.resource_id),
+                        ),
+                    )
+                    .map((item) => ({
+                      id: item.resource_id,
+                      name: item.resource_name ?? "ダンジョン",
+                    }))}
+                  dungeonConnections={(save.unlockedDungeons ?? []).map(
+                    (item) => ({ from: item.sourceId, to: item.resourceId }),
+                  )}
+                  onDungeon={(id) => void switchDungeon(id)}
+                  onRestart={
+                    run.phase === "defeated" && access.data?.available
+                      ? () => void restartAtEntrance()
+                      : undefined
+                  }
+                  canTravel={(id) =>
+                    run.phase === "path" ||
+                    (run.phase === "cleared" && run.moves < MOVES_PER_EVENT) ||
+                    (id === ENTRANCE &&
+                      run.phase === "defeated" &&
+                      Boolean(access.data?.available))
+                  }
                   map={map}
                   knowledge={content?.knowledge ?? []}
                   onOpen={(sentenceId) => openPreview({ sentenceId })}
-                  onMove={(sentenceId, kind) => void advance(sentenceId, kind)}
+                  onMove={(sentenceId, kind) => {
+                    if (sentenceId === ENTRANCE && run.phase === "defeated")
+                      void restartAtEntrance();
+                    else void advance(sentenceId, kind);
+                  }}
                   disabled={
                     busy ||
                     Boolean(feedback) ||
-                    run.phase !== "path" ||
+                    run.phase === "battle" ||
                     validatingKnowledge ||
                     Boolean(validationError)
                   }
@@ -1122,17 +1275,6 @@ export function GamePlay({
                       </p>
                     </div>
                   ) : null}
-                  <Button
-                    variant="outline"
-                    disabled={
-                      busy || run.phase === "battle" || Boolean(feedback)
-                    }
-                    onClick={() => void leave()}
-                  >
-                    {run.phase === "cleared" || run.phase === "defeated"
-                      ? "入口へ戻る"
-                      : "ダンジョンを切り替える"}
-                  </Button>
                 </ExplorationMap>
               )}
             </>
@@ -1155,9 +1297,9 @@ export function GamePlay({
             onSaved={(state) => {
               applyState(state);
               void retryCombat();
-              void invalidateGamification(mutate, { preserveData: true }).catch(
-                () => undefined,
-              );
+              void invalidateGamification(mutate, {
+                preserveData: true,
+              }).catch(() => undefined);
             }}
             onBusy={(value) => {
               answerRequestPending.current = value;

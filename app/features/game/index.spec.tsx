@@ -223,6 +223,8 @@ vi.mock("~/features/gamification/invalidate", () => ({
 }));
 vi.mock("~/features/tanbun/detail/Preview", () => ({
   useTanbunPreview: () => ({ openPreview, preview: null }),
+  ContainedTanbunPreviews: ({ children }: { children: React.ReactNode }) =>
+    children,
 }));
 const { openPreview } = vi.hoisted(() => ({ openPreview: vi.fn() }));
 vi.mock("~/features/quiz/QuizAttempt", () => ({
@@ -1050,6 +1052,14 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
     save: {
       ...save,
       visitedDungeons: ["book"],
+      unlockedDungeons: [
+        {
+          sourceId: "book",
+          resourceId: "previous",
+          name: "以前の本",
+          achievement: 3,
+        },
+      ],
       content,
       run: { ...save.run, hp: 24, moves: 2, readIds: ["sentence"] },
     },
@@ -1058,17 +1068,27 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
   renderGame();
   const user = userEvent.setup();
   expect(await screen.findByText("HP 24/35")).toBeVisible();
-  await user.click(
-    screen.getByRole("button", { name: "ダンジョンを切り替える" }),
-  );
   expect(
-    await screen.findByRole("combobox", { name: "過去のダンジョン" }),
-  ).toBeVisible();
+    screen.queryByRole("button", { name: "ダンジョンを切り替える" }),
+  ).not.toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "マップを全画面表示" }));
+  await user.click(screen.getByRole("button", { name: "ダンジョン 以前の本" }));
+  await user.click(
+    screen.getByRole("button", { name: "このダンジョンへ移動" }),
+  );
+  await waitFor(() => expect(state.save.run?.resourceId).toBe("previous"));
+  expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
   expect(state.save.dungeons?.book.run.hp).toBe(24);
   expect(state.save.maps?.book.current).toBe("sentence");
-  const resume = await screen.findByRole("button", { name: "現在地から再開" });
-  expect(resume).toBeEnabled();
-  await user.click(resume);
+  expect(state.save.run?.hp).toBe(24);
+  expect(state.save.run?.moves).toBe(2);
+  await user.click(
+    screen.getByRole("button", { name: "ダンジョン テストの本" }),
+  );
+  await user.click(
+    screen.getByRole("button", { name: "このダンジョンへ移動" }),
+  );
+  await waitFor(() => expect(state.save.run?.resourceId).toBe("book"));
   expect(await screen.findByText("HP 24/35")).toBeVisible();
   expect(state.save.run?.moves).toBe(2);
   expect(state.save.maps?.book.current).toBe("sentence");
