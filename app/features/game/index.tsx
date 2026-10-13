@@ -406,7 +406,7 @@ export function GamePlay({
         dungeonMap(explored, explored.run ?? run).places.find(
           (place) => place.id === sentenceId,
         )?.region ?? 0;
-      const dungeonContent = knownKnowledge(content, connected ?? []);
+      let dungeonContent = knownKnowledge(content, connected ?? []);
       const legacyPool =
         dungeonContent.regionQuizPools?.[region] ??
         (dungeonContent.regionEnemies?.[region]
@@ -423,21 +423,34 @@ export function GamePlay({
         );
         return;
       }
-      const availableQuizIds = new Set(
-        dungeonContent.quizzes.map((quiz) =>
-          quiz.quiz_id.replaceAll("-", "").toLowerCase(),
-        ),
-      );
-      if (
-        population.quiz_ids.some(
+      const missingQuizzes = () => {
+        const availableQuizIds = new Set(
+          dungeonContent.quizzes.map((quiz) =>
+            quiz.quiz_id.replaceAll("-", "").toLowerCase(),
+          ),
+        );
+        return population.quiz_ids.some(
           (quizId) =>
             !availableQuizIds.has(quizId.replaceAll("-", "").toLowerCase()),
-        )
-      ) {
-        setError(
-          "領域のクイズを読み込めませんでした。画面を再読み込みしてください。",
         );
-        return;
+      };
+      if (missingQuizzes()) {
+        const hydrated = await loadDungeonRegionQuizPool(
+          run.resourceId,
+          region + 1,
+          undefined,
+          true,
+        );
+        dungeonContent = mergeDungeonContent(dungeonContent, {
+          knowledge: [],
+          quizzes: hydrated.quizzes ?? [],
+        });
+        if (missingQuizzes()) {
+          setError(
+            `領域${region + 1}のクイズを取得できませんでした。もう一度移動を試してください。`,
+          );
+          return;
+        }
       }
       const frozen = freezeRegionEnemies(
         dungeonContent,

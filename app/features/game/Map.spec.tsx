@@ -15,6 +15,32 @@ const map: DungeonMap = {
     { from: "a", to: "b", kind: "relation" },
   ],
 };
+it("shows the frontier region even when opening a new path from an older region", async () => {
+  const knowledge = { uid: "new", sentence: "次の道" };
+  render(
+    <ExplorationMap
+      map={{
+        current: "p0",
+        places: Array.from({ length: 15 }, (_, index) => ({
+          id: `p${index}`,
+          region: Math.floor(index / 5),
+        })),
+        edges: [],
+      }}
+      knowledge={[]}
+      candidates={[{ knowledge, kind: "detour" }]}
+      onMove={vi.fn()}
+      onOpen={vi.fn()}
+      disabled={false}
+    />,
+  );
+  expect(screen.getByRole("button", { name: /現在地 · 領域 1/ })).toBeVisible();
+  const next = screen.getByRole("button", { name: /未探索 · 領域 4/ });
+  await userEvent.setup().click(next);
+  expect(
+    screen.getByRole("region", { name: "選択した地点" }),
+  ).toHaveTextContent("未探索 · 領域 4");
+});
 it("retains the current region and opens the enemy list for each discovered band", async () => {
   render(
     <ExplorationMap

@@ -884,6 +884,71 @@ it("shows terms on knowledge offered as the next path", async () => {
   expect(within(selected).getByText("知識の進路")).toBeVisible();
 });
 
+it("hydrates fixed population quizzes missing from recommendations before spending a move", async () => {
+  const initialContent = await loadDungeon("book");
+  const preparedQuiz = {
+    ...initialContent.quizzes[0],
+    quiz_id: "fixed-pool-quiz",
+  };
+  const pool = {
+    ready: true,
+    level: 1,
+    required_quizzes: 5,
+    available_quizzes: 5,
+    quiz_ids: [preparedQuiz.quiz_id],
+    enemies: [
+      {
+        id: "book:0:enemy:0",
+        name: "領域1の敵",
+        quiz_ids: [preparedQuiz.quiz_id],
+      },
+    ],
+  };
+  vi.mocked(loadDungeonRegionQuizPool)
+    .mockResolvedValueOnce(pool)
+    .mockResolvedValueOnce({ ...pool, quizzes: [preparedQuiz] });
+  renderGame();
+  const user = await enter();
+  await user.click(
+    await screen.findByRole("button", { name: "見たよ · この道へ" }),
+  );
+  await waitFor(() => expect(state.save.run?.moves).toBe(1));
+  expect(loadDungeonRegionQuizPool).toHaveBeenNthCalledWith(
+    2,
+    "book",
+    1,
+    undefined,
+    true,
+  );
+  expect(state.save.content?.quizzes.map((quiz) => quiz.quiz_id)).toEqual([
+    "quiz",
+    "fixed-pool-quiz",
+  ]);
+  expect(markTanbunSeen).toHaveBeenCalledWith("sentence");
+});
+
+it("does not spend moves or record seen knowledge when population hydration fails", async () => {
+  const pool = {
+    ready: true,
+    level: 1,
+    required_quizzes: 5,
+    available_quizzes: 5,
+    quiz_ids: ["missing-quiz"],
+    enemies: [],
+  };
+  vi.mocked(loadDungeonRegionQuizPool).mockResolvedValue(pool);
+  renderGame();
+  const user = await enter();
+  await user.click(
+    await screen.findByRole("button", { name: "見たよ · この道へ" }),
+  );
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "領域1のクイズを取得できませんでした",
+  );
+  expect(state.save.run?.moves).toBe(0);
+  expect(markTanbunSeen).not.toHaveBeenCalled();
+});
+
 it("fullscreen is presentation-only and does not reset or save the adventure", async () => {
   state = {
     revision: 1,

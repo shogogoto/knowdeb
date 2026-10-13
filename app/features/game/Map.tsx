@@ -19,7 +19,7 @@ import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import PathTerms from "./PathTerms";
 import RegionEnemies from "./RegionEnemies";
 import type { DungeonContent, PathKnowledge, RegionEnemy } from "./api";
-import { type DungeonMap, ENTRANCE } from "./exploration";
+import { type DungeonMap, ENTRANCE, PLACES_PER_REGION } from "./exploration";
 import { directionalPlace } from "./navigation";
 
 export type MapCandidate = {
@@ -419,7 +419,7 @@ export default function ExplorationMap({
                           ? "現在地 · 入口"
                           : `現在地 · 領域 ${map.places[i - 1].region + 1}`
                         : unexplored
-                          ? "未探索"
+                          ? `未探索 · 領域 ${Math.floor(map.places.length / PLACES_PER_REGION) + 1}`
                           : id === ENTRANCE
                             ? "入口"
                             : `領域 ${map.places[i - 1].region + 1}`}
@@ -568,6 +568,12 @@ export default function ExplorationMap({
               <X className="size-4" />
             </Button>
             <div className="pr-8">
+              {candidate && (
+                <p className="mb-2 text-xs text-muted-foreground">
+                  未探索 · 領域{" "}
+                  {Math.floor(map.places.length / PLACES_PER_REGION) + 1}
+                </p>
+              )}
               <PathTerms knowledge={chosen} />
               {unavailableIds.includes(selected) && (
                 <p className="mt-2 text-xs text-muted-foreground">

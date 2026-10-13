@@ -28,6 +28,7 @@ export type DungeonRegionQuizPool = {
   required_quizzes: number;
   available_quizzes: number;
   quiz_ids: string[];
+  quizzes?: DungeonContent["quizzes"];
   enemy_types?: number;
   min_quizzes_per_enemy?: number;
   max_quizzes_per_enemy?: number;
@@ -132,10 +133,11 @@ export async function loadDungeonRegionQuizPool(
   resourceId: string,
   level: number,
   legacyQuizIds?: string[],
+  includeQuizzes = false,
 ): Promise<DungeonRegionQuizPool> {
   const method = legacyQuizIds ? "POST" : "GET";
   const response = await fetch(
-    `${API_BASE_URL}/game/dungeons/${encodeURIComponent(resourceId)}/regions/${level}/quiz-pool`,
+    `${API_BASE_URL}/game/dungeons/${encodeURIComponent(resourceId)}/regions/${level}/quiz-pool${includeQuizzes ? "?include_quizzes=true" : ""}`,
     {
       method,
       credentials: "include",
@@ -174,7 +176,7 @@ export function mergeDungeonContent(
     quizzes: [
       ...new Map(
         [...current.quizzes, ...refreshed.quizzes].map((quiz) => [
-          quiz.quiz_id,
+          quiz.quiz_id.replaceAll("-", "").toLowerCase(),
           quiz,
         ]),
       ).values(),
