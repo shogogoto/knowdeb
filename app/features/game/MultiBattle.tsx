@@ -65,6 +65,7 @@ export default function MultiBattle({
   const [simulationChoices, setSimulationChoices] = useState<
     Record<string, "correct" | "incorrect">
   >({});
+  const activeAnswerArea = useRef<HTMLDivElement>(null);
   const [frozenRemainingMs, setFrozenRemainingMs] = useState<number>();
   const [active, setActive] = useState(0);
   const [now, setNow] = useState(Date.now);
@@ -98,6 +99,16 @@ export default function MultiBattle({
     }));
   const currentHp = remainingHp(hp, live);
   const stats = playerStats(save.allocation, context.balance);
+  function focusAnswerChoice(direction: "first" | "last" = "first") {
+    const selector = simulation
+      ? 'input[type="radio"]'
+      : "button[data-quiz-option-index]:not(:disabled)";
+    const choices =
+      activeAnswerArea.current?.querySelectorAll<HTMLElement>(selector);
+    const choice =
+      direction === "first" ? choices?.[0] : choices?.[choices.length - 1];
+    choice?.focus();
+  }
   const remainingMs =
     frozenRemainingMs ??
     (run?.answerDeadline
@@ -223,16 +234,23 @@ export default function MultiBattle({
             aria-pressed={active === index}
             onClick={() => setActive(index)}
             onKeyDown={(event) => {
-              if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
-              event.preventDefault();
-              event.stopPropagation();
-              const next =
-                (index + (event.key === "ArrowRight" ? 1 : -1) + live.length) %
-                live.length;
-              setActive(next);
-              event.currentTarget.parentElement
-                ?.querySelectorAll<HTMLButtonElement>("button")
-                [next]?.focus();
+              if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
+                event.preventDefault();
+                event.stopPropagation();
+                const next =
+                  (index +
+                    (event.key === "ArrowRight" ? 1 : -1) +
+                    live.length) %
+                  live.length;
+                setActive(next);
+                event.currentTarget.parentElement
+                  ?.querySelectorAll<HTMLButtonElement>("button")
+                  [next]?.focus();
+              } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+                event.preventDefault();
+                event.stopPropagation();
+                focusAnswerChoice(event.key === "ArrowDown" ? "first" : "last");
+              }
             }}
             className={`rounded-md border p-1 ${active === index ? "border-primary" : "border-transparent"}`}
           >
@@ -250,6 +268,7 @@ export default function MultiBattle({
           HP {currentHp[displayed.id]}/{displayed.hp} · 攻 {displayed.attack}
         </p>
       )}
+      <p className="text-xs text-muted-foreground">←→ 敵を切替 · ↓ 回答欄へ</p>
     </div>
   );
   return (
@@ -403,7 +422,10 @@ export default function MultiBattle({
                 (candidate) =>
                   candidate.id !== enemy.id && !(candidate.id in answers),
               );
-              if (next >= 0) setActive(next);
+              if (next >= 0) {
+                setActive(next);
+                requestAnimationFrame(() => focusAnswerChoice());
+              }
             };
             const correct = quiz.no_correct_option ? [] : quiz.correct;
             const incorrect = correct.length
@@ -413,6 +435,7 @@ export default function MultiBattle({
               <div
                 key={`${enemy.id}:${battle.turn}:${enemy.quizIndex}`}
                 hidden={index !== active}
+                ref={index === active ? activeAnswerArea : undefined}
               >
                 {simulation ? (
                   <div className="space-y-3 rounded-md border p-3">
@@ -457,6 +480,11 @@ export default function MultiBattle({
                                     [enemy.id]: choice,
                                   }))
                                 }
+                                onKeyDown={(event) => {
+                                  if (event.key !== "Enter") return;
+                                  event.preventDefault();
+                                  event.currentTarget.form?.requestSubmit();
+                                }}
                                 className="size-4 accent-primary"
                               />
                               {choice === "correct" ? "正解" : "不正解"}
