@@ -16,28 +16,24 @@ const statDefinitions = [
     label: "最大HP",
     Icon: Heart,
     value: (stats: ReturnType<typeof playerStats>) => stats.maxHp,
-    increase: (balance: GameBalance) => balance.hp_per_point,
   },
   {
     key: "attack",
     label: "攻撃力",
     Icon: Swords,
     value: (stats: ReturnType<typeof playerStats>) => stats.attack,
-    increase: (balance: GameBalance) => balance.attack_per_point,
   },
   {
     key: "defense",
     label: "守備力",
     Icon: Shield,
     value: (stats: ReturnType<typeof playerStats>) => stats.defense,
-    increase: (balance: GameBalance) => balance.defense_per_point,
   },
   {
     key: "seconds",
     label: "持ち時間",
     Icon: Timer,
     value: (stats: ReturnType<typeof playerStats>) => stats.answerSeconds,
-    increase: (balance: GameBalance) => balance.seconds_per_point,
     suffix: "秒",
   },
 ] as const;
@@ -103,9 +99,6 @@ export default function StatEditor({
             </span>
           </p>
         </div>
-        <p className="text-right text-xs text-muted-foreground">
-          Lvアップごとに3ポイント
-        </p>
       </div>
 
       {inBattle && (
@@ -114,12 +107,9 @@ export default function StatEditor({
         </output>
       )}
 
-      <fieldset
-        disabled={busy || inBattle}
-        className="grid grid-cols-1 gap-2 sm:grid-cols-2"
-      >
+      <fieldset disabled={busy || inBattle} className="grid grid-cols-1 gap-2">
         {statDefinitions.map((definition) => {
-          const { key, label, Icon, value, increase } = definition;
+          const { key, label, Icon, value } = definition;
           const suffix = "suffix" in definition ? definition.suffix : undefined;
           const stat = key as keyof Allocation;
           return (
@@ -141,11 +131,14 @@ export default function StatEditor({
                     現在HP {Math.min(currentHp, stats.maxHp)}/{stats.maxHp}
                   </p>
                 )}
-                <p className="text-xs text-muted-foreground">
-                  +{increase(balance)}
-                  {suffix ?? ""} / ポイント · 割り振り {draft[stat]}
-                </p>
               </div>
+              <span
+                aria-label={`${draft[stat]}ポイント割り振り済み`}
+                className="min-w-7 text-center text-sm tabular-nums text-muted-foreground"
+                title="割り振りポイント"
+              >
+                {draft[stat]}
+              </span>
               <div className="flex shrink-0 items-center gap-1">
                 <Button
                   type="button"
@@ -173,9 +166,6 @@ export default function StatEditor({
         })}
       </fieldset>
 
-      <p className="text-xs text-muted-foreground">
-        HPへの割り振りは最大HPを増やしますが、現在HPは回復しません。振り直しは無料です。
-      </p>
       <div className="flex gap-2">
         <Button
           type="button"
