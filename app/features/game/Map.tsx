@@ -517,13 +517,13 @@ export default function ExplorationMap({
                 )
                   onMove(RECOVERY);
               }}
-              className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected === RECOVERY ? "border-primary ring-2 ring-primary/30" : "border-emerald-500/50"}`}
+              className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected === RECOVERY ? "border-primary ring-2 ring-primary/30" : "border-sky-500/50"}`}
               style={{
                 left: positions.get(RECOVERY)?.x,
                 top: positions.get(RECOVERY)?.y,
               }}
             >
-              <span className="block text-xs text-emerald-500">入口の施設</span>
+              <span className="block text-xs text-sky-500">入口の施設</span>
               <span className="font-medium">回復場所</span>
               <span className="mt-1 block text-xs text-muted-foreground">
                 敗北時に利用可能 · 1歩
