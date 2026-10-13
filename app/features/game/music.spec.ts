@@ -71,11 +71,16 @@ afterEach(() => {
 });
 
 it("starts only on interaction, shares one stream, crossfades scenes and closes on exit", async () => {
-  const { registerMusic } = await import("./music");
+  const { registerMusic, musicPreferences, setMusicPreferences } = await import(
+    "./music"
+  );
   const explore = own(registerMusic("explore"));
   expect(TestAudioContext.instances).toHaveLength(0);
   document.dispatchEvent(new Event("pointerdown"));
-  await Promise.resolve();
+  expect(musicPreferences()).toEqual({ enabled: false });
+  expect(TestAudioContext.instances).toHaveLength(0);
+  setMusicPreferences({ enabled: true });
+  await vi.advanceTimersByTimeAsync(0);
   const context = TestAudioContext.instances[0];
   expect(context.oscillators.length).toBeGreaterThan(0);
   expect(vi.getTimerCount()).toBe(1);
@@ -109,6 +114,8 @@ it("starts only on interaction, shares one stream, crossfades scenes and closes 
 });
 
 it("pauses hidden tabs and muted music without continuing the scheduler", async () => {
+  localStorage.setItem("game-bgm", JSON.stringify({ enabled: true }));
+  vi.runOnlyPendingTimers();
   const { registerMusic, setMusicPreferences } = await import("./music");
   const stop = own(registerMusic("battle"));
   document.dispatchEvent(new Event("pointerdown"));
@@ -127,9 +134,9 @@ it("pauses hidden tabs and muted music without continuing the scheduler", async 
   expect(vi.getTimerCount()).toBe(0);
   document.dispatchEvent(new Event("pointerdown"));
   expect(vi.getTimerCount()).toBe(0);
-  setMusicPreferences({ enabled: true, volume: 0 });
+  setMusicPreferences({ enabled: true });
   await vi.advanceTimersByTimeAsync(0);
-  expect(vi.getTimerCount()).toBe(0);
+  expect(vi.getTimerCount()).toBe(1);
   stop();
 });
 
@@ -141,7 +148,7 @@ it("restores saved preferences and tolerates unavailable audio and storage", asy
   const { registerMusic, musicPreferences, setMusicPreferences } = await import(
     "./music"
   );
-  expect(musicPreferences()).toEqual({ enabled: false, volume: 0.4 });
+  expect(musicPreferences()).toEqual({ enabled: false });
   vi.stubGlobal("AudioContext", undefined);
   vi.spyOn(Storage.prototype, "setItem").mockImplementation(() => {
     throw new Error("blocked");
@@ -154,6 +161,8 @@ it("restores saved preferences and tolerates unavailable audio and storage", asy
 });
 
 it("does not restart an audio context after its owner leaves during resume", async () => {
+  localStorage.setItem("game-bgm", JSON.stringify({ enabled: true }));
+  vi.runOnlyPendingTimers();
   let resolve: (() => void) | undefined;
   const { registerMusic } = await import("./music");
   class PendingContext extends TestAudioContext {

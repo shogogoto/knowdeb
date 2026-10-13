@@ -1,7 +1,7 @@
 /** Original, procedurally composed loops. No music assets or network requests. */
 export type MusicScene = "explore" | "battle";
-type Preferences = { enabled: boolean; volume: number };
-const defaults: Preferences = { enabled: true, volume: 0.25 };
+type Preferences = { enabled: boolean };
+const defaults: Preferences = { enabled: false };
 const storageKey = "game-bgm";
 let preferences = defaults;
 let loaded = false;
@@ -16,10 +16,7 @@ export function musicPreferences(): Preferences {
       const saved = JSON.parse(localStorage.getItem(storageKey) ?? "null");
       if (saved) {
         preferences = {
-          enabled: typeof saved.enabled === "boolean" ? saved.enabled : true,
-          volume: Number.isFinite(saved.volume)
-            ? Math.max(0, Math.min(1, saved.volume))
-            : defaults.volume,
+          enabled: saved.enabled === true,
         };
       }
     } catch {
@@ -38,16 +35,15 @@ export function setMusicPreferences(update: Partial<Preferences>) {
   const current = musicPreferences();
   preferences = {
     enabled: update.enabled ?? current.enabled,
-    volume: Math.max(0, Math.min(1, update.volume ?? current.volume)),
   };
   try {
     localStorage.setItem(storageKey, JSON.stringify(preferences));
   } catch {
     // Private browsing/storage limits do not disable the controls.
   }
-  engine?.setVolume(preferences.enabled ? preferences.volume : 0);
+  engine?.setVolume(preferences.enabled ? 1 : 0);
   for (const listener of subscribers) listener();
-  if (preferences.enabled && preferences.volume > 0) unlockMusic();
+  if (preferences.enabled) unlockMusic();
   else engine?.pause();
 }
 
@@ -55,18 +51,12 @@ function scene(): MusicScene {
   return [...scenes.values()].includes("battle") ? "battle" : "explore";
 }
 function unlockMusic() {
-  if (
-    !scenes.size ||
-    document.hidden ||
-    !musicPreferences().enabled ||
-    preferences.volume === 0
-  )
-    return;
+  if (!scenes.size || document.hidden || !musicPreferences().enabled) return;
   try {
     if (!engine && window.AudioContext)
       engine = new MusicEngine(new window.AudioContext());
     engine?.setScene(scene());
-    engine?.setVolume(preferences.volume);
+    engine?.setVolume(1);
     void engine?.resume();
   } catch {
     // Unsupported or blocked audio is optional; gameplay must still work.
@@ -74,8 +64,7 @@ function unlockMusic() {
 }
 function visibilityChanged() {
   if (document.hidden) engine?.pause();
-  else if (engine && musicPreferences().enabled && preferences.volume > 0)
-    void engine.resume();
+  else if (engine && musicPreferences().enabled) void engine.resume();
 }
 
 /** Multiple UI owners share one stream; a battle overrides dungeon ambience. */

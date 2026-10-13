@@ -242,25 +242,7 @@ export default function MultiBattle({
             aria-label={enemy.name}
             aria-pressed={active === index}
             onClick={() => setActive(index)}
-            onKeyDown={(event) => {
-              if (["ArrowLeft", "ArrowRight"].includes(event.key)) {
-                event.preventDefault();
-                event.stopPropagation();
-                const next =
-                  (index +
-                    (event.key === "ArrowRight" ? 1 : -1) +
-                    live.length) %
-                  live.length;
-                setActive(next);
-                event.currentTarget.parentElement
-                  ?.querySelectorAll<HTMLButtonElement>("button")
-                  [next]?.focus();
-              } else if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-                event.preventDefault();
-                event.stopPropagation();
-                focusAnswerChoice(event.key === "ArrowDown" ? "first" : "last");
-              }
-            }}
+            onFocus={() => setActive(index)}
             className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${active === index ? "border-primary bg-background" : "border-transparent hover:bg-background/60"}`}
           >
             <EnemyAvatar identity={enemy.id} large />
@@ -294,7 +276,7 @@ export default function MultiBattle({
       </div>
       {displayed && (
         <p className="text-xs text-muted-foreground">
-          ←→ 敵を切替 · ↓ 回答欄へ · 選択中: {displayed.name}（攻{" "}
+          矢印で移動 · Spaceで選択 · Enterで確定 · 選択中: {displayed.name}（攻{" "}
           {displayed.attack}）
         </p>
       )}
@@ -590,26 +572,6 @@ export default function MultiBattle({
                                   return { ...current, [enemy.id]: choice };
                                 })
                               }
-                              onKeyDown={(event) => {
-                                if (
-                                  event.key !== "ArrowDown" &&
-                                  event.key !== "ArrowUp"
-                                )
-                                  return;
-                                event.preventDefault();
-                                event.stopPropagation();
-                                const choices = Array.from(
-                                  activeAnswerArea.current?.querySelectorAll<HTMLButtonElement>(
-                                    "button[data-simulation-option]:not(:disabled)",
-                                  ) ?? [],
-                                );
-                                const next =
-                                  (choices.indexOf(event.currentTarget) +
-                                    (event.key === "ArrowDown" ? 1 : -1) +
-                                    choices.length) %
-                                  choices.length;
-                                choices[next]?.focus();
-                              }}
                               className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors focus-visible:ring-2 focus-visible:ring-primary ${selected ? "border-primary bg-primary/10" : "hover:bg-muted"}`}
                             >
                               {choice === "correct" ? "正解" : "不正解"}
@@ -645,6 +607,7 @@ export default function MultiBattle({
                     quiz={quiz}
                     compactMobile
                     enterToSubmit
+                    keyboardHint="矢印で移動 · Spaceで選択/解除 · Enterで確定"
                     allowReport={!simulation}
                     disabled={busy || !!retry || remaining === 0}
                     canSubmit={() =>

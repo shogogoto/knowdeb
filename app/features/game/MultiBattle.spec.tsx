@@ -43,8 +43,43 @@ beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 beforeEach(() => {
   requests.length = 0;
   failures = 0;
+  vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(
+    function (this: HTMLElement) {
+      const name = this.getAttribute("aria-label") ?? this.textContent;
+      let x = 0;
+      let y = 0;
+      let width = 0;
+      if (name === "敵0" || name === "敵1") {
+        x = name === "敵1" ? 200 : 0;
+        width = 180;
+      } else if (
+        this.matches("[data-simulation-option], [data-quiz-option-index]")
+      ) {
+        x = name === "不正解" ? 200 : 0;
+        y = 150;
+        width = 180;
+      } else if (this.matches("[data-battle-submit], [data-quiz-submit]")) {
+        y = 250;
+        width = 180;
+      }
+      return {
+        x,
+        y,
+        width,
+        height: width ? 50 : 0,
+        top: y,
+        bottom: y + (width ? 50 : 0),
+        left: x,
+        right: x + width,
+        toJSON: () => ({}),
+      };
+    },
+  );
 });
-afterEach(() => server.resetHandlers());
+afterEach(() => {
+  server.resetHandlers();
+  vi.restoreAllMocks();
+});
 afterAll(() => server.close());
 const content: DungeonContent = {
   knowledge: [],
@@ -300,10 +335,10 @@ it.each([false, true])(
         name: simulation ? "正解" : reverse ? "選択肢一" : "選択肢二",
       });
       await waitFor(() => expect(second).toHaveFocus());
-      await user.keyboard("{ArrowDown}");
       if (simulation) {
+        await user.keyboard("{ArrowRight}");
         expect(screen.getByRole("button", { name: "不正解" })).toHaveFocus();
-        await user.keyboard("{ArrowUp}");
+        await user.keyboard("{ArrowLeft}");
       }
       await user.keyboard(" {Enter}");
       const process = await screen.findByRole("button", {

@@ -13,6 +13,7 @@ import EnemyAvatar from "./EnemyAvatar";
 import MusicControls, { useGameMusic } from "./MusicControls";
 import PlayerStatus from "./PlayerStatus";
 import type { Run } from "./domain";
+import { type Direction, movePanelFocus } from "./spatialFocus";
 
 export default function BattleDialog({
   run,
@@ -83,6 +84,30 @@ export default function BattleDialog({
           className="flex max-h-[96dvh] flex-col gap-3 overflow-hidden p-3 sm:max-w-5xl sm:p-5"
           data-dashboard-swipe-ignore
           onKeyDownCapture={(event) => {
+            const target = event.target;
+            if (
+              ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(
+                event.key,
+              ) &&
+              !event.altKey &&
+              !event.ctrlKey &&
+              !event.metaKey &&
+              !event.shiftKey &&
+              target instanceof HTMLElement &&
+              target.closest('[role="dialog"]') === event.currentTarget &&
+              !target.closest(
+                'input, select, textarea, [contenteditable="true"]',
+              )
+            ) {
+              event.preventDefault();
+              event.stopPropagation();
+              movePanelFocus(
+                event.currentTarget,
+                target,
+                event.key as Direction,
+              );
+              return;
+            }
             if (
               event.key !== "Enter" ||
               event.altKey ||
@@ -91,7 +116,6 @@ export default function BattleDialog({
             )
               return;
             const root = event.currentTarget;
-            const target = event.target;
             if (
               target instanceof HTMLElement &&
               target.closest(
@@ -113,6 +137,13 @@ export default function BattleDialog({
             if (submit) {
               event.preventDefault();
               submit.click();
+            } else if (
+              target instanceof HTMLElement &&
+              target.closest(
+                "[data-quiz-option-index], [data-simulation-option]",
+              )
+            ) {
+              event.preventDefault();
             }
           }}
         >
