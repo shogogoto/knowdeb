@@ -14,19 +14,16 @@ it("previews allocation, enforces the total budget, and resets freely", async ()
       onSaved={vi.fn()}
     />,
   );
-  const hp = screen.getByRole("spinbutton", { name: "HP" });
-  await user.clear(hp);
-  await user.type(hp, "3");
-  expect(screen.getByText("育成ポイント 0 / 3")).toBeVisible();
-  expect(screen.getByText(/HP 50/)).toBeVisible();
-  const attack = screen.getByRole("spinbutton", { name: "攻" });
-  await user.clear(attack);
-  await user.type(attack, "1");
-  expect(screen.getByRole("button", { name: "割り振りを保存" })).toBeDisabled();
-  await user.click(screen.getByRole("button", { name: "リセット" }));
-  expect(hp).toHaveValue(0);
-  expect(attack).toHaveValue(0);
-  expect(screen.getByText("育成ポイント 3 / 3")).toBeVisible();
+  const hp = screen.getByRole("button", { name: "最大HPにポイントを割り振る" });
+  await user.click(hp);
+  await user.click(hp);
+  await user.click(hp);
+  expect(screen.getByText("0/ 3")).toBeVisible();
+  expect(screen.getByText("50")).toBeVisible();
+  expect(hp).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "振り直す" }));
+  expect(screen.getByText("3/ 3")).toBeVisible();
+  expect(screen.getByText("35")).toBeVisible();
 });
 
 it("blocks allocation and reset during battle", () => {
@@ -38,7 +35,9 @@ it("blocks allocation and reset during battle", () => {
       onSaved={vi.fn()}
     />,
   );
-  expect(screen.getByRole("spinbutton", { name: "HP" })).toBeDisabled();
-  expect(screen.getByRole("button", { name: "リセット" })).toBeDisabled();
+  expect(
+    screen.getByRole("button", { name: "最大HPにポイントを割り振る" }),
+  ).toBeDisabled();
+  expect(screen.getByRole("button", { name: "振り直す" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "割り振りを保存" })).toBeDisabled();
 });

@@ -1403,17 +1403,13 @@ export function GamePlay({
                   {playerName ?? "あなた"} · Lv. {level ?? "—"}
                 </span>
               </div>
-              {run && (
-                <p>
-                  現在のHP {run.hp}/{run.maxHp}
-                </p>
-              )}
               {level && stateLoaded && (
                 <StatEditor
                   level={level}
                   allocation={save.allocation}
                   balance={balance ?? defaultBalance}
                   inBattle={run?.phase === "battle"}
+                  currentHp={run?.hp}
                   onSaved={applyState}
                 />
               )}
