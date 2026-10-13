@@ -471,6 +471,17 @@ export default function PracticeBattle({
           save={active.state.save}
           content={active.state.save.content as DungeonContent}
           context={active.context}
+          player={
+            selectedPlayer
+              ? {
+                  uid: selectedPlayer.uid,
+                  display_name: selectedPlayer.display_name,
+                  username: selectedPlayer.username,
+                  avatar_url: selectedPlayer.avatar_url,
+                  created: selectedPlayer.created,
+                }
+              : undefined
+          }
           playerName={active.playerName ?? "模擬プレイヤー"}
           transport={transport}
           rollDamage={(attack, balance, key) =>

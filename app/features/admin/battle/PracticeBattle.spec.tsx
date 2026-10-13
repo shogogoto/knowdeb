@@ -14,6 +14,14 @@ vi.mock("~/features/tanbun/detail/Preview", () => ({
 vi.mock("~/features/quiz/QuizReportButton", () => ({
   default: () => <button type="button">本番の通報操作</button>,
 }));
+vi.mock("~/features/user/UserAvatar", () => ({
+  default: ({
+    user,
+  }: { user?: { avatar_url?: string; display_name?: string } }) =>
+    user?.avatar_url ? (
+      <img alt={user.display_name ?? ""} src={user.avatar_url} />
+    ) : null,
+}));
 const preparations: PracticeInput[] = [];
 const turns: unknown[] = [];
 const draft = { ...defaultBalance, base_hp: 60, damage_variance_percent: 0 };
@@ -25,12 +33,14 @@ const server = setupServer(
         email: "admin@test",
         display_name: "管理者",
         username: null,
+        avatar_url: "https://example.com/admin.png",
       },
       {
         uid: "other",
         email: "player@test",
         display_name: "プレイヤーB",
         username: null,
+        avatar_url: "https://example.com/player-b.png",
       },
     ]),
   ),
@@ -171,6 +181,10 @@ it("selects a player independently of the dungeon owner", async () => {
   await waitFor(() => expect(start).toBeEnabled());
   await user.click(start);
   await screen.findByRole("heading", { name: "模擬戦（保存されません）" });
+  expect(document.querySelector('img[alt="プレイヤーB"]')).toHaveAttribute(
+    "src",
+    "https://example.com/player-b.png",
+  );
   expect(preparations[0].user_id).toBe("user");
   expect(preparations[0].player_user_id).toBe("other");
   expect(preparations[0].allocation).toBeNull();

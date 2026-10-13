@@ -31,6 +31,7 @@ export type AdminUserItem = {
   email: string;
   display_name: string | null;
   username: string | null;
+  avatar_url?: string | null;
   is_active: boolean;
   is_superuser: boolean;
   created: string;
