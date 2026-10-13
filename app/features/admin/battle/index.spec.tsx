@@ -66,6 +66,10 @@ it("saves player time and live enemy corrections without quiz-type weights", asy
   const weight = screen.getByLabelText("PowerのHP補正");
   await user.clear(weight);
   await user.type(weight, "2");
+  const hpGrowth = screen.getByLabelText("達成度帯ごとのHP成長率（%）");
+  expect(hpGrowth).toHaveValue(20);
+  await user.clear(hpGrowth);
+  await user.type(hpGrowth, "30");
   const enemyTypes = screen.getByLabelText("領域ごとの敵の種類数");
   await user.clear(enemyTypes);
   await user.type(enemyTypes, "4");
@@ -79,6 +83,7 @@ it("saves player time and live enemy corrections without quiz-type weights", asy
   expect(saved).toHaveBeenCalledWith({
     ...defaults,
     power_hp: 2,
+    region_hp_growth_percent: 30,
     enemy_types: 4,
   });
 });

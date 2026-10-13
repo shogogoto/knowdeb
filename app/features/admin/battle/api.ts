@@ -2,6 +2,7 @@ const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "https://knowde.onrender.com";
 export type { GameBalance as BattleSettings } from "~/features/game/battle";
 import type { GameBalance as BattleSettings } from "~/features/game/battle";
+import { defaultBalance } from "~/features/game/battle";
 import type {
   Allocation,
   CombatContext,
@@ -148,5 +149,5 @@ export async function requestBattleSettings(
     }),
   });
   if (!response.ok) throw new Error("ゲーム設定を操作できませんでした。");
-  return response.json();
+  return { ...defaultBalance, ...(await response.json()) };
 }

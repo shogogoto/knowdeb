@@ -19,8 +19,8 @@ const fields = {
   enemy_attack: ["敵の基礎攻", 1, 1000, 1],
   power_hp: ["PowerのHP補正", 0, 100, 0.1],
   power_attack: ["Powerの攻補正", 0, 100, 0.1],
-  region_hp: ["達成度帯ごとのHP上昇", 0, 100, 1],
-  region_attack: ["達成度帯ごとの攻上昇", 0, 100, 1],
+  region_hp_growth_percent: ["達成度帯ごとのHP成長率（%）", 0, 1000, 1],
+  region_attack_growth_percent: ["達成度帯ごとの攻成長率（%）", 0, 1000, 1],
   enemy_variance_percent: ["敵能力のばらつき（±%）", 0, 50, 1],
   damage_attack_multiplier: ["攻撃力の倍率", 0, 10, 0.1],
   damage_defense_divisor: [
@@ -72,21 +72,29 @@ const groups = [
   {
     label: "敵ステータスの計算",
     description:
-      "基礎値＋log(1＋Power)の補正＋達成度帯の補正から計算します。関係数は使いません。個体差は種類IDごとに固定され、能力設定は既存の敵にも即反映します。",
+      "能力 = (基礎値 + log(1 + Power) × Power補正) × [1 + (達成度帯 − 1) × 成長率 / 100] × 個体差",
     keys: [
       "enemy_hp",
       "enemy_attack",
       "power_hp",
       "power_attack",
-      "region_hp",
-      "region_attack",
+      "region_hp_growth_percent",
+      "region_attack_growth_percent",
       "enemy_variance_percent",
     ],
   },
   {
     label: "敵ロスターと遭遇の抽選",
-    description:
-      "種類数＝初期数＋(達成度−1)×増加数、固定問数＝達成度×係数。セット間の共有・未割り当てを許可します。変更はダンジョン母集団画面の「敵だけ再構成」で反映。出現範囲は基準の両端×[1＋(達成度−1)×増加率]から抽選し、次の戦闘で反映。同種の複数出現も許可。小数は切り上げ、安全上限は20体です。",
+    rules: [
+      "種類数 = 初期数 + (達成度 − 1) × 増加数",
+      "固定問数 = 達成度 × 係数",
+      "クイズセット間の共有・未割り当てを許可",
+      "ロスターの変更は「ダンジョン母集団 → 敵だけ再構成」で反映",
+      "出現範囲 = 基準の両端 × [1 + (達成度 − 1) × 増加率]",
+      "出現数は範囲内から抽選し、設定変更は次の戦闘から反映",
+      "同じ種類の敵も複数出現",
+      "小数は切り上げ、同時出現は最大20体",
+    ],
     keys: [
       "enemy_types",
       "enemy_types_per_region",
@@ -162,6 +170,13 @@ export default function BattleSettingsManager() {
                       <p className="mt-1 text-sm text-muted-foreground">
                         {group.description}
                       </p>
+                    )}
+                    {"rules" in group && (
+                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                        {group.rules.map((rule) => (
+                          <li key={rule}>{rule}</li>
+                        ))}
+                      </ul>
                     )}
                   </div>
                   <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">

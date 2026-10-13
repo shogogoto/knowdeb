@@ -31,6 +31,8 @@ export const defaultBalance = {
   relation_cap: 30,
   region_hp: 5,
   region_attack: 2,
+  region_hp_growth_percent: 20,
+  region_attack_growth_percent: 20,
   enemy_variance_percent: 10,
   damage_attack_multiplier: 1,
   damage_defense_divisor: 2,
