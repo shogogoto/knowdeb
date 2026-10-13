@@ -55,7 +55,13 @@ export default function ExplorationMap({
   knowledge: PathKnowledge[];
   candidates?: MapCandidate[];
   dungeonId?: string;
-  dungeons?: { id: string; name: string }[];
+  dungeons?: {
+    id: string;
+    name: string;
+    exploredPlaces?: number;
+    achievement?: number;
+    location?: string;
+  }[];
   dungeonConnections?: { from: string; to: string }[];
   onDungeon?: (id: string) => void;
   onRestart?: () => void;
@@ -75,7 +81,7 @@ export default function ExplorationMap({
   children?: ReactNode;
 }) {
   const [fullscreen, setFullscreen] = useState(false);
-  const [selected, setSelected] = useState<string>();
+  const [selected, setSelected] = useState<string | undefined>(map.current);
   const [focused, setFocused] = useState(map.current);
   const nodes = useRef(new Map<string, HTMLButtonElement>());
   const primaryAction = useRef<HTMLButtonElement>(null);
@@ -264,7 +270,7 @@ export default function ExplorationMap({
   // biome-ignore lint/correctness/useExhaustiveDependencies: switching dungeons must clear selection even if both current locations are the entrance.
   useEffect(() => {
     if (map.current) {
-      setSelected(undefined);
+      setSelected(map.current);
       setFocused(map.current);
       if (keyboardNavigation.current) {
         nodes.current.get(map.current)?.focus({ preventScroll: true });
@@ -273,6 +279,7 @@ export default function ExplorationMap({
   }, [map.current, dungeonId]);
   function focusPlace(id: string) {
     setFocused(id);
+    setSelected(id);
     const node = nodes.current.get(id);
     node?.focus({ preventScroll: true });
     const point = positions.get(id);
@@ -447,13 +454,15 @@ export default function ExplorationMap({
                     if (node) nodes.current.set(id, node);
                     else nodes.current.delete(id);
                   }}
-                  onFocus={() => setFocused(id)}
+                  onFocus={() => {
+                    setFocused(id);
+                    setSelected(id);
+                  }}
                   onClick={(event) => {
                     setSelected(id);
-                    if (event.detail === 0)
-                      requestAnimationFrame(() =>
-                        primaryAction.current?.focus(),
-                      );
+                    if (event.detail === 0 && !disabled) {
+                      onDungeon?.(dungeon.id);
+                    }
                   }}
                   className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg ${selected === id ? "border-primary ring-2 ring-primary/30" : "border-emerald-500/50"}`}
                   style={{ left: point?.x, top: point?.y }}
@@ -463,6 +472,14 @@ export default function ExplorationMap({
                   </span>
                   <span className="line-clamp-2 font-medium">
                     {dungeon.name}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted-foreground">
+                    達成度 {dungeon.achievement ?? 0} · 開拓{" "}
+                    {dungeon.exploredPlaces ?? 0}
+                    地点
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    現在地 · {dungeon.location ?? "入口"}
                   </span>
                 </button>
               );
@@ -492,14 +509,26 @@ export default function ExplorationMap({
                       if (node) nodes.current.set(id, node);
                       else nodes.current.delete(id);
                     }}
-                    onFocus={() => setFocused(id)}
+                    onFocus={() => {
+                      setFocused(id);
+                      setSelected(id);
+                    }}
                     onClick={(event) => {
                       keyboardNavigation.current = event.detail === 0;
                       setSelected(id);
-                      if (keyboardNavigation.current)
-                        requestAnimationFrame(() =>
-                          primaryAction.current?.focus(),
-                        );
+                      if (
+                        keyboardNavigation.current &&
+                        !disabled &&
+                        canTravel(id)
+                      ) {
+                        if (id === ENTRANCE && onRestart) onRestart();
+                        else
+                          onMove(
+                            id,
+                            candidates.find((item) => item.knowledge.uid === id)
+                              ?.kind,
+                          );
+                      }
                     }}
                     className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${current ? "border-primary ring-4 ring-primary/20" : unexplored ? "border-dashed border-primary/60" : "border-border"}`}
                     style={{ left: point?.x, top: point?.y }}
@@ -641,7 +670,7 @@ export default function ExplorationMap({
           <p className="hidden w-fit rounded bg-background/90 px-2 py-1 text-muted-foreground sm:block">
             実線：知識の関係 · 破線：寄り道
             <br />
-            矢印：地点を選ぶ · Enter：確認 · Esc：戻る · f：全画面
+            矢印：地点を選ぶ · Enter：移動・切替 · Esc：選択解除 · f：全画面
           </p>
         </div>
         {selected && (

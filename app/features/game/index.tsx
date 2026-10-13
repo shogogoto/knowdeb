@@ -1043,10 +1043,33 @@ export function GamePlay({
                             canonicalSentenceId(item.resource_id),
                         ),
                     )
-                    .map((item) => ({
-                      id: item.resource_id,
-                      name: item.resource_name ?? "ダンジョン",
-                    }))}
+                    .map((item) => {
+                      const dungeonId = canonicalSentenceId(item.resource_id);
+                      const savedMap = Object.entries(save.maps ?? {}).find(
+                        ([id]) => canonicalSentenceId(id) === dungeonId,
+                      )?.[1];
+                      const parked = Object.entries(save.dungeons ?? {}).find(
+                        ([id]) => canonicalSentenceId(id) === dungeonId,
+                      )?.[1];
+                      const exploredPlaces =
+                        savedMap?.places.length ??
+                        new Set(parked?.run.readIds ?? []).size;
+                      const currentPlace = savedMap?.current ?? ENTRANCE;
+                      const placeIndex =
+                        savedMap?.places.findIndex(
+                          (place) => place.id === currentPlace,
+                        ) ?? -1;
+                      return {
+                        id: item.resource_id,
+                        name: item.resource_name ?? "ダンジョン",
+                        exploredPlaces,
+                        achievement: Math.floor(exploredPlaces / 5),
+                        location:
+                          currentPlace === ENTRANCE
+                            ? "入口"
+                            : `第${placeIndex >= 0 ? placeIndex + 1 : exploredPlaces}地点`,
+                      };
+                    })}
                   dungeonConnections={(save.unlockedDungeons ?? []).map(
                     (item) => ({ from: item.sourceId, to: item.resourceId }),
                   )}
