@@ -38,6 +38,24 @@ const fields = {
   max_encounter_enemies: ["同時出現数の上端", 1, 20, 1],
   encounter_growth_rate: ["同時出現数の増加率", 0, 10, 0.1],
 } as const;
+const formulaLabels: Partial<Record<keyof typeof fields, string>> = {
+  enemy_hp: "基礎HP",
+  enemy_attack: "基礎攻撃力",
+  power_hp: "Power補正",
+  power_attack: "Power補正",
+  region_hp_growth_percent: "HP成長率",
+  region_attack_growth_percent: "攻の成長率",
+  enemy_variance_percent: "ばらつき",
+  damage_attack_multiplier: "倍率",
+  damage_defense_divisor: "除数",
+  damage_variance_percent: "乱数幅",
+  enemy_types: "初期種類数",
+  enemy_types_per_region: "増加種類数",
+  quizzes_per_enemy_coefficient: "問数係数",
+  min_enemies: "最小数",
+  max_encounter_enemies: "最大数",
+  encounter_growth_rate: "増加率",
+};
 const groups = [
   {
     label: "プレイヤーの初期値",
@@ -102,7 +120,7 @@ export default function BattleSettingsManager() {
   const [saved, setSaved] = useState(false);
   const settingInput = (kind: keyof typeof fields, compact = false) => {
     const [label, min, max, step] = fields[kind];
-    return (
+    const input = (
       <Input
         id={`battle-${kind}`}
         form="game-settings"
@@ -127,6 +145,19 @@ export default function BattleSettingsManager() {
           );
         }}
       />
+    );
+    return compact ? (
+      <span className="relative my-2 inline-flex shrink-0">
+        <Label
+          htmlFor={`battle-${kind}`}
+          className="absolute -top-5 left-0 whitespace-nowrap text-xs text-muted-foreground"
+        >
+          {formulaLabels[kind] ?? label}
+        </Label>
+        {input}
+      </span>
+    ) : (
+      input
     );
   };
   useEffect(() => {
