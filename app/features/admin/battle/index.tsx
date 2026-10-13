@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
-import CombatSimulation from "./CombatSimulation";
 import DamageEffectSettings, {
   effectLabelKeys,
   effectThresholdKeys,
@@ -294,9 +293,6 @@ export default function BattleSettingsManager() {
                         setSettings(value);
                       }}
                     />
-                  )}
-                  {group.label === "ダメージ計算" && (
-                    <CombatSimulation settings={settings} />
                   )}
                   {(group.label === "敵ステータスの計算" ||
                     group.label === "敵ロスターと遭遇の抽選") && (

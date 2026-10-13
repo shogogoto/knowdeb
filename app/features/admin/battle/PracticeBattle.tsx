@@ -4,6 +4,7 @@ import type { DungeonContent } from "~/features/game/api";
 import {
   type Allocation,
   type BattleTransport,
+  type LiveEnemy,
   type TurnInput,
   emptyAllocation,
   playerStats,
@@ -28,6 +29,7 @@ import {
   getAdminUserGameAllocation,
   listAdminUsers,
 } from "../users/api";
+import PracticeReport from "./PracticeReport";
 import {
   type BattleSettings,
   type EnemyBalanceSimulation,
@@ -38,6 +40,12 @@ import {
   requestPracticeTurn,
   requestSimulatedPractice,
 } from "./api";
+
+export type EnemyActual = {
+  correct: number;
+  damage: number;
+  defeated: boolean;
+};
 
 type RecordResult = {
   id: string;
@@ -56,6 +64,8 @@ type RecordResult = {
   unanswered: number;
   damage: number;
   seconds: number;
+  enemies: LiveEnemy[];
+  actual: Record<string, EnemyActual>;
 };
 type Session = PracticeSession & {
   id: string;
@@ -77,6 +87,8 @@ type Counts = Omit<
   | "outcome"
   | "allocation"
   | "player"
+  | "enemies"
+  | "actual"
 >;
 const newCounts = (): Counts => ({
   turns: 0,
@@ -138,6 +150,8 @@ export default function PracticeBattle({
   const session = useRef<Session | undefined>(undefined);
   const counts = useRef(newCounts());
   const turnStarted = useRef(Date.now());
+  const damageRolls = useRef<Record<string, number>>({});
+  const enemyActual = useRef<Record<string, EnemyActual>>({});
   const selectedPlayerId = playerId;
   const selectedPlayer = users.find((user) => user.uid === selectedPlayerId);
   const actualPlayer = !!playerId && useSavedAllocation;
@@ -250,6 +264,8 @@ export default function PracticeBattle({
           1000;
     session.current = copy;
     counts.current = newCounts();
+    damageRolls.current = {};
+    enemyActual.current = {};
     turnStarted.current = Date.now();
     setActive(copy);
     setError(undefined);
@@ -340,6 +356,19 @@ export default function PracticeBattle({
             retreat: true,
           };
     const resolved = await requestPracticeTurn(current, turn);
+    for (const id of marker.enemies) {
+      const actual = enemyActual.current[id] ?? {
+        correct: 0,
+        damage: 0,
+        defeated: false,
+      };
+      enemyActual.current[id] = actual;
+      if (resolved.results[id]) {
+        actual.correct++;
+        actual.damage += damageRolls.current[`${marker.turn}:${id}`] ?? 0;
+        actual.defeated ||= turn.defeated.includes(id);
+      }
+    }
     const total = counts.current;
     total.turns++;
     total.correct += Object.values(resolved.results).filter(Boolean).length;
@@ -360,6 +389,8 @@ export default function PracticeBattle({
         ...previous,
         {
           ...total,
+          enemies: structuredClone(current.context.enemies),
+          actual: structuredClone(enemyActual.current),
           id: current.id,
           name: current.name,
           playerName: current.playerName,
@@ -671,9 +702,15 @@ export default function PracticeBattle({
           player={active.player}
           playerName={active.playerName ?? "模擬プレイヤー"}
           transport={transport}
-          rollDamage={(attack, balance, key) =>
-            rollPlayerDamage(attack, balance, randomFor(active.seed, key))
-          }
+          rollDamage={(attack, balance, key) => {
+            const damage = rollPlayerDamage(
+              attack,
+              balance,
+              randomFor(active.seed, key),
+            );
+            damageRolls.current[key] = damage;
+            return damage;
+          }}
           onSaved={(state) => {
             if (session.current) {
               session.current = { ...session.current, state };
@@ -752,6 +789,24 @@ export default function PracticeBattle({
           </Table>
         </div>
       )}
+      {results.map((r, i) => (
+        <details
+          key={r.id}
+          open={i === results.length - 1}
+          className="rounded-md border p-3"
+        >
+          <summary className="cursor-pointer font-medium">
+            試行 {i + 1} · {r.outcome} · 想定と実績
+          </summary>
+          <PracticeReport
+            player={r.player}
+            settings={r.settings}
+            enemies={r.enemies}
+            actual={r.actual}
+            damageReceived={r.damage}
+          />
+        </details>
+      ))}
     </section>
   );
 }

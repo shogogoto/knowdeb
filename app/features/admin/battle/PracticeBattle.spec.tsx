@@ -52,6 +52,23 @@ const trial: EnemyBalanceSimulation = {
 const trials = [{ id: "trial", name: "試算 1", simulation: trial }];
 const userPoints = { hp: 2, attack: 8, defense: 1, seconds: 2 };
 const server = setupServer(
+  http.post(
+    "*/admin/settings/game-balance/simulate-combat",
+    async ({ request }) => {
+      const input = await request.json();
+      return HttpResponse.json({
+        ...(input as object),
+        damage_to_enemy: 10,
+        damage_to_enemy_min: 10,
+        damage_to_enemy_max: 10,
+        damage_to_player: 11,
+        damage_to_player_min: 11,
+        damage_to_player_max: 11,
+        correct_answers_to_defeat: 1,
+        incorrect_answers_to_defeat: 6,
+      });
+    },
+  ),
   http.get("*/admin/users/:uid/game/allocation", () =>
     HttpResponse.json(userPoints),
   ),
@@ -364,6 +381,23 @@ it("uses real battle UI with draft settings, records results and replays without
   await user.click(screen.getByRole("button", { name: "続ける" }));
   const comparison = screen.getByRole("table", { name: "模擬戦の比較" });
   expect(comparison).toHaveTextContent("勝利");
+  const report = screen.getByRole("table", { name: "想定と実績" });
+  await waitFor(() => expect(report).toHaveTextContent("1〜1回"));
+  const reportRow = within(report).getAllByRole("row")[1];
+  expect(
+    within(reportRow)
+      .getAllByRole("cell")
+      .map((cell) => cell.textContent),
+  ).toEqual([
+    "1. 模擬敵",
+    "5／12",
+    "10〜10",
+    "11〜11",
+    "1〜1回",
+    "1回",
+    "10",
+    "撃破",
+  ]);
   expect(turns).toHaveLength(1);
   await user.click(screen.getByRole("button", { name: "同じ条件で再戦" }));
   expect(preparations).toHaveLength(1);
@@ -397,6 +431,86 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
   expect(turns).toHaveLength(1);
   expect(turns[0]).toMatchObject({ turn: { answers: { enemy: [] } } });
   expect(screen.queryByText("正解の選択肢")).not.toBeInTheDocument();
+});
+
+it("accumulates actual damage across turns using the original player and encounter snapshot", async () => {
+  server.use(
+    http.post(
+      "*/admin/settings/game-balance/practice/turn",
+      async ({ request }) => {
+        const body = (await request.json()) as {
+          session: PracticeSession;
+          turn: { defeated: string[] };
+        };
+        const state = structuredClone(body.session.state);
+        if (body.turn.defeated.includes("enemy")) state.save.battle = null;
+        return HttpResponse.json({
+          state,
+          results: { enemy: true },
+          damage: 0,
+        });
+      },
+    ),
+    http.post(
+      "*/admin/settings/game-balance/practice/next",
+      async ({ request }) => {
+        const input = (await request.json()) as PracticeSession;
+        const state = structuredClone(input.state);
+        if (state.save.battle) state.save.battle.turn++;
+        return HttpResponse.json(state);
+      },
+    ),
+  );
+  const strongerTrial = {
+    ...trial,
+    enemies: [{ ...trial.enemies[0], hp: 25 }],
+  };
+  const { rerender } = render(
+    <MemoryRouter>
+      <PracticeBattle
+        settings={draft}
+        trials={[{ ...trials[0], simulation: strongerTrial }]}
+      />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  const start = screen.getByRole("button", {
+    name: "現在の設定で模擬戦を開始",
+  });
+  await waitFor(() => expect(start).toBeEnabled());
+  await user.click(start);
+  for (let turn = 0; turn < 3; turn++) {
+    await user.click(await screen.findByRole("button", { name: "正解" }));
+    await user.click(screen.getByRole("button", { name: "回答を確定" }));
+    await user.click(
+      await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
+    );
+    if (turn < 2)
+      await user.click(
+        await screen.findByRole("button", { name: "次のターン" }),
+      );
+  }
+  await user.click(await screen.findByRole("button", { name: "続ける" }));
+  const report = screen.getByRole("table", { name: "想定と実績" });
+  await waitFor(() => expect(report).toHaveTextContent("3〜3回"));
+  const cells = within(within(report).getAllByRole("row")[1]).getAllByRole(
+    "cell",
+  );
+  expect(cells[5]).toHaveTextContent("3回");
+  expect(cells[6]).toHaveTextContent("30");
+  expect(cells[7]).toHaveTextContent("撃破");
+  rerender(
+    <MemoryRouter>
+      <PracticeBattle
+        settings={{ ...draft, base_attack: 99 }}
+        trials={trials}
+      />
+    </MemoryRouter>,
+  );
+  expect(report).toHaveTextContent("25／12");
+  expect(
+    screen.getByText(/HP 60 · 攻 10 · 守 1 · 被ダメージ合計 0/),
+  ).toBeVisible();
 });
 
 it("settles unanswered timeout through practice only and reports it separately", async () => {
