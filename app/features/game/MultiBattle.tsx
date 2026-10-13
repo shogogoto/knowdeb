@@ -62,6 +62,7 @@ export default function MultiBattle({
     }));
   }, [context]);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [frozenRemainingMs, setFrozenRemainingMs] = useState<number>();
   const [active, setActive] = useState(0);
   const [now, setNow] = useState(Date.now);
   const [busy, setBusy] = useState(false);
@@ -94,9 +95,11 @@ export default function MultiBattle({
     }));
   const currentHp = remainingHp(hp, live);
   const stats = playerStats(save.allocation, context.balance);
-  const remainingMs = run?.answerDeadline
-    ? Math.max(0, run.answerDeadline - now - clockOffset)
-    : undefined;
+  const remainingMs =
+    frozenRemainingMs ??
+    (run?.answerDeadline
+      ? Math.max(0, run.answerDeadline - now - clockOffset)
+      : undefined);
   const remaining = Math.ceil((remainingMs ?? 0) / 1000);
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 100);
@@ -346,6 +349,7 @@ export default function MultiBattle({
               })
                 .then((state) => {
                   setAnswers({});
+                  setFrozenRemainingMs(undefined);
                   setActive(0);
                   setResult(undefined);
                   setHitEffects({});
@@ -382,6 +386,15 @@ export default function MultiBattle({
               )
                 return;
               setAnswers((current) => ({ ...current, [enemy.id]: selected }));
+              const completesTurn = live.every(
+                (candidate) =>
+                  candidate.id === enemy.id || candidate.id in answers,
+              );
+              if (completesTurn && run.answerDeadline) {
+                setFrozenRemainingMs(
+                  Math.max(0, run.answerDeadline - Date.now() - clockOffset),
+                );
+              }
               const next = live.findIndex(
                 (candidate) =>
                   candidate.id !== enemy.id && !(candidate.id in answers),
