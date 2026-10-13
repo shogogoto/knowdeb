@@ -140,6 +140,39 @@ it("pauses hidden tabs and muted music without continuing the scheduler", async 
   stop();
 });
 
+it("composes a distinct battle melody and restores the exploration layer on exit", async () => {
+  const { registerMusic, setMusicPreferences } = await import("./music");
+  own(registerMusic("explore"));
+  setMusicPreferences({ enabled: true });
+  await vi.advanceTimersByTimeAsync(0);
+  const context = TestAudioContext.instances[0];
+  const exploreNotes = context.oscillators.map((note) => note.frequency.value);
+  const before = context.oscillators.length;
+  const stopBattle = own(registerMusic("battle"));
+  context.currentTime = 0.6;
+  await vi.advanceTimersByTimeAsync(100);
+  const battleNotes = context.oscillators
+    .slice(before)
+    .map((note) => note.frequency.value);
+  expect(battleNotes.length).toBeGreaterThan(0);
+  expect(battleNotes).not.toEqual(exploreNotes);
+  expect(battleNotes.some((note) => note < Math.min(...exploreNotes))).toBe(
+    true,
+  );
+  stopBattle();
+  expect(context.gains[1].gain.setTargetAtTime).toHaveBeenLastCalledWith(
+    1,
+    0.6,
+    0.4,
+  );
+  expect(context.gains[2].gain.setTargetAtTime).toHaveBeenLastCalledWith(
+    0,
+    0.6,
+    0.4,
+  );
+  expect(TestAudioContext.instances).toHaveLength(1);
+});
+
 it("restores saved preferences and tolerates unavailable audio and storage", async () => {
   localStorage.setItem(
     "game-bgm",

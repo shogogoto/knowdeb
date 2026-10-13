@@ -91,6 +91,9 @@ export function registerMusic(mode: MusicScene) {
 }
 
 type Track = { gain: GainNode; next: number; step: number; seconds: number };
+const exploreRoots = [50, 46, 53, 48];
+const battleRoots = [38, 41, 36, 33];
+const battleMelody = [24, 27, 31, 29, 24, 22, 19, 22];
 /** Two quiet layers crossfade; scheduling follows the audio clock, not frame rate. */
 export class MusicEngine {
   private master: GainNode;
@@ -119,7 +122,7 @@ export class MusicEngine {
         seconds: 30 / bpm,
       };
     };
-    this.tracks = { explore: track(72, 1400), battle: track(104, 2000) };
+    this.tracks = { explore: track(72, 1400), battle: track(120, 2400) };
     this.setScene("explore");
   }
 
@@ -139,19 +142,21 @@ export class MusicEngine {
     }
     if (changed && this.timer) {
       const track = this.tracks[mode];
-      const root = [50, 46, 53, 48][Math.floor((track.step % 64) / 16)];
+      const root = (mode === "battle" ? battleRoots : exploreRoots)[
+        Math.floor((track.step % 64) / 16)
+      ];
       this.note(
         track,
         root,
         this.context.currentTime + 0.05,
-        track.seconds * 8,
+        track.seconds * (mode === "battle" ? 2 : 8),
         0.12,
       );
       this.note(
         track,
         root + 7,
         this.context.currentTime + 0.05,
-        track.seconds * 8,
+        track.seconds * (mode === "battle" ? 2 : 8),
         0.08,
       );
     }
@@ -225,9 +230,32 @@ export class MusicEngine {
           track.next = this.context.currentTime + 0.05;
         }
         const step = track.step % 64;
-        const root = [50, 46, 53, 48][Math.floor(step / 16)];
+        const root = (name === "battle" ? battleRoots : exploreRoots)[
+          Math.floor(step / 16)
+        ];
         const beat = step % 16;
-        if (name === this.mode) {
+        if (name === this.mode && name === "battle") {
+          // A separate minor-key ostinato, rather than a faster exploration loop.
+          this.note(
+            track,
+            root + battleMelody[beat % 8],
+            track.next,
+            track.seconds * 0.8,
+            0.075,
+            "triangle",
+          );
+          if (beat % 2 === 0)
+            this.note(
+              track,
+              root + (beat % 4 === 0 ? 0 : 7),
+              track.next,
+              track.seconds * 1.5,
+              0.12,
+              "triangle",
+            );
+          if (beat % 4 === 0) this.note(track, 30, track.next, 0.12, 0.09);
+          if (beat % 4 === 2) this.note(track, 78, track.next, 0.045, 0.025);
+        } else if (name === this.mode) {
           if (beat === 0) {
             this.note(track, root, track.next, track.seconds * 15, 0.12);
             this.note(track, root + 7, track.next, track.seconds * 14, 0.08);
@@ -242,20 +270,6 @@ export class MusicEngine {
               0.08,
               "triangle",
             );
-          }
-          if (name === "battle" && beat % 4 === 0) {
-            this.note(
-              track,
-              root - 12,
-              track.next,
-              track.seconds * 1.5,
-              0.14,
-              "triangle",
-            );
-            this.note(track, 30, track.next, 0.14, 0.1);
-          }
-          if (name === "battle" && beat % 4 === 2) {
-            this.note(track, 90, track.next, 0.06, 0.025);
           }
         }
         track.step += 1;

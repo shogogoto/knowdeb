@@ -1,3 +1,4 @@
+import { networkFetch } from "~/shared/lib/networkFetch";
 import type { RegionEnemy } from "./api";
 import type { GameState } from "./state";
 
@@ -172,7 +173,7 @@ export async function gameRequest<T>(
   body?: unknown,
   method = "POST",
 ): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}/game/${path}`, {
+  const response = await networkFetch(`${API_BASE_URL}/game/${path}`, {
     method: body === undefined && method === "POST" ? "GET" : method,
     credentials: "include",
     cache: "no-store",

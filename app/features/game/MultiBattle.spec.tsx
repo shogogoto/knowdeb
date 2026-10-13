@@ -263,6 +263,35 @@ it("seals the timed-out turn and retries the same payload", async () => {
   expect(requests[1]).toEqual(requests[0]);
   expect(requests[0].answers).toEqual({});
 });
+
+it("preserves sealed answers and damage draws after a browser network failure", async () => {
+  server.use(
+    http.post("*/game/battle/turn", async ({ request }) => {
+      const input = (await request.json()) as TurnInput;
+      requests.push(input);
+      if (requests.length === 1) return HttpResponse.error();
+      return HttpResponse.json({
+        results: { enemy0: true, enemy1: true },
+        damage: 0,
+        state: { revision: 2, save: { ...initial(), battle: null } },
+      });
+    }),
+  );
+  render(<Fixture />);
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "選択肢一" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(screen.getByRole("button", { name: "選択肢二" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await screen.findByText(
+    "サーバーに接続できませんでした。接続を確認して再試行してください。",
+  );
+  expect(requests).toHaveLength(1);
+  await user.click(screen.getByRole("button", { name: "精算を再試行" }));
+  await screen.findByRole("button", { name: "結果を処理 · 1/2" });
+  expect(requests).toHaveLength(2);
+  expect(requests[1]).toEqual(requests[0]);
+});
 it("retreat batches only confirmed answers and keeps unanswered questions out of history", async () => {
   render(<Fixture />);
   const user = userEvent.setup();

@@ -1,6 +1,6 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { expect, it } from "vitest";
+import { expect, it, vi } from "vitest";
 import BattleDialog from "./BattleDialog";
 import { enterDungeon, move, newSave } from "./domain";
 
@@ -13,6 +13,26 @@ const battle = () => {
   if (!run) throw new Error("Missing run");
   return run;
 };
+
+it("toggles a real quiz choice on Space keydown exactly once, ignoring held keys", async () => {
+  const toggle = vi.fn();
+  render(
+    <BattleDialog run={battle()} busy={false}>
+      <button type="button" data-quiz-option-index={1} onClick={toggle}>
+        実クイズの選択肢
+      </button>
+    </BattleDialog>,
+  );
+  const choice = screen.getByRole("button", { name: "実クイズの選択肢" });
+  choice.focus();
+  fireEvent.keyDown(choice, { key: " " });
+  expect(toggle).toHaveBeenCalledTimes(1);
+  fireEvent.keyDown(choice, { key: " ", repeat: true });
+  expect(toggle).toHaveBeenCalledTimes(1);
+  // The browser must not additionally activate the native Space keyup click.
+  await userEvent.setup().keyboard(" ");
+  expect(toggle).toHaveBeenCalledTimes(2);
+});
 
 it("separates enemy HP from named player HP in the floating battle", () => {
   render(

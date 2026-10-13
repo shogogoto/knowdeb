@@ -91,6 +91,7 @@ export default function MultiBattle({
     Record<string, { damage: number; level: number; label: string }>
   >({});
   const sending = useRef(false);
+  const settledTurn = useRef<string | undefined>(undefined);
   const retryDamage = useRef<
     { key: string; values: Record<string, number> } | undefined
   >(undefined);
@@ -156,11 +157,12 @@ export default function MultiBattle({
   }, []);
   async function submitTurn(retreat = false, input?: TurnInput) {
     if (!battle || !run || sending.current || result) return;
+    const damageKey = `${battle.id}:${battle.turn}`;
+    if (settledTurn.current === damageKey) return;
     sending.current = true;
     setBusy(true);
     onBusy(true);
     setError(undefined);
-    const damageKey = `${battle.id}:${battle.turn}`;
     const damageByEnemy =
       retryDamage.current?.key === damageKey
         ? retryDamage.current.values
@@ -196,6 +198,9 @@ export default function MultiBattle({
     };
     try {
       const resolved = await transport<TurnResult>("battle/turn", request);
+      // Parent updates can render before the local result commits. Never
+      // auto-submit an already settled turn in that intermediate render.
+      settledTurn.current = damageKey;
       setResult(resolved);
       setResultIndex(0);
       setTurnDamageByEnemy(damageByEnemy);

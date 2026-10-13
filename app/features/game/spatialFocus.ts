@@ -24,7 +24,11 @@ export function nearestControl(
       ? box.top < origin.bottom && box.bottom > origin.top
       : box.left < origin.right && box.right > origin.left;
     if (forward <= 1 || (!aligned && sideways > forward * 2)) continue;
-    const distance = forward + sideways * 2 + (aligned ? 0 : 10000);
+    // A full-width answer is directly below a narrow enemy card even though
+    // their centres differ. Prioritize the next aligned row, not a far-away
+    // small report/confirm button whose centre happens to line up perfectly.
+    const distance =
+      forward + (aligned ? sideways * 0.01 : sideways * 2 + 10000);
     if (distance < score) {
       score = distance;
       best = index;

@@ -1,3 +1,4 @@
+import { networkFetch } from "~/shared/lib/networkFetch";
 import type { GameSave } from "./domain";
 
 const API_BASE_URL =
@@ -5,7 +6,7 @@ const API_BASE_URL =
 export type GameState = { revision: number; save: GameSave };
 
 export async function recoverGameState(): Promise<GameState> {
-  const response = await fetch(`${API_BASE_URL}/game/state/recover`, {
+  const response = await networkFetch(`${API_BASE_URL}/game/state/recover`, {
     method: "POST",
     credentials: "include",
     cache: "no-store",
@@ -19,7 +20,7 @@ export async function recoverGameState(): Promise<GameState> {
 export async function requestGameState(
   update?: GameState & { consume_access?: boolean },
 ): Promise<GameState> {
-  const response = await fetch(`${API_BASE_URL}/game/state`, {
+  const response = await networkFetch(`${API_BASE_URL}/game/state`, {
     method: update ? "PUT" : "GET",
     credentials: "include",
     cache: "no-store",

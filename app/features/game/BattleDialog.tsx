@@ -86,6 +86,30 @@ export default function BattleDialog({
           onKeyDownCapture={(event) => {
             const target = event.target;
             if (
+              target instanceof HTMLElement &&
+              target.closest('[role="dialog"]') !== event.currentTarget
+            )
+              return;
+            if (
+              event.key === " " &&
+              !event.altKey &&
+              !event.ctrlKey &&
+              !event.metaKey &&
+              target instanceof HTMLElement
+            ) {
+              const choice = target.closest<HTMLButtonElement>(
+                "button[data-quiz-option-index], button[data-simulation-option]",
+              );
+              if (choice) {
+                // Toggle on keydown: native Space waits for keyup and can lose
+                // the click when focus changes during a question transition.
+                event.preventDefault();
+                event.stopPropagation();
+                if (!event.repeat && !choice.disabled) choice.click();
+                return;
+              }
+            }
+            if (
               ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(
                 event.key,
               ) &&

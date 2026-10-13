@@ -1,3 +1,5 @@
+import { networkFetch } from "~/shared/lib/networkFetch";
+
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "https://knowde.onrender.com";
 export type { GameBalance as BattleSettings } from "~/features/game/battle";
@@ -132,7 +134,7 @@ async function requestSimulation<T>(
   input: unknown,
   fallback: string,
 ): Promise<T> {
-  const response = await fetch(
+  const response = await networkFetch(
     `${API_BASE_URL}/admin/settings/game-balance/${path}`,
     {
       method: "POST",

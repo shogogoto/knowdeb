@@ -47,3 +47,14 @@ it("moves from a wide answer to the small confirm button directly below it", () 
   const controls = [box(0, 80, 80, 32), box(0, 250, 80, 32)];
   expect(nearestControl(origin, controls, "ArrowDown")).toBe(0);
 });
+
+it("does not skip wide real quiz choices for a narrow report button", () => {
+  const enemy = box(0, 0, 200, 90);
+  const controls = [
+    box(0, 200, 960, 90),
+    box(0, 320, 960, 140),
+    box(0, 600, 80, 32),
+  ];
+  expect(nearestControl(enemy, controls, "ArrowDown")).toBe(0);
+  expect(nearestControl(controls[0], controls, "ArrowDown")).toBe(1);
+});
