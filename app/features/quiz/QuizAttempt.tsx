@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useRef, useState } from "react";
 import { useSWRConfig } from "swr";
 import { invalidateGamification } from "~/features/gamification/invalidate";
 import {
@@ -56,6 +56,7 @@ export default function QuizAttempt({
   const [error, setError] = useState<string>();
   const [reviewAgain, setReviewAgain] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const optionsRef = useRef<HTMLDivElement>(null);
   const answer = chain?.answers?.at(-1);
   const readOnly = completed && !answer && !reviewAgain;
   const quizType = chain?.quizzes[0]?.quiz_type;
@@ -126,7 +127,7 @@ export default function QuizAttempt({
           )}
         />
       )}
-      <div className="space-y-1">
+      <div ref={optionsRef} className="space-y-1">
         {Object.entries(quiz.options).map(([optionId, option], index) => {
           const label = quizOptionLabel(quiz, option);
           const isSelected = selected.includes(optionId);
@@ -178,13 +179,32 @@ export default function QuizAttempt({
               aria-pressed={isSelected}
               disabled={disabled || isSubmitting}
               onClick={() => toggle(optionId)}
-              className={className}
+              onKeyDown={(event) => {
+                if (event.key !== "ArrowDown" && event.key !== "ArrowUp")
+                  return;
+                const options = Array.from(
+                  optionsRef.current?.querySelectorAll<HTMLButtonElement>(
+                    "button[data-quiz-option-index]:not(:disabled)",
+                  ) ?? [],
+                );
+                if (!options.length) return;
+                event.preventDefault();
+                const currentIndex = options.indexOf(event.currentTarget);
+                const direction = event.key === "ArrowDown" ? 1 : -1;
+                options[
+                  (currentIndex + direction + options.length) % options.length
+                ]?.focus();
+              }}
+              className={`${className} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary`}
             >
               {content}
             </button>
           );
         })}
       </div>
+      <p className="hidden text-xs text-muted-foreground sm:block">
+        ↑↓ 選択肢を移動 · Enter/Space で選択
+      </p>
       {answer && (
         <Alert>
           <AlertTitle>

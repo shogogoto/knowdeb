@@ -94,9 +94,10 @@ export default function MultiBattle({
     }));
   const currentHp = remainingHp(hp, live);
   const stats = playerStats(save.allocation, context.balance);
-  const remaining = run?.answerDeadline
-    ? Math.max(0, Math.ceil((run.answerDeadline - now - clockOffset) / 1000))
-    : 0;
+  const remainingMs = run?.answerDeadline
+    ? Math.max(0, run.answerDeadline - now - clockOffset)
+    : undefined;
+  const remaining = Math.ceil((remainingMs ?? 0) / 1000);
   useEffect(() => {
     const timer = setInterval(() => setNow(Date.now()), 100);
     return () => clearInterval(timer);
@@ -253,6 +254,8 @@ export default function MultiBattle({
       busy={busy}
       enemyPanel={enemyPanel}
       simulation={simulation}
+      remainingTimeMs={!result ? remainingMs : undefined}
+      totalTimeSeconds={run?.answerSeconds ?? undefined}
     >
       {error && (
         <div role="alert" className="space-y-2 text-destructive">
@@ -360,13 +363,7 @@ export default function MultiBattle({
         </div>
       ) : (
         <>
-          <div className="flex justify-between gap-2 text-sm">
-            <span
-              role="timer"
-              className={remaining <= 10 ? "text-destructive" : ""}
-            >
-              持ち時間 {remaining}秒
-            </span>
+          <div className="flex justify-end gap-2 text-sm">
             <span>
               回答確定 {Object.keys(answers).length}/{live.length}
             </span>
