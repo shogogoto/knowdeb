@@ -62,6 +62,9 @@ export default function MultiBattle({
     }));
   }, [context]);
   const [answers, setAnswers] = useState<Record<string, string[]>>({});
+  const [simulationChoices, setSimulationChoices] = useState<
+    Record<string, "correct" | "incorrect">
+  >({});
   const [frozenRemainingMs, setFrozenRemainingMs] = useState<number>();
   const [active, setActive] = useState(0);
   const [now, setNow] = useState(Date.now);
@@ -349,6 +352,7 @@ export default function MultiBattle({
               })
                 .then((state) => {
                   setAnswers({});
+                  setSimulationChoices({});
                   setFrozenRemainingMs(undefined);
                   setActive(0);
                   setResult(undefined);
@@ -413,33 +417,69 @@ export default function MultiBattle({
                 {simulation ? (
                   <div className="space-y-3 rounded-md border p-3">
                     <p className="text-sm">
-                      模擬回答：結果を選んで確定します。
+                      模擬回答：正解か不正解を選択してください。
                     </p>
-                    <div className="flex gap-2">
-                      <Button
+                    <form
+                      className="space-y-3"
+                      onSubmit={(event) => {
+                        event.preventDefault();
+                        const choice = simulationChoices[enemy.id];
+                        if (choice)
+                          confirm(choice === "correct" ? correct : incorrect);
+                      }}
+                    >
+                      <fieldset
                         disabled={
                           busy ||
                           !!retry ||
                           remaining === 0 ||
                           enemy.id in answers
                         }
-                        onClick={() => confirm(correct)}
+                        className="grid grid-cols-2 gap-2"
                       >
-                        正解
-                      </Button>
+                        <legend className="sr-only">模擬回答</legend>
+                        {(["correct", "incorrect"] as const).map((choice) => {
+                          const selected =
+                            simulationChoices[enemy.id] === choice;
+                          return (
+                            <label
+                              key={choice}
+                              className={`flex min-h-12 cursor-pointer items-center gap-2 rounded-md border px-3 py-2 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-primary ${selected ? "border-primary bg-primary/10" : "hover:bg-muted"}`}
+                            >
+                              <input
+                                type="radio"
+                                name={`simulation-answer-${battle.turn}-${enemy.id}`}
+                                value={choice}
+                                checked={selected}
+                                onChange={() =>
+                                  setSimulationChoices((current) => ({
+                                    ...current,
+                                    [enemy.id]: choice,
+                                  }))
+                                }
+                                className="size-4 accent-primary"
+                              />
+                              {choice === "correct" ? "正解" : "不正解"}
+                            </label>
+                          );
+                        })}
+                      </fieldset>
                       <Button
-                        variant="outline"
+                        type="submit"
                         disabled={
                           busy ||
                           !!retry ||
                           remaining === 0 ||
-                          enemy.id in answers
+                          enemy.id in answers ||
+                          !simulationChoices[enemy.id]
                         }
-                        onClick={() => confirm(incorrect)}
                       >
-                        不正解
+                        回答を確定
                       </Button>
-                    </div>
+                      <p className="text-xs text-muted-foreground">
+                        ↑↓で選択 · Enterで確定
+                      </p>
+                    </form>
                     {enemy.id in answers && (
                       <p className="text-xs text-muted-foreground">
                         回答確定済み
