@@ -74,6 +74,13 @@ export type SimulatedPracticeInput = {
   simulation: EnemyBalanceSimulation;
   balance: BattleSettings;
   seed: number;
+  allocation?: Allocation;
+};
+
+export type PracticeEnemyTrial = {
+  id: string;
+  name: string;
+  simulation: EnemyBalanceSimulation;
 };
 
 export const requestSimulatedPractice = (

@@ -9,6 +9,7 @@ import {
   playerStats,
   rollPlayerDamage,
 } from "~/features/game/battle";
+import UserAvatar from "~/features/user/UserAvatar";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
@@ -21,11 +22,18 @@ import {
   TableRow,
 } from "~/shared/components/ui/table";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
-import { type AdminUserItem, listAdminUsers } from "../users/api";
+import { type AdminGameDungeon, listAdminGameDungeons } from "../game/api";
+import {
+  type AdminUserItem,
+  getAdminUserGameAllocation,
+  listAdminUsers,
+} from "../users/api";
 import {
   type BattleSettings,
   type EnemyBalanceSimulation,
+  type PracticeEnemyTrial,
   type PracticeSession,
+  requestPractice,
   requestPracticeNext,
   requestPracticeTurn,
   requestSimulatedPractice,
@@ -38,7 +46,7 @@ type RecordResult = {
   level: number;
   seed: number;
   settings: BattleSettings;
-  enemyTrial: EnemyBalanceSimulation;
+  enemyTrial?: EnemyBalanceSimulation;
   allocation: Allocation;
   player: ReturnType<typeof playerStats>;
   outcome: string;
@@ -55,7 +63,7 @@ type Session = PracticeSession & {
   level: number;
   playerName?: string;
   player?: UserReadPublic;
-  enemyTrial: EnemyBalanceSimulation;
+  enemyTrial?: EnemyBalanceSimulation;
 };
 type Counts = Omit<
   RecordResult,
@@ -93,16 +101,33 @@ function randomFor(seed: number, key: string) {
 
 export default function PracticeBattle({
   settings,
-  simulation,
-  simulationName = "選択した試算",
+  trials = [],
+  selectedTrial,
 }: {
   settings: BattleSettings;
-  simulation: EnemyBalanceSimulation;
-  simulationName?: string;
+  trials?: PracticeEnemyTrial[];
+  selectedTrial?: PracticeEnemyTrial;
 }) {
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [playerId, setPlayerId] = useState("");
   const [usersError, setUsersError] = useState<string>();
+  const [allocation, setAllocation] = useState<Allocation>({
+    ...emptyAllocation,
+  });
+  const [savedAllocation, setSavedAllocation] = useState<Allocation>({
+    ...emptyAllocation,
+  });
+  const [allocationLoading, setAllocationLoading] = useState(false);
+  const [allocationError, setAllocationError] = useState<string>();
+  const [source, setSource] = useState<"trial" | "dungeon">(
+    trials.length ? "trial" : "dungeon",
+  );
+  const [trialId, setTrialId] = useState(trials[0]?.id ?? "");
+  const [dungeons, setDungeons] = useState<AdminGameDungeon[]>([]);
+  const [target, setTarget] = useState("");
+  const [level, setLevel] = useState(1);
+  const [dungeonsLoading, setDungeonsLoading] = useState(true);
+  const [dungeonsError, setDungeonsError] = useState<string>();
   const [seed, setSeed] = useState(1);
   const [active, setActive] = useState<Session>();
   const [initial, setInitial] = useState<Session>();
@@ -112,9 +137,88 @@ export default function PracticeBattle({
   const session = useRef<Session | undefined>(undefined);
   const counts = useRef(newCounts());
   const turnStarted = useRef(Date.now());
-  const selectedPlayerId = playerId || users[0]?.uid || "";
+  const selectedPlayerId = playerId;
   const selectedPlayer = users.find((user) => user.uid === selectedPlayerId);
-  const draftPlayer = playerStats(emptyAllocation, settings);
+  const draftPlayer = playerStats(allocation, settings);
+  const trial = trials.find((item) => item.id === trialId) ?? trials[0];
+  const simulation = trial?.simulation;
+  const simulationName = trial?.name;
+  const dungeon = dungeons.find(
+    (item) => `${item.user_id}:${item.resource_id}` === target,
+  );
+  const playerProfile = selectedPlayer
+    ? {
+        uid: selectedPlayer.uid,
+        display_name: selectedPlayer.display_name,
+        username: selectedPlayer.username,
+        avatar_url: selectedPlayer.avatar_url,
+        created: selectedPlayer.created,
+      }
+    : undefined;
+  const canStart =
+    !busy &&
+    !active &&
+    !allocationLoading &&
+    !allocationError &&
+    (source === "trial"
+      ? Boolean(simulation?.enemies.length)
+      : Boolean(dungeon?.regions.some((r) => r.level === level)));
+  useEffect(() => {
+    if (!selectedTrial) return;
+    setTrialId(selectedTrial.id);
+    setSource("trial");
+  }, [selectedTrial]);
+  useEffect(() => {
+    let mounted = true;
+    setAllocationError(undefined);
+    if (!playerId) {
+      setAllocation({ ...emptyAllocation });
+      setSavedAllocation({ ...emptyAllocation });
+      setAllocationLoading(false);
+      return;
+    }
+    setAllocationLoading(true);
+    void getAdminUserGameAllocation(playerId)
+      .then((value) => {
+        if (mounted) {
+          setAllocation(value);
+          setSavedAllocation(value);
+        }
+      })
+      .catch((cause) => {
+        if (mounted) setAllocationError(cause.message);
+      })
+      .finally(() => {
+        if (mounted) setAllocationLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, [playerId]);
+  useEffect(() => {
+    let mounted = true;
+    void listAdminGameDungeons()
+      .then((items) => {
+        if (!mounted) return;
+        const available = items.filter(
+          (item) => item.regions.length && item.status !== "母集団あり",
+        );
+        setDungeons(available);
+        if (available[0]) {
+          setTarget(`${available[0].user_id}:${available[0].resource_id}`);
+          setLevel(available[0].regions[0].level);
+        }
+      })
+      .catch((cause) => {
+        if (mounted) setDungeonsError(cause.message);
+      })
+      .finally(() => {
+        if (mounted) setDungeonsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
   useEffect(() => {
     let mounted = true;
     void listAdminUsers()
@@ -147,34 +251,43 @@ export default function PracticeBattle({
   }
 
   async function start() {
-    if (!simulation.enemies.length || busy || active) return;
+    if (!canStart) return;
     setBusy(true);
     setError(undefined);
     try {
-      const prepared = await requestSimulatedPractice({
-        simulation,
+      const options = {
         seed,
         balance: { ...settings },
-      });
+        allocation: { ...allocation },
+      };
+      const prepared =
+        source === "trial" && simulation
+          ? await requestSimulatedPractice({ ...options, simulation })
+          : dungeon
+            ? await requestPractice({
+                ...options,
+                user_id: dungeon.user_id,
+                resource_id: dungeon.resource_id,
+                level,
+              })
+            : undefined;
+      if (!prepared) return;
       const value = {
         ...prepared,
         id: crypto.randomUUID(),
-        name: `${simulationName} · Power ${simulation.power}`,
+        name:
+          source === "trial" && simulation
+            ? `${simulationName} · Power ${simulation.power}`
+            : (dungeon?.resource_name ?? "実ダンジョン"),
         playerName:
           selectedPlayer?.display_name ||
           selectedPlayer?.username ||
           selectedPlayer?.email,
-        player: selectedPlayer
-          ? {
-              uid: selectedPlayer.uid,
-              display_name: selectedPlayer.display_name,
-              username: selectedPlayer.username,
-              avatar_url: selectedPlayer.avatar_url,
-              created: selectedPlayer.created,
-            }
-          : undefined,
-        level: simulation.achievement,
-        enemyTrial: structuredClone(simulation),
+        player: playerProfile,
+        level:
+          source === "trial" && simulation ? simulation.achievement : level,
+        enemyTrial:
+          source === "trial" ? structuredClone(simulation) : undefined,
       };
       setInitial(structuredClone(value));
       activate(value);
@@ -272,13 +385,15 @@ export default function PracticeBattle({
     >
       <h3 className="font-semibold">実戦形式の模擬戦</h3>
       <div className="space-y-1 text-sm tabular-nums">
+        {source === "trial" && simulation && (
+          <p>
+            {simulationName}の敵 · Power {simulation.power} · 領域{" "}
+            {simulation.achievement}
+          </p>
+        )}
         <p>
-          {simulationName}の敵 · Power {simulation.power} · 領域{" "}
-          {simulation.achievement}
-        </p>
-        <p>
-          プレイヤー初期値: HP {draftPlayer.maxHp} · 攻 {draftPlayer.attack} ·
-          守 {draftPlayer.defense} · {draftPlayer.answerSeconds}秒
+          プレイヤー: HP {draftPlayer.maxHp} · 攻 {draftPlayer.attack} · 守{" "}
+          {draftPlayer.defense} · {draftPlayer.answerSeconds}秒
         </p>
       </div>
       <form
@@ -294,12 +409,10 @@ export default function PracticeBattle({
             id="practice-player"
             className="h-9 w-full min-w-0 rounded-md border bg-background px-2 text-sm"
             value={selectedPlayerId}
-            disabled={busy || !!active || !users.length}
+            disabled={busy || !!active}
             onChange={(event) => setPlayerId(event.target.value)}
           >
-            {!users.length && (
-              <option value={selectedPlayerId}>模擬プレイヤー</option>
-            )}
+            <option value="">初期値のプレイヤー</option>
             {users.map((user) => (
               <option key={user.uid} value={user.uid}>
                 {user.display_name || user.username || user.email}
@@ -313,6 +426,161 @@ export default function PracticeBattle({
             </p>
           )}
         </div>
+        <div className="flex items-center gap-2 text-sm">
+          <UserAvatar user={playerProfile} />
+          <span>
+            {selectedPlayer?.display_name ||
+              selectedPlayer?.username ||
+              selectedPlayer?.email ||
+              "模擬プレイヤー"}
+          </span>
+          {allocationLoading && <span>ポイント読み込み中…</span>}
+        </div>
+        <fieldset
+          disabled={busy || !!active || allocationLoading || !!allocationError}
+          className="grid grid-cols-2 gap-3 sm:grid-cols-4"
+        >
+          <legend className="mb-2 text-sm">加算ポイント（模擬戦用）</legend>
+          {(["hp", "attack", "defense", "seconds"] as const).map((stat) => (
+            <div key={stat} className="space-y-1">
+              <Label htmlFor={`practice-${stat}`}>
+                {
+                  {
+                    hp: "HPポイント",
+                    attack: "攻ポイント",
+                    defense: "守ポイント",
+                    seconds: "持ち時間ポイント",
+                  }[stat]
+                }
+              </Label>
+              <Input
+                id={`practice-${stat}`}
+                type="number"
+                min={0}
+                max={10000}
+                step={1}
+                required
+                value={allocation[stat]}
+                onChange={(event) =>
+                  setAllocation((current) => ({
+                    ...current,
+                    [stat]: Number(event.target.value),
+                  }))
+                }
+              />
+            </div>
+          ))}
+        </fieldset>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          disabled={busy || !!active || allocationLoading || !!allocationError}
+          onClick={() => setAllocation({ ...savedAllocation })}
+        >
+          読み込んだポイントに戻す
+        </Button>
+        {allocationError && (
+          <p role="alert" className="text-sm text-destructive">
+            {allocationError}
+          </p>
+        )}
+        <div className="space-y-1">
+          <Label htmlFor="practice-source">敵の出典</Label>
+          <select
+            id="practice-source"
+            className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+            value={source}
+            disabled={busy || !!active}
+            onChange={(event) =>
+              setSource(event.target.value as "trial" | "dungeon")
+            }
+          >
+            <option value="dungeon">実際のダンジョン</option>
+            <option value="trial">試算した敵ロスター</option>
+          </select>
+        </div>
+        {source === "trial" ? (
+          <div className="space-y-1">
+            <Label htmlFor="practice-trial">敵の試算</Label>
+            <select
+              id="practice-trial"
+              className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+              disabled={busy || !!active || !trials.length}
+              value={trial?.id ?? ""}
+              onChange={(event) => setTrialId(event.target.value)}
+            >
+              {!trials.length && (
+                <option value="">
+                  敵能力・ロスターの試算結果を選んでください
+                </option>
+              )}
+              {trials.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.name} · Power {item.simulation.power} · 領域{" "}
+                  {item.simulation.achievement}
+                </option>
+              ))}
+            </select>
+          </div>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="space-y-1">
+              <Label htmlFor="practice-dungeon">ダンジョン</Label>
+              <select
+                id="practice-dungeon"
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                value={target}
+                disabled={busy || !!active || dungeonsLoading}
+                onChange={(event) => {
+                  setTarget(event.target.value);
+                  const item = dungeons.find(
+                    (d) =>
+                      `${d.user_id}:${d.resource_id}` === event.target.value,
+                  );
+                  setLevel(item?.regions[0]?.level ?? 1);
+                }}
+              >
+                {!dungeons.length && (
+                  <option value="">
+                    {dungeonsLoading
+                      ? "読み込み中…"
+                      : "準備済みダンジョンがありません"}
+                  </option>
+                )}
+                {dungeons.map((item) => (
+                  <option
+                    key={`${item.user_id}:${item.resource_id}`}
+                    value={`${item.user_id}:${item.resource_id}`}
+                  >
+                    {item.resource_name} · {item.user_email}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="practice-level">領域</Label>
+              <select
+                id="practice-level"
+                className="h-9 w-full rounded-md border bg-background px-2 text-sm"
+                value={level}
+                disabled={busy || !!active || !dungeon}
+                onChange={(event) => setLevel(Number(event.target.value))}
+              >
+                {dungeon?.regions.map((region) => (
+                  <option key={region.level} value={region.level}>
+                    領域 {region.level}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+        {source === "dungeon" && dungeonsError && (
+          <p role="alert" className="text-sm text-destructive">
+            {dungeonsError}
+          </p>
+        )}
         <div className="space-y-1">
           <Label htmlFor="practice-seed">乱数シード</Label>
           <Input
@@ -328,10 +596,7 @@ export default function PracticeBattle({
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button
-            disabled={busy || !!active || !simulation.enemies.length}
-            type="submit"
-          >
+          <Button disabled={!canStart} type="submit">
             現在の設定で模擬戦を開始
           </Button>
           {initial && (

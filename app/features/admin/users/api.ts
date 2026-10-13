@@ -1,4 +1,5 @@
 import type { AdventureAccess } from "~/features/game/access";
+import type { Allocation } from "~/features/game/battle";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ?? "https://knowde.onrender.com";
@@ -108,6 +109,12 @@ export function transferUserData(
 
 export function listAdminUsers(): Promise<AdminUserItem[]> {
   return request("/admin/users");
+}
+
+export function getAdminUserGameAllocation(
+  userId: string,
+): Promise<Allocation> {
+  return request(`/admin/users/${encodeURIComponent(userId)}/game/allocation`);
 }
 
 export function grantAdminUser(

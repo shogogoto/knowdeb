@@ -12,6 +12,7 @@ import {
 import PracticeBattle from "./PracticeBattle";
 import type {
   EnemyBalanceSimulation,
+  PracticeInput,
   PracticeSession,
   SimulatedPracticeInput,
 } from "./api";
@@ -48,7 +49,12 @@ const trial: EnemyBalanceSimulation = {
   warnings: [],
   enemies: [{ index: 1, quiz_count: 1, hp: 5, attack: 12, relations: 0 }],
 };
+const trials = [{ id: "trial", name: "試算 1", simulation: trial }];
+const userPoints = { hp: 2, attack: 8, defense: 1, seconds: 2 };
 const server = setupServer(
+  http.get("*/admin/users/:uid/game/allocation", () =>
+    HttpResponse.json(userPoints),
+  ),
   http.get("*/admin/users", () =>
     HttpResponse.json([
       {
@@ -86,7 +92,10 @@ const server = setupServer(
     async ({ request }) => {
       const input = (await request.json()) as SimulatedPracticeInput;
       preparations.push(input);
-      const stats = playerStats(emptyAllocation, input.balance);
+      const stats = playerStats(
+        input.allocation ?? emptyAllocation,
+        input.balance,
+      );
       const quiz = {
         quiz_id: "quiz",
         quiz_type: "sent2term",
@@ -120,7 +129,7 @@ const server = setupServer(
           save: {
             version: 2,
             clears: {},
-            allocation: { hp: 0, attack: 0, defense: 0, seconds: 0 },
+            allocation: input.allocation ?? emptyAllocation,
             content: { knowledge: [], quizzes: [quiz] },
             run: {
               resourceId: "book",
@@ -192,12 +201,13 @@ afterAll(() => server.close());
 it("selects a player's appearance while using draft initial stats and the enemy trial", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} simulation={trial} />
+      <PracticeBattle settings={draft} trials={trials} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();
   const player = screen.getByRole("combobox", { name: "プレイヤー" });
   await waitFor(() => expect(player).toBeEnabled());
+  await screen.findByRole("option", { name: /プレイヤーB/ });
   await user.selectOptions(player, "other");
   const start = screen.getByRole("button", {
     name: "現在の設定で模擬戦を開始",
@@ -213,6 +223,7 @@ it("selects a player's appearance while using draft initial stats and the enemy 
     balance: draft,
     simulation: trial,
     seed: 1,
+    allocation: userPoints,
   });
   expect(screen.queryByRole("checkbox")).not.toBeInTheDocument();
 });
@@ -225,7 +236,7 @@ it("explains a missing deployment route without confusing it with missing data",
   );
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} simulation={trial} />
+      <PracticeBattle settings={draft} trials={trials} />
     </MemoryRouter>,
   );
   const start = screen.getByRole("button", {
@@ -239,10 +250,73 @@ it("explains a missing deployment route without confusing it with missing data",
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
 });
 
+it("keeps practice visible before any trial and can use a real dungeon", async () => {
+  let requestInput: PracticeInput | undefined;
+  server.use(
+    http.post("*/admin/settings/game-balance/practice", async ({ request }) => {
+      requestInput = (await request.json()) as PracticeInput;
+      return HttpResponse.json(
+        { detail: "ダンジョンの条件を確認" },
+        { status: 409 },
+      );
+    }),
+  );
+  render(
+    <MemoryRouter>
+      <PracticeBattle settings={draft} />
+    </MemoryRouter>,
+  );
+  expect(
+    screen.getByRole("heading", { name: "実戦形式の模擬戦" }),
+  ).toBeVisible();
+  const user = userEvent.setup();
+  const start = screen.getByRole("button", {
+    name: "現在の設定で模擬戦を開始",
+  });
+  await waitFor(() => expect(start).toBeEnabled());
+  await user.click(start);
+  await screen.findByText("ダンジョンの条件を確認");
+  expect(requestInput).toEqual({
+    user_id: "user",
+    resource_id: "book",
+    level: 1,
+    seed: 1,
+    balance: draft,
+    allocation: emptyAllocation,
+  });
+  expect(preparations).toHaveLength(0);
+});
+
+it("loads real points and edits only the disposable player before starting", async () => {
+  render(
+    <MemoryRouter>
+      <PracticeBattle settings={draft} trials={trials} />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  await screen.findByRole("option", { name: /プレイヤーB/ });
+  await user.selectOptions(screen.getByLabelText("プレイヤー"), "other");
+  const attack = screen.getByLabelText("攻ポイント");
+  await waitFor(() => expect(attack).toHaveValue(8));
+  await user.clear(attack);
+  await user.type(attack, "9");
+  expect(
+    screen.getByText(/プレイヤー: HP 70 · 攻 28 · 守 2 · 51秒/),
+  ).toBeVisible();
+  await user.click(
+    screen.getByRole("button", { name: "現在の設定で模擬戦を開始" }),
+  );
+  await screen.findByRole("dialog");
+  expect(preparations[0].allocation).toEqual({ ...userPoints, attack: 9 });
+  expect(
+    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
+  ).toHaveAttribute("aria-valuenow", "70");
+});
+
 it("uses real battle UI with draft settings, records results and replays without live writes", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} simulation={trial} />
+      <PracticeBattle settings={draft} trials={trials} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();
@@ -287,7 +361,7 @@ it("uses real battle UI with draft settings, records results and replays without
 it("confirms an incorrect synthetic answer and applies incoming damage", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} simulation={trial} />
+      <PracticeBattle settings={draft} trials={trials} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();
@@ -314,7 +388,7 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
 it("settles unanswered timeout through practice only and reports it separately", async () => {
   render(
     <MemoryRouter>
-      <PracticeBattle settings={draft} simulation={trial} />
+      <PracticeBattle settings={draft} trials={trials} />
     </MemoryRouter>,
   );
   const user = userEvent.setup();

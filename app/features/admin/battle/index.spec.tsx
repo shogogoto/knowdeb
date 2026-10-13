@@ -239,6 +239,9 @@ it("places independent simulations next to their settings without saving", async
   render(<BattleSettingsManager />);
   await screen.findByLabelText("初期HP");
   const stats = screen.getByRole("region", { name: "敵ステータスの計算" });
+  expect(
+    screen.getByRole("heading", { name: "実戦形式の模擬戦" }),
+  ).toBeVisible();
   const roster = screen.getByRole("region", { name: "敵ロスターと遭遇の抽選" });
   expect(
     within(stats).getByRole("region", { name: "敵能力の試算" }),
@@ -256,6 +259,13 @@ it("places independent simulations next to their settings without saving", async
     name: "roster試算比較",
   });
   expect(comparison).toHaveTextContent("未割り当て");
+  expect(screen.getByLabelText("敵の出典")).toHaveValue("trial");
+  expect(screen.getByLabelText("敵の試算")).toHaveTextContent(
+    "ロスター 試算 1",
+  );
+  expect(
+    screen.getByRole("button", { name: "現在の設定で模擬戦を開始" }),
+  ).toBeEnabled();
   expect(within(stats).queryByRole("table")).not.toBeInTheDocument();
   expect(document.querySelector("form form")).toBeNull();
   expect(saved).not.toHaveBeenCalled();

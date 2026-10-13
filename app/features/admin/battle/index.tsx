@@ -8,8 +8,13 @@ import DamageEffectSettings, {
   effectThresholdKeys,
 } from "./DamageEffectSettings";
 import FormulaSettings from "./FormulaSettings";
+import PracticeBattle from "./PracticeBattle";
 import Simulation from "./Simulation";
-import { type BattleSettings, requestBattleSettings } from "./api";
+import {
+  type BattleSettings,
+  type PracticeEnemyTrial,
+  requestBattleSettings,
+} from "./api";
 
 const fields = {
   base_hp: ["初期HP", 1, 10000, 1],
@@ -122,6 +127,10 @@ export default function BattleSettingsManager() {
   const [error, setError] = useState<string>();
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [practiceTrials, setPracticeTrials] = useState<PracticeEnemyTrial[]>(
+    [],
+  );
+  const [selectedTrial, setSelectedTrial] = useState<PracticeEnemyTrial>();
   const settingInput = (kind: keyof typeof fields, compact = false) => {
     const [label, min, max, step] = fields[kind];
     const input = (
@@ -226,6 +235,11 @@ export default function BattleSettingsManager() {
                   .finally(() => setSaving(false));
               }}
             />
+            <PracticeBattle
+              settings={settings}
+              trials={practiceTrials}
+              selectedTrial={selectedTrial}
+            />
             <div className="space-y-5">
               {groups.map((group) => (
                 <section
@@ -287,6 +301,14 @@ export default function BattleSettingsManager() {
                   {(group.label === "敵ステータスの計算" ||
                     group.label === "敵ロスターと遭遇の抽選") && (
                     <Simulation
+                      onPracticeTrial={(trial) => {
+                        setPracticeTrials((current) =>
+                          current.some((item) => item.id === trial.id)
+                            ? current
+                            : [...current, trial],
+                        );
+                        setSelectedTrial(trial);
+                      }}
                       settings={settings}
                       mode={
                         group.label === "敵ステータスの計算"

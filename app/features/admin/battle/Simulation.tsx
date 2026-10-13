@@ -10,10 +10,10 @@ import {
   TableHeader,
   TableRow,
 } from "~/shared/components/ui/table";
-import PracticeBattle from "./PracticeBattle";
 import {
   type BattleSettings,
   type EnemyBalanceSimulation,
+  type PracticeEnemyTrial,
   requestEnemyBalanceSimulation,
 } from "./api";
 
@@ -28,10 +28,12 @@ export default function Simulation({
   settings,
   labels,
   mode = "stats",
+  onPracticeTrial,
 }: {
   settings: BattleSettings;
   labels: Partial<Record<keyof BattleSettings, string>>;
   mode?: "stats" | "roster";
+  onPracticeTrial?: (trial: PracticeEnemyTrial) => void;
 }) {
   const [power, setPower] = useState(100);
   const [achievement, setAchievement] = useState(1);
@@ -42,6 +44,16 @@ export default function Simulation({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const current = results[selected];
+  function selectResult(index: number) {
+    setSelected(index);
+    const trial = results[index];
+    if (trial)
+      onPracticeTrial?.({
+        id: trial.id,
+        name: `${mode === "stats" ? "敵能力" : "ロスター"} 試算 ${index + 1}`,
+        simulation: trial,
+      });
+  }
 
   async function simulate(event: React.FormEvent) {
     event.preventDefault();
@@ -55,10 +67,13 @@ export default function Simulation({
         average_relations: 0,
       });
       setSelected(results.length);
-      setResults((previous) => [
-        ...previous,
-        { ...result, id: crypto.randomUUID() },
-      ]);
+      const trial = { ...result, id: crypto.randomUUID() };
+      setResults((previous) => [...previous, trial]);
+      onPracticeTrial?.({
+        id: trial.id,
+        name: `${mode === "stats" ? "敵能力" : "ロスター"} 試算 ${results.length + 1}`,
+        simulation: trial,
+      });
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "敵を試算できませんでした。",
@@ -183,9 +198,9 @@ export default function Simulation({
                     key={result.id}
                     data-state={selected === index ? "selected" : undefined}
                     className="cursor-pointer"
-                    onClick={() => setSelected(index)}
+                    onClick={() => selectResult(index)}
                     onKeyDown={(event) => {
-                      if (event.key === "Enter") setSelected(index);
+                      if (event.key === "Enter") selectResult(index);
                     }}
                   >
                     <TableCell>
@@ -195,7 +210,7 @@ export default function Simulation({
                         variant={selected === index ? "secondary" : "outline"}
                         aria-label={`試算 ${index + 1}`}
                         aria-pressed={selected === index}
-                        onClick={() => setSelected(index)}
+                        onClick={() => selectResult(index)}
                       >
                         試算 {index + 1}
                         {selected === index && (
@@ -316,12 +331,14 @@ export default function Simulation({
                   </TableBody>
                 </Table>
               </div>
-              {mode === "stats" && (
-                <PracticeBattle
-                  settings={settings}
-                  simulation={current}
-                  simulationName={`試算 ${selected + 1}`}
-                />
+              {onPracticeTrial && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => selectResult(selected)}
+                >
+                  この試算を模擬戦に使う
+                </Button>
               )}
             </section>
           )}
