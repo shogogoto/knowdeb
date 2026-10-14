@@ -770,6 +770,20 @@ it("opens the item URL directly", async () => {
   ).toBeInTheDocument();
 });
 
+it("shows the item box and gold beside the map player status", async () => {
+  state = {
+    revision: 1,
+    save: enterDungeon(newSave(), "book", "テストの本", 1),
+  };
+  renderGame();
+  await screen.findByRole("button", { name: "アイテムボックスを開く" });
+  expect(screen.getByLabelText("所持ゴールド 0")).toBeVisible();
+  await userEvent
+    .setup()
+    .click(screen.getByRole("button", { name: "アイテムボックスを開く" }));
+  expect(screen.getByRole("dialog", { name: "アイテム" })).toBeVisible();
+});
+
 it("records floating item navigation in history and closes direct status links safely", async () => {
   const view = renderGame("/game/status");
   const user = userEvent.setup();
