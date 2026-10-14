@@ -200,8 +200,8 @@ export default function PracticeBattle({
     void getAdminUserGameAllocation(playerId)
       .then((value) => {
         if (mounted) {
-          setAllocation(value);
-          setSavedAllocation(value);
+          setAllocation({ ...emptyAllocation, ...value });
+          setSavedAllocation({ ...emptyAllocation, ...value });
         }
       })
       .catch((cause) => {
@@ -429,8 +429,9 @@ export default function PracticeBattle({
           </p>
         )}
         <p>
-          プレイヤー: HP {draftPlayer.maxHp} · 攻 {draftPlayer.attack} · 守{" "}
-          {draftPlayer.defense} · {draftPlayer.answerSeconds}秒
+          プレイヤー: HP {draftPlayer.maxHp} · MP {draftPlayer.maxMp} · 攻{" "}
+          {draftPlayer.attack} · 守 {draftPlayer.defense} ·{" "}
+          {draftPlayer.answerSeconds}秒
         </p>
       </div>
       <form
@@ -498,35 +499,40 @@ export default function PracticeBattle({
           className="grid grid-cols-2 gap-3 sm:grid-cols-4"
         >
           <legend className="mb-2 text-sm">加算ポイント（模擬戦用）</legend>
-          {(["hp", "attack", "defense", "seconds"] as const).map((stat) => (
-            <div key={stat} className="space-y-1">
-              <Label htmlFor={`practice-${stat}`}>
-                {
+          {(["hp", "mp", "attack", "defense", "seconds"] as const).map(
+            (stat) => (
+              <div key={stat} className="space-y-1">
+                <Label htmlFor={`practice-${stat}`}>
                   {
-                    hp: "HPポイント",
-                    attack: "攻ポイント",
-                    defense: "守ポイント",
-                    seconds: "持ち時間ポイント",
-                  }[stat]
-                }
-              </Label>
-              <Input
-                id={`practice-${stat}`}
-                type="number"
-                min={0}
-                max={10000}
-                step={1}
-                required
-                value={actualPlayer ? savedAllocation[stat] : allocation[stat]}
-                onChange={(event) =>
-                  setAllocation((current) => ({
-                    ...current,
-                    [stat]: Number(event.target.value),
-                  }))
-                }
-              />
-            </div>
-          ))}
+                    {
+                      hp: "HPポイント",
+                      attack: "攻ポイント",
+                      defense: "守ポイント",
+                      seconds: "持ち時間ポイント",
+                      mp: "MPポイント",
+                    }[stat]
+                  }
+                </Label>
+                <Input
+                  id={`practice-${stat}`}
+                  type="number"
+                  min={0}
+                  max={10000}
+                  step={1}
+                  required
+                  value={
+                    actualPlayer ? savedAllocation[stat] : allocation[stat]
+                  }
+                  onChange={(event) =>
+                    setAllocation((current) => ({
+                      ...current,
+                      [stat]: Number(event.target.value),
+                    }))
+                  }
+                />
+              </div>
+            ),
+          )}
         </fieldset>
         <Button
           type="button"

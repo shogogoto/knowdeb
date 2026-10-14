@@ -1,6 +1,7 @@
 import { Eye } from "lucide-react";
 import { useRef, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { invalidateGamification } from "~/features/gamification/invalidate";
 import KnowledgeCard, {
@@ -36,6 +37,7 @@ export default function PersonalTimeline({
   selectedDay,
 }: { profile?: string; selectedDay?: string }) {
   const { mutate: mutateGlobal } = useSWRConfig();
+  const navigate = useNavigate();
   const { openPreview, preview } = useTanbunPreview();
   const today = useRecommendationDay();
   const day = selectedDay ?? today;
@@ -118,6 +120,15 @@ export default function PersonalTimeline({
     }));
     try {
       const result = await markTanbunSeen(item.uid);
+      if (result.step_recovery_awarded)
+        toast.success("今日の見たよを達成！歩数回復薬を1個獲得しました。", {
+          action: {
+            label: "ゲームへ",
+            onClick: () => {
+              void navigate("/game/item");
+            },
+          },
+        });
       void invalidateGamification(mutateGlobal, { preserveData: true }).catch(
         () => undefined,
       );

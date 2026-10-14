@@ -17,10 +17,16 @@ import {
 
 const fields = {
   base_hp: ["初期HP", 1, 10000, 1],
+  base_mp: ["初期MP", 0, 10000, 1],
   base_attack: ["初期攻", 1, 1000, 1],
   base_defense: ["初期守", 0, 1000, 1],
   base_seconds: ["初期持ち時間（秒）", 5, 300, 1],
   hp_per_point: ["HP / 育成ポイント", 1, 100, 1],
+  mp_per_point: ["MP / 育成ポイント", 1, 100, 1],
+  skill_mp_cost: ["専門分野の消費MP", 1, 10000, 1],
+  skill_term_attack: ["専門分野の攻撃力補正", 0.1, 100, 0.1],
+  boss_hp_multiplier: ["ボスのHP倍率", 1, 20, 0.1],
+  boss_attack_multiplier: ["ボスの攻撃力倍率", 1, 10, 0.05],
   attack_per_point: ["攻 / 育成ポイント", 1, 100, 1],
   defense_per_point: ["守 / 育成ポイント", 1, 100, 1],
   seconds_per_point: ["秒 / 育成ポイント", 1, 30, 1],
@@ -78,16 +84,26 @@ const groups = [
   },
   {
     label: "プレイヤーの初期値",
-    keys: ["base_hp", "base_attack", "base_defense", "base_seconds"],
+    keys: ["base_hp", "base_mp", "base_attack", "base_defense", "base_seconds"],
   },
   {
     label: "育成ポイントあたりの上昇量",
     keys: [
       "hp_per_point",
+      "mp_per_point",
       "attack_per_point",
       "defense_per_point",
       "seconds_per_point",
     ],
+  },
+  {
+    label: "専門分野",
+    rules: ["攻撃力 = max(1, ceil(log(1 + 用語数) × 補正))"],
+    keys: ["skill_mp_cost", "skill_term_attack"],
+  },
+  {
+    label: "ボス",
+    keys: ["boss_hp_multiplier", "boss_attack_multiplier"],
   },
   {
     label: "ダメージ計算",

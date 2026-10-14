@@ -19,6 +19,7 @@ export type TanbunExposureResult = {
   seen_on: string;
   exposure_count: number;
   recorded: boolean;
+  step_recovery_awarded?: boolean;
 };
 
 export type TodayTanbunExposureCount = {
@@ -52,9 +53,10 @@ export async function addPersonalTanbuns(
 
 export async function markTanbunSeen(
   sentenceId: string,
+  deferGameReward = false,
 ): Promise<TanbunExposureResult> {
   return request<TanbunExposureResult>(
-    `/dashboard/tanbuns/${encodeURIComponent(sentenceId)}/exposures`,
+    `/dashboard/tanbuns/${encodeURIComponent(sentenceId)}/exposures${deferGameReward ? "?defer_game_reward=true" : ""}`,
     { method: "POST" },
   );
 }

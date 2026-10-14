@@ -1,5 +1,23 @@
 # Adventure prototype
 
+`/game/boss` opens a floating boss list, with voluntary one-step challenges every
+five achievements (within the current 20-band cap). Victories unlock that resource
+as a specialty; ordinary three-enemy clears do not. All unlocked specialties stay
+available rather than occupying an equipped-resource slot. The item panel lists
+these resources and the highest cleared quiz band.
+
+The stat editor and admin balance controls include MP and MP-per-point. Live and
+practice encounter setup refill MP; next turns do not. Live result screens place
+the specialty button beside Next/Continue, usable once per intermission while
+enemies remain. It consumes MP and opens a real quiz drawn from a random unlocked
+resource's cleared population. Space toggles choices and Enter confirms, with
+the same spatial arrow navigation. Closing does not pause its deadline; failures
+retry the sealed answer. The initial skill attacks every enemy when correct and
+damages the player when incorrect/unanswered. Its coefficient and MP cost are
+admin-controlled. Answers use real learning history/XP; unanswered uses no XP.
+The initial synthetic admin practice supports MP allocation/display but does not
+summon live specialties or persist any specialty rewards.
+
 Separate `/game` menu; `g g` navigates there. Review XP/Lv stays separate from
 dungeon clears. Knowledge choices call the existing exposure API; combat reuses
 QuizAttempt, including real answers, reports, previews, and XP invalidation.
@@ -45,7 +63,20 @@ replace their entry with `/game` on close. Legacy `/game/adventure` redirects to
 below the remaining-step HUD on the right; the header retains the dungeon title.
 Adventure resumes the current
 dungeon; new destinations appear only after explicitly opening the destination picker.
-Items are a placeholder, not implemented weapons.
+The gold HUD opens `/game/shop`; the item HUD opens `/game/item`. Both panels
+stay over the mounted map. Each live enemy defeat awards 10 gold times its
+one-based region; turn receipts prevent retry rewards. Purchases, equipping,
+item consumption and daily rewards are server-owned and revision-checked, and
+ordinary snapshot writes retain that economy even for older clients.
+The initial catalog offers bronze/steel swords (+3/+8 attack, 100/300 gold) and
+HP potions (+20 HP, 30 gold). Owned weapons can be equipped or removed outside
+combat; the bonus is shared by live combat, stat allocation previews and practice.
+Completing the saved default “今日” knowledge set awards one step potion per
+Japan-calendar day, automatically on exposure or the next game state read.
+It restores up to three of the five shared moves, without consuming the clock
+slot or healing; rest returns to exploration. Empty daily sets award nothing.
+Step potions are earned from review rather than sold. Rest shows a review link
+and an inventory shortcut. All prices and reward quantities are provisional.
 The adventure entrance also offers previous dungeons, including uncleared visits.
 The server keeps a deduplicated recent-first `visitedDungeons` list across retreat,
 defeat and clearing, even when an older client omits the field. Legacy active runs

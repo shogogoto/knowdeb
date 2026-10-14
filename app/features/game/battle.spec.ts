@@ -14,7 +14,13 @@ describe("allocated stats and browser-local enemy HP", () => {
     );
     expect(
       playerStats({ hp: 1, attack: 1, defense: 0, seconds: 1 }, defaultBalance),
-    ).toEqual({ maxHp: 40, attack: 12, defense: 1, answerSeconds: 48 });
+    ).toEqual({
+      maxHp: 40,
+      maxMp: 10,
+      attack: 12,
+      defense: 1,
+      answerSeconds: 48,
+    });
   });
   it("a live maximum increase never heals and a decrease clamps remaining HP", () => {
     const enemy = {

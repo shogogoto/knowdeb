@@ -11,6 +11,7 @@ import { Button } from "~/shared/components/ui/button";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import BattleDialog from "./BattleDialog";
 import EnemyAvatar from "./EnemyAvatar";
+import SpecialtySkill from "./SpecialtySkill";
 import type { DungeonContent } from "./api";
 import {
   type BattleTransport,
@@ -102,14 +103,16 @@ export default function MultiBattle({
   >(undefined);
   const resultEnemies = useRef(battle?.enemies ?? []);
   const resultQuizIndices = useRef(battle?.quizIndices);
+  const resultContext = useRef(context);
   if (!result) {
+    resultContext.current = context;
     resultEnemies.current = battle?.enemies ?? [];
     resultQuizIndices.current = battle?.quizIndices;
   }
   // The turn response already contains its sealed assignments. A background
   // context refresh must never display the previous turn's question meanwhile.
   const quizIndices = result ? resultQuizIndices.current : battle?.quizIndices;
-  const live = context.enemies
+  const live = (result ? resultContext.current : context).enemies
     .filter((enemy) =>
       (result ? resultEnemies.current : battle?.enemies)?.includes(enemy.id),
     )
@@ -138,7 +141,11 @@ export default function MultiBattle({
     let timer = setTimeout(advance, delay * 1000);
     return () => clearTimeout(timer);
   }, [result, nextResultId, busy, delay]);
-  const stats = playerStats(save.allocation, context.balance);
+  const stats = playerStats(
+    save.allocation,
+    context.balance,
+    save.economy?.weapon_attack,
+  );
   const focusAnswerChoice = useCallback(
     (direction: "first" | "last" = "first") => {
       const selector = simulation
@@ -477,90 +484,124 @@ export default function MultiBattle({
               )
             );
           })}
-          <Button
-            ref={resultAdvance}
-            disabled={busy}
-            data-battle-advance
-            onClick={() => {
-              if (nextResultId) {
-                if (processedIndex.current > resultIndex) return;
-                processedIndex.current = resultIndex + 1;
-                const id = nextResultId;
-                if (result.results[id]) {
-                  const damage = turnDamageByEnemy[id] ?? 0;
-                  const effect = damageEffect(
-                    damage,
-                    stats.attack,
-                    context.balance,
-                  );
-                  setHp((current) => ({
-                    ...current,
-                    [id]: Math.max(0, (current[id] ?? 0) - damage),
-                  }));
-                  setHitEffects((current) => ({
-                    ...current,
-                    [id]: {
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              ref={resultAdvance}
+              disabled={busy || Boolean(save.battle?.skill)}
+              data-battle-advance
+              onClick={() => {
+                if (nextResultId) {
+                  if (processedIndex.current > resultIndex) return;
+                  processedIndex.current = resultIndex + 1;
+                  const id = nextResultId;
+                  if (result.results[id]) {
+                    const damage = turnDamageByEnemy[id] ?? 0;
+                    const effect = damageEffect(
                       damage,
-                      ...effect,
-                    },
-                  }));
-                  if (musicPreferences().enabled)
-                    playBattleSound(true, effect.level);
-                } else {
-                  const damage = result.incoming_damage?.[id];
-                  if (damage !== undefined) {
-                    setIncomingProcessed((current) => current + damage);
+                      stats.attack,
+                      context.balance,
+                    );
+                    setHp((current) => ({
+                      ...current,
+                      [id]: Math.max(0, (current[id] ?? 0) - damage),
+                    }));
                     setHitEffects((current) => ({
                       ...current,
-                      [id]: { damage, level: 1, label: "被ダメージ" },
+                      [id]: {
+                        damage,
+                        ...effect,
+                      },
                     }));
+                    if (musicPreferences().enabled)
+                      playBattleSound(true, effect.level);
+                  } else {
+                    const damage = result.incoming_damage?.[id];
+                    if (damage !== undefined) {
+                      setIncomingProcessed((current) => current + damage);
+                      setHitEffects((current) => ({
+                        ...current,
+                        [id]: { damage, level: 1, label: "被ダメージ" },
+                      }));
+                    }
+                    if (musicPreferences().enabled) playBattleSound(false);
                   }
-                  if (musicPreferences().enabled) playBattleSound(false);
+                  const nextIndex = resultIndex + 1;
+                  setResultIndex(nextIndex);
+                  if (nextIndex >= resultIds.length) {
+                    if (!result.incoming_damage)
+                      setIncomingProcessed(result.damage);
+                    onSaved(result.state);
+                  }
+                  return;
                 }
-                const nextIndex = resultIndex + 1;
-                setResultIndex(nextIndex);
-                if (nextIndex >= resultIds.length) {
-                  if (!result.incoming_damage)
-                    setIncomingProcessed(result.damage);
-                  onSaved(result.state);
+                if (!save.battle) {
+                  void onFinished();
+                  return;
                 }
-                return;
-              }
-              if (!save.battle) {
-                void onFinished();
-                return;
-              }
-              setBusy(true);
-              onBusy(true);
-              void transport<GameState>("battle/next", {
-                battle_id: save.battle.id,
-                turn: save.battle.turn,
-              })
-                .then((state) => {
-                  pendingAnswerFocus.current = true;
-                  setAnswers({});
-                  setSimulationChoices({});
-                  setFrozenRemainingMs(undefined);
-                  setActive(0);
-                  setResult(undefined);
-                  setResultIndex(0);
-                  setTurnDamageByEnemy({});
-                  setHitEffects({});
-                  onSaved(state);
+                setBusy(true);
+                onBusy(true);
+                void transport<GameState>("battle/next", {
+                  battle_id: save.battle.id,
+                  turn: save.battle.turn,
                 })
-                .catch((cause) => setError(cause.message))
-                .finally(() => {
-                  setBusy(false);
-                  onBusy(false);
-                });
-            }}
-          >
-            {nextResultId
-              ? `結果を処理 · ${resultIndex + 1}/${resultIds.length}`
-              : save.battle
-                ? "次のターン"
-                : "続ける"}
-          </Button>
+                  .then((state) => {
+                    pendingAnswerFocus.current = true;
+                    setAnswers({});
+                    setSimulationChoices({});
+                    setFrozenRemainingMs(undefined);
+                    setActive(0);
+                    setResult(undefined);
+                    setResultIndex(0);
+                    setTurnDamageByEnemy({});
+                    setHitEffects({});
+                    onSaved(state);
+                  })
+                  .catch((cause) => setError(cause.message))
+                  .finally(() => {
+                    setBusy(false);
+                    onBusy(false);
+                  });
+              }}
+            >
+              {nextResultId
+                ? `結果を処理 · ${resultIndex + 1}/${resultIds.length}`
+                : save.battle
+                  ? "次のターン"
+                  : "続ける"}
+            </Button>
+            {!nextResultId && !simulation && (
+              <SpecialtySkill
+                save={save}
+                cost={context.balance.skill_mp_cost ?? 3}
+                clockOffset={clockOffset}
+                enemyHp={Object.fromEntries(
+                  (save.battle?.enemies ?? []).map((id) => [id, currentHp[id]]),
+                )}
+                disabled={busy}
+                onBusy={onBusy}
+                onSaved={onSaved}
+                onResult={(skill) => {
+                  setHp((current) => ({
+                    ...current,
+                    ...Object.fromEntries(
+                      Object.entries(skill.outgoing_damage).map(
+                        ([id, damage]) => [
+                          id,
+                          Math.max(0, (current[id] ?? 0) - damage),
+                        ],
+                      ),
+                    ),
+                  }));
+                  resultStartHp.current = skill.state.save.run?.hp ?? 0;
+                  setIncomingProcessed(0);
+                  setResult(
+                    (current) => current && { ...current, state: skill.state },
+                  );
+                  onSaved(skill.state);
+                }}
+              />
+            )}
+          </div>
         </div>
       ) : (
         <>

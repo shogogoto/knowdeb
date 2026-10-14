@@ -1,4 +1,12 @@
-import { Heart, Minus, Plus, Shield, Swords, Timer } from "lucide-react";
+import {
+  Heart,
+  Minus,
+  Plus,
+  Shield,
+  Swords,
+  Timer,
+  WandSparkles,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import {
@@ -16,6 +24,12 @@ const statDefinitions = [
     label: "最大HP",
     Icon: Heart,
     value: (stats: ReturnType<typeof playerStats>) => stats.maxHp,
+  },
+  {
+    key: "mp",
+    label: "最大MP",
+    Icon: WandSparkles,
+    value: (stats: ReturnType<typeof playerStats>) => stats.maxMp,
   },
   {
     key: "attack",
@@ -44,6 +58,7 @@ export default function StatEditor({
   balance,
   inBattle,
   currentHp,
+  weaponAttack,
   onSaved,
 }: {
   level: number;
@@ -51,18 +66,19 @@ export default function StatEditor({
   balance: GameBalance;
   inBattle: boolean;
   currentHp?: number;
+  weaponAttack?: number;
   onSaved: (state: GameState) => void;
 }) {
-  const [draft, setDraft] = useState(allocation ?? emptyAllocation);
+  const [draft, setDraft] = useState({ ...emptyAllocation, ...allocation });
   useEffect(() => {
-    setDraft(allocation ?? emptyAllocation);
+    setDraft({ ...emptyAllocation, ...allocation });
   }, [allocation]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const budget = Math.max(0, level - 1) * 3;
   const used = Object.values(draft).reduce((sum, n) => sum + n, 0);
   const remaining = Math.max(0, budget - used);
-  const stats = playerStats(draft, balance);
+  const stats = playerStats(draft, balance, weaponAttack);
 
   function adjust(key: keyof Allocation, amount: number) {
     setDraft((current) => {
@@ -71,8 +87,8 @@ export default function StatEditor({
         Object.values(current).reduce((sum, n) => sum + n, 0) >= budget
       )
         return current;
-      if (amount < 0 && current[key] <= 0) return current;
-      return { ...current, [key]: current[key] + amount };
+      if (amount < 0 && (current[key] ?? 0) <= 0) return current;
+      return { ...current, [key]: (current[key] ?? 0) + amount };
     });
   }
 
@@ -136,11 +152,11 @@ export default function StatEditor({
                 )}
               </div>
               <span
-                aria-label={`${draft[stat]}ポイント割り振り済み`}
+                aria-label={`${draft[stat] ?? 0}ポイント割り振り済み`}
                 className="min-w-7 text-center text-sm tabular-nums text-muted-foreground"
                 title="割り振りポイント"
               >
-                {draft[stat]}
+                {draft[stat] ?? 0}
               </span>
               <div className="flex shrink-0 items-center gap-1">
                 <Button
@@ -148,7 +164,7 @@ export default function StatEditor({
                   variant="outline"
                   size="icon-sm"
                   aria-label={`${label}のポイントを減らす`}
-                  disabled={draft[stat] === 0}
+                  disabled={(draft[stat] ?? 0) === 0}
                   onClick={() => adjust(stat, -1)}
                 >
                   <Minus aria-hidden="true" />

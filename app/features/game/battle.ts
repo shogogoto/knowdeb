@@ -4,22 +4,30 @@ import type { GameState } from "./state";
 
 export type Allocation = {
   hp: number;
+  mp?: number;
   attack: number;
   defense: number;
   seconds: number;
 };
 export const emptyAllocation: Allocation = {
   hp: 0,
+  mp: 0,
   attack: 0,
   defense: 0,
   seconds: 0,
 };
 export const defaultBalance = {
   base_hp: 35,
+  base_mp: 10,
   base_attack: 10,
   base_defense: 1,
   base_seconds: 45,
   hp_per_point: 5,
+  mp_per_point: 2,
+  skill_mp_cost: 3,
+  skill_term_attack: 4,
+  boss_hp_multiplier: 3,
+  boss_attack_multiplier: 1.25,
   attack_per_point: 2,
   defense_per_point: 1,
   seconds_per_point: 3,
@@ -78,6 +86,7 @@ export type TurnResult = {
   results: Record<string, boolean>;
   damage: number;
   incoming_damage?: Record<string, number>;
+  gold_earned?: number;
 };
 
 export function rollPlayerDamage(
@@ -141,13 +150,18 @@ export function damageEffect(
 export function playerStats(
   allocation: Allocation | undefined,
   balance: GameBalance,
+  weaponAttack = 0,
 ) {
   const a = allocation ?? emptyAllocation;
   return {
     maxHp: Math.min(100000, balance.base_hp + a.hp * balance.hp_per_point),
+    maxMp: Math.min(
+      100000,
+      (balance.base_mp ?? 10) + (a.mp ?? 0) * (balance.mp_per_point ?? 2),
+    ),
     attack: Math.min(
       100000,
-      balance.base_attack + a.attack * balance.attack_per_point,
+      balance.base_attack + a.attack * balance.attack_per_point + weaponAttack,
     ),
     defense: Math.min(
       100000,

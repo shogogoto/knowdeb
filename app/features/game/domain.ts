@@ -10,6 +10,8 @@ export type Run = {
   name: string;
   hp: number;
   maxHp: number;
+  mp?: number;
+  maxMp?: number;
   attack: number;
   defense: number;
   moves: number;
@@ -25,7 +27,15 @@ export type Run = {
 };
 export type GameSave = {
   version: 2;
+  economy?: {
+    gold: number;
+    inventory: Record<string, number>;
+    weapon: string | null;
+    weapon_attack: number;
+    review_reward_day?: string | null;
+  };
   clears: Record<string, number>;
+  bossClears?: Record<string, number[]>;
   visitedDungeons?: string[];
   unlockedDungeons?: {
     sourceId: string;
@@ -46,6 +56,17 @@ export type GameSave = {
     checkpoint: string;
     enemies: string[];
     quizIndices?: Record<string, number>;
+    bossLevel?: number | null;
+    bossQuizIds?: string[];
+    skillUsed?: boolean;
+    skill?: {
+      id: string;
+      resourceId: string;
+      name: string;
+      quizId: string;
+      attack: number;
+      deadline: number;
+    } | null;
   } | null;
 };
 export const newSave = (): GameSave => ({
@@ -73,7 +94,11 @@ export function enterDungeon(
       battleFeedback: undefined,
     };
   }
-  const stats = playerStats(save.allocation, defaultBalance);
+  const stats = playerStats(
+    save.allocation,
+    defaultBalance,
+    save.economy?.weapon_attack,
+  );
   const maxHp = stats.maxHp;
   return {
     ...save,
@@ -89,6 +114,8 @@ export function enterDungeon(
       name,
       hp: maxHp,
       maxHp,
+      maxMp: stats.maxMp,
+      mp: stats.maxMp,
       attack: stats.attack,
       defense: stats.defense,
       moves: 0,
@@ -111,10 +138,11 @@ export function resumeEvent(save: GameSave): GameSave {
   };
 }
 
-/** Defeat returns the player to the entrance; recovery costs one extra move. */
+/** Defeat returns the player to the entrance; recovery costs one move. */
 export function recoverAtEntrance(save: GameSave): GameSave {
   const run = save.run;
   if (!run || run.phase !== "defeated") return save;
+  const moves = Math.min(MOVES_PER_EVENT, run.moves + 1);
   return {
     ...save,
     maps: {
@@ -134,8 +162,8 @@ export function recoverAtEntrance(save: GameSave): GameSave {
       ...run,
       hp: run.maxHp,
       enemyHp: 0,
-      moves: run.moves + 1,
-      phase: "rest",
+      moves,
+      phase: moves >= MOVES_PER_EVENT ? "rest" : "path",
       answerDeadline: null,
       answerSeconds: null,
     },

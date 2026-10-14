@@ -50,7 +50,7 @@ const trial: EnemyBalanceSimulation = {
   enemies: [{ index: 1, quiz_count: 1, hp: 5, attack: 12, relations: 0 }],
 };
 const trials = [{ id: "trial", name: "試算 1", simulation: trial }];
-const userPoints = { hp: 2, attack: 8, defense: 1, seconds: 2 };
+const userPoints = { hp: 2, mp: 0, attack: 8, defense: 1, seconds: 2 };
 const server = setupServer(
   http.post(
     "*/admin/settings/game-balance/simulate-combat",
@@ -332,7 +332,7 @@ it("loads real points and edits only the disposable player before starting", asy
   await user.clear(attack);
   await user.type(attack, "9");
   expect(
-    screen.getByText(/プレイヤー: HP 70 · 攻 28 · 守 2 · 51秒/),
+    screen.getByText(/プレイヤー: HP 70 · MP 10 · 攻 28 · 守 2 · 51秒/),
   ).toBeVisible();
   await user.click(
     screen.getByRole("button", { name: "現在の設定で模擬戦を開始" }),

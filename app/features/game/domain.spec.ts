@@ -5,6 +5,7 @@ import {
   enterDungeon,
   move,
   newSave,
+  recoverAtEntrance,
   resumeEvent,
 } from "./domain";
 
@@ -68,6 +69,40 @@ describe("adventure rules", () => {
     expect(answer(save, true)).toBe(save);
     const peaceful = move(entered(), "s", 0.9);
     expect(move(peaceful, "s", 0.9)).toBe(peaceful);
+  });
+  it("recovery spends one move and resumes exploration when moves remain", () => {
+    const base = entered();
+    if (!base.run) throw new Error("Expected run");
+    const defeated = {
+      ...base,
+      run: {
+        ...base.run,
+        hp: 0,
+        moves: 2,
+        phase: "defeated" as const,
+      },
+    };
+    const recovered = recoverAtEntrance(defeated);
+    expect(recovered.run?.hp).toBe(recovered.run?.maxHp);
+    expect(recovered.run?.moves).toBe(3);
+    expect(recovered.run?.phase).toBe("path");
+  });
+  it("uses the last move for recovery and never exceeds the event move limit", () => {
+    const base = entered();
+    if (!base.run) throw new Error("Expected run");
+    const recovered = recoverAtEntrance({
+      ...base,
+      run: { ...base.run, hp: 0, moves: 4, phase: "defeated" },
+    });
+    expect(recovered.run?.moves).toBe(5);
+    expect(recovered.run?.phase).toBe("rest");
+
+    const alreadySpent = recoverAtEntrance({
+      ...base,
+      run: { ...base.run, hp: 0, moves: 5, phase: "defeated" },
+    });
+    expect(alreadySpent.run?.moves).toBe(5);
+    expect(alreadySpent.run?.phase).toBe("rest");
   });
   it("continues a cleared lap from the same place without healing or resetting moves", () => {
     let save = entered();

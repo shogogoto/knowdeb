@@ -55,6 +55,7 @@ export default function ExplorationMap({
   remainingMoves,
   recoveryStatus,
   playerStatus,
+  bossControl,
   children,
 }: {
   map: DungeonMap;
@@ -84,6 +85,7 @@ export default function ExplorationMap({
   remainingMoves?: number;
   recoveryStatus?: ReactNode;
   playerStatus?: ReactNode;
+  bossControl?: ReactNode;
   children?: ReactNode;
 }) {
   const [fullscreen, setFullscreen] = useState(false);
@@ -636,6 +638,7 @@ export default function ExplorationMap({
               map.places.find((place) => place.id === map.current)?.region
             }
           />
+          {bossControl}
           <Button
             size="icon"
             variant="ghost"

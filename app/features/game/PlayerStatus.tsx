@@ -1,4 +1,4 @@
-import { Heart, Shield, Swords } from "lucide-react";
+import { Heart, Shield, Swords, WandSparkles } from "lucide-react";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import type { Run } from "./domain";
@@ -54,6 +54,10 @@ export default function PlayerStatus({
         <span className="flex items-center gap-1">
           <Heart className="size-4 text-rose-400" />
           HP {run.hp}/{run.maxHp}
+        </span>
+        <span className="flex items-center gap-1">
+          <WandSparkles className="size-4 text-violet-400" />
+          MP {run.mp ?? 0}/{run.maxMp ?? 0}
         </span>
         <span className="flex items-center gap-1">
           <Swords className="size-4" />攻 {run.attack}

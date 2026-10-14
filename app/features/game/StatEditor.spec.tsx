@@ -45,3 +45,22 @@ it("blocks allocation and reset during battle", () => {
   expect(screen.getByRole("button", { name: "振り直す" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "割り振りを保存" })).toBeDisabled();
 });
+
+it("allocates the same point budget to MP and previews the admin's coefficient", async () => {
+  render(
+    <StatEditor
+      level={2}
+      balance={{ ...defaultBalance, base_mp: 12, mp_per_point: 5 }}
+      inBattle={false}
+      onSaved={vi.fn()}
+    />,
+  );
+  const user = userEvent.setup();
+  await user.click(
+    screen.getByRole("button", { name: "最大MPにポイントを割り振る" }),
+  );
+  expect(screen.getByText("17")).toBeVisible();
+  expect(screen.getByLabelText("未使用の育成ポイント")).toHaveTextContent(
+    /2\s*\/\s*3/,
+  );
+});

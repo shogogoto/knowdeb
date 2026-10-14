@@ -1,4 +1,4 @@
-import { BookOpen, Coins, PackageOpen } from "lucide-react";
+import { BookOpen, Coins, Crown, PackageOpen } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import useSWR, { useSWRConfig } from "swr";
@@ -29,6 +29,8 @@ import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import { useGetLearningProgressUserUserIdLearningProgressGet } from "~/shared/generated/gamification/gamification";
 import { tanbunDetailCache } from "~/shared/lib/indexed";
 import BattleDialog from "./BattleDialog";
+import BossPanel from "./BossPanel";
+import EconomyPanel from "./EconomyPanel";
 import ExplorationMap from "./Map";
 import MultiBattle from "./MultiBattle";
 import { useGameMusic } from "./MusicControls";
@@ -106,10 +108,15 @@ export function GamePlay({
   const revision = useRef(0);
   const { menu: routeMenu } = useParams();
   const panel =
-    routeMenu === "status" || routeMenu === "item" ? routeMenu : undefined;
+    routeMenu === "status" ||
+    routeMenu === "item" ||
+    routeMenu === "shop" ||
+    routeMenu === "boss"
+      ? routeMenu
+      : undefined;
   const navigate = useNavigate();
   const location = useLocation();
-  function openPanel(panel: "status" | "item") {
+  function openPanel(panel: "status" | "item" | "shop" | "boss") {
     void navigate(`/game/${panel}`, { state: { gamePanelFromMap: true } });
   }
   function closePanel() {
@@ -496,7 +503,7 @@ export function GamePlay({
         );
         return;
       }
-      if (sentenceId !== ENTRANCE) await markTanbunSeen(sentenceId);
+      if (sentenceId !== ENTRANCE) await markTanbunSeen(sentenceId, true);
       const next = move(explored, sentenceId, Math.random());
       if (next.run?.phase === "battle" && pool.length) {
         const enemy = pool[Math.floor(Math.random() * pool.length)];
@@ -604,7 +611,11 @@ export function GamePlay({
         ));
       if (!loaded.knowledge.length)
         throw new Error("このダンジョンには探索できる知識がありません。");
-      const stats = playerStats(save.allocation, balance ?? defaultBalance);
+      const stats = playerStats(
+        save.allocation,
+        balance ?? defaultBalance,
+        save.economy?.weapon_attack,
+      );
       if (entering.run)
         entering = {
           ...entering,
@@ -648,7 +659,11 @@ export function GamePlay({
         run.name,
         level ?? 1,
       );
-      const stats = playerStats(save.allocation, balance ?? defaultBalance);
+      const stats = playerStats(
+        save.allocation,
+        balance ?? defaultBalance,
+        save.economy?.weapon_attack,
+      );
       if (restarting.run)
         restarting.run = { ...restarting.run, ...stats, hp: stats.maxHp };
       await update({ ...restarting, content }, true);
@@ -674,6 +689,29 @@ export function GamePlay({
         cause instanceof Error
           ? cause.message
           : "回復場所へ移動できませんでした。",
+      );
+    } finally {
+      pendingMove.current = false;
+      setBusy(false);
+    }
+  }
+  async function challengeBoss(level: number) {
+    if (busy || pendingMove.current || !run) return;
+    pendingMove.current = true;
+    setBusy(true);
+    setError(undefined);
+    try {
+      const started = await gameRequest<import("./state").GameState>(
+        "battle/boss",
+        { revision: revision.current, level },
+      );
+      localBattle.current = started.save.battle?.id ?? null;
+      applyState(started);
+      closePanel();
+      await retryCombat();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "ボスへ挑戦できませんでした。",
       );
     } finally {
       pendingMove.current = false;
@@ -713,7 +751,11 @@ export function GamePlay({
       const next =
         entering.run?.phase === "rest" ? resumeEvent(entering) : entering;
       if (!run && next.run && !parked) {
-        const stats = playerStats(save.allocation, balance ?? defaultBalance);
+        const stats = playerStats(
+          save.allocation,
+          balance ?? defaultBalance,
+          save.economy?.weapon_attack,
+        );
         next.run = { ...next.run, ...stats, hp: stats.maxHp };
       }
       await update(
@@ -1100,13 +1142,25 @@ export function GamePlay({
                     (item) => ({ from: item.sourceId, to: item.resourceId }),
                   )}
                   onDungeon={(id) => void switchDungeon(id)}
+                  bossControl={
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => openPanel("boss")}
+                    >
+                      <Crown className="size-4" />
+                      ボス
+                    </Button>
+                  }
                   onRestart={
                     run.phase === "defeated" && access.data?.available
                       ? () => void restartAtEntrance()
                       : undefined
                   }
                   canTravel={(id) =>
-                    (id === RECOVERY && run.phase === "defeated") ||
+                    (id === RECOVERY &&
+                      run.phase === "defeated" &&
+                      run.moves < MOVES_PER_EVENT) ||
                     run.phase === "path" ||
                     (run.phase === "cleared" && run.moves < MOVES_PER_EVENT) ||
                     (id === ENTRANCE &&
@@ -1187,13 +1241,16 @@ export function GamePlay({
                       >
                         <PackageOpen aria-hidden="true" className="size-4" />
                       </Button>
-                      <span
-                        aria-label="所持ゴールド 0"
-                        title="所持ゴールド"
-                        className="flex h-7 shrink-0 items-center gap-1 rounded-md px-1 text-xs tabular-nums text-amber-400 sm:h-8 sm:px-1.5"
+                      <button
+                        type="button"
+                        onClick={() => openPanel("shop")}
+                        aria-label={`所持ゴールド ${save.economy?.gold ?? 0}`}
+                        title="ショップを開く"
+                        className="flex min-h-7 shrink-0 items-center gap-1 rounded-md px-1 text-xs tabular-nums text-amber-400 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring sm:min-h-8 sm:px-1.5"
                       >
-                        <Coins aria-hidden="true" className="size-4" />0
-                      </span>
+                        <Coins aria-hidden="true" className="size-4" />
+                        {save.economy?.gold ?? 0}
+                      </button>
                     </div>
                   }
                   candidates={
@@ -1296,10 +1353,24 @@ export function GamePlay({
                     </>
                   ) : !feedback && run.phase === "rest" ? (
                     <div className="rounded-lg border p-4 space-y-3">
-                      <h3 className="font-semibold">今回の冒険はここまで</h3>
+                      <h3 className="font-semibold">歩数を使い切りました</h3>
                       <p className="text-sm text-muted-foreground">
-                        HP・撃破数を引き継いで次の冒険へ。ダンジョン内では回復しません。
+                        今日の見たよを完了すると、1日1回、歩数回復薬がもらえます。
                       </p>
+                      <div className="flex flex-wrap gap-2">
+                        <Button asChild variant="outline">
+                          <Link to="/review?preset=default">復習へ</Link>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => openPanel("item")}
+                        >
+                          歩数回復薬を使う
+                          {save.economy?.inventory.step_potion
+                            ? ` (${save.economy.inventory.step_potion})`
+                            : ""}
+                        </Button>
+                      </div>
                       <Button
                         disabled={!canStart}
                         onClick={() => void startEvent()}
@@ -1344,8 +1415,23 @@ export function GamePlay({
                     <div aria-live="polite" className="rounded-lg border p-4">
                       <h3 className="font-semibold">冒険失敗</h3>
                       <p className="mt-2 text-sm">
-                        入口へ戻りました。マップの回復場所へ移動すると、1歩使ってHPが全回復します。冒険の再開には次の冒険権が必要です。復習履歴とXPは失われません。
+                        {run.moves < MOVES_PER_EVENT
+                          ? "入口へ戻りました。回復場所で1歩使ってHPを回復し、残り歩数で探索を続けられます。"
+                          : "入口へ戻りました。歩数の回復を待つか、復習で歩数回復薬を獲得できます。"}
                       </p>
+                      {run.moves >= MOVES_PER_EVENT && (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button asChild variant="outline">
+                            <Link to="/review?preset=default">復習へ</Link>
+                          </Button>
+                          <Button
+                            variant="outline"
+                            onClick={() => openPanel("item")}
+                          >
+                            アイテムを使う
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   ) : null}
                 </ExplorationMap>
@@ -1408,14 +1494,49 @@ export function GamePlay({
         >
           <DialogHeader>
             <DialogTitle>
-              {panel === "item" ? "アイテム" : "ステータス"}
+              {panel === "boss"
+                ? "ボス"
+                : panel === "shop"
+                  ? "ショップ"
+                  : panel === "item"
+                    ? "アイテム"
+                    : "ステータス"}
             </DialogTitle>
             <DialogDescription>
-              {panel === "item"
-                ? "武器・アイテム機能は今後追加予定です。"
-                : "育成ポイントを割り振れます。振り直しは無料です。"}
+              {panel === "boss"
+                ? "達成度5ごとに挑戦できます。撃破すると専門分野が開放されます。"
+                : panel === "item" || panel === "shop"
+                  ? "ゴールドで購入して、所持品から装備・使用できます。"
+                  : "育成ポイントを割り振れます。振り直しは無料です。"}
             </DialogDescription>
           </DialogHeader>
+          {panel === "boss" && (
+            <BossPanel
+              save={save}
+              busy={busy}
+              error={error}
+              onChallenge={(level) => void challengeBoss(level)}
+            />
+          )}
+          {(panel === "item" || panel === "shop") && stateLoaded && (
+            <EconomyPanel
+              userId={userId}
+              save={save}
+              revision={revision.current}
+              shop={panel === "shop"}
+              disabled={busy || Boolean(feedback) || run?.phase === "battle"}
+              onSaved={(state) => {
+                applyState(state);
+                void retryCombat();
+              }}
+              onTab={(next) => {
+                void navigate(`/game/${next}`, {
+                  replace: true,
+                  state: location.state,
+                });
+              }}
+            />
+          )}
           {panel === "status" && (
             <>
               <div className="flex items-center gap-2">
@@ -1431,6 +1552,7 @@ export function GamePlay({
                   balance={balance ?? defaultBalance}
                   inBattle={run?.phase === "battle"}
                   currentHp={run?.hp}
+                  weaponAttack={save.economy?.weapon_attack}
                   onSaved={applyState}
                 />
               )}

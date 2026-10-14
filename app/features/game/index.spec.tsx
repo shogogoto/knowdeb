@@ -41,6 +41,12 @@ vi.mock("~/features/auth/AuthProvider", async (importOriginal) => ({
   useAuth: () => ({ user: { uid: "player" }, isAuthenticated: true }),
 }));
 const server = setupServer(
+  http.get("*/game/shop", () =>
+    HttpResponse.json({
+      products: [],
+      review: { day: "2026-10-14", done: 0, total: 30, claimed: false },
+    }),
+  ),
   http.get("*/game/dungeons/:resource/preparation", () =>
     HttpResponse.json({ prepared_regions: 0, target_regions: 0 }),
   ),
@@ -569,7 +575,7 @@ it("records seen knowledge and a batch turn, then retreats after remount without
   expect(
     await screen.findByRole("heading", { name: /敵と遭遇/ }),
   ).toBeInTheDocument();
-  expect(markTanbunSeen).toHaveBeenCalledWith("sentence");
+  expect(markTanbunSeen).toHaveBeenCalledWith("sentence", true);
   expect(state.save.content?.regionEnemies?.[0]).toEqual([
     {
       id: "book:0:enemy:0",
@@ -720,7 +726,9 @@ it.each([false, true])(
     await user.click(increase);
     await user.click(screen.getByRole("button", { name: "割り振りを保存" }));
     await screen.findByText("現在HP 35/50");
-    expect(requests).toEqual([{ hp: 3, attack: 0, defense: 0, seconds: 0 }]);
+    expect(requests).toEqual([
+      { hp: 3, mp: 0, attack: 0, defense: 0, seconds: 0 },
+    ]);
     fireEvent.click(
       screen.getByRole("button", { name: "ブラウザで戻る", hidden: true }),
     );
@@ -766,8 +774,29 @@ it.each(["/game/status", "/game/status/"])(
 it("opens the item URL directly", async () => {
   renderGame("/game/item/");
   expect(
-    await screen.findByText(/武器・アイテム機能は今後追加予定/),
+    await screen.findByText(/所持品から装備・使用できます/),
   ).toBeInTheDocument();
+});
+
+it("opens the shop from the gold HUD while keeping the map mounted", async () => {
+  state = {
+    revision: 1,
+    save: {
+      ...enterDungeon(newSave(), "book", "本", 1),
+      economy: { gold: 120, inventory: {}, weapon: null, weapon_attack: 0 },
+    },
+  };
+  renderGame();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "所持ゴールド 120" }),
+  );
+  expect(await screen.findByRole("dialog", { name: "ショップ" })).toBeVisible();
+  expect(screen.getByTestId("pathname")).toHaveTextContent("/game/shop");
+  await user.click(screen.getByRole("button", { name: "所持品" }));
+  expect(screen.getByTestId("pathname")).toHaveTextContent("/game/item");
+  await user.keyboard("{Escape}");
+  expect(screen.getByTestId("pathname")).toHaveTextContent("/game");
 });
 
 it("shows the item box and gold beside the map player status", async () => {
@@ -897,7 +926,7 @@ it("accepts a prepared hex quiz ID when the displayed quiz ID has hyphens", asyn
     await screen.findByRole("button", { name: "見たよ · この道へ" }),
   );
   await waitFor(() => expect(state.save.run?.moves).toBe(1));
-  expect(markTanbunSeen).toHaveBeenCalledWith("sentence");
+  expect(markTanbunSeen).toHaveBeenCalledWith("sentence", true);
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
 });
 
@@ -949,7 +978,7 @@ it("hydrates fixed population quizzes missing from recommendations before spendi
     "quiz",
     "fixed-pool-quiz",
   ]);
-  expect(markTanbunSeen).toHaveBeenCalledWith("sentence");
+  expect(markTanbunSeen).toHaveBeenCalledWith("sentence", true);
 });
 
 it("does not spend moves or record seen knowledge when population hydration fails", async () => {
