@@ -35,6 +35,7 @@ import ExplorationMap from "./Map";
 import MultiBattle from "./MultiBattle";
 import { useGameMusic } from "./MusicControls";
 import PlayerStatus from "./PlayerStatus";
+import ReviewRewards from "./ReviewRewards";
 import StatEditor from "./StatEditor";
 import { useAdventureAccess } from "./access";
 import {
@@ -1219,6 +1220,37 @@ export function GamePlay({
                   title={run.name}
                   remainingMoves={Math.max(0, MOVES_PER_EVENT - run.moves)}
                   recoveryStatus={recoveryStatus}
+                  exhaustedMessage={
+                    !feedback &&
+                    run.moves >= MOVES_PER_EVENT &&
+                    (run.phase === "rest" || run.phase === "defeated") ? (
+                      <div className="space-y-3">
+                        <h3 className="font-semibold">歩数を使い切りました</h3>
+                        <ReviewRewards userId={userId} />
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            variant="outline"
+                            onClick={() => openPanel("item")}
+                          >
+                            歩数回復薬を使う
+                            {save.economy?.inventory.step_potion
+                              ? ` (${save.economy.inventory.step_potion})`
+                              : ""}
+                          </Button>
+                          {run.phase === "rest" && (
+                            <Button
+                              disabled={!canStart}
+                              onClick={() => void startEvent()}
+                            >
+                              {!access.data?.available && remainingMinutes
+                                ? `あと${remainingMinutes}分`
+                                : "冒険を再開"}
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ) : undefined
+                  }
                   status={
                     <p className="text-xs text-muted-foreground">
                       撃破 {run.kills}/{ENEMIES_TO_CLEAR}
@@ -1360,36 +1392,9 @@ export function GamePlay({
                           </p>
                         )}
                     </>
-                  ) : !feedback && run.phase === "rest" ? (
-                    <div className="rounded-lg border p-4 space-y-3">
-                      <h3 className="font-semibold">歩数を使い切りました</h3>
-                      <p className="text-sm text-muted-foreground">
-                        今日の見たよを完了すると、1日1回、歩数回復薬がもらえます。
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        <Button asChild variant="outline">
-                          <Link to="/review?preset=default">復習へ</Link>
-                        </Button>
-                        <Button
-                          variant="outline"
-                          onClick={() => openPanel("item")}
-                        >
-                          歩数回復薬を使う
-                          {save.economy?.inventory.step_potion
-                            ? ` (${save.economy.inventory.step_potion})`
-                            : ""}
-                        </Button>
-                      </div>
-                      <Button
-                        disabled={!canStart}
-                        onClick={() => void startEvent()}
-                      >
-                        {!access.data?.available && remainingMinutes
-                          ? `あと${remainingMinutes}分`
-                          : "冒険を再開"}
-                      </Button>
-                    </div>
-                  ) : !feedback && run.phase === "defeated" ? (
+                  ) : !feedback &&
+                    run.phase === "defeated" &&
+                    run.moves < MOVES_PER_EVENT ? (
                     <div aria-live="polite" className="rounded-lg border p-4">
                       <h3 className="font-semibold">冒険失敗</h3>
                       <p className="mt-2 text-sm">
@@ -1397,19 +1402,6 @@ export function GamePlay({
                           ? "入口へ戻りました。回復場所で1歩使ってHPを回復し、残り歩数で探索を続けられます。"
                           : "入口へ戻りました。歩数の回復を待つか、復習で歩数回復薬を獲得できます。"}
                       </p>
-                      {run.moves >= MOVES_PER_EVENT && (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                          <Button asChild variant="outline">
-                            <Link to="/review?preset=default">復習へ</Link>
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => openPanel("item")}
-                          >
-                            アイテムを使う
-                          </Button>
-                        </div>
-                      )}
                     </div>
                   ) : null}
                 </ExplorationMap>

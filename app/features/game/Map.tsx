@@ -56,6 +56,7 @@ export default function ExplorationMap({
   recoveryStatus,
   playerStatus,
   bossControl,
+  exhaustedMessage,
   children,
 }: {
   map: DungeonMap;
@@ -86,6 +87,7 @@ export default function ExplorationMap({
   recoveryStatus?: ReactNode;
   playerStatus?: ReactNode;
   bossControl?: ReactNode;
+  exhaustedMessage?: ReactNode;
   children?: ReactNode;
 }) {
   const [fullscreen, setFullscreen] = useState(false);
@@ -730,110 +732,116 @@ export default function ExplorationMap({
             矢印：地点を選ぶ · Enter：移動・切替 · Esc：選択解除 · f：全画面
           </p>
         </div>
-        {selected && (
+        {exhaustedMessage ? (
           <section
-            aria-label="選択した地点"
-            onKeyDown={(event) => {
-              if (event.key !== "Escape") return;
-              event.preventDefault();
-              event.stopPropagation();
-              closeSelection();
-            }}
-            className="pointer-events-auto relative max-h-[35dvh] w-full overflow-y-auto rounded-xl border bg-background/95 p-3 shadow-xl sm:max-w-lg"
+            aria-label="歩数回復の案内"
+            className="pointer-events-auto max-h-[35dvh] w-full overflow-y-auto rounded-xl border bg-background/95 p-3 shadow-xl sm:max-w-lg"
           >
-            <Button
-              size="icon"
-              variant="ghost"
-              className="absolute right-1 top-1"
-              aria-label="地点の選択を閉じる"
-              onClick={closeSelection}
+            {exhaustedMessage}
+          </section>
+        ) : (
+          selected && (
+            <section
+              aria-label="選択した地点"
+              onKeyDown={(event) => {
+                if (event.key !== "Escape") return;
+                event.preventDefault();
+                event.stopPropagation();
+                closeSelection();
+              }}
+              className="pointer-events-auto relative max-h-[35dvh] w-full overflow-y-auto rounded-xl border bg-background/95 p-3 shadow-xl sm:max-w-lg"
             >
-              <X className="size-4" />
-            </Button>
-            <div className="pr-8">
-              {candidate && (
-                <p className="mb-2 text-xs text-muted-foreground">
-                  未探索 · 領域{" "}
-                  {Math.floor(map.places.length / PLACES_PER_REGION) + 1}
+              <Button
+                size="icon"
+                variant="ghost"
+                className="absolute right-1 top-1"
+                aria-label="地点の選択を閉じる"
+                onClick={closeSelection}
+              >
+                <X className="size-4" />
+              </Button>
+              <div className="pr-8">
+                {candidate && (
+                  <p className="mb-2 text-xs text-muted-foreground">
+                    未探索 · 領域{" "}
+                    {Math.floor(map.places.length / PLACES_PER_REGION) + 1}
+                  </p>
+                )}
+                {selectedDungeon ? (
+                  <h3 className="font-medium">{selectedDungeon.name}</h3>
+                ) : selected === RECOVERY ? (
+                  <h3 className="font-medium">回復場所</h3>
+                ) : (
+                  <PathTerms knowledge={chosen} />
+                )}
+                {unavailableIds.includes(selected) && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    現在利用できない単文です。開拓履歴は保持されています。
+                  </p>
+                )}
+                <p className="mt-2 text-sm leading-relaxed">
+                  {selectedDungeon
+                    ? "ダンジョンへ移動"
+                    : selected === RECOVERY
+                      ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
+                      : selected === ENTRANCE
+                        ? "ダンジョンの入口"
+                        : (chosen?.sentence ?? "単文詳細を開く")}
                 </p>
-              )}
-              {selectedDungeon ? (
-                <h3 className="font-medium">{selectedDungeon.name}</h3>
-              ) : selected === RECOVERY ? (
-                <h3 className="font-medium">回復場所</h3>
-              ) : (
-                <PathTerms knowledge={chosen} />
-              )}
-              {unavailableIds.includes(selected) && (
-                <p className="mt-2 text-xs text-muted-foreground">
-                  現在利用できない単文です。開拓履歴は保持されています。
-                </p>
-              )}
-              <p className="mt-2 text-sm leading-relaxed">
-                {selectedDungeon
-                  ? "ダンジョンへ移動"
-                  : selected === RECOVERY
-                    ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
-                    : selected === ENTRANCE
-                      ? "ダンジョンの入口"
-                      : (chosen?.sentence ?? "単文詳細を開く")}
-              </p>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {selectedDungeon && (
-                <Button
-                  ref={primaryAction}
-                  disabled={disabled}
-                  onClick={() => onDungeon?.(selectedDungeon.id)}
-                >
-                  このダンジョンへ移動
-                </Button>
-              )}
-              {canMove && (
-                <Button
-                  size="sm"
-                  ref={primaryAction}
-                  className="min-h-11 flex-1"
-                  onClick={() => {
-                    if (selected === ENTRANCE && onRestart) onRestart();
-                    else onMove(selected, candidate?.kind);
-                  }}
-                  aria-label={
-                    selected === RECOVERY
-                      ? "回復場所へ移動・1歩"
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {selectedDungeon && (
+                  <Button
+                    ref={primaryAction}
+                    disabled={disabled}
+                    onClick={() => onDungeon?.(selectedDungeon.id)}
+                  >
+                    このダンジョンへ移動
+                  </Button>
+                )}
+                {canMove && (
+                  <Button
+                    size="sm"
+                    ref={primaryAction}
+                    className="min-h-11 flex-1"
+                    onClick={() => {
+                      if (selected === ENTRANCE && onRestart) onRestart();
+                      else onMove(selected, candidate?.kind);
+                    }}
+                    aria-label={
+                      selected === RECOVERY
+                        ? "回復場所へ移動・1歩"
+                        : selected === ENTRANCE && onRestart
+                          ? "冒険を再開"
+                          : candidate
+                            ? undefined
+                            : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
+                    }
+                  >
+                    {selected === RECOVERY
+                      ? "回復場所へ · 1歩"
                       : selected === ENTRANCE && onRestart
                         ? "冒険を再開"
                         : candidate
-                          ? undefined
-                          : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
-                  }
-                >
-                  {selected === RECOVERY
-                    ? "回復場所へ · 1歩"
-                    : selected === ENTRANCE && onRestart
-                      ? "冒険を再開"
-                      : candidate
-                        ? candidate.kind === "detour" &&
-                          map.current !== ENTRANCE
-                          ? "見たよ · 寄り道へ"
-                          : "見たよ · この道へ"
-                        : "移動 · １歩"}
-                </Button>
-              )}
-              {!selectedDungeon &&
-                selected !== ENTRANCE &&
-                !unavailableIds.includes(selected) && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    ref={canMove ? undefined : primaryAction}
-                    onClick={() => onOpen(selected)}
-                  >
-                    詳細
+                          ? "進む"
+                          : "移動 · １歩"}
                   </Button>
                 )}
-            </div>
-          </section>
+                {!selectedDungeon &&
+                  selected !== ENTRANCE &&
+                  !unavailableIds.includes(selected) && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      ref={canMove ? undefined : primaryAction}
+                      onClick={() => onOpen(selected)}
+                    >
+                      詳細
+                    </Button>
+                  )}
+              </div>
+            </section>
+          )
         )}
       </div>
     </section>

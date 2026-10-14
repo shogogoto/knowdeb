@@ -1,6 +1,5 @@
 import { Coins, Footprints, Heart, Sword } from "lucide-react";
 import { useRef, useState } from "react";
-import { Link } from "react-router";
 import useSWR from "swr";
 import { Button } from "~/shared/components/ui/button";
 import { gameRequest } from "./battle";
@@ -22,8 +21,6 @@ type Shop = {
     level: number;
     quiz_count: number;
   }[];
-  review: { day: string; done: number; total: number; claimed: boolean };
-  quiz_review?: { day: string; done: number; total: number; claimed: boolean };
 };
 
 export default function EconomyPanel({
@@ -217,28 +214,6 @@ export default function EconomyPanel({
           戦闘が終わってから操作できます。
         </p>
       )}
-      <div className="rounded-lg border p-3 text-sm space-y-2">
-        <p className="font-medium">今日の見たよ → 歩数回復薬 ×1</p>
-        <p className="text-muted-foreground">
-          {data?.review.claimed
-            ? "今日の報酬は受け取り済み"
-            : data?.review.total
-              ? `${data.review.done} / ${data.review.total}`
-              : "「今日」の復習を始めると対象が決まります。"}
-        </p>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/review?preset=default">復習へ</Link>
-        </Button>
-        <p className="font-medium">今日の復習クイズ20問 → 歩数回復薬 ×1</p>
-        <p className="text-muted-foreground">
-          {data?.quiz_review?.claimed
-            ? "今日の報酬は受け取り済み"
-            : `${Math.min(20, data?.quiz_review?.done ?? 0)} / 20`}
-        </p>
-        <Button asChild variant="outline" size="sm">
-          <Link to="/review?view=quiz&preset=default">クイズを解く</Link>
-        </Button>
-      </div>
     </div>
   );
 }

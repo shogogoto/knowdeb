@@ -376,9 +376,7 @@ it("keeps a delayed quiz refresh through a move and merges it without losing pro
   await user.click(
     await screen.findByRole("button", { name: /未探索.*進路の用語/ }),
   );
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   await waitFor(() => expect(state.save.run?.moves).toBe(1));
   finish({
     ...content,
@@ -432,7 +430,7 @@ it("refreshes a candidate deleted after display without spending moves or resett
   await user.click(
     await screen.findByRole("button", { name: /未探索.*進路の用語/ }),
   );
-  const confirm = screen.getByRole("button", { name: "見たよ · この道へ" });
+  const confirm = screen.getByRole("button", { name: "進む" });
   await waitFor(() => expect(confirm).toBeEnabled());
   vi.mocked(markTanbunSeen).mockRejectedValueOnce(
     Object.assign(new Error("単文が見つかりません"), { status: 404 }),
@@ -524,6 +522,22 @@ it.each([
     expect(state.save.clears.book).toBe(1);
     expect(state.save.maps?.book.current).toBe("sentence");
     expect(consumeCount).toBe(0);
+    if (phase === "rest") {
+      const message = screen.getByRole("region", { name: "歩数回復の案内" });
+      expect(
+        within(message).getByRole("link", { name: "復習へ" }),
+      ).toHaveAttribute("href", "/review?preset=default");
+      expect(
+        within(message).getByRole("link", { name: "クイズを解く" }),
+      ).toHaveAttribute("href", "/review?view=quiz&preset=default");
+      expect(
+        screen.queryByRole("region", { name: "選択した地点" }),
+      ).not.toBeInTheDocument();
+    } else {
+      expect(
+        screen.queryByRole("region", { name: "歩数回復の案内" }),
+      ).not.toBeInTheDocument();
+    }
     view.unmount();
     renderGame();
     await screen.findByText("HP 20/35");
@@ -574,9 +588,7 @@ it("records seen knowledge and a batch turn, then retreats after remount without
   const view = renderGame();
   const user = await enter();
   expect(consumeCount).toBe(1);
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   expect(
     await screen.findByRole("heading", { name: /敵と遭遇/ }),
   ).toBeInTheDocument();
@@ -879,9 +891,7 @@ it("does not advance when the seen API fails", async () => {
   vi.mocked(markTanbunSeen).mockRejectedValue(new Error("記録失敗"));
   renderGame();
   const user = await enter();
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   expect(await screen.findByRole("alert")).toHaveTextContent("記録失敗");
   expect(state.save.run).toMatchObject({ phase: "path", moves: 0 });
 });
@@ -897,9 +907,7 @@ it("does not spend a move or record knowledge if the server roster is missing", 
   });
   renderGame();
   const user = await enter();
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "領域の敵を読み込めませんでした",
   );
@@ -927,9 +935,7 @@ it("accepts a prepared hex quiz ID when the displayed quiz ID has hyphens", asyn
   });
   renderGame();
   const user = await enter();
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   await waitFor(() => expect(state.save.run?.moves).toBe(1));
   expect(markTanbunSeen).toHaveBeenCalledWith("sentence", true);
   expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -968,9 +974,7 @@ it("hydrates fixed population quizzes missing from recommendations before spendi
     .mockResolvedValueOnce({ ...pool, quizzes: [preparedQuiz] });
   renderGame();
   const user = await enter();
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   await waitFor(() => expect(state.save.run?.moves).toBe(1));
   expect(loadDungeonRegionQuizPool).toHaveBeenNthCalledWith(
     2,
@@ -998,9 +1002,7 @@ it("does not spend moves or record seen knowledge when population hydration fail
   vi.mocked(loadDungeonRegionQuizPool).mockResolvedValue(pool);
   renderGame();
   const user = await enter();
-  await user.click(
-    await screen.findByRole("button", { name: "見たよ · この道へ" }),
-  );
+  await user.click(await screen.findByRole("button", { name: "進む" }));
   expect(await screen.findByRole("alert")).toHaveTextContent(
     "領域1のクイズを取得できませんでした",
   );

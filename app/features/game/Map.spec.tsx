@@ -331,7 +331,7 @@ it("shows unexplored candidates on the map and moves only after confirmation", a
   await user.click(screen.getByRole("button", { name: /未探索.*用語C/ }));
   expect(onMove).not.toHaveBeenCalled();
   expect(screen.getByText("新しい単文")).toBeVisible();
-  await user.click(screen.getByRole("button", { name: "見たよ · この道へ" }));
+  await user.click(screen.getByRole("button", { name: "進む" }));
   expect(onMove).toHaveBeenCalledWith("c", "relation");
 });
 it("enters app fullscreen, supports Escape, and restores focus without moving", async () => {

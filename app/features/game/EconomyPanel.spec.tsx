@@ -72,7 +72,7 @@ it("purchases with the displayed state's revision and applies the returned balan
   });
   expect(onSaved).toHaveBeenCalledWith(result);
 });
-it("uses an owned step potion and offers a review link", async () => {
+it("uses an owned step potion without showing review tasks in the inventory", async () => {
   show(false);
   const name = await screen.findByText("歩数回復薬");
   const row = name.closest("div.flex");
@@ -84,10 +84,9 @@ it("uses an owned step potion and offers a review link", async () => {
     revision: 7,
     product_id: "step_potion",
   });
-  expect(screen.getByRole("link", { name: "復習へ" })).toHaveAttribute(
-    "href",
-    "/review?preset=default",
-  );
+  expect(
+    screen.queryByRole("link", { name: "復習へ" }),
+  ).not.toBeInTheDocument();
 });
 it("disables purchases during battle", async () => {
   show(true, true);
