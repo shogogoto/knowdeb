@@ -4,6 +4,7 @@ import {
   render,
   screen,
   waitFor,
+  within,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
@@ -14,7 +15,9 @@ import { vi } from "vitest";
 import MultiBattle from "./MultiBattle";
 import type { DungeonContent } from "./api";
 import { type BattleTransport, type TurnInput, defaultBalance } from "./battle";
+import * as battleSound from "./battleSound";
 import { type GameSave, enterDungeon, newSave } from "./domain";
+import { setMusicPreferences } from "./music";
 
 vi.mock("~/features/quiz/QuizPreviewPrompt", () => ({
   default: () => <p>解答後の詳細プレビュー</p>,
@@ -89,6 +92,8 @@ afterEach(() => {
 });
 
 it("automatically processes unanswered damage at the selected tempo without advancing the turn", async () => {
+  setMusicPreferences({ enabled: false });
+  const playSound = vi.spyOn(battleSound, "playBattleSound");
   server.use(
     http.post("*/game/battle/turn", async ({ request }) => {
       requests.push((await request.json()) as TurnInput);
@@ -107,6 +112,10 @@ it("automatically processes unanswered damage at the selected tempo without adva
   render(<Fixture deadline={Date.now() + 30} />);
   await screen.findByRole("button", { name: "結果を処理 · 1/2" });
   vi.useFakeTimers();
+  const dialog = screen.getByRole("dialog", { name: "敵と遭遇" });
+  const bgm = within(dialog).getByRole("button", { name: "BGM" });
+  fireEvent.click(bgm);
+  expect(bgm).toHaveAttribute("aria-pressed", "true");
   fireEvent.change(screen.getByRole("combobox", { name: "戦闘テンポ" }), {
     target: { value: "fast" },
   });
@@ -126,6 +135,8 @@ it("automatically processes unanswered damage at the selected tempo without adva
   expect(
     screen.getByRole("progressbar", { name: "プレイヤーHP" }),
   ).toHaveAttribute("aria-valuenow", "30");
+  fireEvent.click(bgm);
+  expect(bgm).toHaveAttribute("aria-pressed", "false");
   await act(async () => {
     await vi.advanceTimersByTimeAsync(500);
   });
@@ -134,10 +145,12 @@ it("automatically processes unanswered damage at the selected tempo without adva
     screen.getByRole("progressbar", { name: "プレイヤーHP" }),
   ).toHaveAttribute("aria-valuenow", "24");
   expect(screen.getByRole("button", { name: "続ける" })).toBeEnabled();
+  expect(playSound).toHaveBeenCalledTimes(1);
   await act(async () => {
     await vi.advanceTimersByTimeAsync(5000);
   });
   expect(requests).toHaveLength(1);
+  playSound.mockRestore();
 });
 afterAll(() => server.close());
 const content: DungeonContent = {
