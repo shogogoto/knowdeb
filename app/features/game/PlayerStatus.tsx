@@ -27,7 +27,7 @@ export default function PlayerStatus({
           aria-valuenow={run.hp}
           aria-valuemin={0}
           aria-valuemax={run.maxHp}
-          className="h-1.5 w-16 overflow-hidden rounded-full bg-sky-500/15"
+          className="h-1.5 w-8 overflow-hidden rounded-full bg-sky-500/15 sm:w-16"
         >
           <div
             className="h-full bg-sky-500"

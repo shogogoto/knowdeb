@@ -1,4 +1,4 @@
-import { BookOpen } from "lucide-react";
+import { BookOpen, Coins, PackageOpen } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import useSWR, { useSWRConfig } from "swr";
@@ -1162,20 +1162,39 @@ export function GamePlay({
                     </p>
                   }
                   playerStatus={
-                    <Button
-                      variant="ghost"
-                      onClick={() => openPanel("status")}
-                      aria-label="プレイヤーのステータス・育成ポイントを開く"
-                      title="ステータス・育成ポイント"
-                      className="-mx-3 -my-2 flex min-h-11 items-center rounded-lg px-3 py-2 outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    >
-                      <PlayerStatus
-                        compact
-                        run={run}
-                        name={playerName}
-                        player={player}
-                      />
-                    </Button>
+                    <div className="flex min-w-0 items-center gap-0.5 sm:gap-1">
+                      <Button
+                        variant="ghost"
+                        onClick={() => openPanel("status")}
+                        aria-label="プレイヤーのステータス・育成ポイントを開く"
+                        title="ステータス・育成ポイント"
+                        className="-mx-3 -my-2 flex min-h-11 min-w-0 items-center rounded-lg px-3 py-2 outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      >
+                        <PlayerStatus
+                          compact
+                          run={run}
+                          name={playerName}
+                          player={player}
+                        />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openPanel("item")}
+                        aria-label="アイテムボックスを開く"
+                        title="アイテムボックス"
+                        className="size-7 shrink-0 sm:size-8"
+                      >
+                        <PackageOpen aria-hidden="true" className="size-4" />
+                      </Button>
+                      <span
+                        aria-label="所持ゴールド 0"
+                        title="所持ゴールド"
+                        className="flex h-7 shrink-0 items-center gap-1 rounded-md px-1 text-xs tabular-nums text-amber-400 sm:h-8 sm:px-1.5"
+                      >
+                        <Coins aria-hidden="true" className="size-4" />0
+                      </span>
+                    </div>
                   }
                   candidates={
                     !feedback && run.phase === "path"

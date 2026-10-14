@@ -677,7 +677,7 @@ export default function ExplorationMap({
       {playerStatus && (
         <div
           aria-label="プレイヤー情報"
-          className="absolute left-3 top-16 max-w-[calc(50%-1.125rem)] rounded-lg border bg-background/95 px-3 py-2 shadow-lg"
+          className="absolute left-3 top-16 max-w-[calc(100%-9rem)] rounded-lg border bg-background/95 px-2 py-1.5 shadow-lg sm:max-w-[calc(50%-1.125rem)] sm:px-3 sm:py-2"
         >
           {playerStatus}
         </div>
