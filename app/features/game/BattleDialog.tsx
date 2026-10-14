@@ -21,6 +21,7 @@ export default function BattleDialog({
   player,
   children,
   footer,
+  headerControls,
   busy,
   enemyPanel,
   simulation = false,
@@ -32,6 +33,7 @@ export default function BattleDialog({
   player?: UserReadPublic;
   children: ReactNode;
   footer?: ReactNode;
+  headerControls?: ReactNode;
   busy: boolean;
   enemyPanel?: ReactNode;
   simulation?: boolean;
@@ -172,7 +174,8 @@ export default function BattleDialog({
           }}
         >
           <DialogHeader className="shrink-0 pr-20 text-left">
-            <div className="absolute right-10 top-2 sm:top-3">
+            <div className="absolute right-10 top-2 flex items-center gap-1 sm:top-3">
+              {headerControls}
               <MusicControls />
             </div>
             <DialogTitle className="flex items-center gap-2">

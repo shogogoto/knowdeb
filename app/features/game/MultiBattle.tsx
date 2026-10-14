@@ -26,6 +26,7 @@ import {
 } from "./battle";
 import { playBattleSound } from "./battleSound";
 import type { GameSave } from "./domain";
+import { musicPreferences } from "./music";
 import type { GameState } from "./state";
 import useBattleTempo, { type BattleTempo } from "./useBattleTempo";
 
@@ -87,7 +88,6 @@ export default function MultiBattle({
   const resultStartHp = useRef(run?.hp ?? 0);
   const [incomingProcessed, setIncomingProcessed] = useState(0);
   const tempo = useBattleTempo();
-  const [soundEnabled, setSoundEnabled] = useState(true);
   const [turnDamageByEnemy, setTurnDamageByEnemy] = useState<
     Record<string, number>
   >({});
@@ -256,11 +256,10 @@ export default function MultiBattle({
   if (!battle || !run) return null;
   const displayed = live[active] ?? live[0];
   const tempoControl = (
-    <label className="flex items-center gap-2 text-sm">
-      テンポ
+    <label className="flex items-center" title="戦闘テンポ">
       <select
         aria-label="戦闘テンポ"
-        className="rounded-md border bg-background p-1"
+        className="h-8 w-14 rounded-md border bg-background px-1 text-sm"
         value={tempo.tempo}
         disabled={tempo.saving}
         onChange={(event) =>
@@ -342,10 +341,10 @@ export default function MultiBattle({
       playerName={playerName}
       busy={busy}
       enemyPanel={enemyPanel}
+      headerControls={tempoControl}
       footer={
         !result && (
           <div className="flex flex-wrap items-center gap-3">
-            {tempoControl}
             <Button
               variant="outline"
               disabled={busy || !!retry}
@@ -413,16 +412,6 @@ export default function MultiBattle({
                   ? "全ての結果を処理しました"
                   : "戦闘結果を確認してください"}
             </p>
-            {tempoControl}
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              aria-pressed={soundEnabled}
-              onClick={() => setSoundEnabled((enabled) => !enabled)}
-            >
-              効果音 {soundEnabled ? "オン" : "オフ"}
-            </Button>
           </div>
           {tempo.error && (
             <p role="alert" className="text-sm text-destructive">
@@ -515,7 +504,8 @@ export default function MultiBattle({
                       ...effect,
                     },
                   }));
-                  if (soundEnabled) playBattleSound(true, effect.level);
+                  if (musicPreferences().enabled)
+                    playBattleSound(true, effect.level);
                 } else {
                   const damage = result.incoming_damage?.[id];
                   if (damage !== undefined) {
@@ -525,7 +515,7 @@ export default function MultiBattle({
                       [id]: { damage, level: 1, label: "被ダメージ" },
                     }));
                   }
-                  if (soundEnabled) playBattleSound(false);
+                  if (musicPreferences().enabled) playBattleSound(false);
                 }
                 const nextIndex = resultIndex + 1;
                 setResultIndex(nextIndex);
