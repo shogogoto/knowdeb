@@ -528,6 +528,9 @@ it("settles unanswered timeout through practice only and reports it separately",
   await screen.findByRole("timer");
   const now = Date.now();
   vi.spyOn(Date, "now").mockReturnValue(now + 60000);
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
+  );
   await screen.findByText("模擬ターン精算");
   await user.click(screen.getByRole("button", { name: "続ける" }));
   const row = within(

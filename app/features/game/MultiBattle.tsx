@@ -27,6 +27,7 @@ import {
 import { playBattleSound } from "./battleSound";
 import type { GameSave } from "./domain";
 import type { GameState } from "./state";
+import useBattleTempo, { type BattleTempo } from "./useBattleTempo";
 
 export default function MultiBattle({
   save,
@@ -82,6 +83,10 @@ export default function MultiBattle({
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<TurnResult>();
   const [resultIndex, setResultIndex] = useState(0);
+  const processedIndex = useRef(0);
+  const resultStartHp = useRef(run?.hp ?? 0);
+  const [incomingProcessed, setIncomingProcessed] = useState(0);
+  const tempo = useBattleTempo();
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [turnDamageByEnemy, setTurnDamageByEnemy] = useState<
     Record<string, number>
@@ -113,12 +118,26 @@ export default function MultiBattle({
       quizIndex: quizIndices?.[enemy.id] ?? enemy.quizIndex,
     }));
   const currentHp = remainingHp(hp, live);
-  const resultIds = result
-    ? live
-        .filter((enemy) => enemy.id in result.results)
-        .map((enemy) => enemy.id)
-    : [];
+  const resultIds = result ? live.map((enemy) => enemy.id) : [];
   const nextResultId = resultIds[resultIndex];
+  const delay =
+    context.balance[`battle_tempo_${tempo.tempo}_seconds`] ??
+    {
+      slow: 3,
+      medium: 1,
+      fast: 0.5,
+    }[tempo.tempo];
+  useEffect(() => {
+    if (!result || !nextResultId || busy) return;
+    const index = processedIndex.current;
+    const advance = () => {
+      if (processedIndex.current !== index) return;
+      if (resultAdvance.current) resultAdvance.current.click();
+      else timer = setTimeout(advance, 100);
+    };
+    let timer = setTimeout(advance, delay * 1000);
+    return () => clearTimeout(timer);
+  }, [result, nextResultId, busy, delay]);
   const stats = playerStats(save.allocation, context.balance);
   const focusAnswerChoice = useCallback(
     (direction: "first" | "last" = "first") => {
@@ -203,11 +222,13 @@ export default function MultiBattle({
       settledTurn.current = damageKey;
       setResult(resolved);
       setResultIndex(0);
+      processedIndex.current = 0;
+      resultStartHp.current = run.hp;
+      setIncomingProcessed(0);
       setTurnDamageByEnemy(damageByEnemy);
       setHitEffects({});
       setRetry(undefined);
       retryDamage.current = undefined;
-      if (Object.keys(resolved.results).length === 0) onSaved(resolved.state);
     } catch (cause) {
       setRetry(request);
       setError(
@@ -234,6 +255,24 @@ export default function MultiBattle({
   });
   if (!battle || !run) return null;
   const displayed = live[active] ?? live[0];
+  const tempoControl = (
+    <label className="flex items-center gap-2 text-sm">
+      テンポ
+      <select
+        aria-label="戦闘テンポ"
+        className="rounded-md border bg-background p-1"
+        value={tempo.tempo}
+        disabled={tempo.saving}
+        onChange={(event) =>
+          void tempo.change(event.target.value as BattleTempo)
+        }
+      >
+        <option value="slow">遅</option>
+        <option value="medium">中</option>
+        <option value="fast">速</option>
+      </select>
+    </label>
+  );
   const enemyPanel = (
     <div
       className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
@@ -289,20 +328,37 @@ export default function MultiBattle({
   );
   return (
     <BattleDialog
-      run={{ ...run, ...stats, hp: Math.min(run.hp, stats.maxHp) }}
+      run={{
+        ...run,
+        ...stats,
+        hp: Math.min(
+          result
+            ? Math.max(0, resultStartHp.current - incomingProcessed)
+            : run.hp,
+          stats.maxHp,
+        ),
+      }}
       player={player}
       playerName={playerName}
       busy={busy}
       enemyPanel={enemyPanel}
       footer={
         !result && (
-          <Button
-            variant="outline"
-            disabled={busy || !!retry}
-            onClick={() => void submitTurn(true)}
-          >
-            撤退する
-          </Button>
+          <div className="flex flex-wrap items-center gap-3">
+            {tempoControl}
+            <Button
+              variant="outline"
+              disabled={busy || !!retry}
+              onClick={() => void submitTurn(true)}
+            >
+              撤退する
+            </Button>
+            {tempo.error && (
+              <p role="alert" className="text-sm text-destructive">
+                {tempo.error}
+              </p>
+            )}
+          </div>
         )
       }
       simulation={simulation}
@@ -357,6 +413,7 @@ export default function MultiBattle({
                   ? "全ての結果を処理しました"
                   : "戦闘結果を確認してください"}
             </p>
+            {tempoControl}
             <Button
               type="button"
               size="sm"
@@ -367,6 +424,11 @@ export default function MultiBattle({
               効果音 {soundEnabled ? "オン" : "オフ"}
             </Button>
           </div>
+          {tempo.error && (
+            <p role="alert" className="text-sm text-destructive">
+              {tempo.error}
+            </p>
+          )}
           {!nextResultId && <output>{result.state.save.battleFeedback}</output>}
           {resultIds.map((id, index) => {
             const enemy = live.find((item) => item.id === id);
@@ -389,11 +451,21 @@ export default function MultiBattle({
                 >
                   <p className="font-medium">
                     {enemy.name} ·{" "}
-                    {processed ? (correct ? "正解" : "不正解") : "未処理"}
+                    {processed
+                      ? correct
+                        ? "正解"
+                        : id in answers
+                          ? "不正解"
+                          : "未回答"
+                      : "未処理"}
                   </p>
                   {processed && hitEffects[id] && (
                     <p
-                      aria-label={`${enemy.name}へのダメージ`}
+                      aria-label={
+                        correct
+                          ? `${enemy.name}へのダメージ`
+                          : `${enemy.name}からプレイヤーへのダメージ`
+                      }
                       className={`motion-safe:animate-in motion-safe:zoom-in-95 motion-safe:slide-in-from-top-2 duration-500 ${
                         [
                           "text-sm text-muted-foreground",
@@ -422,6 +494,8 @@ export default function MultiBattle({
             data-battle-advance
             onClick={() => {
               if (nextResultId) {
+                if (processedIndex.current > resultIndex) return;
+                processedIndex.current = resultIndex + 1;
                 const id = nextResultId;
                 if (result.results[id]) {
                   const damage = turnDamageByEnemy[id] ?? 0;
@@ -442,12 +516,24 @@ export default function MultiBattle({
                     },
                   }));
                   if (soundEnabled) playBattleSound(true, effect.level);
-                } else if (soundEnabled) {
-                  playBattleSound(false);
+                } else {
+                  const damage = result.incoming_damage?.[id];
+                  if (damage !== undefined) {
+                    setIncomingProcessed((current) => current + damage);
+                    setHitEffects((current) => ({
+                      ...current,
+                      [id]: { damage, level: 1, label: "被ダメージ" },
+                    }));
+                  }
+                  if (soundEnabled) playBattleSound(false);
                 }
                 const nextIndex = resultIndex + 1;
                 setResultIndex(nextIndex);
-                if (nextIndex >= resultIds.length) onSaved(result.state);
+                if (nextIndex >= resultIds.length) {
+                  if (!result.incoming_damage)
+                    setIncomingProcessed(result.damage);
+                  onSaved(result.state);
+                }
                 return;
               }
               if (!save.battle) {

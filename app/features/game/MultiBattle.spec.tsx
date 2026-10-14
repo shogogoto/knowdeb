@@ -1,4 +1,10 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
@@ -77,8 +83,61 @@ beforeEach(() => {
   );
 });
 afterEach(() => {
+  vi.useRealTimers();
   server.resetHandlers();
   vi.restoreAllMocks();
+});
+
+it("automatically processes unanswered damage at the selected tempo without advancing the turn", async () => {
+  server.use(
+    http.post("*/game/battle/turn", async ({ request }) => {
+      requests.push((await request.json()) as TurnInput);
+      const save = initial();
+      save.battle = null;
+      if (save.run) save.run.hp = 24;
+      save.battleFeedback = "精算完了";
+      return HttpResponse.json({
+        state: { revision: 2, save },
+        results: {},
+        damage: 11,
+        incoming_damage: { enemy0: 5, enemy1: 6 },
+      });
+    }),
+  );
+  render(<Fixture deadline={Date.now() + 30} />);
+  await screen.findByRole("button", { name: "結果を処理 · 1/2" });
+  vi.useFakeTimers();
+  fireEvent.change(screen.getByRole("combobox", { name: "戦闘テンポ" }), {
+    target: { value: "fast" },
+  });
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(499);
+  });
+  expect(
+    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
+  ).toHaveAttribute("aria-valuenow", "35");
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(1);
+  });
+  expect(screen.getByText("敵0 · 未回答")).toBeVisible();
+  expect(
+    screen.getByLabelText("敵0からプレイヤーへのダメージ"),
+  ).toHaveTextContent("5ダメージ");
+  expect(
+    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
+  ).toHaveAttribute("aria-valuenow", "30");
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(500);
+  });
+  expect(screen.getByText("敵1 · 未回答")).toBeVisible();
+  expect(
+    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
+  ).toHaveAttribute("aria-valuenow", "24");
+  expect(screen.getByRole("button", { name: "続ける" })).toBeEnabled();
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(5000);
+  });
+  expect(requests).toHaveLength(1);
 });
 afterAll(() => server.close());
 const content: DungeonContent = {
@@ -258,6 +317,11 @@ it("seals the timed-out turn and retries the same payload", async () => {
   await userEvent
     .setup()
     .click(screen.getByRole("button", { name: "精算を再試行" }));
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
+  );
+  await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
   await screen.findByText("ターン精算完了");
   expect(requests).toHaveLength(2);
   expect(requests[1]).toEqual(requests[0]);

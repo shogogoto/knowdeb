@@ -38,6 +38,9 @@ export const defaultBalance = {
   damage_attack_multiplier: 1,
   damage_defense_divisor: 2,
   damage_variance_percent: 20,
+  battle_tempo_slow_seconds: 3,
+  battle_tempo_medium_seconds: 1,
+  battle_tempo_fast_seconds: 0.5,
   damage_effect_threshold_1: -50,
   damage_effect_threshold_2: 50,
   damage_effect_threshold_3: 75,
@@ -74,6 +77,7 @@ export type TurnResult = {
   state: GameState;
   results: Record<string, boolean>;
   damage: number;
+  incoming_damage?: Record<string, number>;
 };
 
 export function rollPlayerDamage(

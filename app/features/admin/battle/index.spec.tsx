@@ -62,6 +62,32 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 afterAll(() => server.close());
+it("saves tempo seconds and rejects an inverted speed order", async () => {
+  render(<BattleSettingsManager />);
+  const user = userEvent.setup();
+  const slow = await screen.findByLabelText("遅（秒）");
+  const medium = screen.getByLabelText("中（秒）");
+  const fast = screen.getByLabelText("速（秒）");
+  expect(slow).toHaveValue(3);
+  expect(medium).toHaveValue(1);
+  expect(fast).toHaveValue(0.5);
+  await user.clear(fast);
+  await user.type(fast, "2");
+  await user.click(screen.getAllByRole("button", { name: "保存" })[0]);
+  expect(saved).not.toHaveBeenCalled();
+  expect(
+    await screen.findByText("戦闘テンポは遅・中・速の順に短くしてください。"),
+  ).toBeVisible();
+  await user.clear(fast);
+  await user.type(fast, "0.7");
+  await user.click(screen.getAllByRole("button", { name: "保存" })[0]);
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0]).toMatchObject({
+    battle_tempo_slow_seconds: 3,
+    battle_tempo_medium_seconds: 1,
+    battle_tempo_fast_seconds: 0.7,
+  });
+});
 it("saves player time and live enemy corrections without quiz-type weights", async () => {
   render(<BattleSettingsManager />);
   const user = userEvent.setup();

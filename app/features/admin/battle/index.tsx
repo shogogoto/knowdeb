@@ -39,6 +39,9 @@ const fields = {
     0.1,
   ],
   damage_variance_percent: ["ダメージの乱数幅（±%）", 0, 50, 1],
+  battle_tempo_slow_seconds: ["遅（秒）", 0.1, 10, 0.1],
+  battle_tempo_medium_seconds: ["中（秒）", 0.1, 10, 0.1],
+  battle_tempo_fast_seconds: ["速（秒）", 0.1, 10, 0.1],
   enemy_types: ["領域ごとの敵の種類数", 1, 20, 1],
   enemy_types_per_region: ["領域が進むごとの種類数の増加", 0, 20, 1],
   quizzes_per_enemy_coefficient: ["達成度あたりの固定クイズ数", 0.1, 5, 0.1],
@@ -65,6 +68,14 @@ const formulaLabels: Partial<Record<keyof typeof fields, string>> = {
   encounter_growth_rate: "増加率",
 };
 const groups = [
+  {
+    label: "戦闘結果の表示テンポ",
+    keys: [
+      "battle_tempo_slow_seconds",
+      "battle_tempo_medium_seconds",
+      "battle_tempo_fast_seconds",
+    ],
+  },
   {
     label: "プレイヤーの初期値",
     keys: ["base_hp", "base_attack", "base_defense", "base_seconds"],
@@ -206,6 +217,17 @@ export default function BattleSettingsManager() {
                 setSaved(false);
                 if (settings.min_enemies > settings.max_encounter_enemies) {
                   setError("下限は上限以下にしてください。");
+                  return;
+                }
+                if (
+                  !(
+                    settings.battle_tempo_fast_seconds <=
+                      settings.battle_tempo_medium_seconds &&
+                    settings.battle_tempo_medium_seconds <=
+                      settings.battle_tempo_slow_seconds
+                  )
+                ) {
+                  setError("戦闘テンポは遅・中・速の順に短くしてください。");
                   return;
                 }
                 const thresholds = effectThresholdKeys.map(
