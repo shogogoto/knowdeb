@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import AuthGuard from "~/features/auth/AuthGuard";
 import QuizSession from "~/features/quiz/QuizSession";
+import { ContainedTanbunPreviews } from "~/features/tanbun/detail/Preview";
 import {
   type SwipeGesture,
   finishSwipeGesture,
@@ -36,86 +37,88 @@ export default function Review() {
     );
   }, [active]);
   return (
-    <AuthGuard>
-      <section
-        className="mx-auto min-h-[65vh] w-full max-w-5xl p-2 pb-8 sm:p-3"
-        onTouchStart={(event) => {
-          const touch = event.touches[0];
-          gesture.current =
-            event.target instanceof Element &&
-            event.target.closest("[data-dashboard-swipe-ignore]")
-              ? undefined
-              : touch
-                ? startSwipeGesture(touch.clientX, touch.clientY)
-                : undefined;
-        }}
-        onTouchMove={(event) => {
-          const touch = event.touches[0];
-          if (gesture.current && touch)
-            gesture.current = lockSwipeAxis(
-              gesture.current,
+    <ContainedTanbunPreviews value={true}>
+      <AuthGuard>
+        <section
+          className="mx-auto min-h-[65vh] w-full max-w-5xl p-2 pb-8 sm:p-3"
+          onTouchStart={(event) => {
+            const touch = event.touches[0];
+            gesture.current =
+              event.target instanceof Element &&
+              event.target.closest("[data-dashboard-swipe-ignore]")
+                ? undefined
+                : touch
+                  ? startSwipeGesture(touch.clientX, touch.clientY)
+                  : undefined;
+          }}
+          onTouchMove={(event) => {
+            const touch = event.touches[0];
+            if (gesture.current && touch)
+              gesture.current = lockSwipeAxis(
+                gesture.current,
+                touch.clientX,
+                touch.clientY,
+              );
+          }}
+          onTouchEnd={(event) => {
+            const current = gesture.current;
+            const touch = event.changedTouches[0];
+            gesture.current = undefined;
+            if (!current || !touch) return;
+            const direction = finishSwipeGesture(
+              current,
               touch.clientX,
               touch.clientY,
             );
-        }}
-        onTouchEnd={(event) => {
-          const current = gesture.current;
-          const touch = event.changedTouches[0];
-          gesture.current = undefined;
-          if (!current || !touch) return;
-          const direction = finishSwipeGesture(
-            current,
-            touch.clientX,
-            touch.clientY,
-          );
-          if (
-            (direction === "left" && active === "knowledge") ||
-            (direction === "right" && active === "quiz")
-          ) {
-            setParams((previous) => {
-              const next = new URLSearchParams(previous);
-              if (direction === "left") next.set("view", "quiz");
-              else next.delete("view");
-              return next;
-            });
-          }
-        }}
-        onTouchCancel={() => {
-          gesture.current = undefined;
-        }}
-      >
-        {plan && <PlanReviewProgress plan={plan} />}
-        {targetPending && <output>学習計画を読み込み中…</output>}
-        {(targetMissing || (requestedResource && plansError)) && (
-          <p role="alert">
-            このリソースの学習計画を取得できませんでした。復習対象を選び直してください。
-          </p>
-        )}
-        {!targetPending &&
-          !targetMissing &&
-          !(requestedResource && plansError) &&
-          rendered.has("knowledge") && (
-            <div hidden={active !== "knowledge"}>
-              <PersonalTimeline
-                key={`${profile}:${selectedDay}`}
-                profile={profile}
-                selectedDay={selectedDay}
-              />
-            </div>
+            if (
+              (direction === "left" && active === "knowledge") ||
+              (direction === "right" && active === "quiz")
+            ) {
+              setParams((previous) => {
+                const next = new URLSearchParams(previous);
+                if (direction === "left") next.set("view", "quiz");
+                else next.delete("view");
+                return next;
+              });
+            }
+          }}
+          onTouchCancel={() => {
+            gesture.current = undefined;
+          }}
+        >
+          {plan && <PlanReviewProgress plan={plan} />}
+          {targetPending && <output>学習計画を読み込み中…</output>}
+          {(targetMissing || (requestedResource && plansError)) && (
+            <p role="alert">
+              このリソースの学習計画を取得できませんでした。復習対象を選び直してください。
+            </p>
           )}
-        {!targetPending &&
-          !targetMissing &&
-          !(requestedResource && plansError) &&
-          rendered.has("quiz") && (
-            <div hidden={active !== "quiz"}>
-              {planId ? (
-                <QuizSession key={planId} planId={planId} />
-              ) : (
-                <QuizTimeline profile={preset} selectedDay={selectedDay} />
-              )}
-            </div>
-          )}
-      </section>
-    </AuthGuard>
+          {!targetPending &&
+            !targetMissing &&
+            !(requestedResource && plansError) &&
+            rendered.has("knowledge") && (
+              <div hidden={active !== "knowledge"}>
+                <PersonalTimeline
+                  key={`${profile}:${selectedDay}`}
+                  profile={profile}
+                  selectedDay={selectedDay}
+                />
+              </div>
+            )}
+          {!targetPending &&
+            !targetMissing &&
+            !(requestedResource && plansError) &&
+            rendered.has("quiz") && (
+              <div hidden={active !== "quiz"}>
+                {planId ? (
+                  <QuizSession key={planId} planId={planId} />
+                ) : (
+                  <QuizTimeline profile={preset} selectedDay={selectedDay} />
+                )}
+              </div>
+            )}
+        </section>
+      </AuthGuard>
+    </ContainedTanbunPreviews>
   );
 }
