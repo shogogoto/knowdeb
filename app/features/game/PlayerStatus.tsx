@@ -13,26 +13,61 @@ export default function PlayerStatus({
     return (
       <div
         aria-label="プレイヤー"
-        className="mt-1 flex items-center gap-2 text-xs tabular-nums"
+        className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-2 gap-y-1 text-xs tabular-nums"
       >
-        <UserAvatar user={player} className="size-6 shrink-0" />
-        <Heart className="size-3 text-rose-400" />
-        <span>
-          HP {run.hp}/{run.maxHp}
-        </span>
-        <div
-          role="progressbar"
-          tabIndex={-1}
-          aria-label="プレイヤーHP"
-          aria-valuenow={run.hp}
-          aria-valuemin={0}
-          aria-valuemax={run.maxHp}
-          className="h-1.5 w-8 overflow-hidden rounded-full bg-sky-500/15 sm:w-16"
-        >
-          <div
-            className="h-full bg-sky-500"
-            style={{ width: `${Math.min(100, (run.hp / run.maxHp) * 100)}%` }}
-          />
+        <UserAvatar
+          user={player}
+          className="row-span-2 size-6 shrink-0 self-center"
+        />
+        <div className="grid min-w-0 gap-1">
+          <div className="flex min-w-0 items-center gap-1">
+            <Heart className="size-3 shrink-0 text-rose-400" />
+            <span className="shrink-0">
+              HP {run.hp}/{run.maxHp}
+            </span>
+            <div
+              role="progressbar"
+              tabIndex={-1}
+              aria-label="プレイヤーHP"
+              aria-valuenow={run.hp}
+              aria-valuemin={0}
+              aria-valuemax={run.maxHp}
+              className="h-1.5 min-w-6 flex-1 overflow-hidden rounded-full bg-sky-500/15 sm:min-w-10"
+            >
+              <div
+                className="h-full bg-sky-500"
+                style={{
+                  width: `${Math.min(100, (run.hp / run.maxHp) * 100)}%`,
+                }}
+              />
+            </div>
+          </div>
+          <div className="flex min-w-0 items-center gap-1">
+            <WandSparkles className="size-3 shrink-0 text-violet-400" />
+            <span className="shrink-0">
+              MP {run.mp ?? 0}/{run.maxMp ?? 0}
+            </span>
+            <div
+              role="progressbar"
+              tabIndex={-1}
+              aria-label="プレイヤーMP"
+              aria-valuenow={run.mp ?? 0}
+              aria-valuemin={0}
+              aria-valuemax={run.maxMp ?? 0}
+              className="h-1.5 min-w-6 flex-1 overflow-hidden rounded-full bg-violet-500/15 sm:min-w-10"
+            >
+              <div
+                className="h-full bg-violet-500"
+                style={{
+                  width: `${
+                    (run.maxMp ?? 0) > 0
+                      ? Math.min(100, ((run.mp ?? 0) / (run.maxMp ?? 1)) * 100)
+                      : 0
+                  }%`,
+                }}
+              />
+            </div>
+          </div>
         </div>
       </div>
     );
