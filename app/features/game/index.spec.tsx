@@ -484,49 +484,54 @@ it("revalidates restored knowledge and leaves stale visited places in history bu
   expect(markTanbunSeen).not.toHaveBeenCalled();
 });
 
-it("persists continuing a completed lap without spending another adventure right", async () => {
-  const save = enterDungeon(newSave(), "book", "テストの本", 1);
-  if (!save.run) throw new Error("Expected run");
-  state = {
-    revision: 1,
-    save: {
-      ...save,
-      clears: { book: 1 },
-      content: await loadDungeon("book"),
-      run: {
-        ...save.run,
-        phase: "cleared",
-        hp: 20,
-        moves: 3,
-        kills: 3,
-        readIds: ["sentence"],
-      },
-      maps: {
-        book: {
-          current: "sentence",
-          places: [{ id: "sentence", region: 0 }],
-          edges: [{ from: "@entrance", to: "sentence", kind: "detour" }],
+it.each([
+  { moves: 3, phase: "path" },
+  { moves: 5, phase: "rest" },
+])(
+  "automatically continues a completed lap with $moves moves spent",
+  async ({ moves, phase }) => {
+    const save = enterDungeon(newSave(), "book", "テストの本", 1);
+    if (!save.run) throw new Error("Expected run");
+    state = {
+      revision: 1,
+      save: {
+        ...save,
+        clears: { book: 1 },
+        content: await loadDungeon("book"),
+        run: {
+          ...save.run,
+          phase: "cleared",
+          hp: 20,
+          moves,
+          kills: 3,
+          readIds: ["sentence"],
+        },
+        maps: {
+          book: {
+            current: "sentence",
+            places: [{ id: "sentence", region: 0 }],
+            edges: [{ from: "@entrance", to: "sentence", kind: "detour" }],
+          },
         },
       },
-    },
-  };
-  available = false;
-  const view = renderGame();
-  await userEvent
-    .setup()
-    .click(await screen.findByRole("button", { name: "探索を続ける" }));
-  await waitFor(() => expect(state.save.run?.phase).toBe("path"));
-  expect(state.save.run?.hp).toBe(20);
-  expect(state.save.run?.moves).toBe(3);
-  expect(state.save.maps?.book.current).toBe("sentence");
-  expect(consumeCount).toBe(0);
-  view.unmount();
-  renderGame();
-  await screen.findByText("HP 20/35");
-  expect(
-    screen.queryByRole("button", { name: "探索を続ける" }),
-  ).not.toBeInTheDocument();
-});
+    };
+    available = false;
+    const view = renderGame();
+    await waitFor(() => expect(state.save.run?.phase).toBe(phase));
+    expect(state.save.run?.hp).toBe(20);
+    expect(state.save.run?.moves).toBe(moves);
+    expect(state.save.run?.kills).toBe(0);
+    expect(state.save.clears.book).toBe(1);
+    expect(state.save.maps?.book.current).toBe("sentence");
+    expect(consumeCount).toBe(0);
+    view.unmount();
+    renderGame();
+    await screen.findByText("HP 20/35");
+    expect(
+      screen.queryByRole("button", { name: "探索を続ける" }),
+    ).not.toBeInTheDocument();
+  },
+);
 
 function HistoryControls() {
   const location = useLocation();

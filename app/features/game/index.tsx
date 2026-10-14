@@ -300,15 +300,21 @@ export function GamePlay({
       )
         return;
       void requestGameState()
-        .then(async (state) =>
-          state.save.battle || state.save.run?.phase === "battle"
-            ? gameRequest<import("./state").GameState>(
-                "battle/abandon",
-                {},
-                "POST",
-              )
-            : state,
-        )
+        .then(async (state) => {
+          if (state.save.battle || state.save.run?.phase === "battle")
+            return gameRequest<import("./state").GameState>(
+              "battle/abandon",
+              {},
+              "POST",
+            );
+          const continued = continueExploring(state.save);
+          if (continued !== state.save)
+            return requestGameState({
+              revision: state.revision,
+              save: continued,
+            });
+          return state;
+        })
         .then((state) => {
           if (!active) return;
           revision.current = state.revision;
@@ -341,9 +347,12 @@ export function GamePlay({
   const update = useCallback(
     async (next: GameSave, consumeAccess = false) => {
       try {
+        const continued = continueExploring(next);
         const state = await requestGameState({
           revision: revision.current,
-          save: next.run ? { ...next, content: next.content ?? content } : next,
+          save: continued.run
+            ? { ...continued, content: continued.content ?? content }
+            : continued,
           consume_access: consumeAccess,
         });
         revision.current = state.revision;
@@ -1378,37 +1387,6 @@ export function GamePlay({
                         {!access.data?.available && remainingMinutes
                           ? `あと${remainingMinutes}分`
                           : "冒険を再開"}
-                      </Button>
-                    </div>
-                  ) : !feedback && run.phase === "cleared" ? (
-                    <div
-                      aria-live="polite"
-                      className="rounded-lg border border-emerald-500/50 bg-emerald-500/5 p-4"
-                    >
-                      <h3 className="font-semibold">ダンジョン攻略！</h3>
-                      <p className="mt-2 text-sm">
-                        攻略 {save.clears[run.resourceId]}周 ·
-                        現在地から探索を続けられます。
-                      </p>
-                      <Button
-                        className="mt-3"
-                        disabled={busy}
-                        onClick={() => {
-                          if (pendingMove.current) return;
-                          pendingMove.current = true;
-                          setBusy(true);
-                          setError(undefined);
-                          void update(continueExploring(save))
-                            .catch(() =>
-                              setError("探索の再開を保存できませんでした。"),
-                            )
-                            .finally(() => {
-                              pendingMove.current = false;
-                              setBusy(false);
-                            });
-                        }}
-                      >
-                        探索を続ける
                       </Button>
                     </div>
                   ) : !feedback && run.phase === "defeated" ? (

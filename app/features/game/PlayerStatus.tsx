@@ -115,6 +115,22 @@ export default function PlayerStatus({
           style={{ width: `${Math.min(100, (run.hp / run.maxHp) * 100)}%` }}
         />
       </div>
+      <div
+        role="progressbar"
+        tabIndex={-1}
+        aria-label="プレイヤーMP"
+        aria-valuenow={run.mp ?? 0}
+        aria-valuemin={0}
+        aria-valuemax={run.maxMp ?? 0}
+        className="h-2 overflow-hidden rounded-full bg-violet-500/15"
+      >
+        <div
+          className="h-full bg-violet-500 transition-[width]"
+          style={{
+            width: `${(run.maxMp ?? 0) > 0 ? Math.min(100, ((run.mp ?? 0) / (run.maxMp ?? 1)) * 100) : 0}%`,
+          }}
+        />
+      </div>
     </section>
   );
 }
