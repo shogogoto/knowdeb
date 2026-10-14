@@ -36,7 +36,8 @@ let stateLoadCount = 0;
 let automaticRecovery = false;
 let nextAvailableAt = Date.now() + 600000;
 let state: GameState = { revision: 0, save: newSave() };
-vi.mock("~/features/auth/AuthProvider", () => ({
+vi.mock("~/features/auth/AuthProvider", async (importOriginal) => ({
+  ...(await importOriginal()),
   useAuth: () => ({ user: { uid: "player" }, isAuthenticated: true }),
 }));
 const server = setupServer(
