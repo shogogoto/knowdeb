@@ -1,4 +1,5 @@
 import { type ReactNode, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useSWRConfig } from "swr";
 import { invalidateGamification } from "~/features/gamification/invalidate";
 import {
@@ -95,6 +96,10 @@ export default function QuizAttempt({
     try {
       const answeredChain = await answerQuiz(quiz.quiz_id, selected);
       setChain(answeredChain);
+      if (answeredChain.step_recovery_awarded)
+        toast.success(
+          "今日の復習クイズ20問達成！歩数回復薬を1個獲得しました。",
+        );
       void invalidateGamification(mutate, { preserveData: true }).catch(
         () => undefined,
       );

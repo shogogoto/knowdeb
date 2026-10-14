@@ -22,10 +22,10 @@ import type {
   AnswerHistoryItem,
   AnswerHistoryResult,
   ManagedQuiz as GeneratedManagedQuiz,
+  QuizChain as GeneratedQuizChain,
   HTTPValidationError,
   ListAnswerHistoryApiQuizAnswersGetParams,
   ManagedQuizResult,
-  QuizChain,
   QuizRecommendationResponse,
   QuizResourceStatus,
   ReadableQuiz,
@@ -40,7 +40,6 @@ export type {
   AnswerHistoryItem,
   AnswerHistoryResult,
   ListAnswerHistoryApiQuizAnswersGetParams,
-  QuizChain,
   QuizResourceStatus,
   ReadableQuiz,
   ResourceLearningStatus,
@@ -50,6 +49,9 @@ export type {
   StudyPlanDraft,
 };
 export type QuizType = StudyPlanDraft["quiz_types"][number];
+export type QuizChain = GeneratedQuizChain & {
+  step_recovery_awarded?: boolean;
+};
 export type ManagedQuiz = GeneratedManagedQuiz & {
   answered_today?: boolean;
   answered_in_set?: boolean;

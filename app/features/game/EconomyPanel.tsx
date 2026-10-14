@@ -23,6 +23,7 @@ type Shop = {
     quiz_count: number;
   }[];
   review: { day: string; done: number; total: number; claimed: boolean };
+  quiz_review?: { day: string; done: number; total: number; claimed: boolean };
 };
 
 export default function EconomyPanel({
@@ -227,6 +228,15 @@ export default function EconomyPanel({
         </p>
         <Button asChild variant="outline" size="sm">
           <Link to="/review?preset=default">復習へ</Link>
+        </Button>
+        <p className="font-medium">今日の復習クイズ20問 → 歩数回復薬 ×1</p>
+        <p className="text-muted-foreground">
+          {data?.quiz_review?.claimed
+            ? "今日の報酬は受け取り済み"
+            : `${Math.min(20, data?.quiz_review?.done ?? 0)} / 20`}
+        </p>
+        <Button asChild variant="outline" size="sm">
+          <Link to="/review?view=quiz&preset=default">クイズを解く</Link>
         </Button>
       </div>
     </div>

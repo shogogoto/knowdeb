@@ -33,6 +33,7 @@ export type GameSave = {
     weapon: string | null;
     weapon_attack: number;
     review_reward_day?: string | null;
+    quiz_reward_day?: string | null;
   };
   clears: Record<string, number>;
   bossClears?: Record<string, number[]>;
