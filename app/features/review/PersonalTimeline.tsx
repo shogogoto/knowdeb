@@ -259,7 +259,10 @@ export default function PersonalTimeline({
                 <KnowledgeCard
                   compact
                   uid={item.uid}
-                  onPreview={() => openPreview({ sentenceId: item.uid })}
+                  onPreview={() => {
+                    void markSeen(item);
+                    openPreview({ sentenceId: item.uid });
+                  }}
                   sentence={item.sentence}
                   termNames={item.term_names ?? []}
                   score={item.score ?? 0}
