@@ -50,11 +50,11 @@ it("aligns each region in a horizontal row even when old edges branch", () => {
   );
 });
 
-it("places other dungeons left of the entrance and navigates them with arrows and Enter", async () => {
+it("shows other dungeons and recovery at the entrance and navigates them", async () => {
   const travel = vi.fn();
   render(
     <ExplorationMap
-      map={map}
+      map={{ ...map, current: ENTRANCE }}
       knowledge={[]}
       dungeonId="book"
       dungeons={[{ id: "other", name: "別の本" }]}
@@ -64,7 +64,9 @@ it("places other dungeons left of the entrance and navigates them with arrows an
       disabled={false}
     />,
   );
-  const entrance = screen.getByRole("button", { name: /^入口入口$/ });
+  const entrance = screen.getByRole("button", {
+    name: /現在地 · 入口入口$/,
+  });
   const other = screen.getByRole("button", { name: "ダンジョン 別の本" });
   expect(Number.parseFloat(other.style.left)).toBeLessThan(
     Number.parseFloat(entrance.style.left),
@@ -78,6 +80,25 @@ it("places other dungeons left of the entrance and navigates them with arrows an
     screen.getByRole("button", { name: "このダンジョンへ移動" }),
   );
   expect(travel).toHaveBeenCalledWith("other");
+});
+
+it("hides other dungeons and recovery while away from the entrance", () => {
+  render(
+    <ExplorationMap
+      map={map}
+      knowledge={[]}
+      dungeonId="book"
+      dungeons={[{ id: "other", name: "別の本" }]}
+      onDungeon={vi.fn()}
+      onMove={vi.fn()}
+      onOpen={vi.fn()}
+      disabled={false}
+    />,
+  );
+  expect(
+    screen.queryByRole("button", { name: "ダンジョン 別の本" }),
+  ).toBeNull();
+  expect(screen.queryByRole("button", { name: "回復場所" })).toBeNull();
 });
 
 it("allows restarting from the entrance node itself when defeated there", async () => {

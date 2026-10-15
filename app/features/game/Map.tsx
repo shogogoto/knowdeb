@@ -180,11 +180,13 @@ export default function ExplorationMap({
     ]),
   );
   const allIds = [ENTRANCE, ...map.places.map((place) => place.id)];
+  const showEntranceFacilities = map.current === ENTRANCE;
   const fresh = candidates.filter(
     (item) => !allIds.includes(item.knowledge.uid),
   );
   const positions = new Map<string, { x: number; y: number }>();
-  const entranceX = 360 + Math.ceil(dungeons.length / 4) * 230;
+  const entranceX =
+    360 + (showEntranceFacilities ? Math.ceil(dungeons.length / 4) * 230 : 0);
   positions.set(ENTRANCE, { x: entranceX, y: 220 });
   const regionLengths = new Map<number, number>();
   for (const place of map.places) {
@@ -195,7 +197,7 @@ export default function ExplorationMap({
       y: 220 + place.region * 150,
     });
   }
-  positions.set(RECOVERY, { x: entranceX, y: 370 });
+  if (showEntranceFacilities) positions.set(RECOVERY, { x: entranceX, y: 370 });
   const frontier = explorationSource(map);
   const candidateRegion = Math.floor(map.places.length / PLACES_PER_REGION);
   for (const [index, item] of fresh.entries()) {
@@ -206,7 +208,10 @@ export default function ExplorationMap({
   }
   const worldId = (id: string) =>
     `@dungeon:${id.replaceAll("-", "").toLowerCase()}`;
-  for (const [index, dungeon] of dungeons.entries()) {
+  for (const [index, dungeon] of (showEntranceFacilities
+    ? dungeons
+    : []
+  ).entries()) {
     positions.set(worldId(dungeon.id), {
       x: entranceX - 230 * (Math.floor(index / 4) + 1),
       y: 220 + (index % 4) * 150,
@@ -381,7 +386,7 @@ export default function ExplorationMap({
               width={width}
               height={height}
             >
-              {dungeons.map((dungeon) => {
+              {(showEntranceFacilities ? dungeons : []).map((dungeon) => {
                 const from = positions.get(ENTRANCE);
                 const to = positions.get(worldId(dungeon.id));
                 return from && to ? (
@@ -397,23 +402,33 @@ export default function ExplorationMap({
                   />
                 ) : null;
               })}
-              {dungeonConnections.map((edge) => {
-                const from = worldPosition(edge.from);
-                const to = worldPosition(edge.to);
-                return from && to ? (
-                  <line
-                    key={`unlock-${edge.from}-${edge.to}`}
-                    x1={from.x + 80}
-                    y1={from.y + 38}
-                    x2={to.x + 80}
-                    y2={to.y + 38}
-                    stroke="currentColor"
-                    strokeWidth="3"
-                  />
-                ) : null;
-              })}
+              {(showEntranceFacilities ? dungeonConnections : []).map(
+                (edge) => {
+                  const from = worldPosition(edge.from);
+                  const to = worldPosition(edge.to);
+                  return from && to ? (
+                    <line
+                      key={`unlock-${edge.from}-${edge.to}`}
+                      x1={from.x + 80}
+                      y1={from.y + 38}
+                      x2={to.x + 80}
+                      y2={to.y + 38}
+                      stroke="currentColor"
+                      strokeWidth="3"
+                    />
+                  ) : null;
+                },
+              )}
               {[
-                { from: ENTRANCE, to: RECOVERY, kind: "relation" as const },
+                ...(showEntranceFacilities
+                  ? [
+                      {
+                        from: ENTRANCE,
+                        to: RECOVERY,
+                        kind: "relation" as const,
+                      },
+                    ]
+                  : []),
                 ...map.edges,
                 ...fresh.map((item) => ({
                   from: frontier,
@@ -437,7 +452,7 @@ export default function ExplorationMap({
                 ) : null;
               })}
             </svg>
-            {dungeons.map((dungeon) => {
+            {(showEntranceFacilities ? dungeons : []).map((dungeon) => {
               const id = worldId(dungeon.id);
               const point = positions.get(id);
               return (
@@ -481,41 +496,43 @@ export default function ExplorationMap({
                 </button>
               );
             })}
-            <button
-              type="button"
-              aria-label="回復場所"
-              aria-pressed={selected === RECOVERY}
-              tabIndex={focused === RECOVERY ? 0 : -1}
-              ref={(node) => {
-                if (node) nodes.current.set(RECOVERY, node);
-                else nodes.current.delete(RECOVERY);
-              }}
-              onFocus={() => {
-                setFocused(RECOVERY);
-                setSelected(RECOVERY);
-              }}
-              onClick={(event) => {
-                keyboardNavigation.current = event.detail === 0;
-                setSelected(RECOVERY);
-                if (
-                  keyboardNavigation.current &&
-                  !disabled &&
-                  canTravel(RECOVERY)
-                )
-                  onMove(RECOVERY);
-              }}
-              className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected === RECOVERY ? "border-primary ring-2 ring-primary/30" : "border-sky-500/50"}`}
-              style={{
-                left: positions.get(RECOVERY)?.x,
-                top: positions.get(RECOVERY)?.y,
-              }}
-            >
-              <span className="block text-xs text-sky-500">入口の施設</span>
-              <span className="font-medium">回復場所</span>
-              <span className="mt-1 block text-xs text-muted-foreground">
-                敗北時に利用可能 · 1歩
-              </span>
-            </button>
+            {showEntranceFacilities && (
+              <button
+                type="button"
+                aria-label="回復場所"
+                aria-pressed={selected === RECOVERY}
+                tabIndex={focused === RECOVERY ? 0 : -1}
+                ref={(node) => {
+                  if (node) nodes.current.set(RECOVERY, node);
+                  else nodes.current.delete(RECOVERY);
+                }}
+                onFocus={() => {
+                  setFocused(RECOVERY);
+                  setSelected(RECOVERY);
+                }}
+                onClick={(event) => {
+                  keyboardNavigation.current = event.detail === 0;
+                  setSelected(RECOVERY);
+                  if (
+                    keyboardNavigation.current &&
+                    !disabled &&
+                    canTravel(RECOVERY)
+                  )
+                    onMove(RECOVERY);
+                }}
+                className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected === RECOVERY ? "border-primary ring-2 ring-primary/30" : "border-sky-500/50"}`}
+                style={{
+                  left: positions.get(RECOVERY)?.x,
+                  top: positions.get(RECOVERY)?.y,
+                }}
+              >
+                <span className="block text-xs text-sky-500">入口の施設</span>
+                <span className="font-medium">回復場所</span>
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  敗北時に利用可能 · 1歩
+                </span>
+              </button>
+            )}
             {[...allIds, ...fresh.map((item) => item.knowledge.uid)].map(
               (id, i) => {
                 const point = positions.get(id);
