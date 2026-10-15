@@ -75,6 +75,7 @@ export function HotkeyProvider({ children }: PropsWithChildren) {
                 )}
                 <HotkeyRow keys={["h", "l"]} label="前後のタブへ移動" />
                 <HotkeyRow keys={["Ctrl", "1–9"]} label="番号のタブへ移動" />
+                <HotkeyRow keys={["t", "1–9"]} label="2段目のタブへ移動" />
                 <HotkeyRow keys={["u", "d"]} label="ページを上下にスクロール" />
                 <HotkeyRow keys={["/"]} label="ページ内の入力欄へフォーカス" />
                 <HotkeyRow keys={["Esc"]} label="入力欄のフォーカスを解除" />
@@ -105,7 +106,6 @@ export function HotkeyHelpButton() {
 
 export default function GlobalHotkeys() {
   const navigate = useNavigate();
-  const { pathname } = useLocation();
   const { isAuthenticated, user } = useAuth();
   const { openHistory } = useHistoryPanel();
   const { openHelp } = useHotkeys();
@@ -206,15 +206,8 @@ export default function GlobalHotkeys() {
 
       if (waitingForDestination.current === "t") {
         resetChord();
-        if (/^[1-9]$/.test(key) && pathname.startsWith("/admin/game")) {
-          const tab = document.querySelector<HTMLElement>(
-            `[data-admin-game-subtab="${key}"]`,
-          );
-          if (tab) {
-            event.preventDefault();
-            tab.click();
-          }
-        }
+        if (/^[1-9]$/.test(key) && activateTabByIndex(Number(key) - 1, 1))
+          event.preventDefault();
         return;
       }
 
@@ -291,7 +284,7 @@ export default function GlobalHotkeys() {
       if (
         !waitingForDestination.current &&
         key === "t" &&
-        pathname.startsWith("/admin/game")
+        document.querySelectorAll('[role="tablist"]:not([hidden])').length > 1
       ) {
         event.preventDefault();
         startChord("t");
@@ -346,7 +339,7 @@ export default function GlobalHotkeys() {
       window.removeEventListener("blur", resetChord);
       resetChord();
     };
-  }, [isAuthenticated, navigate, openHelp, openHistory, pathname, user]);
+  }, [isAuthenticated, navigate, openHelp, openHistory, user]);
 
   return (
     <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
@@ -392,9 +385,6 @@ function contextHotkeys(pathname: string, search: string): HotkeyDefinition[] {
       { keys: ["Esc"], label: "選択解除・全画面を閉じる" },
       { keys: ["f"], label: "マップを全画面表示" },
     ];
-  }
-  if (pathname.startsWith("/admin/game")) {
-    return [{ keys: ["t", "1–9"], label: "ゲーム管理の2段目タブへ移動" }];
   }
   if (pathname.startsWith("/user/")) {
     return [
@@ -617,11 +607,11 @@ function moveActiveTab(offset: -1 | 1): boolean {
   return Boolean(nextTab);
 }
 
-function activateTabByIndex(index: number): boolean {
+function activateTabByIndex(index: number, depth = 0): boolean {
   const tabLists = Array.from(document.querySelectorAll('[role="tablist"]'));
-  const visibleTabList = tabLists.find(
+  const visibleTabList = tabLists.filter(
     (element) => !element.closest("[hidden]"),
-  );
+  )[depth];
   const tab = visibleTabList?.querySelectorAll<HTMLElement>(
     '[role="tab"]:not([disabled])',
   )[index];

@@ -32,8 +32,16 @@ export default function MaintenanceManager() {
           aria-label="メンテナンスの表示切り替え"
           className="h-auto flex-wrap justify-center"
         >
-          {maintenanceSections.map((section) => (
-            <TabsTrigger key={section.id} value={section.id}>
+          {maintenanceSections.map((section, index) => (
+            <TabsTrigger
+              key={section.id}
+              value={section.id}
+              aria-label={section.label}
+              title={`t → ${index + 1}`}
+            >
+              <kbd className="mr-1 font-mono text-[10px] text-muted-foreground">
+                {index + 1}
+              </kbd>
               {section.label}
             </TabsTrigger>
           ))}

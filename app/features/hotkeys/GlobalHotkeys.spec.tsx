@@ -56,20 +56,27 @@ function AdminGameTabs() {
   const navigate = useNavigate();
   return (
     <>
-      <button
-        type="button"
-        data-admin-game-subtab="1"
-        onClick={() => navigate("/admin/game/balance")}
-      >
-        ゲームバランス
-      </button>
-      <button
-        type="button"
-        data-admin-game-subtab="2"
-        onClick={() => navigate("/admin/game/dungeons")}
-      >
-        ダンジョン母集団
-      </button>
+      <div role="tablist" aria-label="管理画面">
+        <button type="button" role="tab" aria-selected="true">
+          ゲーム
+        </button>
+      </div>
+      <div role="tablist" aria-label="ゲーム管理">
+        <button
+          type="button"
+          role="tab"
+          onClick={() => navigate("/admin/game/balance")}
+        >
+          ゲームバランス
+        </button>
+        <button
+          type="button"
+          role="tab"
+          onClick={() => navigate("/admin/game/dungeons")}
+        >
+          ダンジョン母集団
+        </button>
+      </div>
     </>
   );
 }
@@ -131,6 +138,47 @@ it("adminゲーム画面ではtに続く数字で2段目タブへ移動する", 
   expect(screen.getByRole("status", { name: "現在地" })).toHaveTextContent(
     "/admin/game/dungeons",
   );
+});
+
+it("tに続く数字はURLに依存せず表示中の2段目タブだけを選ぶ", async () => {
+  const top = vi.fn();
+  const hidden = vi.fn();
+  const second = vi.fn();
+  const user = userEvent.setup();
+  renderHotkeys(
+    <>
+      <div role="tablist">
+        <button type="button" role="tab" onClick={top}>
+          主タブ
+        </button>
+      </div>
+      <div hidden>
+        <div role="tablist">
+          <button type="button" role="tab" onClick={hidden}>
+            非表示
+          </button>
+        </div>
+      </div>
+      <div role="tablist">
+        <button type="button" role="tab" onClick={second}>
+          副タブ
+        </button>
+        <button type="button" role="tab" disabled>
+          無効タブ
+        </button>
+      </div>
+    </>,
+    "/nested-tabs",
+  );
+  await user.keyboard("t1");
+  expect(second).toHaveBeenCalledExactlyOnceWith(expect.anything());
+  expect(screen.getByRole("tab", { name: "副タブ" })).toHaveFocus();
+  await user.keyboard("t9");
+  await user.click(screen.getByRole("textbox", { name: "入力欄" }));
+  await user.keyboard("t1");
+  expect(second).toHaveBeenCalledTimes(1);
+  expect(top).not.toHaveBeenCalled();
+  expect(hidden).not.toHaveBeenCalled();
 });
 
 it("g gでゲームに移動し、入力中・未ログインでは移動しない", async () => {

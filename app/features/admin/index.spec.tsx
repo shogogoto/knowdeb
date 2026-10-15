@@ -127,6 +127,30 @@ it("keeps maintenance sections separate and supports browser back", async () => 
   expect(screen.getByText("misplaced管理画面")).toBeVisible();
 });
 
+it("t then a number selects maintenance subtabs without changing the top-level tab", async () => {
+  const user = setup("/admin/maintenance/orphans");
+  await user.keyboard("t3");
+  expect(screen.getByLabelText("現在のURL")).toHaveTextContent(
+    "/admin/maintenance/broken-quizzes",
+  );
+  expect(screen.getByRole("tab", { name: "メンテナンス" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await user.keyboard("t2");
+  expect(screen.getByLabelText("現在のURL")).toHaveTextContent(
+    "/admin/maintenance/misplaced",
+  );
+  expect(screen.getByRole("tab", { name: "配置切れTanbun" })).toHaveAttribute(
+    "title",
+    "t → 2",
+  );
+  await user.keyboard("t1");
+  expect(screen.getByLabelText("現在のURL")).toHaveTextContent(
+    "/admin/maintenance/orphans",
+  );
+});
+
 it.each(["orphans", "misplaced", "broken-quizzes"])(
   "redirects the legacy %s URL to maintenance",
   async (tab) => {

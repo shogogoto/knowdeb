@@ -476,13 +476,21 @@ export default function GameAdminManager() {
     >
       <div className="flex justify-center border-b px-4 py-2">
         <TabsList className="h-auto flex-wrap justify-center">
-          <TabsTrigger value="balance" data-admin-game-subtab="1">
+          <TabsTrigger
+            value="balance"
+            aria-label="ゲームバランス"
+            title="t → 1"
+          >
             <kbd className="mr-1 font-mono text-[10px] text-muted-foreground">
               1
             </kbd>
             ゲームバランス
           </TabsTrigger>
-          <TabsTrigger value="dungeons" data-admin-game-subtab="2">
+          <TabsTrigger
+            value="dungeons"
+            aria-label="ダンジョン母集団"
+            title="t → 2"
+          >
             <kbd className="mr-1 font-mono text-[10px] text-muted-foreground">
               2
             </kbd>
