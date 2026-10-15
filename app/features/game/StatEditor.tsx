@@ -1,12 +1,4 @@
-import {
-  Heart,
-  Minus,
-  Plus,
-  Shield,
-  Swords,
-  Timer,
-  WandSparkles,
-} from "lucide-react";
+import { Heart, Minus, Plus, Shield, Swords, WandSparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import {
@@ -42,13 +34,6 @@ const statDefinitions = [
     label: "守備力",
     Icon: Shield,
     value: (stats: ReturnType<typeof playerStats>) => stats.defense,
-  },
-  {
-    key: "seconds",
-    label: "持ち時間",
-    Icon: Timer,
-    value: (stats: ReturnType<typeof playerStats>) => stats.answerSeconds,
-    suffix: "秒",
   },
 ] as const;
 
@@ -117,7 +102,6 @@ export default function StatEditor({
       <fieldset disabled={busy || inBattle} className="grid grid-cols-1 gap-2">
         {statDefinitions.map((definition) => {
           const { key, label, Icon, value } = definition;
-          const suffix = "suffix" in definition ? definition.suffix : undefined;
           const stat = key as keyof Allocation;
           return (
             <div
@@ -131,7 +115,6 @@ export default function StatEditor({
                 <p className="text-xs text-muted-foreground">{label}</p>
                 <p className="text-xl font-semibold tabular-nums">
                   {value(stats)}
-                  {suffix ?? ""}
                 </p>
                 {key === "hp" && currentHp !== undefined && (
                   <p className="text-xs text-muted-foreground tabular-nums">

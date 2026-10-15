@@ -13,13 +13,13 @@ describe("allocated stats and browser-local enemy HP", () => {
       enterDungeon(newSave(), "book", "本", 1).run,
     );
     expect(
-      playerStats({ hp: 1, attack: 1, defense: 0, seconds: 1 }, defaultBalance),
+      playerStats({ hp: 1, attack: 1, defense: 0 }, defaultBalance),
     ).toEqual({
       maxHp: 40,
       maxMp: 10,
       attack: 12,
       defense: 1,
-      answerSeconds: 48,
+      answerSeconds: defaultBalance.base_seconds,
     });
   });
   it("a live maximum increase never heals and a decrease clamps remaining HP", () => {

@@ -14,6 +14,7 @@ it("previews allocation, enforces the total budget, and resets freely", async ()
       onSaved={vi.fn()}
     />,
   );
+  expect(screen.queryByText("持ち時間")).not.toBeInTheDocument();
   const hp = screen.getByRole("button", { name: "最大HPにポイントを割り振る" });
   await user.click(hp);
   await user.click(hp);

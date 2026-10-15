@@ -29,7 +29,6 @@ const fields = {
   boss_attack_multiplier: ["ボスの攻撃力倍率", 1, 10, 0.05],
   attack_per_point: ["攻 / 育成ポイント", 1, 100, 1],
   defense_per_point: ["守 / 育成ポイント", 1, 100, 1],
-  seconds_per_point: ["秒 / 育成ポイント", 1, 30, 1],
   enemy_hp: ["敵の基礎HP", 1, 10000, 1],
   enemy_attack: ["敵の基礎攻", 1, 1000, 1],
   power_hp: ["PowerのHP補正", 0, 100, 0.1],
@@ -93,7 +92,6 @@ const groups = [
       "mp_per_point",
       "attack_per_point",
       "defense_per_point",
-      "seconds_per_point",
     ],
   },
   {

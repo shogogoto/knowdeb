@@ -7,14 +7,12 @@ export type Allocation = {
   mp?: number;
   attack: number;
   defense: number;
-  seconds: number;
 };
 export const emptyAllocation: Allocation = {
   hp: 0,
   mp: 0,
   attack: 0,
   defense: 0,
-  seconds: 0,
 };
 export const defaultBalance = {
   base_hp: 35,
@@ -30,7 +28,6 @@ export const defaultBalance = {
   boss_attack_multiplier: 1.25,
   attack_per_point: 2,
   defense_per_point: 1,
-  seconds_per_point: 3,
   enemy_hp: 20,
   enemy_attack: 12,
   power_hp: 1,
@@ -167,10 +164,7 @@ export function playerStats(
       100000,
       balance.base_defense + a.defense * balance.defense_per_point,
     ),
-    answerSeconds: Math.min(
-      1500,
-      balance.base_seconds + a.seconds * balance.seconds_per_point,
-    ),
+    answerSeconds: balance.base_seconds,
   };
 }
 
