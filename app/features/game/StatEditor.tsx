@@ -59,6 +59,7 @@ export default function StatEditor({
   inBattle,
   currentHp,
   weaponAttack,
+  onPointsChange,
   onSaved,
 }: {
   level: number;
@@ -67,6 +68,7 @@ export default function StatEditor({
   inBattle: boolean;
   currentHp?: number;
   weaponAttack?: number;
+  onPointsChange?: (used: number) => void;
   onSaved: (state: GameState) => void;
 }) {
   const [draft, setDraft] = useState({ ...emptyAllocation, ...allocation });
@@ -79,6 +81,7 @@ export default function StatEditor({
   const used = Object.values(draft).reduce((sum, n) => sum + n, 0);
   const remaining = Math.max(0, budget - used);
   const stats = playerStats(draft, balance, weaponAttack);
+  useEffect(() => onPointsChange?.(used), [onPointsChange, used]);
 
   function adjust(key: keyof Allocation, amount: number) {
     setDraft((current) => {
@@ -105,21 +108,6 @@ export default function StatEditor({
           .finally(() => setBusy(false));
       }}
     >
-      <div className="flex items-end justify-between gap-3 rounded-lg border bg-muted/20 px-3 py-2">
-        <div>
-          <p className="text-xs text-muted-foreground">未使用の育成ポイント</p>
-          <p
-            aria-label="未使用の育成ポイント"
-            className="text-xl font-semibold tabular-nums"
-          >
-            {remaining}
-            <span className="ml-1 text-sm font-normal text-muted-foreground">
-              / {budget}
-            </span>
-          </p>
-        </div>
-      </div>
-
       {inBattle && (
         <output className="text-sm text-muted-foreground">
           戦闘中はステータスを変更できません。

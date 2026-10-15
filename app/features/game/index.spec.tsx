@@ -767,15 +767,18 @@ it.each([false, true])(
     }
     expect(screen.getByTestId("pathname")).toHaveTextContent("/game/status");
     expect(screen.getByRole("dialog", { name: "ステータス" })).toBeVisible();
-    expect(
-      await screen.findByLabelText("未使用の育成ポイント"),
-    ).toHaveTextContent(/3\s*\/\s*3/);
+    expect(await screen.findByLabelText("割り振りポイント")).toHaveTextContent(
+      /0\/3 pt/,
+    );
     const increase = screen.getByRole("button", {
       name: "最大HPにポイントを割り振る",
     });
     await user.click(increase);
     await user.click(increase);
     await user.click(increase);
+    expect(screen.getByLabelText("割り振りポイント")).toHaveTextContent(
+      /3\/3 pt/,
+    );
     await user.click(screen.getByRole("button", { name: "割り振りを保存" }));
     await screen.findByText("現在HP 35/50");
     expect(requests).toEqual([

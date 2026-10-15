@@ -107,9 +107,18 @@ export function GamePlay({
   player,
 }: { userId: string; playerName?: string; player?: UserReadPublic }) {
   const [save, setSave] = useState<GameSave>(newSave);
+  const [allocationPoints, setAllocationPoints] = useState(0);
   const [ready, setReady] = useState(false);
   const [stateLoaded, setStateLoaded] = useState(false);
   const revision = useRef(0);
+  useEffect(() => {
+    setAllocationPoints(
+      Object.values(save.allocation ?? {}).reduce(
+        (sum, points) => sum + points,
+        0,
+      ),
+    );
+  }, [save.allocation]);
   const { menu: routeMenu } = useParams();
   const panel =
     routeMenu === "status" ||
@@ -1568,7 +1577,13 @@ export function GamePlay({
               <div className="flex items-center gap-2">
                 <UserAvatar user={player} className="size-9 shrink-0" />
                 <span>
-                  {playerName ?? "あなた"} · Lv. {level ?? "—"}
+                  {playerName ?? "あなた"} · Lv. {level ?? "—"}{" "}
+                  <span
+                    aria-label="割り振りポイント"
+                    className="text-sm text-muted-foreground"
+                  >
+                    ({allocationPoints}/{Math.max(0, (level ?? 1) - 1) * 3} pt)
+                  </span>
                 </span>
               </div>
               {level && stateLoaded && (
@@ -1579,6 +1594,7 @@ export function GamePlay({
                   inBattle={run?.phase === "battle"}
                   currentHp={run?.hp}
                   weaponAttack={save.economy?.weapon_attack}
+                  onPointsChange={setAllocationPoints}
                   onSaved={applyState}
                 />
               )}
