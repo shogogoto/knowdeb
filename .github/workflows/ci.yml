@@ -9,14 +9,19 @@ on:
       - '**/*.tsx'
       - '**/*.js'
       - '**/*.jsx'
+      - '**/*.css'
+      - '**/*.svg'
       - '**/*.json'
+      - 'public/**'
       - 'package.json'
       - 'package-lock.json'
       - '.node-version'
       - 'vite.config.ts'
+      - 'netlify.toml'
       - 'vite.storybook.config.ts'
       - '.storybook/**'
       - '.github/workflows/ci.yml'
+      - '.github/workflows/netlify-deploy.yml'
   pull_request:
     branches: [main]
     paths:
@@ -24,14 +29,19 @@ on:
       - '**/*.tsx'
       - '**/*.js'
       - '**/*.jsx'
+      - '**/*.css'
+      - '**/*.svg'
       - '**/*.json'
+      - 'public/**'
       - 'package.json'
       - 'package-lock.json'
       - '.node-version'
       - 'vite.config.ts'
+      - 'netlify.toml'
       - 'vite.storybook.config.ts'
       - '.storybook/**'
       - '.github/workflows/ci.yml'
+      - '.github/workflows/netlify-deploy.yml'
 
 jobs:
   test:

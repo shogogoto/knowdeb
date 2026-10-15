@@ -1,29 +1,22 @@
 name: Netlify Deploy
 
 on:
-  push:
-    branches: ["main"]
-    paths:
-      - '**/*.ts'
-      - '**/*.tsx'
-      - '**/*.js'
-      - '**/*.jsx'
-      - '**/*.json'
-      - '**/*.css'
-      - '**/*.svg'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - '.node-version'
-      - 'vite.config.ts'
-      - 'netlify.toml'
-      - '.github/workflows/netlify-deploy.yml'
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
 
 jobs:
   deploy:
+    if: >-
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'push' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
 
       - name: Use Node.js
         uses: actions/setup-node@v4
