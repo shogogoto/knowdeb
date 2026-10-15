@@ -419,7 +419,7 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
   expect(screen.queryByText("正解の選択肢")).not.toBeInTheDocument();
 });
 
-it("accumulates actual damage across turns using the original player and encounter snapshot", async () => {
+it("summarizes multiple turns using the original player stats", async () => {
   server.use(
     http.post(
       "*/admin/settings/game-balance/practice/turn",
@@ -480,9 +480,20 @@ it("accumulates actual damage across turns using the original player and encount
   expect(
     screen.queryByRole("table", { name: "想定と実績" }),
   ).not.toBeInTheDocument();
-  expect(
-    screen.getByText(/HP 60 · 攻 10 · 守 1 · 被ダメージ合計 0/),
-  ).toBeVisible();
+  const comparison = screen.getByRole("table", { name: "模擬戦の比較" });
+  const headers = within(comparison)
+    .getAllByRole("columnheader")
+    .map((header) => header.textContent);
+  const row = within(comparison).getAllByRole("row")[1];
+  const cells = within(row).getAllByRole("cell");
+  const result = Object.fromEntries(
+    headers.map((header, index) => [header, cells[index]?.textContent]),
+  );
+  expect(result.プレイヤー).toBe("HP 60／攻 10／守 1／45秒");
+  expect(result.勝敗).toBe("勝利");
+  expect(result.ターン).toBe("3");
+  expect(result.正解).toBe("3");
+  expect(result.被ダメージ).toBe("0");
 });
 
 it("settles unanswered timeout through practice and reports count, damage, and time", async () => {
