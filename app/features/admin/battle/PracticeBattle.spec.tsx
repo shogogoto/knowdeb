@@ -485,7 +485,7 @@ it("accumulates actual damage across turns using the original player and encount
   ).toBeVisible();
 });
 
-it("settles unanswered timeout through practice only and reports it separately", async () => {
+it("settles unanswered timeout through practice and reports count, damage, and time", async () => {
   render(
     <MemoryRouter>
       <PracticeBattle settings={draft} trials={trials} />
@@ -508,8 +508,15 @@ it("settles unanswered timeout through practice only and reports it separately",
   const row = within(
     screen.getByRole("table", { name: "模擬戦の比較" }),
   ).getAllByRole("row")[1];
+  const headers = within(screen.getByRole("table", { name: "模擬戦の比較" }))
+    .getAllByRole("columnheader")
+    .map((header) => header.textContent);
   const cells = within(row).getAllByRole("cell");
-  expect(cells[8]).toHaveTextContent("1");
-  expect(cells[9]).toHaveTextContent("11");
+  const result = Object.fromEntries(
+    headers.map((header, index) => [header, cells[index]?.textContent]),
+  );
+  expect(result.未回答).toBe("1");
+  expect(result.被ダメージ).toBe("11");
+  expect(result.回答時間).toBe("45.0秒");
   expect(turns).toHaveLength(1);
 });
