@@ -16,6 +16,9 @@ import {
 } from "./api";
 
 const fields = {
+  chest_gold: ["ゴールド / 宝箱", 0, 100000, 1],
+  chest_healing_potions: ["回復薬 / 宝箱", 0, 100, 1],
+  chest_step_potions: ["歩数回復薬 / 宝箱", 0, 100, 1],
   base_hp: ["初期HP", 1, 10000, 1],
   base_mp: ["初期MP", 0, 10000, 1],
   base_attack: ["初期攻", 1, 1000, 1],
@@ -73,6 +76,14 @@ const formulaLabels: Partial<Record<keyof typeof fields, string>> = {
   encounter_growth_rate: "増加率",
 };
 const groups = [
+  {
+    label: "領域の宝箱",
+    rules: [
+      "各領域の最後に1箱。開封は歩数消費なし",
+      "全領域共通。設定変更は未開封の箱に反映",
+    ],
+    keys: ["chest_gold", "chest_healing_potions", "chest_step_potions"],
+  },
   {
     label: "戦闘結果の表示テンポ",
     keys: [

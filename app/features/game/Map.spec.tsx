@@ -16,6 +16,49 @@ const map: DungeonMap = {
   ],
 };
 
+it("opens a completed region's chest with the keyboard and keeps its contents visible after opening", async () => {
+  const user = userEvent.setup();
+  const onMove = vi.fn();
+  const places = Array.from({ length: 6 }, (_, i) => ({
+    id: `p${i}`,
+    region: Math.floor(i / 5),
+  }));
+  const completed: DungeonMap = { current: "p4", places, edges: [] };
+  const props = {
+    map: completed,
+    knowledge: places.map((p) => ({ uid: p.id, sentence: p.id })),
+    onMove,
+    onOpen: vi.fn(),
+    disabled: false,
+    exhaustedMessage: <p>復習して歩数を回復</p>,
+  };
+  const view = render(<ExplorationMap {...props} />);
+  expect(
+    screen.queryByRole("button", { name: "領域 2の宝箱" }),
+  ).not.toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: /現在地 · 領域 1p4/ }));
+  await user.keyboard("{ArrowRight}");
+  expect(screen.getByRole("button", { name: "領域 1の宝箱" })).toHaveFocus();
+  expect(screen.getByRole("button", { name: "宝箱へ移動" })).toBeVisible();
+  await user.keyboard("{Enter}");
+  expect(onMove).toHaveBeenCalledWith("@chest:0");
+  view.rerender(
+    <ExplorationMap
+      {...props}
+      map={{ ...completed, current: "@chest:0" }}
+      openedChests={{ "0": { gold: 30, healing_potion: 0, step_potion: 1 } }}
+    />,
+  );
+  expect(
+    screen.getByRole("button", { name: "領域 1の宝箱（開封済み）" }),
+  ).toHaveAttribute("aria-current", "location");
+  expect(screen.getByText("30 G、歩数回復薬 ×1 が入っていた。")).toBeVisible();
+  expect(
+    screen.queryByRole("button", { name: "詳細" }),
+  ).not.toBeInTheDocument();
+  expect(screen.getByText("現在地 · 領域 1の宝箱")).toBeVisible();
+});
+
 it("aligns each region in a horizontal row even when old edges branch", () => {
   const places = Array.from({ length: 7 }, (_, i) => ({
     id: `place-${i}`,

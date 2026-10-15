@@ -89,6 +89,7 @@ import {
 } from "./exploration";
 import { recoverGameState, requestGameState } from "./state";
 import { readGameSave } from "./storage";
+import { chestRegion, openChest, regionChests } from "./treasure";
 
 export default function Game() {
   const { user } = useAuth();
@@ -626,6 +627,29 @@ export function GamePlay({
           ? cause.message
           : "見たよを記録できませんでした。",
       );
+    } finally {
+      pendingMove.current = false;
+      setBusy(false);
+    }
+  }
+  async function visitChest(region: number) {
+    if (pendingMove.current || busy || !run) return;
+    pendingMove.current = true;
+    setBusy(true);
+    setError(undefined);
+    try {
+      const state = await openChest(revision.current, region);
+      revision.current = state.revision;
+      setSave(state.save);
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "宝箱を開けられませんでした。",
+      );
+      const state = await requestGameState().catch(() => undefined);
+      if (state) {
+        revision.current = state.revision;
+        setSave(state.save);
+      }
     } finally {
       pendingMove.current = false;
       setBusy(false);
@@ -1227,9 +1251,12 @@ export function GamePlay({
                         exploredPlaces,
                         achievement: Math.floor(exploredPlaces / 5),
                         location:
-                          currentPlace === ENTRANCE
-                            ? "入口"
-                            : `第${placeIndex >= 0 ? placeIndex + 1 : exploredPlaces}地点`,
+                          currentPlace &&
+                          chestRegion(currentPlace) !== undefined
+                            ? `領域 ${(chestRegion(currentPlace) ?? 0) + 1}の宝箱`
+                            : currentPlace === ENTRANCE
+                              ? "入口"
+                              : `第${placeIndex >= 0 ? placeIndex + 1 : exploredPlaces}地点`,
                       };
                     })}
                   dungeonConnections={(save.unlockedDungeons ?? []).map(
@@ -1251,21 +1278,34 @@ export function GamePlay({
                       ? () => void restartAtEntrance()
                       : undefined
                   }
+                  openedChests={save.economy?.opened_chests?.[run.resourceId]}
                   canTravel={(id) =>
-                    (id === RECOVERY &&
-                      run.phase === "defeated" &&
-                      run.moves < MOVES_PER_EVENT) ||
-                    run.phase === "path" ||
-                    (run.phase === "cleared" && run.moves < MOVES_PER_EVENT) ||
-                    (id === ENTRANCE &&
-                      run.phase === "defeated" &&
-                      Boolean(access.data?.available))
+                    chestRegion(id) !== undefined
+                      ? run.hp > 0 &&
+                        ["path", "rest", "cleared"].includes(run.phase) &&
+                        regionChests(map).some(
+                          (chest) =>
+                            chest.id === id &&
+                            (map.current === chest.last ||
+                              map.current === chest.id),
+                        )
+                      : (id === RECOVERY &&
+                          run.phase === "defeated" &&
+                          run.moves < MOVES_PER_EVENT) ||
+                        run.phase === "path" ||
+                        (run.phase === "cleared" &&
+                          run.moves < MOVES_PER_EVENT) ||
+                        (id === ENTRANCE &&
+                          run.phase === "defeated" &&
+                          Boolean(access.data?.available))
                   }
                   map={map}
                   knowledge={content?.knowledge ?? []}
                   onOpen={(sentenceId) => openPreview({ sentenceId })}
                   onMove={(sentenceId, kind) => {
-                    if (sentenceId === RECOVERY) void recoverAtSanctuary();
+                    const region = chestRegion(sentenceId);
+                    if (region !== undefined) void visitChest(region);
+                    else if (sentenceId === RECOVERY) void recoverAtSanctuary();
                     else if (
                       sentenceId === ENTRANCE &&
                       run.phase === "defeated"

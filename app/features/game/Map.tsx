@@ -1,8 +1,10 @@
 import {
+  Archive,
   Footprints,
   LocateFixed,
   Maximize,
   Minus,
+  PackageOpen,
   Plus,
   X,
 } from "lucide-react";
@@ -28,6 +30,7 @@ import {
   explorationSource,
 } from "./exploration";
 import { directionalPlace } from "./navigation";
+import { type ChestReward, chestMessage, regionChests } from "./treasure";
 
 export type MapCandidate = {
   knowledge: PathKnowledge;
@@ -43,6 +46,7 @@ export default function ExplorationMap({
   dungeonConnections = [],
   onDungeon,
   onRestart,
+  openedChests = {},
   canTravel = () => true,
   unavailableIds = [],
   enemiesByRegion = {},
@@ -74,6 +78,7 @@ export default function ExplorationMap({
   dungeonConnections?: { from: string; to: string }[];
   onDungeon?: (id: string) => void;
   onRestart?: () => void;
+  openedChests?: Record<string, ChestReward>;
   canTravel?: (id: string) => boolean;
   unavailableIds?: string[];
   enemiesByRegion?: Record<string, RegionEnemy[]>;
@@ -185,6 +190,7 @@ export default function ExplorationMap({
     (item) => !allIds.includes(item.knowledge.uid),
   );
   const positions = new Map<string, { x: number; y: number }>();
+  const chests = regionChests(map);
   const entranceX =
     360 + (showEntranceFacilities ? Math.ceil(dungeons.length / 4) * 230 : 0);
   positions.set(ENTRANCE, { x: entranceX, y: 220 });
@@ -198,6 +204,12 @@ export default function ExplorationMap({
     });
   }
   if (showEntranceFacilities) positions.set(RECOVERY, { x: entranceX, y: 370 });
+  for (const chest of chests) {
+    positions.set(chest.id, {
+      x: entranceX + (chest.count + 1) * 230,
+      y: 220 + chest.region * 150,
+    });
+  }
   const frontier = explorationSource(map);
   const candidateRegion = Math.floor(map.places.length / PLACES_PER_REGION);
   for (const [index, item] of fresh.entries()) {
@@ -291,6 +303,8 @@ export default function ExplorationMap({
   }
   const chosen = selected ? sentences.get(selected) : undefined;
   const candidate = candidates.find((item) => item.knowledge.uid === selected);
+  const selectedChest = chests.find((chest) => chest.id === selected);
+  const chestReward = selectedChest && openedChests[selectedChest.region];
   const canMove =
     !disabled &&
     canTravel(selected ?? "") &&
@@ -299,9 +313,13 @@ export default function ExplorationMap({
       (selected === ENTRANCE && Boolean(onRestart))) &&
     Boolean(
       selected &&
-        (selected === RECOVERY || allIds.includes(selected) || candidate),
+        (selected === RECOVERY ||
+          selectedChest ||
+          allIds.includes(selected) ||
+          candidate),
     );
   const index = map.places.findIndex((place) => place.id === map.current);
+  const currentChest = chests.find((chest) => chest.id === map.current);
   const selectedDungeon = dungeons.find(
     (item) => worldId(item.id) === selected,
   );
@@ -430,6 +448,11 @@ export default function ExplorationMap({
                     ]
                   : []),
                 ...map.edges,
+                ...chests.map((chest) => ({
+                  from: chest.last,
+                  to: chest.id,
+                  kind: "relation" as const,
+                })),
                 ...fresh.map((item) => ({
                   from: frontier,
                   to: item.knowledge.uid,
@@ -452,6 +475,51 @@ export default function ExplorationMap({
                 ) : null;
               })}
             </svg>
+            {chests.map((chest) => {
+              const opened = Boolean(openedChests[chest.region]);
+              const Icon = opened ? PackageOpen : Archive;
+              const current = map.current === chest.id;
+              return (
+                <button
+                  key={chest.id}
+                  type="button"
+                  aria-label={`領域 ${chest.region + 1}の宝箱${opened ? "（開封済み）" : ""}`}
+                  aria-current={current ? "location" : undefined}
+                  aria-pressed={selected === chest.id}
+                  tabIndex={focused === chest.id ? 0 : -1}
+                  ref={(node) => {
+                    if (node) nodes.current.set(chest.id, node);
+                    else nodes.current.delete(chest.id);
+                  }}
+                  onFocus={() => {
+                    setFocused(chest.id);
+                    setSelected(chest.id);
+                  }}
+                  onClick={(event) => {
+                    setSelected(chest.id);
+                    if (event.detail === 0 && !disabled && canTravel(chest.id))
+                      onMove(chest.id);
+                  }}
+                  className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${current ? "border-primary ring-4 ring-primary/20" : selected === chest.id ? "border-primary ring-2 ring-primary/30" : opened ? "border-amber-500/20 text-muted-foreground" : "border-amber-500/60 text-amber-500"}`}
+                  style={{
+                    left: positions.get(chest.id)?.x,
+                    top: positions.get(chest.id)?.y,
+                  }}
+                >
+                  {current && (
+                    <UserAvatar
+                      user={player}
+                      className="absolute -top-9 left-1/2 size-10 -translate-x-1/2 border-2 border-primary shadow-lg"
+                    />
+                  )}
+                  <span className="block text-xs">領域 {chest.region + 1}</span>
+                  <span className="flex items-center gap-2 font-medium">
+                    <Icon className="size-6" />
+                    {opened ? "開いた宝箱" : "宝箱"}
+                  </span>
+                </button>
+              );
+            })}
             {(showEntranceFacilities ? dungeons : []).map((dungeon) => {
               const id = worldId(dungeon.id);
               const point = positions.get(id);
@@ -631,7 +699,8 @@ export default function ExplorationMap({
             enemies={enemiesByRegion}
             quizzes={quizzes}
             currentRegion={
-              map.places.find((place) => place.id === map.current)?.region
+              map.places.find((place) => place.id === map.current)?.region ??
+              currentChest?.region
             }
           />
           {bossControl}
@@ -700,7 +769,12 @@ export default function ExplorationMap({
         )}
         <div className="mt-2 space-y-1 text-center text-xs text-muted-foreground tabular-nums">
           <h3>
-            現在地 · {map.current === ENTRANCE ? "入口" : `第${index + 1}地点`}
+            現在地 ·{" "}
+            {currentChest
+              ? `領域 ${currentChest.region + 1}の宝箱`
+              : map.current === ENTRANCE
+                ? "入口"
+                : `第${index + 1}地点`}
           </h3>
           <p>
             開拓 {map.places.length}地点
@@ -721,7 +795,7 @@ export default function ExplorationMap({
         <div className="pointer-events-auto max-w-full space-y-2 text-xs">
           {children}
         </div>
-        {exhaustedMessage ? (
+        {exhaustedMessage && !selectedChest ? (
           <section
             aria-label="歩数回復の案内"
             className="pointer-events-auto max-h-[35dvh] w-full overflow-y-auto rounded-xl border bg-background/95 p-3 shadow-xl sm:max-w-lg"
@@ -756,7 +830,11 @@ export default function ExplorationMap({
                     {Math.floor(map.places.length / PLACES_PER_REGION) + 1}
                   </p>
                 )}
-                {selectedDungeon ? (
+                {selectedChest ? (
+                  <h3 className="font-medium">
+                    領域 {selectedChest.region + 1}の宝箱
+                  </h3>
+                ) : selectedDungeon ? (
                   <h3 className="font-medium">{selectedDungeon.name}</h3>
                 ) : selected === RECOVERY ? (
                   <h3 className="font-medium">回復場所</h3>
@@ -769,13 +847,19 @@ export default function ExplorationMap({
                   </p>
                 )}
                 <p className="mt-2 text-sm leading-relaxed">
-                  {selectedDungeon
-                    ? "ダンジョンへ移動"
-                    : selected === RECOVERY
-                      ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
-                      : selected === ENTRANCE
-                        ? "ダンジョンの入口"
-                        : (chosen?.sentence ?? "単文詳細を開く")}
+                  {selectedChest
+                    ? chestReward
+                      ? chestMessage(chestReward)
+                      : map.current === selectedChest.last
+                        ? "何が入っているだろう？"
+                        : "領域の最後の地点から開けられます。"
+                    : selectedDungeon
+                      ? "ダンジョンへ移動"
+                      : selected === RECOVERY
+                        ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
+                        : selected === ENTRANCE
+                          ? "ダンジョンの入口"
+                          : (chosen?.sentence ?? "単文詳細を開く")}
                 </p>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
@@ -798,25 +882,32 @@ export default function ExplorationMap({
                       else onMove(selected, candidate?.kind);
                     }}
                     aria-label={
-                      selected === RECOVERY
-                        ? "回復場所へ移動・1歩"
+                      selectedChest
+                        ? "宝箱へ移動"
+                        : selected === RECOVERY
+                          ? "回復場所へ移動・1歩"
+                          : selected === ENTRANCE && onRestart
+                            ? "冒険を再開"
+                            : candidate
+                              ? undefined
+                              : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
+                    }
+                  >
+                    {selectedChest
+                      ? chestReward
+                        ? "宝箱へ · 歩数消費なし"
+                        : "宝箱を開ける · 歩数消費なし"
+                      : selected === RECOVERY
+                        ? "回復場所へ · 1歩"
                         : selected === ENTRANCE && onRestart
                           ? "冒険を再開"
                           : candidate
-                            ? undefined
-                            : `${chosen?.term?.names?.[0] || chosen?.sentence || (selected === ENTRANCE ? "入口" : selected)}へ移動`
-                    }
-                  >
-                    {selected === RECOVERY
-                      ? "回復場所へ · 1歩"
-                      : selected === ENTRANCE && onRestart
-                        ? "冒険を再開"
-                        : candidate
-                          ? "進む"
-                          : "移動 · １歩"}
+                            ? "進む"
+                            : "移動 · １歩"}
                   </Button>
                 )}
                 {!selectedDungeon &&
+                  !selectedChest &&
                   selected !== ENTRANCE &&
                   !unavailableIds.includes(selected) && (
                     <Button

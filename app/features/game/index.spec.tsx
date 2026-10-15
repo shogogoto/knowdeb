@@ -316,6 +316,71 @@ beforeEach(() => {
   });
   vi.spyOn(Math, "random").mockReturnValue(0.1);
 });
+it("collects a region chest from the server with no moves left and restores its opened state", async () => {
+  available = false;
+  const save = enterDungeon(newSave(), "book", "テストの本", 1);
+  if (!save.run) throw new Error("Missing run");
+  const places = Array.from({ length: 5 }, (_, i) => ({
+    id: `p${i}`,
+    region: 0,
+  }));
+  const content = {
+    knowledge: places.map((p) => ({ uid: p.id, sentence: p.id })),
+    quizzes: [],
+  };
+  vi.mocked(loadDungeon).mockResolvedValue(content);
+  state = {
+    revision: 4,
+    save: {
+      ...save,
+      content,
+      maps: { book: { current: "p4", places, edges: [] } },
+      run: { ...save.run, phase: "rest", moves: 5 },
+    },
+  };
+  server.use(
+    http.post("*/game/chests/open", async ({ request }) => {
+      expect(await request.json()).toEqual({ revision: 4, region: 0 });
+      state = {
+        revision: 5,
+        save: {
+          ...state.save,
+          maps: { book: { current: "@chest:0", places, edges: [] } },
+          economy: {
+            gold: 30,
+            inventory: { step_potion: 1 },
+            weapon: null,
+            weapon_attack: 0,
+            opened_chests: {
+              book: { "0": { gold: 30, healing_potion: 0, step_potion: 1 } },
+            },
+          },
+        },
+      };
+      return HttpResponse.json(state);
+    }),
+  );
+  const user = userEvent.setup();
+  const view = renderGame();
+  await user.click(await screen.findByRole("button", { name: "領域 1の宝箱" }));
+  await user.click(screen.getByRole("button", { name: "宝箱へ移動" }));
+  expect(
+    await screen.findByText("30 G、歩数回復薬 ×1 が入っていた。"),
+  ).toBeVisible();
+  expect(screen.getByLabelText("残り移動数")).toHaveTextContent("0");
+  expect(screen.getByLabelText("所持ゴールド 30")).toBeVisible();
+  expect(state.save.run?.moves).toBe(5);
+  expect(consumeCount).toBe(0);
+  view.unmount();
+  renderGame();
+  expect(
+    await screen.findByRole("button", { name: "領域 1の宝箱（開封済み）" }),
+  ).toHaveAttribute("aria-current", "location");
+  expect(
+    await screen.findByText("30 G、歩数回復薬 ×1 が入っていた。"),
+  ).toBeVisible();
+});
+
 it("does not enter or lose local progress when another device consumed the right", async () => {
   server.use(
     http.put("*/game/state", () =>
@@ -541,7 +606,7 @@ it.each([
     }
     view.unmount();
     renderGame();
-    await screen.findByText("HP 20/35");
+    await screen.findByText("20/35");
     expect(
       screen.queryByRole("button", { name: "探索を続ける" }),
     ).not.toBeInTheDocument();
@@ -658,7 +723,7 @@ it("records seen knowledge and a batch turn, then retreats after remount without
     await screen.findByRole("heading", { name: /敵と遭遇/ }),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("dialog")).getByText("HP 24/35"),
+    within(screen.getByRole("dialog")).getByText("24/35"),
   ).toBeInTheDocument();
   const revisionBeforeClosing = state.revision;
   await user.click(
@@ -749,7 +814,7 @@ it.each([false, true])(
     );
     renderGame();
     const user = userEvent.setup();
-    await screen.findByText("HP 35/35");
+    await screen.findByText("35/35");
     if (fullscreen)
       await user.click(
         screen.getByRole("button", { name: "マップを全画面表示" }),
@@ -806,7 +871,7 @@ it.each([false, true])(
     ).not.toBeInTheDocument();
     if (fullscreen)
       expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
-    expect(await screen.findByText("HP 35/50")).toBeVisible();
+    expect(await screen.findByText("35/50")).toBeVisible();
     expect(state.save.run?.moves).toBe(0);
     expect(consumeCount).toBe(0);
   },
@@ -1111,11 +1176,11 @@ it("fullscreen is presentation-only and does not reset or save the adventure", a
   const original = state.save;
   renderGame();
   const user = userEvent.setup();
-  await screen.findByText("HP 35/35");
+  await screen.findByText("35/35");
   await user.click(screen.getByRole("button", { name: "マップを全画面表示" }));
   expect(
     within(screen.getByRole("dialog", { name: "冒険マップ" })).getByText(
-      "HP 35/35",
+      "35/35",
     ),
   ).toBeVisible();
   await user.keyboard("{Escape}");
@@ -1188,7 +1253,7 @@ it("does not offer dungeon switching while an adventure is in progress", async (
     },
   };
   renderGame("/game");
-  expect(await screen.findByText("HP 35/35")).toBeVisible();
+  expect(await screen.findByText("35/35")).toBeVisible();
   expect(
     screen.queryByRole("combobox", { name: "過去のダンジョン" }),
   ).not.toBeInTheDocument();
@@ -1226,7 +1291,7 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
   available = false;
   renderGame();
   const user = userEvent.setup();
-  expect(await screen.findByText("HP 24/35")).toBeVisible();
+  expect(await screen.findByText("24/35")).toBeVisible();
   expect(
     screen.queryByRole("button", { name: "ダンジョンを切り替える" }),
   ).not.toBeInTheDocument();
@@ -1248,7 +1313,7 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
     screen.getByRole("button", { name: "このダンジョンへ移動" }),
   );
   await waitFor(() => expect(state.save.run?.resourceId).toBe("book"));
-  expect(await screen.findByText("HP 24/35")).toBeVisible();
+  expect(await screen.findByText("24/35")).toBeVisible();
   expect(state.save.run?.moves).toBe(2);
   expect(state.save.maps?.book.current).toBe(ENTRANCE);
   expect(consumeCount).toBe(0);
@@ -1276,7 +1341,7 @@ it("shows unlocked dungeons and the recovery place only at the entrance", async 
   };
   renderGame();
   const user = userEvent.setup();
-  expect(await screen.findByText("HP 35/35")).toBeVisible();
+  expect(await screen.findByText("35/35")).toBeVisible();
   await user.click(screen.getByRole("button", { name: "マップを全画面表示" }));
   const map = screen.getByRole("dialog", { name: "冒険マップ" });
   expect(

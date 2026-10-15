@@ -56,6 +56,23 @@ const server = setupServer(
     });
   }),
 );
+
+it("edits the shared contents of unopened region chests", async () => {
+  const user = userEvent.setup();
+  render(<BattleSettingsManager />);
+  const gold = await screen.findByLabelText("ゴールド / 宝箱");
+  await user.clear(gold);
+  await user.type(gold, "80");
+  const potion = screen.getByLabelText("歩数回復薬 / 宝箱");
+  await user.clear(potion);
+  await user.type(potion, "2");
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() =>
+    expect(saved).toHaveBeenCalledWith(
+      expect.objectContaining({ chest_gold: 80, chest_step_potions: 2 }),
+    ),
+  );
+});
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 afterEach(() => {
   server.resetHandlers();

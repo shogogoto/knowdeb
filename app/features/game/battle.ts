@@ -16,6 +16,9 @@ export const emptyAllocation: Allocation = {
 };
 export const defaultBalance = {
   base_hp: 35,
+  chest_gold: 30,
+  chest_healing_potions: 0,
+  chest_step_potions: 1,
   base_mp: 10,
   base_attack: 10,
   base_defense: 1,

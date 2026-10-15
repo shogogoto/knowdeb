@@ -50,7 +50,7 @@ it("separates enemy HP from named player HP in the floating battle", () => {
     enemy.compareDocumentPosition(player) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
   expect(player).toHaveTextContent("テストプレイヤー");
-  expect(player).toHaveTextContent("HP 35/35");
+  expect(within(player).getByText("35/35")).toBeVisible();
   expect(
     within(player).getByRole("progressbar", { name: "プレイヤーHP" }),
   ).toHaveAttribute("aria-valuenow", "35");

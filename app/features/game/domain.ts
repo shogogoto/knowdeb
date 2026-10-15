@@ -34,6 +34,10 @@ export type GameSave = {
     weapon_attack: number;
     review_reward_day?: string | null;
     quiz_reward_day?: string | null;
+    opened_chests?: Record<
+      string,
+      Record<string, import("./treasure").ChestReward>
+    >;
   };
   clears: Record<string, number>;
   bossClears?: Record<string, number[]>;

@@ -80,6 +80,14 @@ stay over the mounted map. Each live enemy defeat awards 10 gold times its
 one-based region; turn receipts prevent retry rewards. Purchases, equipping,
 item consumption and daily rewards are server-owned and revision-checked, and
 ordinary snapshot writes retain that economy even for older clients.
+Each completed five-place region exposes a treasure chest beyond its last place,
+including existing maps. Visiting from that last place opens it without spending
+a move, even at zero moves. The revision-checked `/game/chests/open` endpoint
+atomically grants the configured contents and records a permanent receipt in
+`economy.opened_chests[resourceId][region]`. Opened boxes stay on the map and show
+what they contained. Admin game balance controls gold, HP potions and step potions
+per box; changes apply to unopened boxes only. Treasure is a facility, not a
+knowledge place, so it never increases achievement or enters quiz populations.
 The initial catalog offers bronze/steel swords (+3/+8 attack, 100/300 gold) and
 HP potions (+20 HP, 30 gold). Owned weapons can be equipped or removed outside
 combat; the bonus is shared by live combat, stat allocation previews and practice.
