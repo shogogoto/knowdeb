@@ -240,13 +240,13 @@ it("selects a player's appearance while using draft initial stats and the enemy 
     "src",
     "https://example.com/player-b.png",
   );
-  expect(preparations[0]).toEqual({
+  expect(preparations[0]).toMatchObject({
     balance: draft,
     simulation: trial,
-    seed: 1,
     allocation: null,
     player_user_id: "other",
   });
+  expect(preparations[0].seed).toEqual(expect.any(Number));
   expect(
     screen.getByRole("progressbar", { name: "プレイヤーHP" }),
   ).toHaveAttribute("aria-valuenow", "70");
@@ -302,15 +302,15 @@ it("keeps practice visible before any trial and can use a real dungeon", async (
   await waitFor(() => expect(start).toBeEnabled());
   await user.click(start);
   await screen.findByText("ダンジョンの条件を確認");
-  expect(requestInput).toEqual({
+  expect(requestInput).toMatchObject({
     user_id: "user",
     player_user_id: "other",
     resource_id: "book",
     level: 1,
-    seed: 1,
     balance: draft,
     allocation: null,
   });
+  expect(requestInput?.seed).toEqual(expect.any(Number));
   expect(preparations).toHaveLength(0);
 });
 

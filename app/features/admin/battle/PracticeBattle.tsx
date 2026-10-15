@@ -54,7 +54,6 @@ type RecordResult = {
   name: string;
   playerName?: string;
   level: number;
-  seed: number;
   settings: BattleSettings;
   enemyTrial?: EnemyBalanceSimulation;
   allocation: Allocation;
@@ -83,7 +82,6 @@ type Counts = Omit<
   | "name"
   | "playerName"
   | "level"
-  | "seed"
   | "settings"
   | "enemyTrial"
   | "outcome"
@@ -101,7 +99,7 @@ const newCounts = (): Counts => ({
   seconds: 0,
 });
 
-/** Stable per-turn, per-instance draws let repeated trials compare settings. */
+/** Stable per-turn, per-instance draws keep the random roll consistent in a run. */
 function randomFor(seed: number, key: string) {
   let value = [...`${seed}:${key}`].reduce(
     (hash, c) => Math.imul(hash ^ c.charCodeAt(0), 16777619) >>> 0,
@@ -111,6 +109,10 @@ function randomFor(seed: number, key: string) {
     value = (Math.imul(value, 1664525) + 1013904223) >>> 0;
     return value / 4294967296;
   };
+}
+
+function createSeed() {
+  return Math.floor(Math.random() * 2_147_483_648);
 }
 
 export default function PracticeBattle({
@@ -145,7 +147,6 @@ export default function PracticeBattle({
   const [level, setLevel] = useState(1);
   const [dungeonsLoading, setDungeonsLoading] = useState(true);
   const [dungeonsError, setDungeonsError] = useState<string>();
-  const [seed, setSeed] = useState(1);
   const [active, setActive] = useState<Session>();
   const [initial, setInitial] = useState<Session>();
   const [results, setResults] = useState<RecordResult[]>([]);
@@ -295,7 +296,7 @@ export default function PracticeBattle({
     setError(undefined);
     try {
       const options = {
-        seed,
+        seed: createSeed(),
         balance: { ...settings },
         allocation: actualPlayer ? null : { ...allocation },
         ...(actualPlayer ? { player_user_id: playerId } : {}),
@@ -419,7 +420,6 @@ export default function PracticeBattle({
           name: current.name,
           playerName: current.playerName,
           level: current.level,
-          seed: current.seed,
           settings: { ...current.context.balance },
           enemyTrial: current.enemyTrial,
           allocation: { ...(current.state.save.allocation ?? emptyAllocation) },
@@ -681,20 +681,9 @@ export default function PracticeBattle({
             {dungeonsError}
           </p>
         )}
-        <div className="space-y-1">
-          <Label htmlFor="practice-seed">乱数シード</Label>
-          <Input
-            id="practice-seed"
-            type="number"
-            min={0}
-            max={2147483647}
-            step={1}
-            required
-            value={seed}
-            disabled={!!active || busy}
-            onChange={(event) => setSeed(Number(event.target.value))}
-          />
-        </div>
+        <p className="text-sm text-muted-foreground">
+          ダメージは攻撃ごとに変動します。同じ条件でも試行ごとに結果が変わります。
+        </p>
         <div className="flex flex-wrap gap-2">
           <Button disabled={!canStart} type="submit">
             現在の設定で模擬戦を開始
@@ -704,7 +693,7 @@ export default function PracticeBattle({
               type="button"
               variant="outline"
               disabled={busy || !!active}
-              onClick={() => activate(initial)}
+              onClick={() => activate({ ...initial, seed: createSeed() })}
             >
               同じ条件で再戦
             </Button>
@@ -769,7 +758,6 @@ export default function PracticeBattle({
                 {[
                   "試行",
                   "敵の試算／領域",
-                  "シード",
                   "プレイヤー",
                   "勝敗",
                   "ターン",
@@ -791,7 +779,6 @@ export default function PracticeBattle({
                   <TableCell>
                     {r.name}／{r.level}
                   </TableCell>
-                  <TableCell>{r.seed}</TableCell>
                   <TableCell className="whitespace-nowrap">
                     {r.playerName && <p>{r.playerName}</p>}
                     HP {r.player.maxHp}／攻 {r.player.attack}／守{" "}
