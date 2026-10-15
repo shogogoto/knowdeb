@@ -17,7 +17,22 @@ jobs:
       github.event.workflow_run.event == 'push' &&
       github.event.workflow_run.head_repository.full_name == github.repository
     runs-on: ubuntu-latest
+    env:
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
     steps:
+      - name: Check Netlify credentials
+        shell: bash
+        run: |
+          missing=0
+          for name in NETLIFY_SITE_ID NETLIFY_AUTH_TOKEN; do
+            if [[ -z "${!name}" ]]; then
+              echo "::error::Missing GitHub Actions repository secret: $name"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
@@ -45,7 +60,6 @@ jobs:
           test -f .netlify/v1/functions/react-router-server.mjs
 
       - name: Deploy to Netlify
-        run: npx --yes netlify-cli@27.12.1 deploy --prod --no-build --dir=build/client --context=production
-        env:
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+        run: >-
+          npx --yes netlify-cli@27.12.1 deploy --prod --no-build --dir=build/client
+          --message="GitHub Actions ${{ github.event.workflow_run.head_sha }}"
