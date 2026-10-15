@@ -22,9 +22,7 @@ export default function PlayerStatus({
         <div className="grid min-w-0 gap-1">
           <div className="flex min-w-0 items-center gap-1">
             <Heart className="size-3 shrink-0 text-rose-400" />
-            <span className="shrink-0">
-              HP {run.hp}/{run.maxHp}
-            </span>
+            <span className="w-5 shrink-0">HP</span>
             <div
               role="progressbar"
               tabIndex={-1}
@@ -41,12 +39,13 @@ export default function PlayerStatus({
                 }}
               />
             </div>
+            <span className="w-10 shrink-0 text-right">
+              {run.hp}/{run.maxHp}
+            </span>
           </div>
           <div className="flex min-w-0 items-center gap-1">
             <WandSparkles className="size-3 shrink-0 text-violet-400" />
-            <span className="shrink-0">
-              MP {run.mp ?? 0}/{run.maxMp ?? 0}
-            </span>
+            <span className="w-5 shrink-0">MP</span>
             <div
               role="progressbar"
               tabIndex={-1}
@@ -67,6 +66,9 @@ export default function PlayerStatus({
                 }}
               />
             </div>
+            <span className="w-10 shrink-0 text-right">
+              {run.mp ?? 0}/{run.maxMp ?? 0}
+            </span>
           </div>
         </div>
       </div>
@@ -87,49 +89,57 @@ export default function PlayerStatus({
       </h3>
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm tabular-nums">
         <span className="flex items-center gap-1">
-          <Heart className="size-4 text-rose-400" />
-          HP {run.hp}/{run.maxHp}
-        </span>
-        <span className="flex items-center gap-1">
-          <WandSparkles className="size-4 text-violet-400" />
-          MP {run.mp ?? 0}/{run.maxMp ?? 0}
-        </span>
-        <span className="flex items-center gap-1">
           <Swords className="size-4" />攻 {run.attack}
         </span>
         <span className="flex items-center gap-1">
           <Shield className="size-4" />守 {run.defense}
         </span>
       </div>
-      <div
-        role="progressbar"
-        tabIndex={-1}
-        aria-label="プレイヤーHP"
-        aria-valuenow={run.hp}
-        aria-valuemin={0}
-        aria-valuemax={run.maxHp}
-        className="h-2 overflow-hidden rounded-full bg-sky-500/15"
-      >
-        <div
-          className="h-full bg-sky-500 transition-[width]"
-          style={{ width: `${Math.min(100, (run.hp / run.maxHp) * 100)}%` }}
-        />
-      </div>
-      <div
-        role="progressbar"
-        tabIndex={-1}
-        aria-label="プレイヤーMP"
-        aria-valuenow={run.mp ?? 0}
-        aria-valuemin={0}
-        aria-valuemax={run.maxMp ?? 0}
-        className="h-2 overflow-hidden rounded-full bg-violet-500/15"
-      >
-        <div
-          className="h-full bg-violet-500 transition-[width]"
-          style={{
-            width: `${(run.maxMp ?? 0) > 0 ? Math.min(100, ((run.mp ?? 0) / (run.maxMp ?? 1)) * 100) : 0}%`,
-          }}
-        />
+      <div className="grid gap-1 text-xs tabular-nums">
+        <div className="flex min-w-0 items-center gap-2">
+          <Heart className="size-3 shrink-0 text-rose-400" />
+          <span className="w-5 shrink-0">HP</span>
+          <div
+            role="progressbar"
+            tabIndex={-1}
+            aria-label="プレイヤーHP"
+            aria-valuenow={run.hp}
+            aria-valuemin={0}
+            aria-valuemax={run.maxHp}
+            className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-sky-500/15"
+          >
+            <div
+              className="h-full bg-sky-500 transition-[width]"
+              style={{ width: `${Math.min(100, (run.hp / run.maxHp) * 100)}%` }}
+            />
+          </div>
+          <span className="w-12 shrink-0 text-right">
+            {run.hp}/{run.maxHp}
+          </span>
+        </div>
+        <div className="flex min-w-0 items-center gap-2">
+          <WandSparkles className="size-3 shrink-0 text-violet-400" />
+          <span className="w-5 shrink-0">MP</span>
+          <div
+            role="progressbar"
+            tabIndex={-1}
+            aria-label="プレイヤーMP"
+            aria-valuenow={run.mp ?? 0}
+            aria-valuemin={0}
+            aria-valuemax={run.maxMp ?? 0}
+            className="h-2 min-w-8 flex-1 overflow-hidden rounded-full bg-violet-500/15"
+          >
+            <div
+              className="h-full bg-violet-500 transition-[width]"
+              style={{
+                width: `${(run.maxMp ?? 0) > 0 ? Math.min(100, ((run.mp ?? 0) / (run.maxMp ?? 1)) * 100) : 0}%`,
+              }}
+            />
+          </div>
+          <span className="w-12 shrink-0 text-right">
+            {run.mp ?? 0}/{run.maxMp ?? 0}
+          </span>
+        </div>
       </div>
     </section>
   );
