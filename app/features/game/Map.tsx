@@ -720,11 +720,6 @@ export default function ExplorationMap({
       <div className="pointer-events-none absolute inset-x-3 bottom-3 flex flex-col items-center gap-2">
         <div className="pointer-events-auto max-w-full space-y-2 text-xs">
           {children}
-          <p className="hidden w-fit rounded bg-background/90 px-2 py-1 text-muted-foreground sm:block">
-            実線：知識の関係 · 破線：寄り道
-            <br />
-            矢印：地点を選ぶ · Enter：移動・切替 · Esc：選択解除 · f：全画面
-          </p>
         </div>
         {exhaustedMessage ? (
           <section

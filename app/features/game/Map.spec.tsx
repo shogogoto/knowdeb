@@ -101,6 +101,19 @@ it("hides other dungeons and recovery while away from the entrance", () => {
   expect(screen.queryByRole("button", { name: "回復場所" })).toBeNull();
 });
 
+it("does not show a persistent keyboard instruction on the map", () => {
+  render(
+    <ExplorationMap
+      map={map}
+      knowledge={[]}
+      onMove={vi.fn()}
+      onOpen={vi.fn()}
+      disabled={false}
+    />,
+  );
+  expect(screen.queryByText(/実線：知識の関係/)).toBeNull();
+});
+
 it("allows restarting from the entrance node itself when defeated there", async () => {
   const restart = vi.fn();
   render(

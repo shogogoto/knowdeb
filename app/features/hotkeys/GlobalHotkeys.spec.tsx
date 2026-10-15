@@ -395,6 +395,18 @@ it("画面固有のhotkeyを共通hotkeyより先に表示する", async () => {
   expect(screen.getByText("入力欄のフォーカスを解除")).toBeVisible();
 });
 
+it("ゲーム画面の操作hotkeyを疑問符の案内に表示する", async () => {
+  const user = userEvent.setup();
+  renderHotkeys(undefined, "/game");
+
+  await user.click(screen.getByRole("button", { name: "入力を終了" }));
+  await user.keyboard("?");
+
+  expect(screen.getByText("地点やダンジョンを選ぶ")).toBeVisible();
+  expect(screen.getByText("移動・ダンジョン切替")).toBeVisible();
+  expect(screen.getByText("マップを全画面表示")).toBeVisible();
+});
+
 it("ヘルプボタンでショートカット一覧を開く", async () => {
   const user = userEvent.setup();
   render(

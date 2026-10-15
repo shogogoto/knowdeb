@@ -378,6 +378,14 @@ function ContextHotkeySection({
 type HotkeyDefinition = { keys: string[]; label: string };
 
 function contextHotkeys(pathname: string, search: string): HotkeyDefinition[] {
+  if (pathname === "/game") {
+    return [
+      { keys: ["矢印"], label: "地点やダンジョンを選ぶ" },
+      { keys: ["Enter"], label: "移動・ダンジョン切替" },
+      { keys: ["Esc"], label: "選択解除・全画面を閉じる" },
+      { keys: ["f"], label: "マップを全画面表示" },
+    ];
+  }
   if (pathname.startsWith("/admin/game")) {
     return [{ keys: ["t", "1–9"], label: "ゲーム管理の2段目タブへ移動" }];
   }
