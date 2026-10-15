@@ -69,6 +69,9 @@ const formulaLabels: Partial<Record<keyof typeof fields, string>> = {
   damage_attack_multiplier: "倍率",
   damage_defense_divisor: "除数",
   damage_variance_percent: "乱数幅",
+  battle_tempo_slow_seconds: "遅",
+  battle_tempo_medium_seconds: "中",
+  battle_tempo_fast_seconds: "速",
   enemy_types: "初期種類数",
   enemy_types_per_region: "増加種類数",
   quizzes_per_enemy_coefficient: "問数係数",
@@ -309,6 +312,14 @@ export default function BattleSettingsManager() {
                       kind={group.formula}
                       input={(kind) => settingInput(kind, true)}
                     />
+                  ) : group.label === "戦闘結果の表示テンポ" ? (
+                    <div className="grid grid-cols-3 gap-3 p-4">
+                      {group.keys.map((kind) => (
+                        <div key={kind} className="flex justify-center">
+                          {settingInput(kind, true)}
+                        </div>
+                      ))}
+                    </div>
                   ) : (
                     <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                       {group.keys.map((kind) => {
