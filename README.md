@@ -33,6 +33,23 @@ npm run generate:api
 
 ## Deployment
 
+### Netlify (GitHub Actions)
+
+CI runs the tests and builds the app once. On a successful `main` push, it saves
+`build/` and the adapter-generated `.netlify/v1/` functions as the `netlify-build`
+artifact. The Netlify Deploy workflow downloads that exact CI run's artifact and
+uploads it with `netlify deploy --no-build`. It installs dependencies to package
+the SSR function, but does not rebuild the app.
+
+Set the GitHub Actions secrets `NETLIFY_SITE_ID` and `NETLIFY_AUTH_TOKEN` for the
+existing Netlify project. Build-time environment variables must be available in
+the CI Build step; Netlify-only build variables are not used by `npm run build`.
+
+To stop Netlify's separate Git-triggered builds, set **Project configuration >
+Developer settings > Continuous deployment > Build settings > Build status** to
+**Stopped builds**. This still allows prebuilt CLI deploys. See
+[Netlify's build status documentation](https://docs.netlify.com/build/configure-builds/stop-or-activate-builds/).
+
 ### Docker Deployment
 
 To build and run using Docker:
