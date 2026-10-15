@@ -106,31 +106,6 @@ export async function requestEnemyBalanceSimulation(input: {
   return requestSimulation("simulate", input, "敵を試算できませんでした。");
 }
 
-export type CombatSimulationInput = {
-  player: { hp: number; attack: number; defense: number };
-  enemy: { hp: number; attack: number };
-  balance: BattleSettings;
-};
-export type CombatSimulationResult = CombatSimulationInput & {
-  damage_to_enemy: number;
-  damage_to_player: number;
-  damage_to_enemy_min: number;
-  damage_to_enemy_max: number;
-  damage_to_player_min: number;
-  damage_to_player_max: number;
-  correct_answers_to_defeat: number | null;
-  incorrect_answers_to_defeat: number;
-};
-export function requestCombatSimulation(
-  input: CombatSimulationInput,
-): Promise<CombatSimulationResult> {
-  return requestSimulation(
-    "simulate-combat",
-    input,
-    "戦闘を試算できませんでした。",
-  );
-}
-
 async function requestSimulation<T>(
   path: string,
   input: unknown,
