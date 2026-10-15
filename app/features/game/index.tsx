@@ -72,9 +72,9 @@ import {
   PLACES_PER_REGION,
   RECOVERY,
   dungeonMap,
+  explorationSource,
   explore,
   knownKnowledge,
-  neighbours,
   parkDungeon,
 } from "./exploration";
 import { recoverGameState, requestGameState } from "./state";
@@ -279,16 +279,17 @@ export function GamePlay({
     ? validationIds.filter((id) => !validSet.has(canonicalSentenceId(id)))
     : [];
   const unavailable = new Set(unavailableIds.map(canonicalSentenceId));
+  const frontier = map ? explorationSource(map) : ENTRANCE;
   const {
     data: connected,
     error: connectionError,
     isLoading: connectionsLoading,
     mutate: retryConnections,
   } = useSWR(
-    run && map?.current !== ENTRANCE && run.phase === "path"
-      ? ["game-connections", run.resourceId, map?.current]
+    run && frontier !== ENTRANCE && run.phase === "path"
+      ? ["game-connections", run.resourceId, frontier]
       : null,
-    () => loadConnectedKnowledge(run?.resourceId ?? "", map?.current ?? ""),
+    () => loadConnectedKnowledge(run?.resourceId ?? "", frontier),
     { revalidateOnFocus: false, shouldRetryOnError: false },
   );
   useEffect(() => {
@@ -803,7 +804,7 @@ export function GamePlay({
   );
   const discovered = new Set(map?.places.map((place) => place.id));
   const paths =
-    map?.current === ENTRANCE
+    frontier === ENTRANCE
       ? (content?.knowledge
           .filter(
             (item) =>
@@ -814,14 +815,12 @@ export function GamePlay({
       : (connected ?? [])
           .filter(
             (item) =>
-              !neighbours(
-                map ?? { current: ENTRANCE, places: [], edges: [] },
-              ).includes(item.uid) &&
+              !discovered.has(item.uid) &&
               !unavailable.has(canonicalSentenceId(item.uid)),
           )
           .slice(0, 3);
   const detour =
-    map?.current !== ENTRANCE && !connectionsLoading && !connectionError
+    frontier !== ENTRANCE && !connectionsLoading && !connectionError
       ? content?.knowledge.find(
           (item) =>
             !discovered.has(item.uid) &&
@@ -1300,7 +1299,7 @@ export function GamePlay({
                           ...paths.map((knowledge) => ({
                             knowledge,
                             kind:
-                              map.current === ENTRANCE
+                              frontier === ENTRANCE
                                 ? ("detour" as const)
                                 : ("relation" as const),
                           })),

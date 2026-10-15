@@ -41,15 +41,20 @@ describe("persistent exploration", () => {
     expect(explore(save, ENTRANCE, "detour")).not.toBe(save);
     expect(explore(save, "a", "detour")).toBe(save);
   });
-  it("keeps branching paths and freezes each five-place achievement band", () => {
+  it("starts each region at the entrance and extends its tail even after backtracking", () => {
     let save = start();
     for (const id of ["a", "b", "c", "d", "e"]) save = step(save, id);
     save = step(resumeEvent(save), "f");
     expect(save.maps?.book.places.at(-1)).toEqual({ id: "f", region: 1 });
+    expect(save.maps?.book.edges.at(-1)).toEqual({
+      from: ENTRANCE,
+      to: "f",
+      kind: "detour",
+    });
     save = step(save, "e");
     save = step(save, "branch");
     expect(save.maps?.book.edges).toContainEqual({
-      from: "e",
+      from: "f",
       to: "branch",
       kind: "detour",
     });

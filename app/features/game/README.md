@@ -53,6 +53,13 @@ the captured populations or adventure progress.
 Dungeon switching parks the run on the server, never resetting HP or learning XP.
 Dungeon clearing counts laps, not resource levels.
 
+Each region occupies one horizontal row, starting at the entrance and extending
+in discovery order. New candidates come from the frontier region's last place,
+even after the player travels back to another location. A new region starts at
+the entrance. Mobile uses the same rows with panning. Admin's dungeon table has
+an explicit `領域を整列` migration action for old saved roads; it preserves
+place regions, current location, quiz assignments, and player progress.
+
 Numbers are provisional balancing constants, not a finalized level design.
 Game tabs are removed. `/game` is the map; `/game/status` and `/game/item`
 open floating panels over the same mounted adventure. The upper-left HP opens

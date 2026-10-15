@@ -38,6 +38,7 @@ import {
 import BattleSettingsManager from "../battle";
 import {
   type AdminGameDungeon,
+  alignAdminDungeonRegions,
   listAdminGameDungeons,
   rebuildAdminDungeonEnemies,
 } from "./api";
@@ -192,6 +193,30 @@ function GameDungeonManager() {
     }
   }
 
+  async function align(item: AdminGameDungeon) {
+    if (mutating) return;
+    setMutating(true);
+    setError(undefined);
+    try {
+      const result = await alignAdminDungeonRegions(
+        item.user_id,
+        item.resource_id,
+      );
+      toast.success(
+        result.changed
+          ? `${result.region_count}領域・${result.place_count}地点を整列しました。`
+          : "すでに整列済みです。",
+      );
+      await refresh();
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "整列できませんでした。",
+      );
+    } finally {
+      setMutating(false);
+    }
+  }
+
   return (
     <section className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -283,6 +308,20 @@ function GameDungeonManager() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        disabled={
+                          mutating ||
+                          item.status === "battle" ||
+                          item.status === "母集団あり"
+                        }
+                        title="旧ダンジョンの道を入口から領域ごとの一本道へ整列します"
+                        onClick={() => void align(item)}
+                      >
+                        領域を整列
+                      </Button>
                       <Button
                         type="button"
                         variant="outline"

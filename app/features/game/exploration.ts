@@ -23,7 +23,7 @@ export function dungeonMap(save: GameSave, run: Run): DungeonMap {
       region: Math.floor(index / PLACES_PER_REGION),
     })),
     edges: ids.map((id, index) => ({
-      from: ids[index - 1] ?? ENTRANCE,
+      from: index % PLACES_PER_REGION === 0 ? ENTRANCE : ids[index - 1],
       to: id,
       kind: "detour",
     })),
@@ -44,6 +44,14 @@ export function neighbours(map: DungeonMap): string[] {
   ];
 }
 
+/** New places extend only the frontier region, regardless of the current location. */
+export function explorationSource(map: DungeonMap): string {
+  const region = Math.floor(map.places.length / PLACES_PER_REGION);
+  return (
+    map.places.filter((place) => place.region === region).at(-1)?.id ?? ENTRANCE
+  );
+}
+
 export function explore(
   save: GameSave,
   id: string,
@@ -53,11 +61,7 @@ export function explore(
   const map = dungeonMap(save, save.run);
   if (id === map.current) return save;
   const known = id === ENTRANCE || map.places.some((place) => place.id === id);
-  const connected = map.edges.some(
-    (edge) =>
-      (edge.from === map.current && edge.to === id) ||
-      (edge.to === map.current && edge.from === id),
-  );
+  const source = explorationSource(map);
   return {
     ...save,
     maps: {
@@ -71,10 +75,16 @@ export function explore(
               { id, region: Math.floor(map.places.length / PLACES_PER_REGION) },
             ],
         // Travel to known places never invents a knowledge relation or detour.
-        edges:
-          known || connected
-            ? map.edges
-            : [...map.edges, { from: map.current, to: id, kind }],
+        edges: known
+          ? map.edges
+          : [
+              ...map.edges,
+              {
+                from: source,
+                to: id,
+                kind: source === ENTRANCE ? "detour" : kind,
+              },
+            ],
       },
     },
   };

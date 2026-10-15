@@ -16,6 +16,40 @@ const map: DungeonMap = {
   ],
 };
 
+it("aligns each region in a horizontal row even when old edges branch", () => {
+  const places = Array.from({ length: 7 }, (_, i) => ({
+    id: `place-${i}`,
+    region: Math.floor(i / 5),
+  }));
+  render(
+    <ExplorationMap
+      map={{
+        current: "place-0",
+        places,
+        edges: places.map((p) => ({
+          from: ENTRANCE,
+          to: p.id,
+          kind: "detour",
+        })),
+      }}
+      knowledge={places.map((p) => ({ uid: p.id, sentence: p.id }))}
+      onOpen={vi.fn()}
+      onMove={vi.fn()}
+      disabled={false}
+    />,
+  );
+  const nodes = places.map((p) =>
+    screen.getByRole("button", { name: new RegExp(`${p.id}$`) }),
+  );
+  expect(nodes[0].style.top).toBe(nodes[4].style.top);
+  expect(nodes[5].style.top).toBe(nodes[6].style.top);
+  expect(nodes[5].style.top).not.toBe(nodes[0].style.top);
+  expect(nodes[0].style.left).toBe(nodes[5].style.left);
+  expect(Number.parseFloat(nodes[4].style.left)).toBeGreaterThan(
+    Number.parseFloat(nodes[0].style.left),
+  );
+});
+
 it("places other dungeons left of the entrance and navigates them with arrows and Enter", async () => {
   const travel = vi.fn();
   render(

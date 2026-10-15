@@ -30,6 +30,20 @@ export function listAdminGameDungeons(): Promise<AdminGameDungeon[]> {
   return request("/admin/game/dungeons");
 }
 
+export function alignAdminDungeonRegions(
+  userId: string,
+  resourceId: string,
+): Promise<{
+  changed: boolean;
+  region_count: number;
+  place_count: number;
+}> {
+  return request(
+    `/admin/users/${encodeURIComponent(userId)}/game/dungeons/${encodeURIComponent(resourceId)}/regions/align`,
+    { method: "POST" },
+  );
+}
+
 export function rebuildAdminDungeonEnemies(
   userId: string,
   resourceId: string,

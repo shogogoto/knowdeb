@@ -25,6 +25,7 @@ import {
   ENTRANCE,
   PLACES_PER_REGION,
   RECOVERY,
+  explorationSource,
 } from "./exploration";
 import { directionalPlace } from "./navigation";
 
@@ -97,15 +98,6 @@ export default function ExplorationMap({
   const primaryAction = useRef<HTMLButtonElement>(null);
   const keyboardNavigation = useRef(false);
   const [zoom, setZoom] = useState(1);
-  const [narrow, setNarrow] = useState(false);
-  useEffect(() => {
-    if (!window.matchMedia) return;
-    const media = window.matchMedia("(max-width: 639px)");
-    const update = () => setNarrow(media.matches);
-    update();
-    media.addEventListener("change", update);
-    return () => media.removeEventListener("change", update);
-  }, []);
   const viewport = useRef<HTMLDivElement>(null);
   const mapElement = useRef<HTMLElement>(null);
   const fullButton = useRef<HTMLButtonElement>(null);
@@ -191,41 +183,26 @@ export default function ExplorationMap({
   const fresh = candidates.filter(
     (item) => !allIds.includes(item.knowledge.uid),
   );
-  const levels = new Map<string, number>([[ENTRANCE, 0]]);
   const positions = new Map<string, { x: number; y: number }>();
   const entranceX = 360 + Math.ceil(dungeons.length / 4) * 230;
-  const columns = new Map<number, number>();
-  for (const id of allIds) {
-    const parent = map.edges.find((edge) => edge.to === id);
-    const level =
-      id === ENTRANCE ? 0 : (levels.get(parent?.from ?? ENTRANCE) ?? 0) + 1;
-    levels.set(id, level);
-    const row = columns.get(level) ?? 0;
-    columns.set(level, row + 1);
-    positions.set(
-      id,
-      narrow
-        ? { x: entranceX + row * 200, y: 220 + level * 150 }
-        : { x: entranceX + level * 230, y: 220 + row * 150 },
-    );
+  positions.set(ENTRANCE, { x: entranceX, y: 220 });
+  const regionLengths = new Map<number, number>();
+  for (const place of map.places) {
+    const column = (regionLengths.get(place.region) ?? 0) + 1;
+    regionLengths.set(place.region, column);
+    positions.set(place.id, {
+      x: entranceX + column * 230,
+      y: 220 + place.region * 150,
+    });
   }
   positions.set(RECOVERY, { x: entranceX, y: 370 });
-  const candidateLevel = (levels.get(map.current) ?? 0) + 1;
-  for (const item of fresh) {
-    const row = columns.get(candidateLevel) ?? 0;
-    columns.set(candidateLevel, row + 1);
-    positions.set(
-      item.knowledge.uid,
-      narrow
-        ? {
-            x: entranceX + row * 200,
-            y: 220 + candidateLevel * 150,
-          }
-        : {
-            x: entranceX + candidateLevel * 230,
-            y: 220 + row * 150,
-          },
-    );
+  const frontier = explorationSource(map);
+  const candidateRegion = Math.floor(map.places.length / PLACES_PER_REGION);
+  for (const [index, item] of fresh.entries()) {
+    positions.set(item.knowledge.uid, {
+      x: entranceX + ((regionLengths.get(candidateRegion) ?? 0) + 1) * 230,
+      y: 220 + candidateRegion * 150 + index * 110,
+    });
   }
   const worldId = (id: string) =>
     `@dungeon:${id.replaceAll("-", "").toLowerCase()}`;
@@ -439,7 +416,7 @@ export default function ExplorationMap({
                 { from: ENTRANCE, to: RECOVERY, kind: "relation" as const },
                 ...map.edges,
                 ...fresh.map((item) => ({
-                  from: map.current,
+                  from: frontier,
                   to: item.knowledge.uid,
                   kind: item.kind,
                 })),
