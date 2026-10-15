@@ -13,10 +13,10 @@ import AdminUserManager from "./users";
 import WorkloadSettingsManager from "./workload";
 
 const sections = [
+  { id: "game", label: "ゲーム" },
   { id: "users", label: "ユーザー" },
   { id: "workload", label: "負荷制御" },
   { id: "levels", label: "レベル" },
-  { id: "game", label: "ゲーム" },
   { id: "power", label: "Power" },
   { id: "pagerank", label: "PageRank" },
   { id: "images", label: "画像" },

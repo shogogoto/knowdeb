@@ -81,8 +81,8 @@ it("shows eight numbered top-level tabs with maintenance last", () => {
     expect(tab.querySelector("kbd")).toHaveTextContent(`${index + 1}`);
   }
   expect(tabs[7]).toHaveAccessibleName("メンテナンス");
-  const panel = screen.getByRole("tabpanel", { name: "ユーザー" });
-  expect(tabs[0]).toHaveAttribute("aria-controls", panel.id);
+  expect(tabs[0]).toHaveAccessibleName("ゲーム");
+  expect(tabs[0]).toHaveAttribute("aria-controls", "admin-tabs-game-panel");
   expect(
     screen.queryByRole("tab", { name: "孤立Tanbun" }),
   ).not.toBeInTheDocument();
@@ -91,10 +91,10 @@ it("shows eight numbered top-level tabs with maintenance last", () => {
 it("Ctrl+numbers select the matching top-level URLs even inside maintenance", async () => {
   const user = setup("/admin/maintenance/misplaced");
   const paths = [
+    "game/balance",
     "users",
     "workload",
     "levels",
-    "game/balance",
     "power",
     "pagerank",
     "images",
@@ -152,11 +152,11 @@ it("retains legacy query links and defaults to the first top-level tab", async (
   );
 });
 
-it("opens users for the admin root", async () => {
+it("opens game for the admin root", async () => {
   setup("/admin");
   await waitFor(() =>
     expect(screen.getByLabelText("現在のURL")).toHaveTextContent(
-      "/admin/users",
+      "/admin/game/balance",
     ),
   );
 });
