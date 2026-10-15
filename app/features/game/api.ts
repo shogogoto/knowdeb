@@ -21,6 +21,7 @@ export type DungeonContent = {
 export type DungeonPreparation = {
   prepared_regions: number;
   target_regions: number;
+  preparation?: import("~/features/quiz/api").QuizPreparationState;
 };
 export type DungeonRegionQuizPool = {
   ready: boolean;

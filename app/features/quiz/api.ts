@@ -70,6 +70,12 @@ export type StudyResource = {
 export type StudyPlanPreparationStatus = {
   plan_id: string;
   prepared_quiz_count: number;
+  preparation?: QuizPreparationState;
+};
+export type QuizPreparationState = {
+  status: "idle" | "queued" | "running" | "ready" | "failed" | "exhausted";
+  required_quiz_count: number;
+  error?: string | null;
 };
 export type PrepareStudyPlanResult = StudyPlanPreparationStatus & {
   requested_count: number;

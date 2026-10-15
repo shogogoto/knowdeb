@@ -60,6 +60,11 @@ the entrance. Mobile uses the same rows with panning. Admin's dungeon table has
 an explicit `領域を整列` migration action for old saved roads; it preserves
 place regions, current location, quiz assignments, and player progress.
 
+Dungeon and StudyPlan views read the same persisted preparation state. Both poll
+current status; failure and exhausted candidates are shown separately from live
+generation. Dungeon preparation provides an explicit retry action instead of
+leaving an insufficient quiz count labelled as preparing forever.
+
 Numbers are provisional balancing constants, not a finalized level design.
 Game tabs are removed. `/game` is the map; `/game/status` and `/game/item`
 open floating panels over the same mounted adventure. The upper-left HP opens

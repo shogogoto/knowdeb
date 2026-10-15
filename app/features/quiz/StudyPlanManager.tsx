@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { requestGameState } from "~/features/game/state";
 import { useNotifications } from "~/features/notifications/NotificationProvider";
 import Loading from "~/shared/components/Loading";
@@ -36,6 +37,7 @@ import {
 } from "~/shared/components/ui/table";
 import type { StudyPlanDraft } from "~/shared/generated/fastAPI.schemas";
 import { useIsMobile } from "~/shared/hooks/use-mobile";
+import PreparationNotice from "./PreparationNotice";
 import StudyPlanForm from "./StudyPlanForm";
 import {
   type QuizType,
@@ -145,9 +147,14 @@ export default function StudyPlanManager() {
     data: preparations = emptyPreparations,
     error: preparationsError,
     mutate: mutatePreparations,
-  } = useQuizSWR("study-plan-manager-preparations", listStudyPlanPreparations, {
-    keepPreviousData: true,
-  });
+  } = useSWR(
+    "study-plan-manager-preparations",
+    () => listStudyPlanPreparations({ forceRefresh: true }),
+    {
+      keepPreviousData: true,
+      refreshInterval: 5000,
+    },
+  );
   const [editingPlan, setEditingPlan] = useState<StudyPlan>();
   const [isCreating, setIsCreating] = useState(false);
   const [selectedPlanIds, setSelectedPlanIds] = useState<Set<string>>(
@@ -242,6 +249,9 @@ export default function StudyPlanManager() {
         ]),
       ),
     [preparations],
+  );
+  const preparationStates = Object.fromEntries(
+    preparations.map((item) => [item.plan_id, item.preparation]),
   );
   const loadError = plansError ?? resourcesError ?? preparationsError;
 
@@ -563,6 +573,7 @@ export default function StudyPlanManager() {
           {
             plan_id: plan.uid,
             prepared_quiz_count: prepared.prepared_quiz_count,
+            preparation: prepared.preparation,
           },
         ],
         { revalidate: false },
@@ -618,10 +629,20 @@ export default function StudyPlanManager() {
         <Button
           type="button"
           size="sm"
-          disabled={Boolean(preparingId)}
+          disabled={
+            Boolean(preparingId) ||
+            ["queued", "running"].includes(
+              preparationStates[plan.uid]?.status ?? "",
+            )
+          }
           onClick={() => void preparePlan(plan)}
         >
-          {preparingId === plan.uid ? "準備中…" : "追加"}
+          {preparingId === plan.uid ||
+          preparationStates[plan.uid]?.status === "running"
+            ? "準備中…"
+            : preparationStates[plan.uid]?.status === "queued"
+              ? "準備待ち…"
+              : "追加"}
         </Button>
         <Button asChild size="sm" variant="outline">
           <Link to={`/review?view=quiz&plan=${encodeURIComponent(plan.uid)}`}>
@@ -975,6 +996,9 @@ export default function StudyPlanManager() {
                             {preparedCounts[plan.uid] ?? 0}
                           </strong>
                           問準備済み・1回{plan.n_quiz}問・{plan.n_option}択
+                          <PreparationNotice
+                            preparation={preparationStates[plan.uid]}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1169,6 +1193,9 @@ export default function StudyPlanManager() {
                         </TableCell>
                         <TableCell className="text-center tabular-nums">
                           {preparedCounts[plan.uid] ?? 0}
+                          <PreparationNotice
+                            preparation={preparationStates[plan.uid]}
+                          />
                         </TableCell>
                         <TableCell className="text-center tabular-nums">
                           {plan.n_option}

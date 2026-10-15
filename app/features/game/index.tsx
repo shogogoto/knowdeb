@@ -6,6 +6,9 @@ import AuthGuard from "~/features/auth/AuthGuard";
 import { useAuth } from "~/features/auth/AuthProvider";
 import { useResourceGrowth } from "~/features/gamification/ResourceGrowth";
 import { invalidateGamification } from "~/features/gamification/invalidate";
+import PreparationNotice, {
+  preparationLabels,
+} from "~/features/quiz/PreparationNotice";
 import QuizPreviewPrompt from "~/features/quiz/QuizPreviewPrompt";
 import { invalidateStudyPlanPreparationCache } from "~/features/quiz/api";
 import { markTanbunSeen } from "~/features/review/api";
@@ -174,13 +177,35 @@ export function GamePlay({
   useGameMusic(run ? "explore" : null);
   const resourceId = run?.resourceId ?? selectedId;
   const parked = save.dungeons?.[resourceId];
-  const { data: dungeonPreparation } = useSWR(
+  const {
+    data: dungeonPreparation,
+    error: preparationError,
+    mutate: refreshPreparation,
+  } = useSWR(
     stateLoaded && resourceId
       ? ["game-dungeon-preparation", userId, resourceId]
       : null,
     () => loadDungeonPreparation(resourceId),
     { refreshInterval: 5_000, revalidateOnFocus: true },
   );
+  async function retryDungeonPreparation() {
+    setBusy(true);
+    try {
+      await gameRequest(
+        `dungeons/${encodeURIComponent(resourceId)}/preparation/retry`,
+        {},
+        "POST",
+      );
+      await refreshPreparation();
+      setError(undefined);
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : "再試行できませんでした。",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
   const {
     data: loadedContent,
     error: contentError,
@@ -439,7 +464,14 @@ export function GamePlay({
       destinationRegion < 20 &&
       destinationRegion > (dungeonPreparation?.prepared_regions ?? 0)
     ) {
-      setError("この領域のクイズを準備中です。少し待ってから進んでください。");
+      setError(
+        dungeonPreparation?.preparation &&
+          ["failed", "exhausted"].includes(
+            dungeonPreparation.preparation.status,
+          )
+          ? preparationLabels[dungeonPreparation.preparation.status]
+          : "この領域のクイズはまだ準備できていません。準備状況を確認してください。",
+      );
       return;
     }
     pendingMove.current = true;
@@ -467,7 +499,7 @@ export function GamePlay({
       );
       if (!population.ready) {
         setError(
-          `領域${region + 1}のクイズを準備中です（${population.available_quizzes}/${population.required_quizzes}問）。少し待ってから進んでください。`,
+          `領域${region + 1}のクイズが不足しています（${population.available_quizzes}/${population.required_quizzes}問）。準備状況を確認してください。`,
         );
         return;
       }
@@ -1093,13 +1125,38 @@ export function GamePlay({
             </>
           ) : (
             <>
+              {preparationError && (
+                <p role="alert">クイズの準備状況を取得できませんでした。</p>
+              )}
               {dungeonPreparation &&
-                dungeonPreparation.target_regions >
-                  dungeonPreparation.prepared_regions && (
-                  <output className="text-sm text-muted-foreground">
-                    領域 {dungeonPreparation.prepared_regions + 1}{" "}
-                    のクイズを準備中です。
-                  </output>
+                (dungeonPreparation.target_regions >
+                  dungeonPreparation.prepared_regions ||
+                  ["queued", "running", "failed", "exhausted"].includes(
+                    dungeonPreparation.preparation?.status ?? "",
+                  )) && (
+                  <div className="space-y-1">
+                    <PreparationNotice
+                      preparation={dungeonPreparation.preparation}
+                    />
+                    {(!dungeonPreparation.preparation ||
+                      dungeonPreparation.preparation.status === "idle") && (
+                      <p className="text-sm text-muted-foreground">
+                        クイズの準備待ちです。
+                      </p>
+                    )}
+                    {["failed", "exhausted"].includes(
+                      dungeonPreparation.preparation?.status ?? "",
+                    ) && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        disabled={busy}
+                        onClick={() => void retryDungeonPreparation()}
+                      >
+                        クイズの準備を再試行
+                      </Button>
+                    )}
+                  </div>
                 )}
               {map && (
                 <ExplorationMap

@@ -562,6 +562,41 @@ function HistoryControls() {
     </>
   );
 }
+
+it("shows a stopped preparation and retries it instead of claiming it is still running", async () => {
+  const initial = enterDungeon(newSave(), "book", "本", 1);
+  state = {
+    revision: 1,
+    save: { ...initial, content: await loadDungeon("book") },
+  };
+  let status = "exhausted";
+  const retry = vi.fn();
+  const preparation = () => ({
+    prepared_regions: 0,
+    target_regions: 1,
+    preparation: { status, required_quiz_count: 10 },
+  });
+  server.use(
+    http.get("*/game/dungeons/:resource/preparation", () =>
+      HttpResponse.json(preparation()),
+    ),
+    http.post("*/game/dungeons/:resource/preparation/retry", () => {
+      retry();
+      status = "running";
+      return HttpResponse.json(preparation());
+    }),
+  );
+  renderGame();
+  expect(
+    await screen.findByText("作成できるクイズが不足しています"),
+  ).toBeVisible();
+  expect(screen.queryByText("クイズ準備中")).not.toBeInTheDocument();
+  await userEvent
+    .setup()
+    .click(screen.getByRole("button", { name: "クイズの準備を再試行" }));
+  expect(await screen.findByText("クイズ準備中")).toBeVisible();
+  expect(retry).toHaveBeenCalledOnce();
+});
 function RefreshAccess() {
   const { mutate } = useSWRConfig();
   return (

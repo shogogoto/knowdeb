@@ -100,6 +100,40 @@ function Location() {
   );
 }
 
+it.each([
+  {
+    status: "running" as const,
+    label: "クイズ準備中",
+    button: "準備中…",
+    disabled: true,
+  },
+  {
+    status: "exhausted" as const,
+    label: "作成できるクイズが不足しています",
+    button: "追加",
+    disabled: false,
+  },
+])(
+  "shows server preparation state $status without a local preparation action",
+  async ({ status, label, button, disabled }) => {
+    vi.mocked(listStudyPlanPreparations).mockResolvedValue([
+      {
+        plan_id: plan.uid,
+        prepared_quiz_count: 3,
+        preparation: { status, required_quiz_count: 8 },
+      },
+    ]);
+    renderManager();
+    expect((await screen.findAllByText(label)).length).toBeGreaterThan(0);
+    await userEvent
+      .setup()
+      .click(screen.getByRole("checkbox", { name: `${plan.name}を選択` }));
+    if (disabled)
+      expect(screen.getByRole("button", { name: button })).toBeDisabled();
+    else expect(screen.getByRole("button", { name: button })).toBeEnabled();
+  },
+);
+
 it("PlanとResourceを省略可能な表として表示する", async () => {
   const user = userEvent.setup();
   renderManager();
