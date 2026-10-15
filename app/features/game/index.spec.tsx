@@ -766,7 +766,9 @@ it.each([false, true])(
       await user.keyboard("{Enter}");
     }
     expect(screen.getByTestId("pathname")).toHaveTextContent("/game/status");
-    expect(screen.getByRole("dialog", { name: "ステータス" })).toBeVisible();
+    expect(
+      screen.getByRole("dialog", { name: "ゲームメニュー" }),
+    ).toBeVisible();
     expect(await screen.findByLabelText("割り振りポイント")).toHaveTextContent(
       /0\/3 pt/,
     );
@@ -787,7 +789,7 @@ it.each([false, true])(
     );
     expect(screen.getByTestId("pathname")).toHaveTextContent("/game");
     expect(
-      screen.queryByRole("dialog", { name: "ステータス" }),
+      screen.queryByRole("dialog", { name: "ゲームメニュー" }),
     ).not.toBeInTheDocument();
     if (fullscreen)
       expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
@@ -795,10 +797,12 @@ it.each([false, true])(
       screen.getByRole("button", { name: "ブラウザで進む", hidden: true }),
     );
     expect(screen.getByTestId("pathname")).toHaveTextContent("/game/status");
-    expect(screen.getByRole("dialog", { name: "ステータス" })).toBeVisible();
+    expect(
+      screen.getByRole("dialog", { name: "ゲームメニュー" }),
+    ).toBeVisible();
     await user.keyboard("{Escape}");
     expect(
-      screen.queryByRole("dialog", { name: "ステータス" }),
+      screen.queryByRole("dialog", { name: "ゲームメニュー" }),
     ).not.toBeInTheDocument();
     if (fullscreen)
       expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
@@ -816,9 +820,18 @@ it.each(["/game/status", "/game/status/"])(
       save: enterDungeon(newSave(), "book", "テストの本", 1),
     };
     renderGame(path);
-    expect(await screen.findByText("ダンジョン攻略 0周")).toBeInTheDocument();
-    expect(screen.getByRole("dialog", { name: "ステータス" })).toBeVisible();
-    expect(screen.queryByRole("tablist")).not.toBeInTheDocument();
+    expect(
+      await screen.findByRole("tab", { name: "ステータス" }),
+    ).toHaveAttribute("data-state", "active");
+    expect(
+      screen.getByRole("dialog", { name: "ゲームメニュー" }),
+    ).toBeVisible();
+    expect(screen.getByRole("tab", { name: "アイテム" })).toBeVisible();
+    expect(screen.getByRole("tab", { name: "実績" })).toBeVisible();
+    expect(
+      screen.queryByText("育成ポイントを割り振れます。振り直しは無料です。"),
+    ).toBeNull();
+    expect(screen.queryByText(/ダンジョン攻略\s+\d+周/)).toBeNull();
     expect(state.save.run?.hp).toBe(35);
     expect(state.revision).toBe(1);
   },
@@ -826,9 +839,51 @@ it.each(["/game/status", "/game/status/"])(
 
 it("opens the item URL directly", async () => {
   renderGame("/game/item/");
+  expect(await screen.findByRole("tab", { name: "アイテム" })).toHaveAttribute(
+    "data-state",
+    "active",
+  );
+});
+
+it("switches between status, inventory, and achievement tabs in the game menu", async () => {
+  state = {
+    revision: 1,
+    save: {
+      ...enterDungeon(newSave(), "book", "テストの本", 1),
+      clears: { book: 2 },
+      bossClears: { book: [5] },
+      unlockedDungeons: [
+        {
+          sourceId: "book",
+          resourceId: "previous",
+          name: "以前の本",
+          achievement: 3,
+        },
+      ],
+    },
+  };
+  renderGame("/game/status");
+  const user = userEvent.setup();
+  await screen.findByRole("dialog", { name: "ゲームメニュー" });
+  await user.click(screen.getByRole("tab", { name: "アイテム" }));
+  expect(screen.getByTestId("pathname")).toHaveTextContent("/game/item");
+  expect(await screen.findByText("専門分野")).toBeVisible();
+  await user.click(screen.getByRole("tab", { name: "実績" }));
+  expect(screen.getByTestId("pathname")).toHaveTextContent(
+    "/game/achievements",
+  );
+  expect(screen.getByRole("heading", { name: "ダンジョン攻略" })).toBeVisible();
+  expect(screen.getAllByText("2回")).toHaveLength(2);
+  expect(screen.getByRole("heading", { name: "ボス撃破" })).toBeVisible();
+  expect(screen.getByText("1体")).toBeVisible();
   expect(
-    await screen.findByText(/所持品から装備・使用できます/),
-  ).toBeInTheDocument();
+    screen.getByRole("heading", { name: "開放したダンジョン" }),
+  ).toBeVisible();
+  expect(
+    within(screen.getByRole("dialog", { name: "ゲームメニュー" })).getByText(
+      "以前の本",
+    ),
+  ).toBeVisible();
 });
 
 it("opens the shop from the gold HUD while keeping the map mounted", async () => {
@@ -844,7 +899,9 @@ it("opens the shop from the gold HUD while keeping the map mounted", async () =>
   await user.click(
     await screen.findByRole("button", { name: "所持ゴールド 120" }),
   );
-  expect(await screen.findByRole("dialog", { name: "ショップ" })).toBeVisible();
+  expect(
+    await screen.findByRole("dialog", { name: "ゲームメニュー" }),
+  ).toBeVisible();
   expect(screen.getByTestId("pathname")).toHaveTextContent("/game/shop");
   await user.click(screen.getByRole("button", { name: "所持品" }));
   expect(screen.getByTestId("pathname")).toHaveTextContent("/game/item");
@@ -863,19 +920,19 @@ it("shows the item box and gold beside the map player status", async () => {
   await userEvent
     .setup()
     .click(screen.getByRole("button", { name: "アイテムボックスを開く" }));
-  expect(screen.getByRole("dialog", { name: "アイテム" })).toBeVisible();
+  expect(screen.getByRole("dialog", { name: "ゲームメニュー" })).toBeVisible();
 });
 
 it("records floating item navigation in history and closes direct status links safely", async () => {
   const view = renderGame("/game/status");
   const user = userEvent.setup();
-  await screen.findByRole("dialog", { name: "ステータス" });
+  await screen.findByRole("dialog", { name: "ゲームメニュー" });
   await user.keyboard("{Escape}");
   expect(screen.getByTestId("pathname")).toHaveTextContent("/game");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "アイテム" }));
   expect(screen.getByTestId("pathname")).toHaveTextContent("/game/item");
-  expect(screen.getByRole("dialog", { name: "アイテム" })).toBeVisible();
+  expect(screen.getByRole("dialog", { name: "ゲームメニュー" })).toBeVisible();
   fireEvent.click(
     screen.getByRole("button", { name: "ブラウザで戻る", hidden: true }),
   );
@@ -883,7 +940,7 @@ it("records floating item navigation in history and closes direct status links s
   fireEvent.click(
     screen.getByRole("button", { name: "ブラウザで進む", hidden: true }),
   );
-  expect(screen.getByRole("dialog", { name: "アイテム" })).toBeVisible();
+  expect(screen.getByRole("dialog", { name: "ゲームメニュー" })).toBeVisible();
   expect(consumeCount).toBe(0);
   view.unmount();
 });

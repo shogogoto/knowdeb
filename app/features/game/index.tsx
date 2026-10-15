@@ -28,9 +28,16 @@ import {
   DialogTitle,
 } from "~/shared/components/ui/dialog";
 import { Input } from "~/shared/components/ui/input";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "~/shared/components/ui/tabs";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import { useGetLearningProgressUserUserIdLearningProgressGet } from "~/shared/generated/gamification/gamification";
 import { tanbunDetailCache } from "~/shared/lib/indexed";
+import AchievementsPanel from "./AchievementsPanel";
 import BattleDialog from "./BattleDialog";
 import BossPanel from "./BossPanel";
 import EconomyPanel from "./EconomyPanel";
@@ -124,9 +131,21 @@ export function GamePlay({
     routeMenu === "status" ||
     routeMenu === "item" ||
     routeMenu === "shop" ||
+    routeMenu === "achievements" ||
     routeMenu === "boss"
       ? routeMenu
       : undefined;
+  const menuPanel =
+    panel === "status" ||
+    panel === "item" ||
+    panel === "shop" ||
+    panel === "achievements";
+  const menuTab =
+    panel === "item" || panel === "shop"
+      ? "item"
+      : panel === "achievements"
+        ? "achievements"
+        : "status";
   const navigate = useNavigate();
   const location = useLocation();
   function openPanel(panel: "status" | "item" | "shop" | "boss") {
@@ -1528,22 +1547,12 @@ export function GamePlay({
           data-dashboard-swipe-ignore
         >
           <DialogHeader>
-            <DialogTitle>
-              {panel === "boss"
-                ? "ボス"
-                : panel === "shop"
-                  ? "ショップ"
-                  : panel === "item"
-                    ? "アイテム"
-                    : "ステータス"}
-            </DialogTitle>
-            <DialogDescription>
-              {panel === "boss"
-                ? "達成度5ごとに挑戦できます。撃破すると専門分野が開放されます。"
-                : panel === "item" || panel === "shop"
-                  ? "ゴールドで購入して、所持品から装備・使用できます。"
-                  : "育成ポイントを割り振れます。振り直しは無料です。"}
-            </DialogDescription>
+            <DialogTitle>{menuPanel ? "ゲームメニュー" : "ボス"}</DialogTitle>
+            {panel === "boss" && (
+              <DialogDescription>
+                達成度5ごとに挑戦できます。撃破すると専門分野が開放されます。
+              </DialogDescription>
+            )}
           </DialogHeader>
           {panel === "boss" && (
             <BossPanel
@@ -1553,60 +1562,78 @@ export function GamePlay({
               onChallenge={(level) => void challengeBoss(level)}
             />
           )}
-          {(panel === "item" || panel === "shop") && stateLoaded && (
-            <EconomyPanel
-              userId={userId}
-              save={save}
-              revision={revision.current}
-              shop={panel === "shop"}
-              disabled={busy || Boolean(feedback) || run?.phase === "battle"}
-              onSaved={(state) => {
-                applyState(state);
-                void retryCombat();
-              }}
-              onTab={(next) => {
-                void navigate(`/game/${next}`, {
+          {menuPanel && (
+            <Tabs
+              value={menuTab}
+              onValueChange={(value) =>
+                void navigate(`/game/${value}`, {
                   replace: true,
                   state: location.state,
-                });
-              }}
-            />
-          )}
-          {panel === "status" && (
-            <>
-              <div className="flex items-center gap-2">
-                <UserAvatar user={player} className="size-9 shrink-0" />
-                <span>
-                  {playerName ?? "あなた"} · Lv. {level ?? "—"}{" "}
-                  <span
-                    aria-label="割り振りポイント"
-                    className="text-sm text-muted-foreground"
-                  >
-                    ({allocationPoints}/{Math.max(0, (level ?? 1) - 1) * 3} pt)
+                })
+              }
+            >
+              <TabsList aria-label="ゲームメニュー" className="w-full">
+                <TabsTrigger value="status">ステータス</TabsTrigger>
+                <TabsTrigger value="item">アイテム</TabsTrigger>
+                <TabsTrigger value="achievements">実績</TabsTrigger>
+              </TabsList>
+              <TabsContent value="status" className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <UserAvatar user={player} className="size-9 shrink-0" />
+                  <span>
+                    {playerName ?? "あなた"} · Lv. {level ?? "—"}{" "}
+                    <span
+                      aria-label="割り振りポイント"
+                      className="text-sm text-muted-foreground"
+                    >
+                      ({allocationPoints}/{Math.max(0, (level ?? 1) - 1) * 3}{" "}
+                      pt)
+                    </span>
                   </span>
-                </span>
-              </div>
-              {level && stateLoaded && (
-                <StatEditor
-                  level={level}
-                  allocation={save.allocation}
-                  balance={balance ?? defaultBalance}
-                  inBattle={run?.phase === "battle"}
-                  currentHp={run?.hp}
-                  weaponAttack={save.economy?.weapon_attack}
-                  onPointsChange={setAllocationPoints}
-                  onSaved={applyState}
-                />
-              )}
-              <p>
-                ダンジョン攻略{" "}
-                {Object.values(save.clears).reduce(
-                  (sum, value) => sum + value,
-                  0,
+                </div>
+                {level && stateLoaded && (
+                  <StatEditor
+                    level={level}
+                    allocation={save.allocation}
+                    balance={balance ?? defaultBalance}
+                    inBattle={run?.phase === "battle"}
+                    currentHp={run?.hp}
+                    weaponAttack={save.economy?.weapon_attack}
+                    onPointsChange={setAllocationPoints}
+                    onSaved={applyState}
+                  />
                 )}
-                周
-              </p>
-            </>
+              </TabsContent>
+              <TabsContent value="item">
+                {stateLoaded && (
+                  <EconomyPanel
+                    userId={userId}
+                    save={save}
+                    revision={revision.current}
+                    shop={panel === "shop"}
+                    disabled={
+                      busy || Boolean(feedback) || run?.phase === "battle"
+                    }
+                    onSaved={(state) => {
+                      applyState(state);
+                      void retryCombat();
+                    }}
+                    onTab={(next) => {
+                      void navigate(`/game/${next}`, {
+                        replace: true,
+                        state: location.state,
+                      });
+                    }}
+                  />
+                )}
+              </TabsContent>
+              <TabsContent value="achievements">
+                <AchievementsPanel
+                  save={save}
+                  resources={growth?.resources ?? []}
+                />
+              </TabsContent>
+            </Tabs>
           )}
         </DialogContent>
       </Dialog>
