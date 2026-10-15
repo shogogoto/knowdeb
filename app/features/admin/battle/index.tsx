@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
@@ -11,6 +11,7 @@ import PracticeBattle from "./PracticeBattle";
 import Simulation from "./Simulation";
 import {
   type BattleSettings,
+  type EnemyConditions,
   type PracticeEnemyTrial,
   requestBattleSettings,
 } from "./api";
@@ -141,7 +142,7 @@ const groups = [
     formula: "roster",
     rules: [
       "クイズセット間の共有・未割り当てを許可",
-      "ロスターの変更は「ダンジョン母集団 → 敵だけ再構成」で反映",
+      "実ダンジョンへの反映は「ダンジョン母集団 → 敵だけ再構成」",
       "出現数は範囲内から抽選し、設定変更は次の戦闘から反映",
       "同じ種類の敵も複数出現",
       "小数は切り上げ、同時出現は最大20体",
@@ -166,6 +167,11 @@ export default function BattleSettingsManager() {
     [],
   );
   const [selectedTrial, setSelectedTrial] = useState<PracticeEnemyTrial>();
+  const [enemyConditions, setEnemyConditions] = useState<EnemyConditions>({
+    power: 100,
+    achievement: 1,
+  });
+  const practiceSection = useRef<HTMLDivElement>(null);
   const settingInput = (kind: keyof typeof fields, compact = false) => {
     const [label, min, max, step] = fields[kind];
     const input = (
@@ -281,11 +287,6 @@ export default function BattleSettingsManager() {
                   .finally(() => setSaving(false));
               }}
             />
-            <PracticeBattle
-              settings={settings}
-              trials={practiceTrials}
-              selectedTrial={selectedTrial}
-            />
             <div className="space-y-5">
               {groups.map((group) => (
                 <section
@@ -341,25 +342,32 @@ export default function BattleSettingsManager() {
                       }}
                     />
                   )}
-                  {(group.label === "敵ステータスの計算" ||
-                    group.label === "敵ロスターと遭遇の抽選") && (
+                  {group.label === "敵ロスターと遭遇の抽選" && (
                     <Simulation
+                      conditions={enemyConditions}
+                      onConditionsChange={setEnemyConditions}
+                      onTrialsChange={(trials) => {
+                        setPracticeTrials(trials);
+                        if (!trials.length) setSelectedTrial(undefined);
+                      }}
                       onPracticeTrial={(trial) => {
-                        setPracticeTrials((current) =>
-                          current.some((item) => item.id === trial.id)
-                            ? current
-                            : [...current, trial],
-                        );
                         setSelectedTrial(trial);
+                        practiceSection.current?.scrollIntoView?.({
+                          behavior: "smooth",
+                          block: "start",
+                        });
                       }}
                       settings={settings}
-                      mode={
-                        group.label === "敵ステータスの計算"
-                          ? "stats"
-                          : "roster"
-                      }
                       labels={Object.fromEntries(
-                        group.keys.map((key) => [key, fields[key][0]]),
+                        groups
+                          .filter(
+                            (item) =>
+                              item.label === "敵ステータスの計算" ||
+                              item.label === "敵ロスターと遭遇の抽選",
+                          )
+                          .flatMap((item) =>
+                            item.keys.map((key) => [key, fields[key][0]]),
+                          ),
                       )}
                     />
                   )}
@@ -369,6 +377,14 @@ export default function BattleSettingsManager() {
             <Button disabled={saving} type="submit" form="game-settings">
               {saving ? "保存中…" : "保存"}
             </Button>
+            <div ref={practiceSection} className="scroll-mt-20">
+              <PracticeBattle
+                settings={settings}
+                enemyConditions={enemyConditions}
+                trials={practiceTrials}
+                selectedTrial={selectedTrial}
+              />
+            </div>
           </div>
         )}
       </div>

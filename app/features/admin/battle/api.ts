@@ -86,6 +86,8 @@ export type PracticeEnemyTrial = {
   simulation: EnemyBalanceSimulation;
 };
 
+export type EnemyConditions = { power: number; achievement: number };
+
 export const requestSimulatedPractice = (
   input: SimulatedPracticeInput,
 ): Promise<PracticeSession> =>

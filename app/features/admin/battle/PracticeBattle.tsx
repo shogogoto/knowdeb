@@ -33,8 +33,10 @@ import PracticeReport from "./PracticeReport";
 import {
   type BattleSettings,
   type EnemyBalanceSimulation,
+  type EnemyConditions,
   type PracticeEnemyTrial,
   type PracticeSession,
+  requestEnemyBalanceSimulation,
   requestPractice,
   requestPracticeNext,
   requestPracticeTurn,
@@ -115,10 +117,12 @@ export default function PracticeBattle({
   settings,
   trials = [],
   selectedTrial,
+  enemyConditions,
 }: {
   settings: BattleSettings;
   trials?: PracticeEnemyTrial[];
   selectedTrial?: PracticeEnemyTrial;
+  enemyConditions?: EnemyConditions;
 }) {
   const [users, setUsers] = useState<AdminUserItem[]>([]);
   const [playerId, setPlayerId] = useState("");
@@ -132,8 +136,8 @@ export default function PracticeBattle({
   });
   const [allocationLoading, setAllocationLoading] = useState(false);
   const [allocationError, setAllocationError] = useState<string>();
-  const [source, setSource] = useState<"trial" | "dungeon">(
-    trials.length ? "trial" : "dungeon",
+  const [source, setSource] = useState<"draft" | "trial" | "dungeon">(
+    enemyConditions ? "draft" : trials.length ? "trial" : "dungeon",
   );
   const [trialId, setTrialId] = useState(trials[0]?.id ?? "");
   const [dungeons, setDungeons] = useState<AdminGameDungeon[]>([]);
@@ -179,14 +183,28 @@ export default function PracticeBattle({
     !active &&
     !allocationLoading &&
     !allocationError &&
-    (source === "trial"
-      ? Boolean(simulation?.enemies.length)
-      : Boolean(dungeon?.regions.some((r) => r.level === level)));
+    (source === "draft"
+      ? Boolean(
+          enemyConditions &&
+            Number.isInteger(enemyConditions.power) &&
+            enemyConditions.power >= 0 &&
+            enemyConditions.power <= 1000000000 &&
+            Number.isInteger(enemyConditions.achievement) &&
+            enemyConditions.achievement >= 1 &&
+            enemyConditions.achievement <= 20,
+        )
+      : source === "trial"
+        ? Boolean(simulation?.enemies.length)
+        : Boolean(dungeon?.regions.some((r) => r.level === level)));
   useEffect(() => {
     if (!selectedTrial) return;
     setTrialId(selectedTrial.id);
     setSource("trial");
   }, [selectedTrial]);
+  useEffect(() => {
+    if (!trials.length && source === "trial" && enemyConditions)
+      setSource("draft");
+  }, [trials.length, source, enemyConditions]);
   useEffect(() => {
     let mounted = true;
     setAllocationError(undefined);
@@ -282,34 +300,40 @@ export default function PracticeBattle({
         allocation: actualPlayer ? null : { ...allocation },
         ...(actualPlayer ? { player_user_id: playerId } : {}),
       };
-      const prepared =
-        source === "trial" && simulation
-          ? await requestSimulatedPractice({ ...options, simulation })
-          : dungeon
-            ? await requestPractice({
-                ...options,
-                user_id: dungeon.user_id,
-                resource_id: dungeon.resource_id,
-                level,
-              })
+      const enemyTrial =
+        source === "draft" && enemyConditions
+          ? await requestEnemyBalanceSimulation({
+              balance: { ...settings },
+              ...enemyConditions,
+              average_relations: 0,
+            })
+          : source === "trial"
+            ? simulation
             : undefined;
+      const prepared = enemyTrial
+        ? await requestSimulatedPractice({ ...options, simulation: enemyTrial })
+        : dungeon
+          ? await requestPractice({
+              ...options,
+              user_id: dungeon.user_id,
+              resource_id: dungeon.resource_id,
+              level,
+            })
+          : undefined;
       if (!prepared) return;
       const value = {
         ...prepared,
         id: crypto.randomUUID(),
-        name:
-          source === "trial" && simulation
-            ? `${simulationName} · Power ${simulation.power}`
-            : (dungeon?.resource_name ?? "実ダンジョン"),
+        name: enemyTrial
+          ? `${source === "draft" ? "編集中の敵設定" : simulationName} · Power ${enemyTrial.power}`
+          : (dungeon?.resource_name ?? "実ダンジョン"),
         playerName:
           selectedPlayer?.display_name ||
           selectedPlayer?.username ||
           selectedPlayer?.email,
         player: playerProfile,
-        level:
-          source === "trial" && simulation ? simulation.achievement : level,
-        enemyTrial:
-          source === "trial" ? structuredClone(simulation) : undefined,
+        level: enemyTrial ? enemyTrial.achievement : level,
+        enemyTrial: enemyTrial ? structuredClone(enemyTrial) : undefined,
       };
       setInitial(structuredClone(value));
       activate(value);
@@ -422,9 +446,18 @@ export default function PracticeBattle({
     >
       <h3 className="font-semibold">実戦形式の模擬戦</h3>
       <div className="space-y-1 text-sm tabular-nums">
+        {source === "draft" && enemyConditions && (
+          <p>
+            編集中の敵設定 · Power {enemyConditions.power} · 領域{" "}
+            {enemyConditions.achievement}{" "}
+            <a href="#enemy-preview" className="text-primary underline">
+              敵の条件・設定へ
+            </a>
+          </p>
+        )}
         {source === "trial" && simulation && (
           <p>
-            {simulationName}の敵 · Power {simulation.power} · 領域{" "}
+            {simulationName}の敵を固定 · Power {simulation.power} · 領域{" "}
             {simulation.achievement}
           </p>
         )}
@@ -557,11 +590,14 @@ export default function PracticeBattle({
             value={source}
             disabled={busy || !!active}
             onChange={(event) =>
-              setSource(event.target.value as "trial" | "dungeon")
+              setSource(event.target.value as "draft" | "trial" | "dungeon")
             }
           >
+            {enemyConditions && (
+              <option value="draft">編集中の設定から生成</option>
+            )}
             <option value="dungeon">実際のダンジョン</option>
-            <option value="trial">試算した敵ロスター</option>
+            <option value="trial">比較表の試算から選ぶ（敵を固定）</option>
           </select>
         </div>
         {source === "trial" ? (
@@ -587,7 +623,7 @@ export default function PracticeBattle({
               ))}
             </select>
           </div>
-        ) : (
+        ) : source === "dungeon" ? (
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="space-y-1">
               <Label htmlFor="practice-dungeon">ダンジョン</Label>
@@ -639,7 +675,7 @@ export default function PracticeBattle({
               </select>
             </div>
           </div>
-        )}
+        ) : null}
         {source === "dungeon" && dungeonsError && (
           <p role="alert" className="text-sm text-destructive">
             {dungeonsError}
