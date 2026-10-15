@@ -105,11 +105,12 @@ export function HotkeyHelpButton() {
 
 export default function GlobalHotkeys() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const { isAuthenticated, user } = useAuth();
   const { openHistory } = useHistoryPanel();
   const { openHelp } = useHotkeys();
   const [logoutOpen, setLogoutOpen] = useState(false);
-  const waitingForDestination = useRef<"g" | "l" | null>(null);
+  const waitingForDestination = useRef<"g" | "l" | "t" | null>(null);
   const chordTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   useEffect(() => {
@@ -133,7 +134,7 @@ export default function GlobalHotkeys() {
       chordTimer.current = undefined;
     }
 
-    function startChord(prefix: "g" | "l") {
+    function startChord(prefix: "g" | "l" | "t") {
       resetChord();
       waitingForDestination.current = prefix;
       chordTimer.current = setTimeout(() => {
@@ -194,6 +195,20 @@ export default function GlobalHotkeys() {
           return;
         }
         moveActiveTab(1);
+      }
+
+      if (waitingForDestination.current === "t") {
+        resetChord();
+        if (/^[1-9]$/.test(key) && pathname.startsWith("/admin/game")) {
+          const tab = document.querySelector<HTMLElement>(
+            `[data-admin-game-subtab="${key}"]`,
+          );
+          if (tab) {
+            event.preventDefault();
+            tab.click();
+          }
+        }
+        return;
       }
 
       if (key === "?") {
@@ -266,6 +281,16 @@ export default function GlobalHotkeys() {
         return;
       }
 
+      if (
+        !waitingForDestination.current &&
+        key === "t" &&
+        pathname.startsWith("/admin/game")
+      ) {
+        event.preventDefault();
+        startChord("t");
+        return;
+      }
+
       if (!waitingForDestination.current && (key === "u" || key === "d")) {
         if (scrollPage(key === "d" ? 1 : -1)) event.preventDefault();
         resetChord();
@@ -314,7 +339,7 @@ export default function GlobalHotkeys() {
       window.removeEventListener("blur", resetChord);
       resetChord();
     };
-  }, [isAuthenticated, navigate, openHelp, openHistory, user]);
+  }, [isAuthenticated, navigate, openHelp, openHistory, pathname, user]);
 
   return (
     <Dialog open={logoutOpen} onOpenChange={setLogoutOpen}>
@@ -353,6 +378,9 @@ function ContextHotkeySection({
 type HotkeyDefinition = { keys: string[]; label: string };
 
 function contextHotkeys(pathname: string, search: string): HotkeyDefinition[] {
+  if (pathname.startsWith("/admin/game")) {
+    return [{ keys: ["t", "1–9"], label: "ゲーム管理の2段目タブへ移動" }];
+  }
   if (pathname.startsWith("/user/")) {
     return [
       { keys: ["j", "k"], label: "リソースの行を移動" },

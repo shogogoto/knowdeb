@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
-import { MemoryRouter, useLocation } from "react-router";
+import { MemoryRouter, useLocation, useNavigate } from "react-router";
 import { vi } from "vitest";
 import ResourceShelf from "~/features/user/UserDetail/ResourceShelf";
 import { shelfFixture } from "~/features/user/UserDetail/ResourceShelf.fixture";
@@ -52,6 +52,28 @@ function Location() {
   );
 }
 
+function AdminGameTabs() {
+  const navigate = useNavigate();
+  return (
+    <>
+      <button
+        type="button"
+        data-admin-game-subtab="1"
+        onClick={() => navigate("/admin/game/balance")}
+      >
+        ゲームバランス
+      </button>
+      <button
+        type="button"
+        data-admin-game-subtab="2"
+        onClick={() => navigate("/admin/game/dungeons")}
+      >
+        ダンジョン母集団
+      </button>
+    </>
+  );
+}
+
 function renderHotkeys(children?: ReactNode, initialEntry = "/") {
   return render(
     <MemoryRouter initialEntries={[initialEntry]}>
@@ -97,6 +119,17 @@ it("gから始まるショートカットで主要画面へ移動する", async 
 
   expect(screen.getByRole("status", { name: "現在地" })).toHaveTextContent(
     "/search",
+  );
+});
+
+it("adminゲーム画面ではtに続く数字で2段目タブへ移動する", async () => {
+  const user = userEvent.setup();
+  renderHotkeys(<AdminGameTabs />, "/admin/game/balance");
+
+  await user.keyboard("t2");
+
+  expect(screen.getByRole("status", { name: "現在地" })).toHaveTextContent(
+    "/admin/game/dungeons",
   );
 });
 
