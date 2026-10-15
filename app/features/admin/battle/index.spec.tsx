@@ -310,24 +310,28 @@ it("combines enemy stats and roster previews and places practice last", async ()
     screen.getByRole("heading", { name: "実戦形式の模擬戦" }),
   ).toBeVisible();
   const roster = screen.getByRole("region", { name: "敵ロスターと遭遇の抽選" });
-  expect(
-    within(roster).getByRole("region", { name: "敵の生成プレビュー" }),
-  ).toBeInTheDocument();
   const practice = screen.getByRole("region", { name: "実戦形式の模擬戦" });
+  const preview = within(practice).getByRole("region", {
+    name: "敵の生成プレビュー",
+  });
+  expect(preview).toBeInTheDocument();
   expect(
     roster.compareDocumentPosition(practice) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
   const user = userEvent.setup();
   await user.click(
-    within(roster).getByRole("button", {
+    within(preview).getByRole("button", {
       name: "敵を試算して比較に追加",
     }),
   );
-  const comparison = await within(roster).findByRole("table", {
+  const comparison = await within(preview).findByRole("table", {
     name: "敵の試算比較",
   });
-  expect(within(roster).getByText(/未割り当て 2問/)).toBeVisible();
-  const enemies = within(roster).getByRole("table", { name: "試算の敵一覧" });
+  expect(comparison).toBeVisible();
+  expect(within(preview).getByText(/未割り当て 2問/)).toBeVisible();
+  const enemies = within(preview).getByRole("table", {
+    name: "試算の敵一覧",
+  });
   expect(enemies).toHaveTextContent("固定クイズ数");
   expect(enemies).toHaveTextContent("HP");
   expect(enemies).toHaveTextContent("攻撃力");

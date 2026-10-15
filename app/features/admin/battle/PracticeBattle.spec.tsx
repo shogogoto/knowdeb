@@ -381,23 +381,9 @@ it("uses real battle UI with draft settings, records results and replays without
   await user.click(screen.getByRole("button", { name: "続ける" }));
   const comparison = screen.getByRole("table", { name: "模擬戦の比較" });
   expect(comparison).toHaveTextContent("勝利");
-  const report = screen.getByRole("table", { name: "想定と実績" });
-  await waitFor(() => expect(report).toHaveTextContent("1〜1回"));
-  const reportRow = within(report).getAllByRole("row")[1];
   expect(
-    within(reportRow)
-      .getAllByRole("cell")
-      .map((cell) => cell.textContent),
-  ).toEqual([
-    "1. 模擬敵",
-    "5／12",
-    "10〜10",
-    "11〜11",
-    "1〜1回",
-    "1回",
-    "10",
-    "撃破",
-  ]);
+    screen.queryByRole("table", { name: "想定と実績" }),
+  ).not.toBeInTheDocument();
   expect(turns).toHaveLength(1);
   await user.click(screen.getByRole("button", { name: "同じ条件で再戦" }));
   expect(preparations).toHaveLength(1);
@@ -465,7 +451,7 @@ it("accumulates actual damage across turns using the original player and encount
     ...trial,
     enemies: [{ ...trial.enemies[0], hp: 25 }],
   };
-  const { rerender } = render(
+  render(
     <MemoryRouter>
       <PracticeBattle
         settings={draft}
@@ -491,23 +477,9 @@ it("accumulates actual damage across turns using the original player and encount
       );
   }
   await user.click(await screen.findByRole("button", { name: "続ける" }));
-  const report = screen.getByRole("table", { name: "想定と実績" });
-  await waitFor(() => expect(report).toHaveTextContent("3〜3回"));
-  const cells = within(within(report).getAllByRole("row")[1]).getAllByRole(
-    "cell",
-  );
-  expect(cells[5]).toHaveTextContent("3回");
-  expect(cells[6]).toHaveTextContent("30");
-  expect(cells[7]).toHaveTextContent("撃破");
-  rerender(
-    <MemoryRouter>
-      <PracticeBattle
-        settings={{ ...draft, base_attack: 99 }}
-        trials={trials}
-      />
-    </MemoryRouter>,
-  );
-  expect(report).toHaveTextContent("25／12");
+  expect(
+    screen.queryByRole("table", { name: "想定と実績" }),
+  ).not.toBeInTheDocument();
   expect(
     screen.getByText(/HP 60 · 攻 10 · 守 1 · 被ダメージ合計 0/),
   ).toBeVisible();

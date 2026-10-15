@@ -19,13 +19,14 @@ The initial synthetic admin practice supports MP allocation/display but does not
 summon live specialties or persist any specialty rewards.
 
 Admin game balance ends with practice battle setup, after the settings save button.
-Enemy HP/attack and roster settings share one generation preview and one set of
-Power/achievement inputs. Practice defaults to generating from those conditions
-and the current unsaved balance via the server simulation API, then passes that
-result to the shared practice API. Comparison snapshots keep their original
-enemy stats and fixed quiz counts; using one is explicit and scrolls to practice setup.
-Clearing comparisons also clears the selectable trials. Actual dungeon populations
-and real player allocations/appearance remain available as separate sources.
+Enemy HP/attack and roster settings share one generation preview inside the
+practice setup, with one set of Power/achievement inputs. Practice defaults to
+generating from those conditions and the current unsaved balance via the server
+simulation API, then passes that result to the shared practice API. Comparison
+snapshots keep their original enemy stats and fixed quiz counts; using one is
+explicit. Clearing comparisons also clears the selectable trials. Actual dungeon
+populations and real player allocations/appearance remain available as separate
+sources.
 
 Separate `/game` menu; `g g` navigates there. Review XP/Lv stays separate from
 dungeon clears. Knowledge choices call the existing exposure API; combat reuses

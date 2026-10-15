@@ -353,35 +353,6 @@ export default function BattleSettingsManager() {
                       }}
                     />
                   )}
-                  {group.label === "敵ロスターと遭遇の抽選" && (
-                    <Simulation
-                      conditions={enemyConditions}
-                      onConditionsChange={setEnemyConditions}
-                      onTrialsChange={(trials) => {
-                        setPracticeTrials(trials);
-                        if (!trials.length) setSelectedTrial(undefined);
-                      }}
-                      onPracticeTrial={(trial) => {
-                        setSelectedTrial(trial);
-                        practiceSection.current?.scrollIntoView?.({
-                          behavior: "smooth",
-                          block: "start",
-                        });
-                      }}
-                      settings={settings}
-                      labels={Object.fromEntries(
-                        groups
-                          .filter(
-                            (item) =>
-                              item.label === "敵ステータスの計算" ||
-                              item.label === "敵ロスターと遭遇の抽選",
-                          )
-                          .flatMap((item) =>
-                            item.keys.map((key) => [key, fields[key][0]]),
-                          ),
-                      )}
-                    />
-                  )}
                 </section>
               ))}
             </div>
@@ -394,6 +365,35 @@ export default function BattleSettingsManager() {
                 enemyConditions={enemyConditions}
                 trials={practiceTrials}
                 selectedTrial={selectedTrial}
+                enemyPreview={
+                  <Simulation
+                    conditions={enemyConditions}
+                    onConditionsChange={setEnemyConditions}
+                    onTrialsChange={(trials) => {
+                      setPracticeTrials(trials);
+                      if (!trials.length) setSelectedTrial(undefined);
+                    }}
+                    onPracticeTrial={(trial) => {
+                      setSelectedTrial(trial);
+                      practiceSection.current?.scrollIntoView?.({
+                        behavior: "smooth",
+                        block: "start",
+                      });
+                    }}
+                    settings={settings}
+                    labels={Object.fromEntries(
+                      groups
+                        .filter(
+                          (item) =>
+                            item.label === "敵ステータスの計算" ||
+                            item.label === "敵ロスターと遭遇の抽選",
+                        )
+                        .flatMap((item) =>
+                          item.keys.map((key) => [key, fields[key][0]]),
+                        ),
+                    )}
+                  />
+                }
               />
             </div>
           </div>
