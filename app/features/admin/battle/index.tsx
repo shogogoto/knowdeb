@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import { Label } from "~/shared/components/ui/label";
@@ -174,7 +174,6 @@ export default function BattleSettingsManager() {
     power: 100,
     achievement: 1,
   });
-  const practiceSection = useRef<HTMLDivElement>(null);
   const settingInput = (kind: keyof typeof fields, compact = false) => {
     const [label, min, max, step] = fields[kind];
     const input = (
@@ -359,10 +358,12 @@ export default function BattleSettingsManager() {
                 </section>
               ))}
             </div>
-            <Button disabled={saving} type="submit" form="game-settings">
-              {saving ? "保存中…" : "保存"}
-            </Button>
-            <div ref={practiceSection} className="scroll-mt-20">
+            <div className="flex justify-center">
+              <Button disabled={saving} type="submit" form="game-settings">
+                {saving ? "保存中…" : "保存"}
+              </Button>
+            </div>
+            <div className="scroll-mt-20">
               <PracticeBattle
                 settings={settings}
                 enemyConditions={enemyConditions}
@@ -376,13 +377,7 @@ export default function BattleSettingsManager() {
                       setPracticeTrials(trials);
                       if (!trials.length) setSelectedTrial(undefined);
                     }}
-                    onPracticeTrial={(trial) => {
-                      setSelectedTrial(trial);
-                      practiceSection.current?.scrollIntoView?.({
-                        behavior: "smooth",
-                        block: "start",
-                      });
-                    }}
+                    onPracticeTrial={setSelectedTrial}
                     settings={settings}
                     labels={Object.fromEntries(
                       groups

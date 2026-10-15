@@ -43,6 +43,7 @@ export default function MultiBattle({
   clockOffset = 0,
   transport = gameRequest,
   simulation = false,
+  syntheticAnswers = simulation,
   rollDamage = (attack, balance) => rollPlayerDamage(attack, balance),
 }: {
   save: GameSave;
@@ -56,6 +57,7 @@ export default function MultiBattle({
   clockOffset?: number;
   transport?: BattleTransport;
   simulation?: boolean;
+  syntheticAnswers?: boolean;
   rollDamage?: (attack: number, balance: GameBalance, key: string) => number;
 }) {
   const marker = useRef(save.battle);
@@ -148,7 +150,7 @@ export default function MultiBattle({
   );
   const focusAnswerChoice = useCallback(
     (direction: "first" | "last" = "first") => {
-      const selector = simulation
+      const selector = syntheticAnswers
         ? "button[data-simulation-option]:not(:disabled)"
         : "button[data-quiz-option-index]:not(:disabled)";
       const choices =
@@ -158,7 +160,7 @@ export default function MultiBattle({
       choice?.focus();
       return Boolean(choice);
     },
-    [simulation],
+    [syntheticAnswers],
   );
   // Answer buttons are replaced/disabled during confirmation and turn changes.
   // Wait for React to commit the new question instead of racing a paint callback.
@@ -653,7 +655,7 @@ export default function MultiBattle({
                 ref={index === active ? activeAnswerArea : undefined}
                 data-active-answer={index === active ? "" : undefined}
               >
-                {simulation ? (
+                {syntheticAnswers ? (
                   <div className="space-y-3 rounded-md border p-3">
                     <p className="text-sm">
                       模擬回答：正解か不正解を選択してください。

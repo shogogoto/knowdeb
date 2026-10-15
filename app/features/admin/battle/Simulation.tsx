@@ -50,6 +50,13 @@ export default function Simulation({
   const current = results[selected];
   function selectResult(index: number) {
     setSelected(index);
+    const result = results[index];
+    if (result)
+      onPracticeTrial?.({
+        id: result.id,
+        name: `敵の試算 ${index + 1}`,
+        simulation: result,
+      });
   }
 
   async function simulate(event: React.FormEvent) {
@@ -74,6 +81,11 @@ export default function Simulation({
           simulation: item,
         })),
       );
+      onPracticeTrial?.({
+        id: trial.id,
+        name: `敵の試算 ${next.length}`,
+        simulation: trial,
+      });
     } catch (cause) {
       setError(
         cause instanceof Error ? cause.message : "敵を試算できませんでした。",
@@ -293,21 +305,6 @@ export default function Simulation({
                   </TableBody>
                 </Table>
               </div>
-              {onPracticeTrial && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() =>
-                    onPracticeTrial({
-                      id: current.id,
-                      name: `敵の試算 ${selected + 1}`,
-                      simulation: current,
-                    })
-                  }
-                >
-                  この試算を模擬戦に使う
-                </Button>
-              )}
             </section>
           )}
         </>

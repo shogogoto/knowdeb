@@ -274,9 +274,6 @@ it("practices with the selected historical enemy trial and current unsaved initi
   );
   await screen.findByRole("heading", { name: "試算 2 の敵一覧" });
   await user.click(screen.getByRole("button", { name: "試算 1" }));
-  await user.click(
-    screen.getByRole("button", { name: "この試算を模擬戦に使う" }),
-  );
   const initialHp = screen.getByLabelText("初期HP");
   await user.clear(initialHp);
   await user.type(initialHp, "70");
@@ -335,10 +332,9 @@ it("combines enemy stats and roster previews and places practice last", async ()
   expect(enemies).toHaveTextContent("固定クイズ数");
   expect(enemies).toHaveTextContent("HP");
   expect(enemies).toHaveTextContent("攻撃力");
-  expect(screen.getByLabelText("敵の出典")).toHaveValue("draft");
-  await user.click(
-    screen.getByRole("button", { name: "この試算を模擬戦に使う" }),
-  );
+  expect(
+    screen.queryByRole("button", { name: "この試算を模擬戦に使う" }),
+  ).not.toBeInTheDocument();
   expect(screen.getByLabelText("敵の出典")).toHaveValue("trial");
   expect(screen.getByLabelText("敵の試算")).toHaveTextContent("敵の試算 1");
   expect(

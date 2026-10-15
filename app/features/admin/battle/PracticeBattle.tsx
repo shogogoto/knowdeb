@@ -694,6 +694,7 @@ export default function PracticeBattle({
         <MultiBattle
           key={active.id}
           simulation
+          syntheticAnswers={!!active.enemyTrial}
           save={active.state.save}
           content={active.state.save.content as DungeonContent}
           context={active.context}

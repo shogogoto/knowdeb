@@ -314,6 +314,106 @@ it("keeps practice visible before any trial and can use a real dungeon", async (
   expect(preparations).toHaveLength(0);
 });
 
+it("answers the real dungeon quiz by keyboard through practice endpoints only", async () => {
+  server.use(
+    http.post("*/admin/settings/game-balance/practice", () => {
+      const stats = playerStats(emptyAllocation, draft);
+      return HttpResponse.json({
+        seed: 1,
+        server_now: Date.now(),
+        context: {
+          balance: draft,
+          enemies: [
+            {
+              id: "enemy",
+              name: "実ダンジョンの敵",
+              quizIndex: 0,
+              hp: 5,
+              attack: 12,
+              region: 0,
+            },
+          ],
+        },
+        state: {
+          revision: 0,
+          save: {
+            version: 2,
+            clears: {},
+            allocation: emptyAllocation,
+            content: {
+              knowledge: [],
+              quizzes: [
+                {
+                  quiz_id: "real-quiz",
+                  quiz_type: "sent2term",
+                  prompt: {
+                    subject: "実ダンジョンの問題",
+                    answer_kind: "term",
+                  },
+                  statement: "実ダンジョンの説明",
+                  options: { yes: "本来の正答", no: "本来の誤答" },
+                  correct: ["yes"],
+                  no_correct_option: false,
+                  created: "2026-10-16T00:00:00Z",
+                },
+              ],
+            },
+            run: {
+              resourceId: "book",
+              name: "模擬用の本",
+              ...stats,
+              hp: stats.maxHp,
+              mp: stats.maxMp,
+              moves: 0,
+              kills: 0,
+              enemyHp: 0,
+              enemyMaxHp: 1,
+              quizCursor: 0,
+              readIds: [],
+              phase: "battle",
+              answerDeadline: Date.now() + stats.answerSeconds * 1000,
+            },
+            battle: {
+              id: "dungeon-practice",
+              turn: 0,
+              region: 0,
+              checkpoint: "@entrance",
+              enemies: ["enemy"],
+              quizIndices: { enemy: 0 },
+            },
+          },
+        },
+      });
+    }),
+  );
+  render(
+    <MemoryRouter>
+      <PracticeBattle settings={draft} />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  const start = screen.getByRole("button", {
+    name: "現在の設定で模擬戦を開始",
+  });
+  await waitFor(() => expect(start).toBeEnabled());
+  await user.click(start);
+  await screen.findByRole("heading", { name: "模擬戦（保存されません）" });
+  expect(
+    screen.queryByText("模擬回答：正解か不正解を選択してください。"),
+  ).not.toBeInTheDocument();
+  screen.getByRole("button", { name: "本来の正答" }).focus();
+  await user.keyboard(" {Enter}");
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
+  );
+  await screen.findByText("模擬ターン精算");
+  expect(turns).toHaveLength(1);
+  expect(turns[0]).toMatchObject({ turn: { answers: { enemy: ["yes"] } } });
+  expect(
+    screen.queryByRole("button", { name: "本番の通報操作" }),
+  ).not.toBeInTheDocument();
+});
+
 it("loads real points and edits only the disposable player before starting", async () => {
   render(
     <MemoryRouter>
