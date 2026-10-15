@@ -28,6 +28,7 @@ import {
 } from "./api";
 import { defaultBalance } from "./battle";
 import { enterDungeon, move, newSave } from "./domain";
+import { ENTRANCE } from "./exploration";
 import type { GameState } from "./state";
 
 let available = true;
@@ -1146,6 +1147,13 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
     save: {
       ...save,
       visitedDungeons: ["book"],
+      maps: {
+        book: {
+          current: ENTRANCE,
+          places: [{ id: "sentence", region: 0 }],
+          edges: [{ from: ENTRANCE, to: "sentence", kind: "detour" }],
+        },
+      },
       unlockedDungeons: [
         {
           sourceId: "book",
@@ -1173,7 +1181,7 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
   await waitFor(() => expect(state.save.run?.resourceId).toBe("previous"));
   expect(screen.getByRole("dialog", { name: "冒険マップ" })).toBeVisible();
   expect(state.save.dungeons?.book.run.hp).toBe(24);
-  expect(state.save.maps?.book.current).toBe("sentence");
+  expect(state.save.maps?.book.current).toBe(ENTRANCE);
   expect(state.save.run?.hp).toBe(24);
   expect(state.save.run?.moves).toBe(2);
   await user.click(
@@ -1185,8 +1193,41 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
   await waitFor(() => expect(state.save.run?.resourceId).toBe("book"));
   expect(await screen.findByText("HP 24/35")).toBeVisible();
   expect(state.save.run?.moves).toBe(2);
-  expect(state.save.maps?.book.current).toBe("sentence");
+  expect(state.save.maps?.book.current).toBe(ENTRANCE);
   expect(consumeCount).toBe(0);
+});
+
+it("shows unlocked dungeons and the recovery place only at the entrance", async () => {
+  const save = enterDungeon(newSave(), "book", "テストの本", 1);
+  if (!save.run) throw new Error("Missing run");
+  state = {
+    revision: 1,
+    save: {
+      ...save,
+      visitedDungeons: ["book"],
+      unlockedDungeons: [
+        {
+          sourceId: "book",
+          resourceId: "previous",
+          name: "以前の本",
+          achievement: 3,
+        },
+      ],
+      content: await loadDungeon("book"),
+      run: { ...save.run, readIds: ["sentence"] },
+    },
+  };
+  renderGame();
+  const user = userEvent.setup();
+  expect(await screen.findByText("HP 35/35")).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "マップを全画面表示" }));
+  const map = screen.getByRole("dialog", { name: "冒険マップ" });
+  expect(
+    within(map).queryByRole("button", { name: "ダンジョン 以前の本" }),
+  ).not.toBeInTheDocument();
+  expect(
+    within(map).queryByRole("button", { name: "回復場所" }),
+  ).not.toBeInTheDocument();
 });
 
 it("admin unlock is applied without healing or erasing progress", async () => {
