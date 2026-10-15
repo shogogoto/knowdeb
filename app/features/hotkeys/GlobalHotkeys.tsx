@@ -170,6 +170,13 @@ export default function GlobalHotkeys() {
 
       // プレビュー中は背後の問題・タブを変更しない。項目移動もdialog内のみ。
       if (dialogOpen) {
+        if (
+          key === "?" &&
+          dialogOpen.hasAttribute("data-adventure-map-dialog")
+        ) {
+          event.preventDefault();
+          openHelp();
+        }
         if (!event.ctrlKey && (key === "j" || key === "k")) {
           if (moveActiveItem(key === "j" ? 1 : -1, dialogOpen))
             event.preventDefault();

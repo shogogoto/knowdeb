@@ -407,6 +407,19 @@ it("ゲーム画面の操作hotkeyを疑問符の案内に表示する", async (
   expect(screen.getByText("マップを全画面表示")).toBeVisible();
 });
 
+it("全画面マップ上でも疑問符でゲーム操作hotkeyを表示する", async () => {
+  const user = userEvent.setup();
+  renderHotkeys(
+    <div role="dialog" aria-label="冒険マップ" data-adventure-map-dialog />,
+    "/game",
+  );
+
+  await user.click(screen.getByRole("button", { name: "入力を終了" }));
+  await user.keyboard("?");
+
+  expect(screen.getByText("地点やダンジョンを選ぶ")).toBeVisible();
+});
+
 it("ヘルプボタンでショートカット一覧を開く", async () => {
   const user = userEvent.setup();
   render(

@@ -844,6 +844,7 @@ export default function ExplorationMap({
     >
       {fullscreen ? (
         <DialogContent
+          data-adventure-map-dialog
           className="inset-0 left-0 top-0 flex h-dvh max-w-none translate-x-0 translate-y-0 rounded-none border-0 p-0 data-[state=open]:animate-none data-[state=closed]:animate-none sm:max-w-none [&>button]:hidden"
           onEscapeKeyDown={(event) => {
             if (selected) {
