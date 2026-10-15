@@ -297,30 +297,33 @@ export default function BattleSettingsManager() {
                   aria-label={group.label}
                   className="overflow-hidden rounded-lg border"
                 >
-                  <div className="border-b bg-muted/40 px-4 py-3">
-                    <h3 className="font-medium">{group.label}</h3>
-                    {"rules" in group && (
-                      <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                        {group.rules.map((rule) => (
-                          <li key={rule}>{rule}</li>
+                  {group.label === "戦闘結果の表示テンポ" ? (
+                    <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b bg-muted/40 px-4 py-3">
+                      <h3 className="shrink-0 font-medium">{group.label}</h3>
+                      <div className="ml-auto grid grid-cols-3 gap-3">
+                        {group.keys.map((kind) => (
+                          <div key={kind}>{settingInput(kind, true)}</div>
                         ))}
-                      </ul>
-                    )}
-                  </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="border-b bg-muted/40 px-4 py-3">
+                      <h3 className="font-medium">{group.label}</h3>
+                      {"rules" in group && (
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                          {group.rules.map((rule) => (
+                            <li key={rule}>{rule}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  )}
                   {"formula" in group ? (
                     <FormulaSettings
                       kind={group.formula}
                       input={(kind) => settingInput(kind, true)}
                     />
-                  ) : group.label === "戦闘結果の表示テンポ" ? (
-                    <div className="grid grid-cols-3 gap-3 p-4">
-                      {group.keys.map((kind) => (
-                        <div key={kind} className="flex justify-center">
-                          {settingInput(kind, true)}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
+                  ) : group.label === "戦闘結果の表示テンポ" ? null : (
                     <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                       {group.keys.map((kind) => {
                         const [label] = fields[kind];
