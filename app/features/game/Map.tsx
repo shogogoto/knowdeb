@@ -1,5 +1,6 @@
 import {
   Archive,
+  Crown,
   Footprints,
   LocateFixed,
   Maximize,
@@ -22,6 +23,7 @@ import MusicControls from "./MusicControls";
 import PathTerms from "./PathTerms";
 import RegionEnemies from "./RegionEnemies";
 import type { DungeonContent, PathKnowledge, RegionEnemy } from "./api";
+import { mapBosses } from "./boss";
 import {
   type DungeonMap,
   ENTRANCE,
@@ -60,7 +62,9 @@ export default function ExplorationMap({
   remainingMoves,
   recoveryStatus,
   playerStatus,
-  bossControl,
+  onBoss,
+  canChallengeBoss = () => false,
+  bossClears = [],
   exhaustedMessage,
   children,
 }: {
@@ -92,7 +96,9 @@ export default function ExplorationMap({
   remainingMoves?: number;
   recoveryStatus?: ReactNode;
   playerStatus?: ReactNode;
-  bossControl?: ReactNode;
+  onBoss?: (level: number) => void;
+  canChallengeBoss?: (level: number) => boolean;
+  bossClears?: number[];
   exhaustedMessage?: ReactNode;
   children?: ReactNode;
 }) {
@@ -191,6 +197,7 @@ export default function ExplorationMap({
   );
   const positions = new Map<string, { x: number; y: number }>();
   const chests = regionChests(map);
+  const bosses = onBoss ? mapBosses(map) : [];
   const entranceX =
     360 + (showEntranceFacilities ? Math.ceil(dungeons.length / 4) * 230 : 0);
   positions.set(ENTRANCE, { x: entranceX, y: 220 });
@@ -206,9 +213,18 @@ export default function ExplorationMap({
   if (showEntranceFacilities) positions.set(RECOVERY, { x: entranceX, y: 370 });
   for (const chest of chests) {
     positions.set(chest.id, {
-      x: entranceX + (chest.count + 1) * 230,
+      x:
+        entranceX +
+        (chest.count +
+          1 +
+          Number(bosses.some((boss) => boss.region === chest.region))) *
+          230,
       y: 220 + chest.region * 150,
     });
+  }
+  for (const boss of bosses) {
+    const anchor = positions.get(boss.last);
+    if (anchor) positions.set(boss.id, { x: anchor.x + 230, y: anchor.y });
   }
   const frontier = explorationSource(map);
   const candidateRegion = Math.floor(map.places.length / PLACES_PER_REGION);
@@ -304,6 +320,14 @@ export default function ExplorationMap({
   const chosen = selected ? sentences.get(selected) : undefined;
   const candidate = candidates.find((item) => item.knowledge.uid === selected);
   const selectedChest = chests.find((chest) => chest.id === selected);
+  const selectedBoss = bosses.find((boss) => boss.id === selected);
+  const canFightBoss = (boss: (typeof bosses)[number]) =>
+    !disabled &&
+    canChallengeBoss(boss.level) &&
+    (map.current === boss.last ||
+      chests.some(
+        (chest) => chest.region === boss.region && chest.id === map.current,
+      ));
   const chestReward = selectedChest && openedChests[selectedChest.region];
   const canMove =
     !disabled &&
@@ -448,8 +472,15 @@ export default function ExplorationMap({
                     ]
                   : []),
                 ...map.edges,
+                ...bosses.map((boss) => ({
+                  from: boss.last,
+                  to: boss.id,
+                  kind: "relation" as const,
+                })),
                 ...chests.map((chest) => ({
-                  from: chest.last,
+                  from:
+                    bosses.find((boss) => boss.region === chest.region)?.id ??
+                    chest.last,
                   to: chest.id,
                   kind: "relation" as const,
                 })),
@@ -475,6 +506,44 @@ export default function ExplorationMap({
                 ) : null;
               })}
             </svg>
+            {bosses.map((boss) => {
+              const cleared = bossClears.includes(boss.level);
+              return (
+                <button
+                  key={boss.id}
+                  type="button"
+                  aria-label={`達成度 ${boss.level}のボス${cleared ? "（撃破済み）" : ""}`}
+                  aria-pressed={selected === boss.id}
+                  tabIndex={focused === boss.id ? 0 : -1}
+                  ref={(node) => {
+                    if (node) nodes.current.set(boss.id, node);
+                    else nodes.current.delete(boss.id);
+                  }}
+                  onFocus={() => {
+                    setFocused(boss.id);
+                    setSelected(boss.id);
+                  }}
+                  onClick={(event) => {
+                    setSelected(boss.id);
+                    if (event.detail === 0 && canFightBoss(boss))
+                      onBoss?.(boss.level);
+                  }}
+                  className={`absolute w-40 rounded-xl border bg-background/95 p-3 text-left text-sm shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selected === boss.id ? "border-primary ring-2 ring-primary/30" : cleared ? "border-amber-500/20 text-muted-foreground" : "border-rose-500/60 text-rose-400"}`}
+                  style={{
+                    left: positions.get(boss.id)?.x,
+                    top: positions.get(boss.id)?.y,
+                  }}
+                >
+                  <Crown className="mb-1 size-6" />
+                  <span className="block font-medium">
+                    ボス · 達成度 {boss.level}
+                  </span>
+                  <span className="block text-xs">
+                    {cleared ? "撃破済み" : "撃破で専門分野を開放"}
+                  </span>
+                </button>
+              );
+            })}
             {chests.map((chest) => {
               const opened = Boolean(openedChests[chest.region]);
               const Icon = opened ? PackageOpen : Archive;
@@ -703,7 +772,6 @@ export default function ExplorationMap({
               currentChest?.region
             }
           />
-          {bossControl}
           <Button
             size="icon"
             variant="ghost"
@@ -830,7 +898,11 @@ export default function ExplorationMap({
                     {Math.floor(map.places.length / PLACES_PER_REGION) + 1}
                   </p>
                 )}
-                {selectedChest ? (
+                {selectedBoss ? (
+                  <h3 className="font-medium">
+                    達成度 {selectedBoss.level}のボス
+                  </h3>
+                ) : selectedChest ? (
                   <h3 className="font-medium">
                     領域 {selectedChest.region + 1}の宝箱
                   </h3>
@@ -847,22 +919,38 @@ export default function ExplorationMap({
                   </p>
                 )}
                 <p className="mt-2 text-sm leading-relaxed">
-                  {selectedChest
-                    ? chestReward
-                      ? chestMessage(chestReward)
-                      : map.current === selectedChest.last
-                        ? "何が入っているだろう？"
-                        : "領域の最後の地点から開けられます。"
-                    : selectedDungeon
-                      ? "ダンジョンへ移動"
-                      : selected === RECOVERY
-                        ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
-                        : selected === ENTRANCE
-                          ? "ダンジョンの入口"
-                          : (chosen?.sentence ?? "単文詳細を開く")}
+                  {selectedBoss
+                    ? bossClears.includes(selectedBoss.level)
+                      ? "撃破済みのボスです。再挑戦できます。"
+                      : "この領域の最後の地点から挑戦できます。撃破で専門分野を開放します。"
+                    : selectedChest
+                      ? chestReward
+                        ? chestMessage(chestReward)
+                        : map.current === selectedChest.last
+                          ? "何が入っているだろう？"
+                          : "領域の最後の地点から開けられます。"
+                      : selectedDungeon
+                        ? "ダンジョンへ移動"
+                        : selected === RECOVERY
+                          ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
+                          : selected === ENTRANCE
+                            ? "ダンジョンの入口"
+                            : (chosen?.sentence ?? "単文詳細を開く")}
                 </p>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
+                {selectedBoss && (
+                  <Button
+                    size="sm"
+                    ref={primaryAction}
+                    disabled={!canFightBoss(selectedBoss)}
+                    onClick={() => onBoss?.(selectedBoss.level)}
+                  >
+                    {bossClears.includes(selectedBoss.level)
+                      ? "再挑戦 · 1歩"
+                      : "ボスに挑戦 · 1歩"}
+                  </Button>
+                )}
                 {selectedDungeon && (
                   <Button
                     ref={primaryAction}
@@ -907,6 +995,7 @@ export default function ExplorationMap({
                   </Button>
                 )}
                 {!selectedDungeon &&
+                  !selectedBoss &&
                   !selectedChest &&
                   selected !== ENTRANCE &&
                   !unavailableIds.includes(selected) && (

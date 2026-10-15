@@ -69,3 +69,38 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 export const RegionTreasure: Story = { render: () => <TreasureMap /> };
+
+function BossMap() {
+  const places = Array.from({ length: 25 }, (_, index) => ({
+    id: `p${index}`,
+    region: Math.floor(index / 5),
+  }));
+  const [current, setCurrent] = useState("p24");
+  const [challenge, setChallenge] = useState("");
+  return (
+    <ExplorationMap
+      map={{
+        current,
+        places,
+        edges: places.map((place, index) => ({
+          from: index % 5 === 0 ? ENTRANCE : places[index - 1].id,
+          to: place.id,
+          kind: "detour",
+        })),
+      }}
+      knowledge={places.map((place, i) => ({
+        uid: place.id,
+        sentence: `知識の地点 ${i + 1}`,
+      }))}
+      title="ボスのあるダンジョン"
+      disabled={false}
+      onOpen={() => undefined}
+      onMove={setCurrent}
+      onBoss={(level) => setChallenge(`達成度 ${level}のボスに挑戦`)}
+      canChallengeBoss={() => true}
+    >
+      {challenge && <p>{challenge}</p>}
+    </ExplorationMap>
+  );
+}
+export const BossMilestone: Story = { render: () => <BossMap /> };

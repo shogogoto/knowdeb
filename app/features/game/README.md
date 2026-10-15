@@ -1,7 +1,11 @@
 # Adventure prototype
 
-`/game/boss` opens a floating boss list, with voluntary one-step challenges every
-five achievements (within the current 20-band cap). Victories unlock that resource
+Boss nodes appear on the map immediately beyond the place that unlocks each
+five-achievement milestone (within the current 20-band cap). Their anchors use the
+shared milestone list and `PLACES_PER_REGION`, not fixed coordinates or row numbers.
+Challenges cost one step and start from that endpoint or its treasure chest.
+Milestone-row chests move past the boss so the cards never overlap. The legacy
+`/game/boss` list remains available for direct links. Victories unlock that resource
 as a specialty; ordinary three-enemy clears do not. All unlocked specialties stay
 available rather than occupying an equipped-resource slot. The item panel lists
 these resources and the highest cleared quiz band.

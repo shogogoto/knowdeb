@@ -316,6 +316,59 @@ beforeEach(() => {
   });
   vi.spyOn(Math, "random").mockReturnValue(0.1);
 });
+it("challenges the milestone boss from its map node using the current server revision", async () => {
+  available = false;
+  const save = enterDungeon(newSave(), "book", "テストの本", 1);
+  if (!save.run) throw new Error("Missing run");
+  const places = Array.from({ length: 25 }, (_, i) => ({
+    id: `p${i}`,
+    region: Math.floor(i / 5),
+  }));
+  const content = {
+    knowledge: places.map((p) => ({ uid: p.id, sentence: p.id })),
+    quizzes: [],
+  };
+  vi.mocked(loadDungeon).mockResolvedValue(content);
+  state = {
+    revision: 4,
+    save: {
+      ...save,
+      content,
+      maps: { book: { current: "p24", places, edges: [] } },
+      run: { ...save.run, phase: "path", moves: 2 },
+    },
+  };
+  const challenge = vi.fn();
+  server.use(
+    http.post("*/game/battle/boss", async ({ request }) => {
+      challenge(await request.json());
+      return HttpResponse.json(
+        { detail: "ボスのクイズを準備中です。" },
+        { status: 409 },
+      );
+    }),
+  );
+  renderGame();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "達成度 5のボス" }),
+  );
+  await user.click(screen.getByRole("button", { name: "ボスに挑戦 · 1歩" }));
+  await waitFor(() =>
+    expect(challenge).toHaveBeenCalledExactlyOnceWith({
+      revision: 4,
+      level: 5,
+    }),
+  );
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "ボスのクイズを準備中です。",
+  );
+  expect(state.save.run?.moves).toBe(2);
+  expect(
+    screen.queryByRole("button", { name: /^ボス$/ }),
+  ).not.toBeInTheDocument();
+});
+
 it("collects a region chest from the server with no moves left and restores its opened state", async () => {
   available = false;
   const save = enterDungeon(newSave(), "book", "テストの本", 1);

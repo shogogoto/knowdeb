@@ -4,6 +4,94 @@ import { expect, it, vi } from "vitest";
 import ExplorationMap from "./Map";
 import { type DungeonMap, ENTRANCE } from "./exploration";
 
+it("places unlocked bosses after their milestone, separates chests and supports keyboard challenges", async () => {
+  const user = userEvent.setup();
+  const fight = vi.fn();
+  const places = Array.from({ length: 25 }, (_, i) => ({
+    id: `p${i}`,
+    region: Math.floor(i / 5),
+  }));
+  const props = {
+    map: { current: "p24", places, edges: [] },
+    knowledge: places.map((p) => ({ uid: p.id, sentence: p.id })),
+    onMove: vi.fn(),
+    onOpen: vi.fn(),
+    disabled: false,
+    onBoss: fight,
+    canChallengeBoss: () => true,
+  };
+  const view = render(
+    <ExplorationMap
+      {...props}
+      map={{ ...props.map, current: "p23", places: places.slice(0, 24) }}
+    />,
+  );
+  expect(
+    screen.queryByRole("button", { name: "達成度 5のボス" }),
+  ).not.toBeInTheDocument();
+  view.rerender(<ExplorationMap {...props} />);
+  const boss = screen.getByRole("button", { name: "達成度 5のボス" });
+  const last = screen.getByRole("button", { name: /現在地 · 領域 5p24/ });
+  const chest = screen.getByRole("button", { name: "領域 5の宝箱" });
+  expect(boss.style.top).toBe(last.style.top);
+  expect(Number.parseFloat(boss.style.left)).toBe(
+    Number.parseFloat(last.style.left) + 230,
+  );
+  expect(Number.parseFloat(chest.style.left)).toBeGreaterThan(
+    Number.parseFloat(boss.style.left),
+  );
+  expect(
+    screen.queryByRole("button", { name: "達成度 10のボス" }),
+  ).not.toBeInTheDocument();
+  await user.click(last);
+  await user.keyboard("{ArrowRight}");
+  expect(boss).toHaveFocus();
+  expect(
+    screen.queryByRole("button", { name: "詳細" }),
+  ).not.toBeInTheDocument();
+  await user.keyboard("{Enter}");
+  expect(fight).toHaveBeenCalledExactlyOnceWith(5);
+  view.rerender(<ExplorationMap {...props} bossClears={[5]} />);
+  expect(
+    screen.getByRole("button", { name: "達成度 5のボス（撃破済み）" }),
+  ).toBeVisible();
+  expect(screen.getByRole("button", { name: "再挑戦 · 1歩" })).toBeEnabled();
+});
+
+it("disables map boss challenges away from the milestone and without battle eligibility", async () => {
+  const user = userEvent.setup();
+  const places = Array.from({ length: 25 }, (_, i) => ({
+    id: `p${i}`,
+    region: Math.floor(i / 5),
+  }));
+  const props = {
+    map: { current: ENTRANCE, places, edges: [] },
+    knowledge: [],
+    onMove: vi.fn(),
+    onOpen: vi.fn(),
+    onBoss: vi.fn(),
+    canChallengeBoss: () => true,
+    disabled: false,
+  };
+  const view = render(<ExplorationMap {...props} />);
+  await user.click(screen.getByRole("button", { name: "達成度 5のボス" }));
+  expect(
+    screen.getByRole("button", { name: "ボスに挑戦 · 1歩" }),
+  ).toBeDisabled();
+  view.rerender(
+    <ExplorationMap
+      {...props}
+      map={{ ...props.map, current: "p24" }}
+      canChallengeBoss={() => false}
+    />,
+  );
+  await user.click(screen.getByRole("button", { name: "達成度 5のボス" }));
+  expect(
+    screen.getByRole("button", { name: "ボスに挑戦 · 1歩" }),
+  ).toBeDisabled();
+  expect(props.onBoss).not.toHaveBeenCalled();
+});
+
 const map: DungeonMap = {
   current: "b",
   places: [

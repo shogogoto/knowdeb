@@ -1,4 +1,4 @@
-import { BookOpen, Coins, Crown, PackageOpen } from "lucide-react";
+import { BookOpen, Coins, PackageOpen } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router";
 import useSWR, { useSWRConfig } from "swr";
@@ -1263,15 +1263,15 @@ export function GamePlay({
                     (item) => ({ from: item.sourceId, to: item.resourceId }),
                   )}
                   onDungeon={(id) => void switchDungeon(id)}
-                  bossControl={
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => openPanel("boss")}
-                    >
-                      <Crown className="size-4" />
-                      ボス
-                    </Button>
+                  onBoss={(level) => void challengeBoss(level)}
+                  bossClears={
+                    save.bossClears?.[canonicalSentenceId(run.resourceId)] ?? []
+                  }
+                  canChallengeBoss={() =>
+                    !save.battleFeedback &&
+                    run.hp > 0 &&
+                    run.moves < MOVES_PER_EVENT &&
+                    ["path", "cleared"].includes(run.phase)
                   }
                   onRestart={
                     run.phase === "defeated" && access.data?.available

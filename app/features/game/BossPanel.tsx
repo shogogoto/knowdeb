@@ -1,8 +1,9 @@
 import { Crown } from "lucide-react";
 import { canonicalSentenceId } from "~/features/tanbun/detail/cache";
 import { Button } from "~/shared/components/ui/button";
+import { BOSS_LEVELS } from "./boss";
 import type { GameSave } from "./domain";
-import { dungeonMap } from "./exploration";
+import { PLACES_PER_REGION, dungeonMap } from "./exploration";
 
 export default function BossPanel({
   save,
@@ -17,7 +18,9 @@ export default function BossPanel({
 }) {
   const run = save.run;
   if (!run) return <p>ダンジョンに入るとボスに挑戦できます。</p>;
-  const achievement = Math.floor(dungeonMap(save, run).places.length / 5);
+  const achievement = Math.floor(
+    dungeonMap(save, run).places.length / PLACES_PER_REGION,
+  );
   const clears = save.bossClears?.[canonicalSentenceId(run.resourceId)] ?? [];
   const canFight =
     !busy &&
@@ -35,7 +38,7 @@ export default function BossPanel({
       <p className="text-sm text-muted-foreground">
         {run.name} · 達成度 {achievement}
       </p>
-      {[5, 10, 15, 20].map((level) => (
+      {BOSS_LEVELS.map((level) => (
         <div
           key={level}
           className="flex items-center gap-3 rounded-lg border p-3"
