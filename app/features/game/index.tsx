@@ -601,6 +601,7 @@ export function GamePlay({
             revision: state.revision,
             region,
             checkpoint: map?.current ?? ENTRANCE,
+            discovered_place: isNewPlace ? sentenceId : null,
           },
         );
         localBattle.current = started.save.battle?.id ?? null;

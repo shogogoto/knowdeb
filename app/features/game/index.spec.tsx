@@ -71,6 +71,7 @@ const server = setupServer(
     const body = (await request.json()) as {
       checkpoint: string;
       region: number;
+      discovered_place: string | null;
     };
     state = {
       revision: state.revision + 1,
@@ -80,6 +81,7 @@ const server = setupServer(
           id: "battle",
           turn: 0,
           checkpoint: body.checkpoint,
+          discoveredPlace: body.discovered_place,
           region: body.region,
           enemies: ["book:0:enemy:0"],
           quizIndices: { "book:0:enemy:0": 0 },
@@ -738,6 +740,33 @@ async function enter(select = true) {
     );
   return user;
 }
+it("does not mark combat on an already explored place as a new discovery", async () => {
+  state = {
+    revision: 1,
+    save: {
+      ...enterDungeon(newSave(), "book", "テストの本", 1),
+      content: await loadDungeon("book"),
+      maps: {
+        book: {
+          current: ENTRANCE,
+          places: [{ id: "sentence", region: 0 }],
+          edges: [{ from: ENTRANCE, to: "sentence", kind: "detour" }],
+        },
+      },
+    },
+  };
+  renderGame();
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: /領域 1.*進路の用語/ }),
+  );
+  await user.click(
+    await screen.findByRole("button", { name: "進路の用語へ移動" }),
+  );
+  await screen.findByRole("heading", { name: /敵と遭遇/ });
+  expect(state.save.battle?.discoveredPlace).toBeNull();
+});
+
 it("records seen knowledge and a batch turn, then retreats after remount without losing saved HP", async () => {
   const view = renderGame();
   const user = await enter();
@@ -756,6 +785,7 @@ it("records seen knowledge and a batch turn, then retreats after remount without
     },
   ]);
   expect(state.save.run?.enemyId).toBe("book:0:enemy:0");
+  expect(state.save.battle?.discoveredPlace).toBe("sentence");
   await user.click(screen.getByRole("button", { name: "不正解を送信" }));
   await user.click(
     await screen.findByRole("button", { name: "結果を処理 · 1/1" }),

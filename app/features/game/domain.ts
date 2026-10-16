@@ -60,6 +60,7 @@ export type GameSave = {
     turn: number;
     region: number;
     checkpoint: string;
+    discoveredPlace?: string | null;
     enemies: string[];
     quizIndices?: Record<string, number>;
     bossLevel?: number | null;
