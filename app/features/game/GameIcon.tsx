@@ -136,8 +136,9 @@ export default function GameIcon({
         aria-hidden="true"
         draggable={false}
         loading="lazy"
-        width={512}
-        height={512}
+        width={art.pixelated ? 32 : 512}
+        height={art.pixelated ? 32 : 512}
+        style={art.pixelated ? { imageRendering: "pixelated" } : undefined}
         className={`${className} object-contain`}
       />
     );
@@ -153,16 +154,19 @@ export function IconPicker({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
+  const [style, setStyle] = useState("all");
   const choices = [
     ...Object.entries(characterAssets).map(([id, item]) => ({
       id,
       label: item.label,
       category: item.category,
+      style: characterAsset(id)?.pixelated ? "pixel" : "illustration",
     })),
     ...Object.entries(gameIcons).map(([id, item]) => ({
       id,
       label: item.label,
       category: "icon",
+      style: "line",
     })),
   ];
   return (
@@ -193,6 +197,10 @@ export function IconPicker({
             ["all", "すべて"],
             ["enemy", "通常敵"],
             ["boss", "ボス"],
+            ["equipment", "装備"],
+            ["item", "道具・食べ物"],
+            ["magic", "魔法"],
+            ["scenery", "施設・宝箱"],
             ["icon", "アイコン"],
           ].map(([id, label]) => (
             <Button
@@ -207,11 +215,31 @@ export function IconPicker({
             </Button>
           ))}
         </fieldset>
+        <fieldset aria-label="絵柄" className="flex flex-wrap gap-2">
+          {[
+            ["all", "全絵柄"],
+            ["illustration", "イラスト"],
+            ["pixel", "ドット絵"],
+            ["line", "線画"],
+          ].map(([id, label]) => (
+            <Button
+              key={id}
+              type="button"
+              size="sm"
+              variant={style === id ? "default" : "outline"}
+              aria-pressed={style === id}
+              onClick={() => setStyle(id)}
+            >
+              {label}
+            </Button>
+          ))}
+        </fieldset>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
           {choices
             .filter(
               (item) =>
                 (category === "all" || category === item.category) &&
+                (style === "all" || style === item.style) &&
                 `${item.id} ${item.label}`
                   .toLowerCase()
                   .includes(query.toLowerCase()),
@@ -235,6 +263,17 @@ export function IconPicker({
               </button>
             ))}
         </div>
+        <p className="text-xs text-muted-foreground">
+          ドット絵：
+          <a
+            href="https://opengameart.org/content/dungeon-crawl-32x32-tiles"
+            target="_blank"
+            rel="noreferrer"
+            className="underline"
+          >
+            Dungeon Crawl（CC0）
+          </a>
+        </p>
       </DialogContent>
     </Dialog>
   );

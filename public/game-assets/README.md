@@ -1,5 +1,9 @@
 # Character artwork
 
+The material gallery also includes 45 CC0 Dungeon Crawl sprites (enemies, bosses,
+equipment, items, magic and scenery). See [their source and license notes](./crawl/SOURCES.md).
+These pixel sprites are separate from the six original illustrations below.
+
 Six original enemy and boss images generated with the built-in image_gen tool on 2026-10-16.
 These are not downloaded third-party asset packs or existing franchise characters.
 Delivered as 512 × 512 WebP with transparency; full-resolution generated PNG sources remain unchanged in the generation output.

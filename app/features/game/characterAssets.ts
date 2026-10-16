@@ -1,5 +1,8 @@
-/** Project-local original character art. Only registered IDs are saved. */
+import { type GameArtwork, crawlAssets } from "./crawlAssets";
+
+/** Game artwork, including characters, equipment and objects. Only registered IDs are saved. */
 export const characterAssets = {
+  ...crawlAssets,
   art_archive_golem: {
     label: "書庫のゴーレム",
     src: "/game-assets/archive_golem.webp",
@@ -31,7 +34,7 @@ export const characterAssets = {
     category: "enemy",
   },
 } as const;
-export function characterAsset(id?: string | null) {
+export function characterAsset(id?: string | null): GameArtwork | undefined {
   return id && Object.hasOwn(characterAssets, id)
     ? characterAssets[id as keyof typeof characterAssets]
     : undefined;
