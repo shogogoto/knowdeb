@@ -97,6 +97,9 @@ export default function QuizSession({
             ? (requestedPlanId ?? "")
             : (loadedPlans[0]?.uid ?? ""),
         );
+        // Mark the pending recommendation load before exposing the ready UI.
+        // Otherwise the first render briefly looks like a completed empty result.
+        setIsPreparingRecommendations(loadedPlans.length > 0);
         setLoadState({ status: "ready" });
       } catch (error) {
         if (!active) return;

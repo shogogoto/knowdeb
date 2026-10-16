@@ -188,9 +188,9 @@ describe("QuizSession", () => {
 
     renderQuizSession("/quiz?plan=plan-2");
 
+    await waitFor(() => expect(requestedPlans).toEqual(["plan-2", "plan-2"]));
     await screen.findByText("準備済みのクイズがありません");
     expect(screen.getByLabelText("StudyPlan")).toHaveValue("plan-2");
-    expect(requestedPlans).toEqual(["plan-2", "plan-2"]);
   });
 
   it("既存クイズだけを取得しPAIR2RELを最後にする", async () => {
@@ -215,12 +215,14 @@ describe("QuizSession", () => {
 
     renderQuizSession();
 
+    await waitFor(() =>
+      expect(requests).toEqual([
+        "false:term2sent",
+        "false:sent2term",
+        "false:pair2rel",
+      ]),
+    );
     await screen.findByText("準備済みのクイズがありません");
-    expect(requests).toEqual([
-      "false:term2sent",
-      "false:sent2term",
-      "false:pair2rel",
-    ]);
   });
 
   it("QuizTypeごとに届いた問題から表示する", async () => {
