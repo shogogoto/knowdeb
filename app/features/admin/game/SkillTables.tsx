@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { IconPicker } from "~/features/game/GameIcon";
+import GameIcon, { IconPicker } from "~/features/game/GameIcon";
 import SkillEffect from "~/features/game/SkillEffect";
 import {
   type SkillDefinition,
@@ -7,6 +7,14 @@ import {
   effectLabels,
 } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "~/shared/components/ui/dialog";
 import { Input } from "~/shared/components/ui/input";
 
 const selectClass = "h-9 rounded-md border bg-background px-2 text-sm";
@@ -29,6 +37,7 @@ export default function SkillTables({
   add: (effect: SkillDefinition["effect"]) => void;
 }) {
   const [preview, setPreview] = useState<{ id: string; key: number }>();
+  const previewSkill = skills.find((s) => s.id === preview?.id);
   return (
     <div className="space-y-6">
       {skillGroups.map(([title, effects]) => {
@@ -281,7 +290,7 @@ export default function SkillTables({
                             )}
                           </select>
                         </td>
-                        <td className="relative">
+                        <td>
                           <Button
                             type="button"
                             variant="outline"
@@ -296,12 +305,6 @@ export default function SkillTables({
                           >
                             再生
                           </Button>
-                          {preview?.id === s.id && (
-                            <SkillEffect
-                              key={preview.key}
-                              animation={s.animation ?? "none"}
-                            />
-                          )}
                         </td>
                         <td>
                           <input
@@ -332,6 +335,60 @@ export default function SkillTables({
           </section>
         );
       })}
+      <Dialog
+        open={Boolean(previewSkill)}
+        onOpenChange={(open) => !open && setPreview(undefined)}
+      >
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{previewSkill?.name}の演出プレビュー</DialogTitle>
+            <DialogDescription>
+              {animationLabels[previewSkill?.animation ?? "none"]}
+            </DialogDescription>
+          </DialogHeader>
+          <div
+            aria-label="演出の再生領域"
+            className="relative isolate flex h-56 items-center justify-center overflow-hidden rounded-xl border bg-slate-950 text-slate-100"
+          >
+            {previewSkill?.animation && previewSkill.animation !== "none" ? (
+              <>
+                <div className="flex flex-col items-center gap-2 text-slate-400">
+                  <GameIcon icon="target" className="size-12" />
+                  <span className="text-xs">対象</span>
+                </div>
+                <SkillEffect
+                  key={preview?.key}
+                  animation={previewSkill.animation}
+                  preview
+                />
+                <p className="absolute bottom-3 text-xs text-slate-400 hidden motion-reduce:block">
+                  動きを減らす設定のため静止表示
+                </p>
+              </>
+            ) : (
+              <p className="text-sm">演出が「なし」に設定されています。</p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setPreview(undefined)}
+            >
+              閉じる
+            </Button>
+            <Button
+              type="button"
+              disabled={
+                !previewSkill?.animation || previewSkill.animation === "none"
+              }
+              onClick={() => setPreview((p) => p && { ...p, key: p.key + 1 })}
+            >
+              もう一度再生
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

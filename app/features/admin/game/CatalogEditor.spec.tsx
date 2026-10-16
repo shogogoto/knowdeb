@@ -131,15 +131,45 @@ it("uses one field per column, group-specific effects, and saves the selected an
   await user.click(
     within(heal).getByRole("button", { name: "ケアルの演出を再生" }),
   );
-  expect(
-    heal.querySelector('[data-skill-animation="ripple"]'),
-  ).toBeInTheDocument();
+  const preview = screen.getByRole("dialog", {
+    name: "ケアルの演出プレビュー",
+  });
+  const effect = preview.querySelector('[data-skill-animation="ripple"]');
+  expect(effect).toBeInTheDocument();
+  await user.click(
+    within(preview).getByRole("button", { name: "もう一度再生" }),
+  );
+  expect(preview.querySelector('[data-skill-animation="ripple"]')).not.toBe(
+    effect,
+  );
+  await user.keyboard("{Escape}");
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(
     saved.mock.calls[0][0].skills.find((s: { id: string }) => s.id === "heal")
       .animation,
   ).toBe("ripple");
+});
+
+it("opens an explanatory preview even when no animation is configured", async () => {
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "ファイアの演出を再生" }),
+  );
+  const preview = screen.getByRole("dialog", {
+    name: "ファイアの演出プレビュー",
+  });
+  expect(
+    within(preview).getByText("演出が「なし」に設定されています。"),
+  ).toBeVisible();
+  expect(
+    within(preview).getByRole("button", { name: "もう一度再生" }),
+  ).toBeDisabled();
+  await user.click(within(preview).getByRole("button", { name: "閉じる" }));
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(saved).not.toHaveBeenCalled();
 });
 
 it("configures enemy icons and attacks and surfaces save failures", async () => {
