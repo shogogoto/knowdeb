@@ -110,54 +110,25 @@ it("defines timed percentage buffs with an explicit stacking limit", async () =>
   });
 });
 
-it("uses one field per column, group-specific effects, and saves the selected animation", async () => {
+it("uses one field per column and saves animation IDs through the row selector", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
   const fire = await screen.findByRole("row", { name: "ファイア" });
   expect(
-    within(fire)
+    within(within(fire).getByLabelText("効果"))
       .getAllByRole("option")
-      .filter((o) => o.parentElement?.getAttribute("aria-label") === "効果")
       .map((o) => o.getAttribute("value")),
   ).toEqual(["attack"]);
-  expect(screen.queryByLabelText("直接使用可")).not.toBeInTheDocument();
-  expect(screen.queryByLabelText("専用クイズ")).not.toBeInTheDocument();
-  for (const cell of within(fire).getAllByRole("cell")) {
-    expect(cell.querySelectorAll("input, select").length).toBeLessThanOrEqual(
-      1,
-    );
-  }
-  const recovery = screen.getByRole("region", { name: "回復スキル" });
-  const heal = within(recovery).getByRole("row", { name: "ケアル" });
-  expect(
-    within(within(heal).getByLabelText("効果"))
-      .getAllByRole("option")
-      .map((o) => o.getAttribute("value")),
-  ).toEqual(["heal_hp", "heal_mp"]);
   expect(
     screen.queryByRole("columnheader", { name: "プレビュー" }),
   ).not.toBeInTheDocument();
-  await user.click(
-    within(heal).getByRole("button", { name: "ケアルの演出を選ぶ" }),
-  );
-  const preview = screen.getByRole("dialog", {
-    name: "ケアルの演出を選ぶ",
-  });
-  const tile = within(preview).getByRole("button", {
-    name: "回復の波紋をプレビュー",
-  });
-  await user.click(tile);
-  const effect = tile.querySelector('[data-skill-animation="ripple"]');
-  expect(effect).toBeInTheDocument();
-  expect(effect).not.toHaveClass("skill-fx-still");
-  await user.click(tile);
-  expect(tile.querySelector('[data-skill-animation="ripple"]')).not.toBe(
-    effect,
-  );
-  await user.click(
-    within(preview).getByRole("button", { name: "この演出を使う" }),
-  );
-  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: "ファイアの演出を選ぶ" }),
+  ).not.toBeInTheDocument();
+  for (const cell of within(fire).getAllByRole("cell"))
+    expect(cell.querySelectorAll("input,select").length).toBeLessThanOrEqual(1);
+  const heal = screen.getByRole("row", { name: "ケアル" });
+  await user.selectOptions(within(heal).getByLabelText("演出"), "ripple");
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(
@@ -166,63 +137,50 @@ it("uses one field per column, group-specific effects, and saves the selected an
   ).toBe("ripple");
 });
 
-it("opens static thumbnails immediately and discards changes on Escape", async () => {
+it("opens a single independent static gallery and restores focus on Escape", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
-  await user.click(
-    await screen.findByRole("button", { name: "ファイアの演出を選ぶ" }),
-  );
-  const preview = screen.getByRole("dialog", {
-    name: "ファイアの演出を選ぶ",
-  });
+  await screen.findByRole("row", { name: "ファイア" });
+  expect(screen.getAllByRole("button", { name: "演出一覧" })).toHaveLength(1);
+  const trigger = screen.getByRole("button", { name: "演出一覧" });
+  await user.click(trigger);
+  const gallery = screen.getByRole("dialog", { name: "演出プレビュー一覧" });
   expect(
-    within(preview).getByRole("button", { name: "火球をプレビュー" }),
+    within(gallery).getByRole("button", { name: "火球をプレビュー" }),
   ).toBeVisible();
-  expect(preview.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(20);
-  expect(preview.querySelector(".skill-sprite")).not.toBeInTheDocument();
-  await user.click(
-    within(preview).getByRole("button", { name: "火球をプレビュー" }),
-  );
+  expect(gallery.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(20);
+  expect(gallery.querySelector(".skill-sprite")).not.toBeInTheDocument();
+  expect(
+    within(gallery).queryByRole("button", { name: "この演出を使う" }),
+  ).not.toBeInTheDocument();
   await user.keyboard("{Escape}");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  const trigger = screen.getByRole("button", { name: "ファイアの演出を選ぶ" });
-  expect(trigger).toHaveTextContent("なし");
   expect(trigger).toHaveFocus();
   expect(saved).not.toHaveBeenCalled();
 });
 
-it("previews a downloaded animation from the gallery and saves its stable ID", async () => {
+it("plays thumbnails without changing skills and returns to posters after playback", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
-  await user.click(
-    await screen.findByRole("button", { name: "ファイアの演出を選ぶ" }),
-  );
-  const preview = screen.getByRole("dialog", {
-    name: "ファイアの演出を選ぶ",
-  });
-  await user.click(
-    within(preview).getByRole("button", { name: "火球をプレビュー" }),
-  );
-  expect(
-    preview.querySelector('img[src="/game-assets/effects/oga_spell_3.webp"]'),
-  ).toBeInTheDocument();
-  const tile = within(preview).getByRole("button", {
+  await user.click(screen.getByRole("button", { name: "演出一覧" }));
+  const gallery = screen.getByRole("dialog", { name: "演出プレビュー一覧" });
+  const tile = within(gallery).getByRole("button", {
     name: "火球をプレビュー",
   });
+  await user.click(tile);
+  expect(
+    tile.querySelector('img[src="/game-assets/effects/oga_spell_3.webp"]'),
+  ).toBeInTheDocument();
   const stage = tile.querySelector(".skill-sprite");
   if (!stage) throw new Error("Missing animated thumbnail");
   fireEvent.animationEnd(stage, { animationName: "skill-sprite-play" });
-  // jsdom has no AnimationEvent; React can use the WebKit fallback listener.
   fireEvent(stage, new Event("webkitAnimationEnd", { bubbles: true }));
   expect(tile.querySelector('img[src$="-poster.webp"]')).toBeInTheDocument();
+  await user.click(within(gallery).getByRole("button", { name: "閉じる" }));
+  const fire = await screen.findByRole("row", { name: "ファイア" });
+  expect(within(fire).getByLabelText("演出")).toHaveValue("none");
   expect(saved).not.toHaveBeenCalled();
-  await user.click(
-    within(preview).getByRole("button", { name: "この演出を使う" }),
-  );
-  const skill = screen.getByRole("row", { name: "ファイア" });
-  expect(
-    within(skill).getByRole("button", { name: "ファイアの演出を選ぶ" }),
-  ).toHaveTextContent("火球");
+  await user.selectOptions(within(fire).getByLabelText("演出"), "oga_spell_3");
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(saved.mock.calls[0][0].skills[0].animation).toBe("oga_spell_3");

@@ -29,51 +29,35 @@ function Poster({ animation }: { animation: SkillAnimation }) {
   );
 }
 
-export default function SkillAnimationPicker({
-  name,
-  value,
-  onChange,
-}: {
-  name: string;
-  value: SkillAnimation;
-  onChange: (animation: SkillAnimation) => void;
-}) {
+export default function SkillAnimationGallery() {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState(value);
+  const [selected, setSelected] = useState<SkillAnimation>("none");
   const [playing, setPlaying] = useState<{ id: SkillAnimation; key: number }>();
   return (
     <Dialog
       open={open}
       onOpenChange={(next) => {
         if (next) {
-          setSelected(value);
+          setSelected("none");
           setPlaying(undefined);
         }
         setOpen(next);
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          type="button"
-          variant="outline"
-          aria-label={`${name}の演出を選ぶ`}
-          className="h-10 w-40 justify-start gap-2 px-2"
-        >
-          <span className="relative isolate flex size-7 shrink-0 items-center justify-center overflow-hidden rounded bg-slate-950">
-            <Poster animation={value} />
-          </span>
-          <span className="truncate">{animationLabels[value]}</span>
+        <Button type="button" variant="outline">
+          演出一覧
         </Button>
       </DialogTrigger>
-      <DialogContent className="flex max-h-[90dvh] w-[min(64rem,calc(100vw-2rem))] max-w-none flex-col sm:max-w-none">
+      <DialogContent className="flex h-[min(56rem,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] w-[min(80rem,calc(100vw-2rem))] max-w-none flex-col sm:max-w-none">
         <DialogHeader>
-          <DialogTitle>{name}の演出を選ぶ</DialogTitle>
+          <DialogTitle>演出プレビュー一覧</DialogTitle>
           <DialogDescription>
             静止画をクリックすると、その場で再生します。
           </DialogDescription>
         </DialogHeader>
         <div
-          className="grid min-h-0 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-4 lg:grid-cols-5"
+          className="grid min-h-0 flex-1 auto-rows-max grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-4 lg:grid-cols-6"
           aria-label="演出素材一覧"
         >
           {Object.entries(animationLabels).map(([key, label]) => {
@@ -109,7 +93,7 @@ export default function SkillAnimationPicker({
         </div>
         <DialogFooter className="items-center">
           <span className="mr-auto text-sm">
-            選択中：{animationLabels[selected]}
+            素材：{animationLabels[selected]}
           </span>
           <Button
             type="button"
@@ -117,16 +101,6 @@ export default function SkillAnimationPicker({
             onClick={() => setOpen(false)}
           >
             閉じる
-          </Button>
-          <Button
-            type="button"
-            disabled={selected === value}
-            onClick={() => {
-              onChange(selected);
-              setOpen(false);
-            }}
-          >
-            この演出を使う
           </Button>
         </DialogFooter>
       </DialogContent>
