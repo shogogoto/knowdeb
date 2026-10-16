@@ -1369,6 +1369,37 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
   expect(consumeCount).toBe(0);
 });
 
+it("uses the recovery place while alive, spending one move without another adventure right", async () => {
+  const save = enterDungeon(newSave(), "book", "テストの本", 1);
+  if (!save.run) throw new Error("Missing run");
+  state = {
+    revision: 1,
+    save: {
+      ...save,
+      content: await loadDungeon("book"),
+      run: { ...save.run, hp: 12, moves: 1 },
+    },
+  };
+  available = false;
+  renderGame();
+  const user = userEvent.setup();
+  expect(await screen.findByText("12/35")).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "マップを全画面表示" }));
+  const map = screen.getByRole("dialog", { name: "冒険マップ" });
+  await user.click(within(map).getByRole("button", { name: "回復場所" }));
+  await user.click(
+    within(map).getByRole("button", { name: "回復場所へ移動・1歩" }),
+  );
+  await waitFor(() =>
+    expect(state.save.run).toMatchObject({
+      hp: 35,
+      moves: 2,
+      phase: "path",
+    }),
+  );
+  expect(consumeCount).toBe(0);
+});
+
 it("shows unlocked dungeons and the recovery place only at the entrance", async () => {
   const save = enterDungeon(newSave(), "book", "テストの本", 1);
   if (!save.run) throw new Error("Missing run");

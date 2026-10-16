@@ -778,12 +778,14 @@ export function GamePlay({
     }
   }
   async function recoverAtSanctuary() {
-    if (!run || busy || pendingMove.current || run.phase !== "defeated") return;
+    if (!run || busy || pendingMove.current) return;
+    const recovered = recoverAtEntrance(save);
+    if (recovered === save) return;
     pendingMove.current = true;
     setBusy(true);
     setError(undefined);
     try {
-      await update(recoverAtEntrance(save));
+      await update(recovered);
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -1294,15 +1296,14 @@ export function GamePlay({
                             (map.current === chest.last ||
                               map.current === chest.id),
                         )
-                      : (id === RECOVERY &&
-                          run.phase === "defeated" &&
-                          run.moves < MOVES_PER_EVENT) ||
-                        run.phase === "path" ||
-                        (run.phase === "cleared" &&
-                          run.moves < MOVES_PER_EVENT) ||
-                        (id === ENTRANCE &&
-                          run.phase === "defeated" &&
-                          Boolean(access.data?.available))
+                      : id === RECOVERY
+                        ? recoverAtEntrance(save) !== save
+                        : run.phase === "path" ||
+                          (run.phase === "cleared" &&
+                            run.moves < MOVES_PER_EVENT) ||
+                          (id === ENTRANCE &&
+                            run.phase === "defeated" &&
+                            Boolean(access.data?.available))
                   }
                   map={map}
                   knowledge={content?.knowledge ?? []}

@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
 import ExplorationMap from "./Map";
-import { type DungeonMap, ENTRANCE } from "./exploration";
+import { enterDungeon, newSave, recoverAtEntrance } from "./domain";
+import { type DungeonMap, ENTRANCE, RECOVERY } from "./exploration";
 import { type ChestReward, chestRegion, regionChests } from "./treasure";
 
 const places = Array.from({ length: 11 }, (_, index) => ({
@@ -104,3 +105,33 @@ function BossMap() {
   );
 }
 export const BossMilestone: Story = { render: () => <BossMap /> };
+
+function RecoveryMap() {
+  const [save, setSave] = useState(() => {
+    const entered = enterDungeon(newSave(), "book", "回復場所", 1);
+    if (!entered.run) throw new Error("Missing run");
+    return { ...entered, run: { ...entered.run, hp: 12, moves: 1 } };
+  });
+  return (
+    <ExplorationMap
+      map={{ current: ENTRANCE, places: [], edges: [] }}
+      knowledge={[]}
+      title="回復場所"
+      disabled={false}
+      remainingMoves={5 - save.run.moves}
+      status={
+        <p>
+          HP {save.run.hp}/{save.run.maxHp}
+        </p>
+      }
+      canTravel={(id) => id === RECOVERY && recoverAtEntrance(save) !== save}
+      onOpen={() => undefined}
+      onMove={(id) => {
+        if (id !== RECOVERY) return;
+        const recovered = recoverAtEntrance(save);
+        if (recovered.run) setSave({ ...recovered, run: recovered.run });
+      }}
+    />
+  );
+}
+export const RecoveryWhileAlive: Story = { render: () => <RecoveryMap /> };

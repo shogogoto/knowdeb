@@ -146,11 +146,21 @@ export function resumeEvent(save: GameSave): GameSave {
   };
 }
 
-/** Defeat returns the player to the entrance; recovery costs one move. */
+/** Recovery at the entrance costs one remaining move, even without a defeat. */
 export function recoverAtEntrance(save: GameSave): GameSave {
   const run = save.run;
-  if (!run || run.phase !== "defeated") return save;
-  const moves = Math.min(MOVES_PER_EVENT, run.moves + 1);
+  if (
+    !run ||
+    !["path", "cleared", "defeated"].includes(run.phase) ||
+    save.battle ||
+    save.battleFeedback ||
+    run.moves >= MOVES_PER_EVENT ||
+    run.hp >= run.maxHp ||
+    (run.phase !== "defeated" &&
+      (save.maps?.[run.resourceId]?.current ?? ENTRANCE) !== ENTRANCE)
+  )
+    return save;
+  const moves = run.moves + 1;
   return {
     ...save,
     maps: {

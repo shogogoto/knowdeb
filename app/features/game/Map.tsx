@@ -666,7 +666,7 @@ export default function ExplorationMap({
                 <span className="block text-xs text-sky-500">入口の施設</span>
                 <span className="font-medium">回復場所</span>
                 <span className="mt-1 block text-xs text-muted-foreground">
-                  敗北時に利用可能 · 1歩
+                  HP全回復 · 1歩
                 </span>
               </button>
             )}
@@ -932,7 +932,7 @@ export default function ExplorationMap({
                       : selectedDungeon
                         ? "ダンジョンへ移動"
                         : selected === RECOVERY
-                          ? "入口に常設された回復場所。敗北後に一歩使ってHPを回復できます。冒険の再開には次の冒険権が必要です。"
+                          ? "1歩使ってHPを全回復します。"
                           : selected === ENTRANCE
                             ? "ダンジョンの入口"
                             : (chosen?.sentence ?? "単文詳細を開く")}

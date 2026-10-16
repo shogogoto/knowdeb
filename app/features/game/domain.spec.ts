@@ -97,12 +97,34 @@ describe("adventure rules", () => {
     expect(recovered.run?.moves).toBe(5);
     expect(recovered.run?.phase).toBe("rest");
 
-    const alreadySpent = recoverAtEntrance({
+    const spent = {
       ...base,
-      run: { ...base.run, hp: 0, moves: 5, phase: "defeated" },
+      run: { ...base.run, hp: 0, moves: 5, phase: "defeated" as const },
+    };
+    expect(recoverAtEntrance(spent)).toBe(spent);
+  });
+  it("heals an injured player at the entrance without requiring defeat", () => {
+    const base = entered();
+    if (!base.run) throw new Error("Expected run");
+    const injured = { ...base, run: { ...base.run, hp: 12, moves: 1 } };
+    expect(recoverAtEntrance(injured).run).toMatchObject({
+      hp: base.run.maxHp,
+      moves: 2,
+      phase: "path",
     });
-    expect(alreadySpent.run?.moves).toBe(5);
-    expect(alreadySpent.run?.phase).toBe("rest");
+    expect(recoverAtEntrance(base)).toBe(base);
+    const away = {
+      ...injured,
+      maps: {
+        resource: { current: "s", places: [{ id: "s", region: 0 }], edges: [] },
+      },
+    };
+    expect(recoverAtEntrance(away)).toBe(away);
+    const fighting = {
+      ...injured,
+      run: { ...injured.run, phase: "battle" as const },
+    };
+    expect(recoverAtEntrance(fighting)).toBe(fighting);
   });
   it("continues a cleared lap from the same place without healing or resetting moves", () => {
     let save = entered();
