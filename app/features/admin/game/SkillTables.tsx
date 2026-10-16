@@ -1,11 +1,8 @@
 import { IconPicker } from "~/features/game/GameIcon";
-import {
-  type SkillDefinition,
-  animationLabels,
-  effectLabels,
-} from "~/features/game/catalog";
+import { type SkillDefinition, effectLabels } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
+import SkillAnimationGallery from "./SkillAnimationGallery";
 
 const selectClass = "h-9 rounded-md border bg-background px-2 text-sm";
 export const skillGroups = [
@@ -257,25 +254,13 @@ export default function SkillTables({
                         )}
                         <td>{numeric("消費MP", "mp_cost", 0, 10000)}</td>
                         <td>
-                          <select
-                            aria-label="演出"
-                            className={selectClass}
+                          <SkillAnimationGallery
+                            name={s.name}
                             value={s.animation ?? "none"}
-                            onChange={(event) =>
-                              update(s.id, {
-                                animation: event.target
-                                  .value as SkillDefinition["animation"],
-                              })
+                            onChange={(animation) =>
+                              update(s.id, { animation })
                             }
-                          >
-                            {Object.entries(animationLabels).map(
-                              ([id, label]) => (
-                                <option key={id} value={id}>
-                                  {label}
-                                </option>
-                              ),
-                            )}
-                          </select>
+                          />
                         </td>
                         <td>
                           <input

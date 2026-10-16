@@ -9,7 +9,6 @@ import {
 } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
-import SkillAnimationGallery from "./SkillAnimationGallery";
 import SkillTables from "./SkillTables";
 
 type Kind = "skills" | "items" | "enemies";
@@ -108,7 +107,6 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{names[kind]}</h2>
-        {kind === "skills" && <SkillAnimationGallery />}
         {kind !== "skills" && (
           <Button
             type="button"

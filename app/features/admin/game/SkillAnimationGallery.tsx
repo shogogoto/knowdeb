@@ -29,7 +29,15 @@ function Poster({ animation }: { animation: SkillAnimation }) {
   );
 }
 
-export default function SkillAnimationGallery() {
+export default function SkillAnimationGallery({
+  name,
+  value,
+  onChange,
+}: {
+  name: string;
+  value: SkillAnimation;
+  onChange: (animation: SkillAnimation) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<SkillAnimation>("none");
   const [playing, setPlaying] = useState<{ id: SkillAnimation; key: number }>();
@@ -38,20 +46,24 @@ export default function SkillAnimationGallery() {
       open={open}
       onOpenChange={(next) => {
         if (next) {
-          setSelected("none");
+          setSelected(value);
           setPlaying(undefined);
         }
         setOpen(next);
       }}
     >
       <DialogTrigger asChild>
-        <Button type="button" variant="outline">
-          演出一覧
+        <Button
+          type="button"
+          variant="outline"
+          aria-label={`${name}の演出を選ぶ`}
+        >
+          {animationLabels[value]}
         </Button>
       </DialogTrigger>
       <DialogContent className="flex h-[min(56rem,calc(100dvh-2rem))] max-h-[calc(100dvh-2rem)] w-[min(80rem,calc(100vw-2rem))] max-w-none flex-col sm:max-w-none">
         <DialogHeader>
-          <DialogTitle>演出プレビュー一覧</DialogTitle>
+          <DialogTitle>{name}の演出</DialogTitle>
           <DialogDescription>
             静止画をクリックすると、その場で再生します。
           </DialogDescription>
@@ -101,6 +113,15 @@ export default function SkillAnimationGallery() {
             onClick={() => setOpen(false)}
           >
             閉じる
+          </Button>
+          <Button
+            type="button"
+            onClick={() => {
+              onChange(selected);
+              setOpen(false);
+            }}
+          >
+            この演出を使う
           </Button>
         </DialogFooter>
       </DialogContent>

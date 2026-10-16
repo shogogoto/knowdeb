@@ -110,7 +110,7 @@ it("defines timed percentage buffs with an explicit stacking limit", async () =>
   });
 });
 
-it("uses one field per column and saves animation IDs through the row selector", async () => {
+it("uses one field per column and selects each skill's animation from its gallery", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
   const fire = await screen.findByRole("row", { name: "ファイア" });
@@ -123,39 +123,57 @@ it("uses one field per column and saves animation IDs through the row selector",
     screen.queryByRole("columnheader", { name: "プレビュー" }),
   ).not.toBeInTheDocument();
   expect(
-    screen.queryByRole("button", { name: "ファイアの演出を選ぶ" }),
+    screen.queryByRole("button", { name: "演出一覧" }),
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("combobox", { name: "演出" }),
   ).not.toBeInTheDocument();
   for (const cell of within(fire).getAllByRole("cell"))
     expect(cell.querySelectorAll("input,select").length).toBeLessThanOrEqual(1);
   const heal = screen.getByRole("row", { name: "ケアル" });
-  await user.selectOptions(within(heal).getByLabelText("演出"), "ripple");
+  await user.click(
+    within(heal).getByRole("button", { name: "ケアルの演出を選ぶ" }),
+  );
+  const gallery = screen.getByRole("dialog", { name: "ケアルの演出" });
+  await user.click(
+    within(gallery).getByRole("button", { name: "回復の波紋をプレビュー" }),
+  );
+  await user.click(
+    within(gallery).getByRole("button", { name: "この演出を使う" }),
+  );
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(
     saved.mock.calls[0][0].skills.find((s: { id: string }) => s.id === "heal")
       .animation,
   ).toBe("ripple");
+  expect(saved.mock.calls[0][0].skills[0]).toEqual(sampleCatalog.skills[0]);
 });
 
-it("opens a single independent static gallery and restores focus on Escape", async () => {
+it("opens the skill's static gallery and discards the selection on Escape", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
   await screen.findByRole("row", { name: "ファイア" });
-  expect(screen.getAllByRole("button", { name: "演出一覧" })).toHaveLength(1);
-  const trigger = screen.getByRole("button", { name: "演出一覧" });
+  const trigger = screen.getByRole("button", { name: "ファイアの演出を選ぶ" });
   await user.click(trigger);
-  const gallery = screen.getByRole("dialog", { name: "演出プレビュー一覧" });
+  const gallery = screen.getByRole("dialog", { name: "ファイアの演出" });
   expect(
     within(gallery).getByRole("button", { name: "火球をプレビュー" }),
   ).toBeVisible();
   expect(gallery.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(40);
   expect(gallery.querySelector(".skill-sprite")).not.toBeInTheDocument();
-  expect(
-    within(gallery).queryByRole("button", { name: "この演出を使う" }),
-  ).not.toBeInTheDocument();
+  await user.click(
+    within(gallery).getByRole("button", { name: "火球をプレビュー" }),
+  );
   await user.keyboard("{Escape}");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   expect(trigger).toHaveFocus();
+  expect(trigger).toHaveTextContent("なし");
+  await user.click(trigger);
+  expect(
+    screen.getByRole("button", { name: "なしをプレビュー" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await user.click(screen.getByRole("button", { name: "閉じる" }));
   expect(saved).not.toHaveBeenCalled();
 });
 
@@ -166,12 +184,15 @@ it.each([
   ["岩砕き", "oga_earth_3"],
   ["時の魔法陣", "oga_cosmic_2"],
 ])(
-  "previews %s without changing skills and saves it only through the row selector",
+  "previews %s and applies it only to the originating skill on confirmation",
   async (label, id) => {
     render(<CatalogEditor kind="skills" />);
     const user = userEvent.setup();
-    await user.click(screen.getByRole("button", { name: "演出一覧" }));
-    const gallery = screen.getByRole("dialog", { name: "演出プレビュー一覧" });
+    const trigger = await screen.findByRole("button", {
+      name: "ファイアの演出を選ぶ",
+    });
+    await user.click(trigger);
+    const gallery = screen.getByRole("dialog", { name: "ファイアの演出" });
     const tile = within(gallery).getByRole("button", {
       name: `${label}をプレビュー`,
     });
@@ -185,13 +206,28 @@ it.each([
     fireEvent(stage, new Event("webkitAnimationEnd", { bubbles: true }));
     expect(tile.querySelector('img[src$="-poster.webp"]')).toBeInTheDocument();
     await user.click(within(gallery).getByRole("button", { name: "閉じる" }));
-    const fire = await screen.findByRole("row", { name: "ファイア" });
-    expect(within(fire).getByLabelText("演出")).toHaveValue("none");
+    expect(trigger).toHaveTextContent("なし");
     expect(saved).not.toHaveBeenCalled();
-    await user.selectOptions(within(fire).getByLabelText("演出"), id);
+    await user.click(trigger);
+    await user.click(
+      screen.getByRole("button", { name: `${label}をプレビュー` }),
+    );
+    await user.click(screen.getByRole("button", { name: "この演出を使う" }));
+    expect(trigger).toHaveTextContent(label);
+    expect(trigger).toHaveFocus();
+    await user.click(trigger);
+    expect(
+      screen.getByRole("button", { name: `${label}をプレビュー` }),
+    ).toHaveAttribute("aria-pressed", "true");
+    await user.keyboard("{Escape}");
     await user.click(screen.getByRole("button", { name: "保存" }));
     await waitFor(() => expect(saved).toHaveBeenCalled());
     expect(saved.mock.calls[0][0].skills[0].animation).toBe(id);
+    expect(
+      saved.mock.calls[0][0].skills.find(
+        (s: { id: string }) => s.id === "heal",
+      ),
+    ).toEqual(sampleCatalog.skills.find((s) => s.id === "heal"));
   },
 );
 
