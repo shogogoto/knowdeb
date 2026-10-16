@@ -4,7 +4,14 @@ import { loader } from "./game";
 vi.mock("~/features/game", () => ({ default: () => null }));
 
 describe("game menu routes", () => {
-  it.each([undefined, "status", "item"])("accepts menu %s", (menu) => {
+  it.each([
+    undefined,
+    "status",
+    "item",
+    "gambits",
+    "achievements",
+    "specialties",
+  ])("accepts menu %s", (menu) => {
     expect(loader({ params: { menu } })).toBeNull();
   });
 

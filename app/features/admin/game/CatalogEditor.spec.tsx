@@ -25,7 +25,7 @@ afterAll(() => server.close());
 it("chooses a named icon from the searchable asset list and saves the skill", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
-  const skill = await screen.findByRole("article", { name: "ファイア" });
+  const skill = await screen.findByRole("row", { name: "ファイア" });
   await user.click(
     within(skill).getByRole("button", { name: "ファイアの素材を選ぶ" }),
   );
@@ -64,8 +64,9 @@ it("references a skill from an item rather than defining a separate effect", asy
 it("defines timed percentage buffs with an explicit stacking limit", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
-  const skill = await screen.findByRole("article", { name: "ファイア" });
+  let skill = await screen.findByRole("row", { name: "ファイア" });
   await user.selectOptions(within(skill).getByLabelText("効果"), "buff");
+  skill = screen.getByRole("row", { name: "ファイア" });
   await user.selectOptions(
     within(skill).getByLabelText("対象ステータス"),
     "defense",

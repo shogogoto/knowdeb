@@ -37,6 +37,7 @@ import {
 } from "~/shared/components/ui/tabs";
 import BattleSettingsManager from "../battle";
 import CatalogEditor from "./CatalogEditor";
+import TriggerEditor from "./TriggerEditor";
 import {
   type AdminGameDungeon,
   alignAdminDungeonRegions,
@@ -468,9 +469,13 @@ function GameDungeonManager() {
 export default function GameAdminManager() {
   const { subtab } = useParams();
   const navigate = useNavigate();
-  const activeTab = ["dungeons", "skills", "items", "enemies"].includes(
-    subtab ?? "",
-  )
+  const activeTab = [
+    "dungeons",
+    "skills",
+    "items",
+    "enemies",
+    "gambits",
+  ].includes(subtab ?? "")
     ? subtab
     : "balance";
   return (
@@ -506,6 +511,7 @@ export default function GameAdminManager() {
               ["skills", "スキル"],
               ["items", "アイテム"],
               ["enemies", "敵"],
+              ["gambits", "ガンビット"],
             ] as const
           ).map(([id, label], index) => (
             <TabsTrigger
@@ -527,6 +533,9 @@ export default function GameAdminManager() {
       </TabsContent>
       <TabsContent value="dungeons" className="mt-0">
         <GameDungeonManager />
+      </TabsContent>
+      <TabsContent value="gambits" className="mt-0">
+        <TriggerEditor />
       </TabsContent>
       {(["skills", "items", "enemies"] as const).map((kind) => (
         <TabsContent key={kind} value={kind} className="mt-0">

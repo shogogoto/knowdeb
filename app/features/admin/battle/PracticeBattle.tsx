@@ -36,6 +36,7 @@ import {
   type PracticeSession,
   requestEnemyBalanceSimulation,
   requestPractice,
+  requestPracticeAction,
   requestPracticeNext,
   requestPracticeTurn,
   requestSimulatedPractice,
@@ -341,6 +342,13 @@ export default function PracticeBattle({
   ): Promise<T> => {
     const current = session.current;
     if (!current?.state.save.battle) throw new Error("模擬戦がありません。");
+    if (path === "battle/gambit/start" || path === "battle/gambit/answer") {
+      const reply = await requestPracticeAction<{
+        state: import("~/features/game/state").GameState;
+      }>(current, path.endsWith("/answer"), body);
+      session.current = { ...current, state: reply.state };
+      return reply as T;
+    }
     if (path === "battle/next") {
       const state = await requestPracticeNext(current);
       if (state.save.run)

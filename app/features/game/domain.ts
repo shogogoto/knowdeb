@@ -10,6 +10,7 @@ export type Run = {
   name: string;
   hp: number;
   maxHp: number;
+  hpScale?: number;
   mp?: number;
   maxMp?: number;
   attack: number;
@@ -41,6 +42,13 @@ export type GameSave = {
   };
   clears: Record<string, number>;
   bossClears?: Record<string, number[]>;
+  specialties?: {
+    id: string;
+    name: string;
+    resource_ids: string[];
+    skill_id: string;
+    equipped: boolean;
+  }[];
   gambits?: import("./catalog").GambitRule[];
   visitedDungeons?: string[];
   unlockedDungeons?: {
@@ -61,6 +69,14 @@ export type GameSave = {
     region: number;
     checkpoint: string;
     discoveredPlace?: string | null;
+    endActionDone?: boolean;
+    endAction?: {
+      id: string;
+      name: string;
+      index: number;
+      quiz_ids: string[];
+      deadline: number;
+    } | null;
     enemies: string[];
     quizIndices?: Record<string, number>;
     bossLevel?: number | null;

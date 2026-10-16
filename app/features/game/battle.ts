@@ -16,6 +16,7 @@ export const emptyAllocation: Allocation = {
 };
 export const defaultBalance = {
   gambit_levels_per_slot: 5,
+  specialty_levels_per_slot: 20,
   base_hp: 35,
   chest_gold: 30,
   chest_healing_potions: 0,

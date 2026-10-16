@@ -89,6 +89,11 @@ export default function BattleDialog({
             const target = event.target;
             if (
               target instanceof HTMLElement &&
+              target.closest("[data-end-turn-action]")
+            )
+              return;
+            if (
+              target instanceof HTMLElement &&
               target.closest('[role="dialog"]') !== event.currentTarget
             )
               return;

@@ -47,6 +47,7 @@ import MultiBattle from "./MultiBattle";
 import { useGameMusic } from "./MusicControls";
 import PlayerStatus from "./PlayerStatus";
 import ReviewRewards from "./ReviewRewards";
+import SpecialtiesPanel from "./SpecialtiesPanel";
 import StatEditor from "./StatEditor";
 import { useAdventureAccess } from "./access";
 import {
@@ -135,6 +136,7 @@ export function GamePlay({
     routeMenu === "shop" ||
     routeMenu === "achievements" ||
     routeMenu === "gambits" ||
+    routeMenu === "specialties" ||
     routeMenu === "boss"
       ? routeMenu
       : undefined;
@@ -143,15 +145,18 @@ export function GamePlay({
     panel === "item" ||
     panel === "shop" ||
     panel === "gambits" ||
+    panel === "specialties" ||
     panel === "achievements";
   const menuTab =
-    panel === "gambits"
-      ? "gambits"
-      : panel === "item" || panel === "shop"
-        ? "item"
-        : panel === "achievements"
-          ? "achievements"
-          : "status";
+    panel === "specialties"
+      ? "specialties"
+      : panel === "gambits"
+        ? "gambits"
+        : panel === "item" || panel === "shop"
+          ? "item"
+          : panel === "achievements"
+            ? "achievements"
+            : "status";
   const navigate = useNavigate();
   const location = useLocation();
   function openPanel(panel: "status" | "item" | "shop" | "boss") {
@@ -1619,11 +1624,15 @@ export function GamePlay({
                 })
               }
             >
-              <TabsList aria-label="ゲームメニュー" className="w-full">
+              <TabsList
+                aria-label="ゲームメニュー"
+                className="h-auto w-full flex-wrap"
+              >
                 <TabsTrigger value="status">ステータス</TabsTrigger>
                 <TabsTrigger value="item">アイテム</TabsTrigger>
                 <TabsTrigger value="achievements">実績</TabsTrigger>
                 <TabsTrigger value="gambits">ガンビット</TabsTrigger>
+                <TabsTrigger value="specialties">専門分野</TabsTrigger>
               </TabsList>
               <TabsContent value="status" className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -1693,6 +1702,16 @@ export function GamePlay({
                 <AchievementsPanel
                   save={save}
                   resources={growth?.resources ?? []}
+                />
+              </TabsContent>
+              <TabsContent value="specialties">
+                <SpecialtiesPanel
+                  save={save}
+                  revision={revision.current}
+                  onSaved={applyState}
+                  disabled={
+                    busy || Boolean(feedback) || run?.phase === "battle"
+                  }
                 />
               </TabsContent>
             </Tabs>

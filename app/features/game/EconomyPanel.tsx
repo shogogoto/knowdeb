@@ -197,35 +197,6 @@ export default function EconomyPanel({
           まだアイテムを持っていません。
         </p>
       )}
-      {!shop && (
-        <div className="rounded-lg border p-3 text-sm space-y-2">
-          <p className="font-medium">専門分野</p>
-          {Object.entries(save.bossClears ?? {})
-            .filter(([, levels]) => levels.length)
-            .map(([resource, levels]) => {
-              const title =
-                save.run?.resourceId.replaceAll("-", "") === resource
-                  ? save.run.name
-                  : (save.dungeons?.[resource]?.run.name ??
-                    save.unlockedDungeons?.find(
-                      (d) => d.resourceId.replaceAll("-", "") === resource,
-                    )?.name ??
-                    "攻略済みリソース");
-              return (
-                <p key={resource} className="text-muted-foreground">
-                  {data?.specialties?.find((s) => s.resource_id === resource)
-                    ?.name ?? title}{" "}
-                  · 達成度 {Math.max(...levels)}まで
-                </p>
-              );
-            })}
-          {!Object.values(save.bossClears ?? {}).some(
-            (levels) => levels.length,
-          ) && (
-            <p className="text-muted-foreground">ボスを倒すと登録されます。</p>
-          )}
-        </div>
-      )}
       {disabled && (
         <p className="text-sm text-muted-foreground">
           戦闘が終わってから操作できます。

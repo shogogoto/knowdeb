@@ -52,6 +52,17 @@ export const requestPracticeNext = (
     "次の模擬ターンを開始できませんでした。",
   );
 
+export const requestPracticeAction = <T>(
+  session: PracticeSession,
+  answer: boolean,
+  body: unknown,
+): Promise<T> =>
+  requestSimulation(
+    "practice/gambit",
+    { session, answer, body },
+    "模擬ガンビットを精算できませんでした。",
+  );
+
 export type EnemyBalanceSimulation = {
   power: number;
   achievement: number;

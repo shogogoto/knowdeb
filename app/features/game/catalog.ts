@@ -19,9 +19,13 @@ export type SkillDefinition = {
   multiplier: number;
   mp_cost: number;
   requires_specialty?: boolean;
+  quiz_required?: boolean | null;
+  quiz_seconds?: number;
+  wrong_multiplier?: number;
+  power_coefficient?: number;
   castable?: boolean;
   amount_mode?: "fixed" | "percent";
-  stat?: "attack" | "defense";
+  stat?: "attack" | "defense" | "maxHp";
   duration_turns?: number;
   stack_limit?: number;
   ailment?: "poison";
@@ -47,13 +51,28 @@ export type GameCatalog = {
   skills: SkillDefinition[];
   items: ItemDefinition[];
   enemies: EnemyDefinition[];
+  triggers?: {
+    id: string;
+    name: string;
+    condition: GambitRule["condition"];
+    threshold: number;
+    enabled: boolean;
+  }[];
 };
 export type GambitRule = {
   enabled: boolean;
-  condition: "always" | "hp_below" | "mp_below" | "enemy_count";
+  condition:
+    | "always"
+    | "hp_below"
+    | "mp_below"
+    | "enemy_count"
+    | "buff_present"
+    | "buff_absent"
+    | "poisoned";
   threshold: number;
-  action: "skill" | "item";
+  action: "skill" | "item" | "specialty";
   definition_id: string;
+  trigger_id?: string | null;
 };
 export type BattleAction = {
   skill: SkillDefinition;

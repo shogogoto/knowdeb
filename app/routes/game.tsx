@@ -4,7 +4,15 @@ import Game from "~/features/game";
 export function loader({ params }: Pick<LoaderFunctionArgs, "params">) {
   if (
     params.menu &&
-    !["status", "item", "shop", "boss"].includes(params.menu)
+    ![
+      "status",
+      "item",
+      "shop",
+      "boss",
+      "gambits",
+      "achievements",
+      "specialties",
+    ].includes(params.menu)
   ) {
     return redirect("/game");
   }

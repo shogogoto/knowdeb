@@ -1015,7 +1015,7 @@ it("switches between status, inventory, and achievement tabs in the game menu", 
   await screen.findByRole("dialog", { name: "ゲームメニュー" });
   await user.click(screen.getByRole("tab", { name: "アイテム" }));
   expect(screen.getByTestId("pathname")).toHaveTextContent("/game/item");
-  expect(await screen.findByText("専門分野")).toBeVisible();
+  expect(screen.getByRole("tabpanel", { name: "アイテム" })).toBeVisible();
   await user.click(screen.getByRole("tab", { name: "実績" }));
   expect(screen.getByTestId("pathname")).toHaveTextContent(
     "/game/achievements",

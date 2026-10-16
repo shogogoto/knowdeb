@@ -18,6 +18,7 @@ import {
 
 const fields = {
   gambit_levels_per_slot: ["ガンビット枠を追加するLv間隔", 2, 100, 1],
+  specialty_levels_per_slot: ["専門分野の装備枠を追加するLv間隔", 2, 100, 1],
   chest_gold: ["ゴールド / 宝箱", 0, 100000, 1],
   chest_healing_potions: ["回復薬 / 宝箱", 0, 100, 1],
   chest_step_potions: ["歩数回復薬 / 宝箱", 0, 100, 1],
@@ -84,7 +85,7 @@ const groups = [
   {
     label: "ガンビット",
     rules: ["初期1枠。指定Lvの倍数ごとに1枠追加（最大10枠）"],
-    keys: ["gambit_levels_per_slot"],
+    keys: ["gambit_levels_per_slot", "specialty_levels_per_slot"],
   },
   {
     label: "領域の宝箱",

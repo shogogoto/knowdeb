@@ -10,6 +10,7 @@ import QuizPreviewPrompt from "~/features/quiz/QuizPreviewPrompt";
 import { Button } from "~/shared/components/ui/button";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import BattleDialog from "./BattleDialog";
+import EndTurnAction from "./EndTurnAction";
 import EnemyAvatar from "./EnemyAvatar";
 import GameIcon from "./GameIcon";
 import type { DungeonContent } from "./api";
@@ -163,6 +164,7 @@ export default function MultiBattle({
   );
   const stats = {
     ...baseStats,
+    maxHp: run?.maxHp ?? baseStats.maxHp,
     attack: modifiedStat(baseStats.attack, effectMarker, "player", "attack"),
     defense: modifiedStat(baseStats.defense, effectMarker, "player", "defense"),
   };
@@ -373,7 +375,7 @@ export default function MultiBattle({
         ...run,
         ...stats,
         hp: Math.min(
-          result
+          result && nextResultId
             ? Math.max(0, resultStartHp.current - incomingProcessed)
             : run.hp,
           stats.maxHp,
@@ -528,9 +530,39 @@ export default function MultiBattle({
             );
           })}
           <div className="flex flex-wrap items-center gap-2">
+            {!nextResultId && save.battle && Boolean(save.gambits?.length) && (
+              <EndTurnAction
+                key={`${save.battle.id}:${save.battle.turn}`}
+                save={save}
+                enemyHp={hp}
+                transport={transport}
+                clockOffset={clockOffset}
+                onSaved={onSaved}
+                onBusy={onBusy}
+                onDamage={(damage) =>
+                  setHp((current) =>
+                    Object.fromEntries(
+                      Object.entries(current).map(([id, value]) => [
+                        id,
+                        Math.max(0, value - (damage[id] ?? 0)),
+                      ]),
+                    ),
+                  )
+                }
+              />
+            )}
             <Button
               ref={resultAdvance}
-              disabled={busy || Boolean(save.battle?.skill)}
+              disabled={
+                busy ||
+                Boolean(save.battle?.skill) ||
+                Boolean(
+                  !nextResultId &&
+                    save.battle &&
+                    save.gambits?.length &&
+                    (!save.battle.endActionDone || save.battle.endAction),
+                )
+              }
               data-battle-advance
               onClick={() => {
                 if (nextResultId) {

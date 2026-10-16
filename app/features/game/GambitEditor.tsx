@@ -14,6 +14,9 @@ const conditionLabels = {
   hp_below: "自分のHPが以下（%）",
   mp_below: "自分のMPが以下（%）",
   enemy_count: "敵の数が以上",
+  buff_present: "自分にbuffあり",
+  buff_absent: "自分にbuffなし",
+  poisoned: "自分が毒状態",
 };
 export default function GambitEditor({
   save,
@@ -60,7 +63,20 @@ export default function GambitEditor({
             (levels) => levels.length > 0,
           )),
     ) ?? [];
-  const skills = combatSkills.filter((skill) => skill.castable !== false);
+  const skills = combatSkills.filter(
+    (skill) =>
+      skill.castable !== false &&
+      !skill.requires_specialty &&
+      !skill.quiz_required,
+  );
+  const specialties = (save.specialties ?? [])
+    .filter((s) => s.equipped)
+    .map((s) => ({
+      ...s,
+      icon:
+        catalog?.skills.find((skill) => skill.id === s.skill_id)?.icon ??
+        "book",
+    }));
   const items =
     catalog?.items.filter(
       (i) =>
@@ -124,7 +140,7 @@ export default function GambitEditor({
         </p>
       )}
       <p className="text-sm text-muted-foreground">
-        上から判定し、実行できる最初の1件を毎ターン使います。正解で発動し、誤答・未回答でもMPやアイテムは消費します。
+        ターン終了時に上から判定し、実行できる最初の1件を自動で使います。
       </p>
       {(error || loadError || capacityError) && (
         <p role="alert" className="text-destructive">
@@ -133,7 +149,12 @@ export default function GambitEditor({
       )}
       <fieldset disabled={disabled || saving || !catalog} className="space-y-3">
         {rules.map((rule, index) => {
-          const options = rule.action === "skill" ? skills : items;
+          const options =
+            rule.action === "specialty"
+              ? specialties
+              : rule.action === "skill"
+                ? skills
+                : items;
           const selected = options.find((o) => o.id === rule.definition_id);
           return (
             <section
@@ -198,21 +219,40 @@ export default function GambitEditor({
                   条件
                   <select
                     className={selectClass}
-                    value={rule.condition}
+                    value={rule.trigger_id ?? rule.condition}
                     onChange={(e) =>
                       patch(index, {
-                        condition: e.target.value as GambitRule["condition"],
+                        condition:
+                          catalog?.triggers?.find(
+                            (t) => t.id === e.target.value,
+                          )?.condition ??
+                          (e.target.value as GambitRule["condition"]),
+                        trigger_id:
+                          catalog?.triggers?.find(
+                            (t) => t.id === e.target.value,
+                          )?.id ?? null,
+                        threshold:
+                          catalog?.triggers?.find(
+                            (t) => t.id === e.target.value,
+                          )?.threshold ?? rule.threshold,
                       })
                     }
                   >
-                    {Object.entries(conditionLabels).map(([key, label]) => (
+                    {(
+                      catalog?.triggers
+                        ?.filter((t) => t.enabled)
+                        .map((t) => [t.id, t.name]) ??
+                      Object.entries(conditionLabels)
+                    ).map(([key, label]) => (
                       <option key={key} value={key}>
                         {label}
                       </option>
                     ))}
                   </select>
                 </label>
-                {rule.condition !== "always" && (
+                {["hp_below", "mp_below", "enemy_count"].includes(
+                  rule.condition,
+                ) && (
                   <label
                     htmlFor={`${rule.rowId}-threshold`}
                     className="w-20 text-sm"
@@ -245,12 +285,17 @@ export default function GambitEditor({
                       patch(index, {
                         action,
                         definition_id:
-                          (action === "skill" ? skills : items)[0]?.id ?? "",
+                          (action === "specialty"
+                            ? specialties
+                            : action === "skill"
+                              ? skills
+                              : items)[0]?.id ?? "",
                       });
                     }}
                   >
                     <option value="skill">スキル</option>
                     <option value="item">アイテム</option>
+                    <option value="specialty">専門分野</option>
                   </select>
                 </label>
                 <label className="grid min-w-0 flex-1 gap-1 text-sm">
