@@ -173,6 +173,33 @@ it("opens an explanatory preview even when no animation is configured", async ()
   expect(saved).not.toHaveBeenCalled();
 });
 
+it("previews a downloaded animation from the gallery and saves its stable ID", async () => {
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "ファイアの演出を再生" }),
+  );
+  const preview = screen.getByRole("dialog", {
+    name: "ファイアの演出プレビュー",
+  });
+  await user.click(within(preview).getByText("フリー素材一覧（20種類・CC0）"));
+  await user.click(
+    within(preview).getByRole("button", { name: "火球をプレビュー" }),
+  );
+  expect(
+    preview.querySelector('img[src="/game-assets/effects/oga_spell_3.webp"]'),
+  ).toBeInTheDocument();
+  expect(saved).not.toHaveBeenCalled();
+  await user.click(
+    within(preview).getByRole("button", { name: "この演出を使う" }),
+  );
+  const skill = screen.getByRole("row", { name: "ファイア" });
+  expect(within(skill).getByLabelText("演出")).toHaveValue("oga_spell_3");
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0].skills[0].animation).toBe("oga_spell_3");
+});
+
 it("configures enemy icons and attacks and surfaces save failures", async () => {
   server.use(
     http.put("*/admin/game/catalog", () =>

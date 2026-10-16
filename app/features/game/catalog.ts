@@ -1,4 +1,5 @@
 import { networkFetch } from "~/shared/lib/networkFetch";
+import { spriteAnimationLabels } from "./effectAssets";
 
 export type SkillDefinition = {
   id: string;
@@ -75,6 +76,7 @@ export const animationLabels = {
   buff: "上昇オーラ",
   debuff: "下降オーラ",
   poison: "毒の煙",
+  ...spriteAnimationLabels,
 } as const;
 export type SkillAnimation = keyof typeof animationLabels;
 export type GambitRule = {

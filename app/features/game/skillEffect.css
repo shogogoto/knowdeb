@@ -147,3 +147,37 @@
     display: none;
   }
 }
+.skill-sprite {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(100%, 12rem);
+  aspect-ratio: 1;
+  overflow: hidden;
+  transform: translate(-50%, -50%);
+  animation: skill-sprite-fade var(--sprite-duration) linear both;
+}
+.skill-sprite img {
+  display: block;
+  max-width: none;
+  height: 100%;
+  animation: skill-sprite-play var(--sprite-duration)
+    steps(var(--sprite-steps), end) both;
+}
+@keyframes skill-sprite-play {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(var(--sprite-end));
+  }
+}
+@keyframes skill-sprite-fade {
+  0%,
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

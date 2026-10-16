@@ -1,0 +1,122 @@
+{
+  "oga_slash_1": {
+    "frames": 7,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_slash_2": {
+    "frames": 7,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_slash_3": {
+    "frames": 7,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_slash_4": {
+    "frames": 7,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_slash_5": {
+    "frames": 7,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_spell_1": {
+    "frames": 23,
+    "frameSize": 192,
+    "durationMs": 990,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_2": {
+    "frames": 36,
+    "frameSize": 192,
+    "durationMs": 1575,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_3": {
+    "frames": 21,
+    "frameSize": 192,
+    "durationMs": 900,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_4": {
+    "frames": 21,
+    "frameSize": 192,
+    "durationMs": 900,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_5": {
+    "frames": 14,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_6": {
+    "frames": 21,
+    "frameSize": 192,
+    "durationMs": 900,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_7": {
+    "frames": 33,
+    "frameSize": 192,
+    "durationMs": 1440,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_8": {
+    "frames": 21,
+    "frameSize": 192,
+    "durationMs": 900,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_9": {
+    "frames": 31,
+    "frameSize": 192,
+    "durationMs": 1350,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_spell_10": {
+    "frames": 20,
+    "frameSize": 192,
+    "durationMs": 855,
+    "author": "Mikodrak / Martin Jelinek"
+  },
+  "oga_effect_1": {
+    "frames": 17,
+    "frameSize": 192,
+    "durationMs": 720,
+    "author": "Soluna Software"
+  },
+  "oga_effect_2": {
+    "frames": 17,
+    "frameSize": 192,
+    "durationMs": 720,
+    "author": "Soluna Software"
+  },
+  "oga_effect_3": {
+    "frames": 17,
+    "frameSize": 192,
+    "durationMs": 720,
+    "author": "Soluna Software"
+  },
+  "oga_effect_4": {
+    "frames": 17,
+    "frameSize": 192,
+    "durationMs": 720,
+    "author": "Soluna Software"
+  },
+  "oga_effect_5": {
+    "frames": 33,
+    "frameSize": 192,
+    "durationMs": 1440,
+    "author": "Soluna Software"
+  }
+}
