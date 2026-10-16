@@ -11,6 +11,12 @@ and disappear when combat ends. Battle UI derives temporary stats without mutati
 allocation, freezes them while displaying the resolved turn, and shows remaining
 effect turns. Item definitions continue referencing these same skills.
 
+Poison damage is displayed separately after each enemy's normal result, clamps at
+one remaining HP, and grants no automatic defeat/XP. `characterAssets.ts` registers
+six transparent WebP enemy/boss illustrations alongside the existing line icons.
+The material picker filters normal enemies/bosses/icons; character art uses larger
+avatars in battles. Generation prompts are in `public/game-assets/README.md`.
+
 Boss nodes appear on the map immediately beyond the place that unlocks each
 five-achievement milestone (within the current 20-band cap). Their anchors use the
 shared milestone list and `PLACES_PER_REGION`, not fixed coordinates or row numbers.

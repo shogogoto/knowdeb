@@ -4,6 +4,7 @@ import {
   actionDamage,
   effectAmount,
   modifiedStat,
+  poisonDamage,
 } from "./catalog";
 import { sampleCatalog } from "./catalog.fixtures";
 
@@ -27,6 +28,22 @@ it("boosts only the selected target or all enemies without affecting ordinary at
     actionDamage(10, { ...action, skill: sampleCatalog.skills[1] }, "a", "a"),
   ).toBe(10);
   expect(actionDamage(10, null, "a", "a")).toBe(10);
+});
+
+it("ticks poison separately from stats only during its active turns", () => {
+  const skill: SkillDefinition = {
+    ...sampleCatalog.skills[0],
+    effect: "ailment",
+    amount_mode: "percent",
+    amount: 10,
+  };
+  const e = { skill, target_id: "enemy", starts_turn: 1, expires_turn: 3 };
+  expect(poisonDamage(50, { turn: 0, effects: [e] }, "enemy")).toBe(0);
+  expect(poisonDamage(50, { turn: 1, effects: [e, e] }, "enemy")).toBe(10);
+  expect(poisonDamage(50, { turn: 3, effects: [e] }, "enemy")).toBe(0);
+  expect(modifiedStat(20, { turn: 1, effects: [e] }, "enemy", "attack")).toBe(
+    20,
+  );
 });
 
 it("applies additive percentage changes against the original stat for their duration", () => {

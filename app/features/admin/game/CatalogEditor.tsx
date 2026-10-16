@@ -131,7 +131,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
               >
                 <div className="flex flex-wrap items-center gap-3">
                   <IconPicker
-                    label={`${item.name}のアイコン`}
+                    label={`${item.name}の素材`}
                     value={item.icon}
                     onChange={(icon) => update(item.id, { icon })}
                   />
@@ -173,10 +173,15 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                             .value as SkillDefinition["effect"];
                           update(item.id, {
                             effect,
-                            target: ["attack", "debuff"].includes(effect)
+                            target: ["attack", "debuff", "ailment"].includes(
+                              effect,
+                            )
                               ? "enemy"
                               : "self",
                             stat: "attack",
+                            ...(effect === "ailment"
+                              ? { ailment: "poison", amount: item.amount || 5 }
+                              : {}),
                             amount_mode: [
                               "recover_moves",
                               "equip_attack",
@@ -193,7 +198,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                         ))}
                       </select>
                     </label>
-                    {["attack", "debuff"].includes(item.effect) && (
+                    {["attack", "debuff", "ailment"].includes(item.effect) && (
                       <label className="grid gap-1 text-sm">
                         対象
                         <select
@@ -271,25 +276,28 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                         </select>
                       </label>
                     )}
-                    {["buff", "debuff"].includes(item.effect) && (
+                    {["buff", "debuff", "ailment"].includes(item.effect) && (
                       <>
-                        <label className="grid gap-1 text-sm">
-                          対象ステータス
-                          <select
-                            className={selectClass}
-                            value={item.stat ?? "attack"}
-                            onChange={(e) =>
-                              update(item.id, {
-                                stat: e.target.value as SkillDefinition["stat"],
-                              })
-                            }
-                          >
-                            <option value="attack">攻撃力</option>
-                            {item.effect === "buff" && (
-                              <option value="defense">守備力</option>
-                            )}
-                          </select>
-                        </label>
+                        {item.effect !== "ailment" && (
+                          <label className="grid gap-1 text-sm">
+                            対象ステータス
+                            <select
+                              className={selectClass}
+                              value={item.stat ?? "attack"}
+                              onChange={(e) =>
+                                update(item.id, {
+                                  stat: e.target
+                                    .value as SkillDefinition["stat"],
+                                })
+                              }
+                            >
+                              <option value="attack">攻撃力</option>
+                              {item.effect === "buff" && (
+                                <option value="defense">守備力</option>
+                              )}
+                            </select>
+                          </label>
+                        )}
                         <label
                           htmlFor={`${item.id}-duration`}
                           className="grid gap-1 text-sm"
@@ -371,9 +379,14 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                   </label>
                 )}
                 {"effect" in item &&
-                  ["attack", "heal_hp", "heal_mp", "buff", "debuff"].includes(
-                    item.effect,
-                  ) && (
+                  [
+                    "attack",
+                    "heal_hp",
+                    "heal_mp",
+                    "buff",
+                    "debuff",
+                    "ailment",
+                  ].includes(item.effect) && (
                     <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"

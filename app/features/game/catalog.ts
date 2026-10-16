@@ -12,7 +12,8 @@ export type SkillDefinition = {
     | "recover_moves"
     | "equip_attack"
     | "buff"
-    | "debuff";
+    | "debuff"
+    | "ailment";
   target: "enemy" | "all_enemies" | "self";
   amount: number;
   multiplier: number;
@@ -23,6 +24,7 @@ export type SkillDefinition = {
   stat?: "attack" | "defense";
   duration_turns?: number;
   stack_limit?: number;
+  ailment?: "poison";
 };
 export type ItemDefinition = {
   id: string;
@@ -66,6 +68,7 @@ export const effectLabels: Record<SkillDefinition["effect"], string> = {
   equip_attack: "装備：攻撃力",
   buff: "buff：能力向上",
   debuff: "debuff：能力低下",
+  ailment: "状態変化：毒",
 };
 export async function requestGameCatalog(
   admin = false,
@@ -144,6 +147,7 @@ export function modifiedStat(
       (e) =>
         e.target_id === target &&
         e.skill.stat === stat &&
+        ["buff", "debuff"].includes(e.skill.effect) &&
         e.starts_turn <= (battle?.turn ?? 0) &&
         (battle?.turn ?? 0) < e.expires_turn,
     )
@@ -154,4 +158,23 @@ export function modifiedStat(
       0,
     );
   return Math.max(0, Math.min(100000, base + change));
+}
+
+export function poisonDamage(
+  maximumHp: number,
+  battle: { turn: number; effects?: BattleEffect[] } | null | undefined,
+  target: string,
+) {
+  return Math.min(
+    100000,
+    (battle?.effects ?? [])
+      .filter(
+        (e) =>
+          e.target_id === target &&
+          e.skill.effect === "ailment" &&
+          e.starts_turn <= (battle?.turn ?? 0) &&
+          (battle?.turn ?? 0) < e.expires_turn,
+      )
+      .reduce((sum, e) => sum + effectAmount(e.skill, maximumHp), 0),
+  );
 }

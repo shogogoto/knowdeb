@@ -26,7 +26,13 @@ import {
   rollPlayerDamage,
 } from "./battle";
 import { playBattleSound } from "./battleSound";
-import { actionDamage, effectAmount, modifiedStat } from "./catalog";
+import {
+  actionDamage,
+  effectAmount,
+  modifiedStat,
+  poisonDamage,
+} from "./catalog";
+import { characterAsset } from "./characterAssets";
 import type { GameSave } from "./domain";
 import { musicPreferences } from "./music";
 import type { GameState } from "./state";
@@ -93,6 +99,9 @@ export default function MultiBattle({
   const processedIndex = useRef(0);
   const resultStartHp = useRef(run?.hp ?? 0);
   const [incomingProcessed, setIncomingProcessed] = useState(0);
+  const [poisonEffects, setPoisonEffects] = useState<Record<string, number>>(
+    {},
+  );
   const tempo = useBattleTempo();
   const [turnDamageByEnemy, setTurnDamageByEnemy] = useState<
     Record<string, number>
@@ -260,6 +269,7 @@ export default function MultiBattle({
       setIncomingProcessed(0);
       setTurnDamageByEnemy(damageByEnemy);
       setHitEffects({});
+      setPoisonEffects({});
       setRetry(undefined);
       retryDamage.current = undefined;
     } catch (cause) {
@@ -310,16 +320,18 @@ export default function MultiBattle({
       className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
       aria-label="敵一覧"
     >
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+      <div
+        className={`grid gap-2 ${live.length === 1 ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`}
+      >
         {live.map((enemy, index) => (
           <div
             key={enemy.id}
             aria-label={enemy.name}
             aria-current={!result && active === index ? "step" : undefined}
-            className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
+            className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${characterAsset(enemy.icon) ? "flex-col" : ""} ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
           >
             <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
-            <span className="min-w-0 flex-1 space-y-1">
+            <span className="min-w-0 w-full flex-1 space-y-1">
               <span className="block truncate text-sm font-medium">
                 {enemy.name}
               </span>
@@ -503,6 +515,14 @@ export default function MultiBattle({
                       showCorrectAnswer
                     />
                   )}
+                  {processed && (poisonEffects[id] ?? 0) > 0 && (
+                    <p
+                      aria-label={`${enemy.name}の毒ダメージ`}
+                      className="text-lime-500 font-medium motion-safe:animate-in motion-safe:slide-in-from-top-2"
+                    >
+                      毒 · {poisonEffects[id]}ダメージ
+                    </p>
+                  )}
                 </section>
               )
             );
@@ -568,6 +588,23 @@ export default function MultiBattle({
                     if (musicPreferences().enabled) playBattleSound(false);
                   }
                   const nextIndex = resultIndex + 1;
+                  const enemy = live.find((item) => item.id === id);
+                  const poison =
+                    result.poison_damage?.[id] ??
+                    poisonDamage(enemy?.hp ?? 0, effectMarker, id);
+                  const hpAfterAttack = Math.max(
+                    0,
+                    (currentHp[id] ?? 0) -
+                      (result.results[id] ? (turnDamageByEnemy[id] ?? 0) : 0),
+                  );
+                  const tick = Math.min(poison, Math.max(0, hpAfterAttack - 1));
+                  if (tick > 0) {
+                    setPoisonEffects((current) => ({ ...current, [id]: tick }));
+                    setHp((current) => ({
+                      ...current,
+                      [id]: Math.max(1, (current[id] ?? 0) - tick),
+                    }));
+                  }
                   setResultIndex(nextIndex);
                   if (nextIndex >= resultIds.length) {
                     if (!result.incoming_damage)
@@ -596,6 +633,7 @@ export default function MultiBattle({
                     setResultIndex(0);
                     setTurnDamageByEnemy({});
                     setHitEffects({});
+                    setPoisonEffects({});
                     onSaved(state);
                   })
                   .catch((cause) => setError(cause.message))

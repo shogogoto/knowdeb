@@ -417,6 +417,73 @@ it.each([1, 2])(
     );
   },
 );
+it("processes poison after attacks and stops it at HP one without counting a kill", async () => {
+  const save = initial();
+  if (!save.battle) throw new Error("Missing battle");
+  save.battle.turn = 1;
+  save.battle.effects = enemies.map((e) => ({
+    skill: {
+      ...sampleCatalog.skills[0],
+      effect: "ailment" as const,
+      amount: 100,
+    },
+    target_id: e.id,
+    starts_turn: 1,
+    expires_turn: 3,
+  }));
+  server.use(
+    http.post("*/game/battle/turn", async ({ request }) => {
+      requests.push((await request.json()) as TurnInput);
+      return HttpResponse.json({
+        results: { enemy0: true, enemy1: false },
+        damage: 3,
+        incoming_damage: { enemy1: 3 },
+        poison_damage: { enemy0: 100, enemy1: 100 },
+        state: { revision: 2, save: { ...save, battleFeedback: "精算完了" } },
+      });
+    }),
+  );
+  render(
+    <MemoryRouter>
+      <MultiBattle
+        save={save}
+        content={content}
+        context={{
+          balance: stableBalance,
+          enemies: enemies.map((e, i) => ({ ...e, hp: i === 0 ? 20 : 2 })),
+        }}
+        simulation
+        onSaved={() => undefined}
+        onFinished={async () => undefined}
+        onBusy={() => undefined}
+      />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "正解" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(screen.getByRole("button", { name: "不正解" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
+  );
+  expect(requests[0].defeated).toEqual([]);
+  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "1",
+  );
+  expect(screen.getByLabelText("敵0の毒ダメージ")).toHaveTextContent(
+    "9ダメージ",
+  );
+  await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
+  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "1",
+  );
+  expect(screen.getByLabelText("敵1の毒ダメージ")).toHaveTextContent(
+    "1ダメージ",
+  );
+});
 it("seals the timed-out turn and retries the same payload", async () => {
   failures = 1;
   render(<Fixture deadline={Date.now() + 30} />);

@@ -1,5 +1,6 @@
 import { Bug, Crown, Ghost, Skull } from "lucide-react";
 import GameIcon from "./GameIcon";
+import { characterAsset } from "./characterAssets";
 
 // Stable appearance for the same resource and encounter, without remote assets.
 export default function EnemyAvatar({
@@ -11,6 +12,16 @@ export default function EnemyAvatar({
   large?: boolean;
   icon?: string | null;
 }) {
+  const art = characterAsset(icon);
+  if (art)
+    return (
+      <span
+        aria-hidden="true"
+        className={`inline-flex shrink-0 items-center justify-center ${large ? (identity.startsWith("boss:") ? "size-40 sm:size-48" : "size-24 sm:size-28") : "size-14"}`}
+      >
+        <GameIcon icon={icon} className="size-full" />
+      </span>
+    );
   const seed = [...identity.split("#", 1)[0]].reduce(
     (value, char) => (value * 31 + char.charCodeAt(0)) >>> 0,
     0,

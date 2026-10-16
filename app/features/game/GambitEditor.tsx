@@ -52,7 +52,9 @@ export default function GambitEditor({
     catalog?.skills.filter(
       (s) =>
         s.enabled &&
-        ["attack", "heal_hp", "heal_mp", "buff", "debuff"].includes(s.effect) &&
+        ["attack", "heal_hp", "heal_mp", "buff", "debuff", "ailment"].includes(
+          s.effect,
+        ) &&
         (!s.requires_specialty ||
           Object.values(save.bossClears ?? {}).some(
             (levels) => levels.length > 0,

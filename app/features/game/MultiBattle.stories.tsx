@@ -77,3 +77,53 @@ export const SequentialQuizzes: Story = {
     onFinished: async () => undefined,
   },
 };
+
+export const CharacterEnemies: Story = {
+  ...SequentialQuizzes,
+  args: {
+    ...SequentialQuizzes.args,
+    context: {
+      balance: defaultBalance,
+      enemies: enemies.map((e, i) => ({
+        ...e,
+        icon: i ? "art_owl_mage" : "art_ink_slime",
+      })),
+    },
+  },
+};
+
+export const BossArtwork: Story = {
+  ...SequentialQuizzes,
+  args: {
+    ...SequentialQuizzes.args,
+    save: {
+      ...save,
+      run: {
+        ...run,
+        phase: "battle",
+        answerDeadline: Date.now() + 3600000,
+        answerSeconds: 3600,
+      },
+      battle: {
+        id: "sample-boss",
+        turn: 0,
+        region: 4,
+        checkpoint: "@entrance",
+        bossLevel: 5,
+        enemies: ["boss:archive"],
+      },
+    },
+    context: {
+      balance: defaultBalance,
+      enemies: [
+        {
+          ...enemies[0],
+          id: "boss:archive",
+          name: "書庫のゴーレム",
+          icon: "art_archive_golem",
+          hp: 100,
+        },
+      ],
+    },
+  },
+};

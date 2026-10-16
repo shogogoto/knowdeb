@@ -65,6 +65,7 @@ import {
   DialogTrigger,
 } from "~/shared/components/ui/dialog";
 import { Input } from "~/shared/components/ui/input";
+import { characterAsset, characterAssets } from "./characterAssets";
 
 export const gameIcons = {
   apple: { label: "りんご", Icon: Apple },
@@ -126,6 +127,20 @@ export default function GameIcon({
   icon,
   className = "size-5",
 }: { icon?: string | null; className?: string }) {
+  const art = characterAsset(icon);
+  if (art)
+    return (
+      <img
+        src={art.src}
+        alt=""
+        aria-hidden="true"
+        draggable={false}
+        loading="lazy"
+        width={512}
+        height={512}
+        className={`${className} object-contain`}
+      />
+    );
   const { Icon } =
     gameIcons[icon as keyof typeof gameIcons] ?? gameIcons.sparkles;
   return <Icon aria-hidden="true" className={className} />;
@@ -133,21 +148,36 @@ export default function GameIcon({
 export function IconPicker({
   value,
   onChange,
-  label = "アイコン",
+  label = "素材",
 }: { value: string; onChange: (value: string) => void; label?: string }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [category, setCategory] = useState("all");
+  const choices = [
+    ...Object.entries(characterAssets).map(([id, item]) => ({
+      id,
+      label: item.label,
+      category: item.category,
+    })),
+    ...Object.entries(gameIcons).map(([id, item]) => ({
+      id,
+      label: item.label,
+      category: "icon",
+    })),
+  ];
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button type="button" variant="outline" aria-label={`${label}を選ぶ`}>
           <GameIcon icon={value} />
-          {gameIcons[value as keyof typeof gameIcons]?.label ?? "選択"}
+          {characterAsset(value)?.label ??
+            gameIcons[value as keyof typeof gameIcons]?.label ??
+            "選択"}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[85dvh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>アイコン素材一覧</DialogTitle>
+          <DialogTitle>ゲーム素材一覧</DialogTitle>
           <DialogDescription className="sr-only">
             名前で絞り込んで素材を選択してください。
           </DialogDescription>
@@ -158,23 +188,49 @@ export function IconPicker({
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <fieldset aria-label="素材の種類" className="flex flex-wrap gap-2">
+          {[
+            ["all", "すべて"],
+            ["enemy", "通常敵"],
+            ["boss", "ボス"],
+            ["icon", "アイコン"],
+          ].map(([id, label]) => (
+            <Button
+              key={id}
+              type="button"
+              size="sm"
+              variant={category === id ? "default" : "outline"}
+              aria-pressed={category === id}
+              onClick={() => setCategory(id)}
+            >
+              {label}
+            </Button>
+          ))}
+        </fieldset>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-          {Object.entries(gameIcons)
-            .filter(([id, item]) =>
-              `${id} ${item.label}`.toLowerCase().includes(query.toLowerCase()),
+          {choices
+            .filter(
+              (item) =>
+                (category === "all" || category === item.category) &&
+                `${item.id} ${item.label}`
+                  .toLowerCase()
+                  .includes(query.toLowerCase()),
             )
-            .map(([id, item]) => (
+            .map((item) => (
               <button
-                key={id}
+                key={item.id}
                 type="button"
-                aria-pressed={value === id}
+                aria-pressed={value === item.id}
                 onClick={() => {
-                  onChange(id);
+                  onChange(item.id);
                   setOpen(false);
                 }}
                 className="flex min-h-20 flex-col items-center justify-center gap-2 rounded-lg border p-2 text-sm hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring aria-pressed:border-primary"
               >
-                <GameIcon icon={id} className="size-8" />
+                <GameIcon
+                  icon={item.id}
+                  className={item.category === "icon" ? "size-8" : "size-20"}
+                />
                 {item.label}
               </button>
             ))}

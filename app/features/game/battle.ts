@@ -88,6 +88,7 @@ export type TurnResult = {
   damage: number;
   incoming_damage?: Record<string, number>;
   gold_earned?: number;
+  poison_damage?: Record<string, number>;
 };
 
 export function rollPlayerDamage(

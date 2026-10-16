@@ -27,9 +27,9 @@ it("chooses a named icon from the searchable asset list and saves the skill", as
   const user = userEvent.setup();
   const skill = await screen.findByRole("article", { name: "ファイア" });
   await user.click(
-    within(skill).getByRole("button", { name: "ファイアのアイコンを選ぶ" }),
+    within(skill).getByRole("button", { name: "ファイアの素材を選ぶ" }),
   );
-  const dialog = screen.getByRole("dialog", { name: "アイコン素材一覧" });
+  const dialog = screen.getByRole("dialog", { name: "ゲーム素材一覧" });
   await user.type(
     within(dialog).getByRole("textbox", { name: "素材を検索" }),
     "猫",
@@ -115,4 +115,21 @@ it("configures enemy icons and attacks and surfaces save failures", async () => 
   );
   expect(screen.queryByText("保存しました")).not.toBeInTheDocument();
   expect(screen.getByLabelText("攻撃スキル")).toHaveValue("fire");
+});
+
+it("filters boss art and saves the registered asset ID for an enemy", async () => {
+  render(<CatalogEditor kind="enemies" />);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "ゴーストの素材を選ぶ" }),
+  );
+  const dialog = screen.getByRole("dialog", { name: "ゲーム素材一覧" });
+  await user.click(within(dialog).getByRole("button", { name: "ボス" }));
+  expect(
+    within(dialog).queryByRole("button", { name: "インクスライム" }),
+  ).not.toBeInTheDocument();
+  await user.click(within(dialog).getByRole("button", { name: "水晶竜" }));
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0].enemies[0].icon).toBe("art_crystal_dragon");
 });
