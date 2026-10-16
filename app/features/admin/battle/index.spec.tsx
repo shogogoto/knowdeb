@@ -57,6 +57,20 @@ const server = setupServer(
   }),
 );
 
+it("places ordinary labels above their inputs and preserves editable formulas", async () => {
+  render(<BattleSettingsManager />);
+  const hp = await screen.findByLabelText("初期HP");
+  const label = document.querySelector(`label[for="${hp.id}"]`);
+  expect(label?.parentElement).toBe(hp.parentElement);
+  expect(label?.nextElementSibling).toBe(hp);
+  expect(hp).toHaveAttribute("min", "1");
+  expect(hp).toHaveAttribute("max", "10000");
+  expect(hp).toHaveAttribute("form", "game-settings");
+  const damage = screen.getByRole("region", { name: "ダメージ計算" });
+  expect(within(damage).getByText("ダメージ ≈ max(1, (")).toBeVisible();
+  expect(within(damage).getByLabelText("倍率")).toHaveValue(1);
+});
+
 it("edits the shared contents of unopened region chests", async () => {
   const user = userEvent.setup();
   render(<BattleSettingsManager />);

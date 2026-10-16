@@ -97,6 +97,7 @@ const groups = [
   },
   {
     label: "戦闘結果の表示テンポ",
+    inline: true,
     keys: [
       "battle_tempo_slow_seconds",
       "battle_tempo_medium_seconds",
@@ -215,7 +216,15 @@ export default function BattleSettingsManager() {
         {input}
       </span>
     ) : (
-      input
+      <div className="grid min-w-0 grid-rows-[1fr_auto] gap-2">
+        <Label
+          htmlFor={`battle-${kind}`}
+          className="self-start whitespace-normal text-xs leading-relaxed text-muted-foreground"
+        >
+          {label}
+        </Label>
+        {input}
+      </div>
     );
   };
   useEffect(() => {
@@ -298,9 +307,11 @@ export default function BattleSettingsManager() {
                   aria-label={group.label}
                   className="overflow-hidden rounded-lg border"
                 >
-                  {group.label === "戦闘結果の表示テンポ" ? (
+                  {"inline" in group ? (
                     <div className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b bg-muted/40 px-4 py-3">
-                      <h3 className="shrink-0 font-medium">{group.label}</h3>
+                      <h3 className="shrink-0 font-medium">
+                        {group.label}(sec)
+                      </h3>
                       <div className="ml-auto grid grid-cols-3 gap-3">
                         {group.keys.map((kind) => (
                           <div key={kind}>{settingInput(kind, true)}</div>
@@ -324,27 +335,13 @@ export default function BattleSettingsManager() {
                       kind={group.formula}
                       input={(kind) => settingInput(kind, true)}
                     />
-                  ) : group.label === "戦闘結果の表示テンポ" ? null : (
-                    <div className="grid divide-y sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-                      {group.keys.map((kind) => {
-                        const [label] = fields[kind];
-                        return (
-                          <div
-                            key={kind}
-                            className="flex min-w-0 items-center justify-between gap-4 px-4 py-3"
-                          >
-                            <div className="min-w-0">
-                              <Label
-                                htmlFor={`battle-${kind}`}
-                                className="whitespace-normal"
-                              >
-                                {label}
-                              </Label>
-                            </div>
-                            {settingInput(kind)}
-                          </div>
-                        );
-                      })}
+                  ) : "inline" in group ? null : (
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-4 px-4 py-4 sm:grid-cols-[repeat(auto-fit,minmax(10rem,1fr))]">
+                      {group.keys.map((kind) => (
+                        <div key={kind} className="grid min-w-0">
+                          {settingInput(kind)}
+                        </div>
+                      ))}
                     </div>
                   )}
                   {group.label === "ダメージ計算" && (
