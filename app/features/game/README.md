@@ -1,5 +1,16 @@
 # Adventure prototype
 
+Gambit capacity comes from `/game/gambits/capacity`, not a browser-only level
+calculation. The menu displays available slots and the next unlock level; admin
+can change the level interval. Older over-capacity lists remain editable so users
+can remove rows, but cannot be saved until within the available limit.
+
+Skill definitions include fixed/percentage amounts, duration and stack limit for
+buffs/debuffs. Effects start on the next turn, have independent expiry when stacked,
+and disappear when combat ends. Battle UI derives temporary stats without mutating
+allocation, freezes them while displaying the resolved turn, and shows remaining
+effect turns. Item definitions continue referencing these same skills.
+
 Boss nodes appear on the map immediately beyond the place that unlocks each
 five-achievement milestone (within the current 20-band cap). Their anchors use the
 shared milestone list and `PLACES_PER_REGION`, not fixed coordinates or row numbers.

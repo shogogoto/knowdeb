@@ -173,7 +173,16 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                             .value as SkillDefinition["effect"];
                           update(item.id, {
                             effect,
-                            target: effect === "attack" ? "enemy" : "self",
+                            target: ["attack", "debuff"].includes(effect)
+                              ? "enemy"
+                              : "self",
+                            stat: "attack",
+                            amount_mode: [
+                              "recover_moves",
+                              "equip_attack",
+                            ].includes(effect)
+                              ? "fixed"
+                              : (item.amount_mode ?? "fixed"),
                           });
                         }}
                       >
@@ -184,7 +193,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                         ))}
                       </select>
                     </label>
-                    {item.effect === "attack" && (
+                    {["attack", "debuff"].includes(item.effect) && (
                       <label className="grid gap-1 text-sm">
                         対象
                         <select
@@ -242,6 +251,93 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                         }
                       />
                     </label>
+                    {!["recover_moves", "equip_attack"].includes(
+                      item.effect,
+                    ) && (
+                      <label className="grid gap-1 text-sm">
+                        効果量の指定
+                        <select
+                          className={selectClass}
+                          value={item.amount_mode ?? "fixed"}
+                          onChange={(e) =>
+                            update(item.id, {
+                              amount_mode: e.target
+                                .value as SkillDefinition["amount_mode"],
+                            })
+                          }
+                        >
+                          <option value="fixed">固定値</option>
+                          <option value="percent">ステータスの割合（%）</option>
+                        </select>
+                      </label>
+                    )}
+                    {["buff", "debuff"].includes(item.effect) && (
+                      <>
+                        <label className="grid gap-1 text-sm">
+                          対象ステータス
+                          <select
+                            className={selectClass}
+                            value={item.stat ?? "attack"}
+                            onChange={(e) =>
+                              update(item.id, {
+                                stat: e.target.value as SkillDefinition["stat"],
+                              })
+                            }
+                          >
+                            <option value="attack">攻撃力</option>
+                            {item.effect === "buff" && (
+                              <option value="defense">守備力</option>
+                            )}
+                          </select>
+                        </label>
+                        <label
+                          htmlFor={`${item.id}-duration`}
+                          className="grid gap-1 text-sm"
+                        >
+                          持続ターン
+                          <Input
+                            id={`${item.id}-duration`}
+                            type="number"
+                            min={1}
+                            max={20}
+                            required
+                            value={
+                              Number.isFinite(item.duration_turns ?? 3)
+                                ? (item.duration_turns ?? 3)
+                                : ""
+                            }
+                            onChange={(e) =>
+                              update(item.id, {
+                                duration_turns: e.target.valueAsNumber,
+                              })
+                            }
+                          />
+                        </label>
+                        <label
+                          htmlFor={`${item.id}-stacks`}
+                          className="grid gap-1 text-sm"
+                        >
+                          重複上限（1＝重複せず更新）
+                          <Input
+                            id={`${item.id}-stacks`}
+                            type="number"
+                            min={1}
+                            max={10}
+                            required
+                            value={
+                              Number.isFinite(item.stack_limit ?? 1)
+                                ? (item.stack_limit ?? 1)
+                                : ""
+                            }
+                            onChange={(e) =>
+                              update(item.id, {
+                                stack_limit: e.target.valueAsNumber,
+                              })
+                            }
+                          />
+                        </label>
+                      </>
+                    )}
                     <label htmlFor={`${item.id}-mp`} className="text-sm">
                       消費MP
                       <Input
@@ -275,7 +371,9 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                   </label>
                 )}
                 {"effect" in item &&
-                  ["attack", "heal_hp", "heal_mp"].includes(item.effect) && (
+                  ["attack", "heal_hp", "heal_mp", "buff", "debuff"].includes(
+                    item.effect,
+                  ) && (
                     <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"

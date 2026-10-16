@@ -13,6 +13,7 @@ type Product = {
   price: number | null;
   kind: "weapon" | "hp" | "mp" | "moves" | "skill";
   amount: number;
+  amount_mode?: "fixed" | "percent";
   icon?: string;
   skill_name?: string;
   enabled?: boolean;
@@ -159,9 +160,9 @@ export default function EconomyPanel({
                   {product.kind === "weapon"
                     ? `攻 +${product.amount}`
                     : product.kind === "hp"
-                      ? `HP ${product.amount}回復`
+                      ? `HP ${product.amount}${product.amount_mode === "percent" ? "%" : ""}回復`
                       : product.kind === "mp"
-                        ? `MP ${product.amount}回復`
+                        ? `MP ${product.amount}${product.amount_mode === "percent" ? "%" : ""}回復`
                         : product.kind === "skill"
                           ? `${product.skill_name ?? "スキル"} · 戦闘のガンビットで使用`
                           : `${product.amount}歩回復`}

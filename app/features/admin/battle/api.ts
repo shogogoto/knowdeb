@@ -23,6 +23,7 @@ export type PracticeInput = {
   seed: number;
 };
 export type PracticeSession = {
+  gambit_slots?: number;
   catalog?: import("~/features/game/catalog").GameCatalog;
   state: GameState;
   context: CombatContext;

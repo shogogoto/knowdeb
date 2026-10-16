@@ -1676,6 +1676,7 @@ export function GamePlay({
               <TabsContent value="gambits">
                 {stateLoaded && (
                   <GambitEditor
+                    level={level ?? 1}
                     key={save.run?.resourceId ?? "player"}
                     save={save}
                     revision={revision.current}

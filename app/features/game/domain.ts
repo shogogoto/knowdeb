@@ -66,6 +66,7 @@ export type GameSave = {
     bossQuizIds?: string[];
     skillUsed?: boolean;
     gambitAction?: import("./catalog").BattleAction | null;
+    effects?: import("./catalog").BattleEffect[];
     skill?: {
       id: string;
       resourceId: string;

@@ -61,6 +61,41 @@ it("references a skill from an item rather than defining a separate effect", asy
   });
 });
 
+it("defines timed percentage buffs with an explicit stacking limit", async () => {
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const skill = await screen.findByRole("article", { name: "ファイア" });
+  await user.selectOptions(within(skill).getByLabelText("効果"), "buff");
+  await user.selectOptions(
+    within(skill).getByLabelText("対象ステータス"),
+    "defense",
+  );
+  await user.selectOptions(
+    within(skill).getByLabelText("効果量の指定"),
+    "percent",
+  );
+  for (const [label, value] of [
+    ["効果量", "30"],
+    ["持続ターン", "2"],
+    ["重複上限（1＝重複せず更新）", "3"],
+  ]) {
+    const input = within(skill).getByLabelText(label, { exact: true });
+    await user.clear(input);
+    await user.type(input, value);
+  }
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0].skills[0]).toMatchObject({
+    effect: "buff",
+    target: "self",
+    stat: "defense",
+    amount_mode: "percent",
+    amount: 30,
+    duration_turns: 2,
+    stack_limit: 3,
+  });
+});
+
 it("configures enemy icons and attacks and surfaces save failures", async () => {
   server.use(
     http.put("*/admin/game/catalog", () =>

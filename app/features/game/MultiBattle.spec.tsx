@@ -362,6 +362,61 @@ it("applies the pinned skill to only its target using the normal quiz answers", 
     "5",
   );
 });
+it.each([1, 2])(
+  "uses attack buffs only on their active turns (turn=%s)",
+  async (turn) => {
+    const user = userEvent.setup();
+    const save = initial();
+    if (!save.battle) throw new Error("Missing battle");
+    save.battle.turn = turn;
+    save.battle.effects = [
+      {
+        skill: {
+          ...sampleCatalog.skills[0],
+          id: "boost",
+          name: "攻撃強化",
+          effect: "buff",
+          target: "self",
+          stat: "attack",
+          amount_mode: "percent",
+          amount: 50,
+        },
+        target_id: "player",
+        starts_turn: 1,
+        expires_turn: 2,
+      },
+    ];
+    render(
+      <MemoryRouter>
+        <MultiBattle
+          save={save}
+          content={content}
+          context={{
+            balance: stableBalance,
+            enemies: enemies.map((e) => ({ ...e, hp: 15 })),
+          }}
+          onSaved={() => undefined}
+          onFinished={async () => undefined}
+          onBusy={() => undefined}
+        />
+      </MemoryRouter>,
+    );
+    if (turn === 1)
+      expect(screen.getByLabelText("戦闘中の効果")).toHaveTextContent(
+        "あと1ターン",
+      );
+    else
+      expect(screen.queryByLabelText("戦闘中の効果")).not.toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "選択肢一" }));
+    await user.click(screen.getByRole("button", { name: "回答を確定" }));
+    await user.click(screen.getByRole("button", { name: "選択肢二" }));
+    await user.click(screen.getByRole("button", { name: "回答を確定" }));
+    await waitFor(() => expect(requests).toHaveLength(1));
+    expect(requests[0].defeated).toEqual(
+      turn === 1 ? ["enemy0", "enemy1"] : [],
+    );
+  },
+);
 it("seals the timed-out turn and retries the same payload", async () => {
   failures = 1;
   render(<Fixture deadline={Date.now() + 30} />);

@@ -26,7 +26,7 @@ import {
   rollPlayerDamage,
 } from "./battle";
 import { playBattleSound } from "./battleSound";
-import { actionDamage } from "./catalog";
+import { actionDamage, effectAmount, modifiedStat } from "./catalog";
 import type { GameSave } from "./domain";
 import { musicPreferences } from "./music";
 import type { GameState } from "./state";
@@ -87,6 +87,8 @@ export default function MultiBattle({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string>();
   const [result, setResult] = useState<TurnResult>();
+  const resultMarker = useRef(save.battle);
+  const effectMarker = result ? resultMarker.current : battle;
   const [resultIndex, setResultIndex] = useState(0);
   const processedIndex = useRef(0);
   const resultStartHp = useRef(run?.hp ?? 0);
@@ -115,12 +117,13 @@ export default function MultiBattle({
   // The turn response already contains its sealed assignments. A background
   // context refresh must never display the previous turn's question meanwhile.
   const quizIndices = result ? resultQuizIndices.current : battle?.quizIndices;
+  const liveIds = result ? resultEnemies.current : (battle?.enemies ?? []);
   const live = (result ? resultContext.current : context).enemies
-    .filter((enemy) =>
-      (result ? resultEnemies.current : battle?.enemies)?.includes(enemy.id),
-    )
+    .filter((enemy) => liveIds.includes(enemy.id))
+    .sort((a, b) => liveIds.indexOf(a.id) - liveIds.indexOf(b.id))
     .map((enemy) => ({
       ...enemy,
+      attack: modifiedStat(enemy.attack, effectMarker, enemy.id, "attack"),
       quizIndex: quizIndices?.[enemy.id] ?? enemy.quizIndex,
     }));
   const currentHp = remainingHp(hp, live);
@@ -144,11 +147,16 @@ export default function MultiBattle({
     let timer = setTimeout(advance, delay * 1000);
     return () => clearTimeout(timer);
   }, [result, nextResultId, busy, delay]);
-  const stats = playerStats(
+  const baseStats = playerStats(
     save.allocation,
     context.balance,
     save.economy?.weapon_attack,
   );
+  const stats = {
+    ...baseStats,
+    attack: modifiedStat(baseStats.attack, effectMarker, "player", "attack"),
+    defense: modifiedStat(baseStats.defense, effectMarker, "player", "defense"),
+  };
   const focusAnswerChoice = useCallback(
     (direction: "first" | "last" = "first") => {
       const selector = syntheticAnswers
@@ -189,6 +197,7 @@ export default function MultiBattle({
     const damageKey = `${battle.id}:${battle.turn}`;
     if (settledTurn.current === damageKey) return;
     sending.current = true;
+    resultMarker.current = structuredClone(battle);
     setBusy(true);
     onBusy(true);
     setError(undefined);
@@ -207,6 +216,7 @@ export default function MultiBattle({
                 retreat ? null : battle.gambitAction,
                 enemy.id,
                 battle.enemies[0],
+                stats.attack,
               ),
             ]),
           );
@@ -244,7 +254,7 @@ export default function MultiBattle({
           (!request.retreat &&
           battle.gambitAction?.skill.effect === "heal_hp" &&
           Object.values(resolved.results).some(Boolean)
-            ? battle.gambitAction.skill.amount
+            ? effectAmount(battle.gambitAction.skill, stats.maxHp)
             : 0),
       );
       setIncomingProcessed(0);
@@ -524,6 +534,7 @@ export default function MultiBattle({
                         battle.gambitAction,
                         id,
                         battle.enemies[0],
+                        stats.attack,
                       ),
                     );
                     setHp((current) => ({
@@ -604,6 +615,34 @@ export default function MultiBattle({
         </div>
       ) : (
         <>
+          {(battle.effects ?? []).some(
+            (e) => e.starts_turn <= battle.turn && battle.turn < e.expires_turn,
+          ) && (
+            <ul
+              aria-label="戦闘中の効果"
+              className="flex flex-wrap gap-2 text-xs"
+            >
+              {(battle.effects ?? [])
+                .filter(
+                  (e) =>
+                    e.starts_turn <= battle.turn &&
+                    battle.turn < e.expires_turn,
+                )
+                .map((e, i) => (
+                  <li
+                    key={`${e.skill.id}:${e.target_id}:${e.starts_turn}:${i}`}
+                    className="rounded border px-2 py-1"
+                  >
+                    {e.target_id === "player"
+                      ? "自分"
+                      : (context.enemies.find(
+                          (enemy) => enemy.id === e.target_id,
+                        )?.name ?? "敵")}{" "}
+                    · {e.skill.name} · あと{e.expires_turn - battle.turn}ターン
+                  </li>
+                ))}
+            </ul>
+          )}
           {battle.gambitAction && (
             <p
               className="flex items-center gap-2 text-sm"

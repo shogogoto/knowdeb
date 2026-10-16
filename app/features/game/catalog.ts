@@ -5,13 +5,24 @@ export type SkillDefinition = {
   name: string;
   icon: string;
   enabled: boolean;
-  effect: "attack" | "heal_hp" | "heal_mp" | "recover_moves" | "equip_attack";
+  effect:
+    | "attack"
+    | "heal_hp"
+    | "heal_mp"
+    | "recover_moves"
+    | "equip_attack"
+    | "buff"
+    | "debuff";
   target: "enemy" | "all_enemies" | "self";
   amount: number;
   multiplier: number;
   mp_cost: number;
   requires_specialty?: boolean;
   castable?: boolean;
+  amount_mode?: "fixed" | "percent";
+  stat?: "attack" | "defense";
+  duration_turns?: number;
+  stack_limit?: number;
 };
 export type ItemDefinition = {
   id: string;
@@ -53,6 +64,8 @@ export const effectLabels: Record<SkillDefinition["effect"], string> = {
   heal_mp: "MP回復",
   recover_moves: "歩数回復",
   equip_attack: "装備：攻撃力",
+  buff: "buff：能力向上",
+  debuff: "debuff：能力低下",
 };
 export async function requestGameCatalog(
   admin = false,
@@ -91,6 +104,7 @@ export function actionDamage(
   action: BattleAction | null | undefined,
   enemyId: string,
   firstEnemyId?: string,
+  sourceAttack = damage,
 ) {
   if (
     !action ||
@@ -102,7 +116,42 @@ export function actionDamage(
     100000,
     Math.max(
       1,
-      Math.floor(damage * action.skill.multiplier) + action.skill.amount,
+      Math.floor(damage * action.skill.multiplier) +
+        effectAmount(action.skill, sourceAttack),
     ),
   );
+}
+
+export type BattleEffect = {
+  skill: SkillDefinition;
+  target_id: string;
+  starts_turn: number;
+  expires_turn: number;
+};
+export function effectAmount(skill: SkillDefinition, base: number) {
+  return skill.amount_mode === "percent"
+    ? Math.floor((base * skill.amount) / 100)
+    : skill.amount;
+}
+export function modifiedStat(
+  base: number,
+  battle: { turn: number; effects?: BattleEffect[] } | null | undefined,
+  target: string,
+  stat: string,
+) {
+  const change = (battle?.effects ?? [])
+    .filter(
+      (e) =>
+        e.target_id === target &&
+        e.skill.stat === stat &&
+        e.starts_turn <= (battle?.turn ?? 0) &&
+        (battle?.turn ?? 0) < e.expires_turn,
+    )
+    .reduce(
+      (sum, e) =>
+        sum +
+        effectAmount(e.skill, base) * (e.skill.effect === "buff" ? 1 : -1),
+      0,
+    );
+  return Math.max(0, Math.min(100000, base + change));
 }

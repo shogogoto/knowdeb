@@ -17,6 +17,7 @@ import {
 } from "./api";
 
 const fields = {
+  gambit_levels_per_slot: ["ガンビット枠を追加するLv間隔", 2, 100, 1],
   chest_gold: ["ゴールド / 宝箱", 0, 100000, 1],
   chest_healing_potions: ["回復薬 / 宝箱", 0, 100, 1],
   chest_step_potions: ["歩数回復薬 / 宝箱", 0, 100, 1],
@@ -80,6 +81,11 @@ const formulaLabels: Partial<Record<keyof typeof fields, string>> = {
   encounter_growth_rate: "増加率",
 };
 const groups = [
+  {
+    label: "ガンビット",
+    rules: ["初期1枠。指定Lvの倍数ごとに1枠追加（最大10枠）"],
+    keys: ["gambit_levels_per_slot"],
+  },
   {
     label: "領域の宝箱",
     rules: [

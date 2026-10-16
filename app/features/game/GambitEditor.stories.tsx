@@ -20,6 +20,9 @@ const meta = {
   parameters: {
     msw: {
       handlers: [
+        http.get("*/game/gambits/capacity", () =>
+          HttpResponse.json({ slots: 2, next_level: 10 }),
+        ),
         http.get("*/game/catalog", () => HttpResponse.json(sampleCatalog)),
         http.put("*/game/gambits", async ({ request }) => {
           const { rules } = (await request.json()) as { rules: unknown[] };

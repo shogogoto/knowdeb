@@ -11,6 +11,9 @@ import { newSave } from "./domain";
 const saved = vi.fn();
 const onSaved = vi.fn();
 const server = setupServer(
+  http.get("*/game/gambits/capacity", () =>
+    HttpResponse.json({ slots: 2, next_level: 10 }),
+  ),
   http.get("*/game/catalog", () => HttpResponse.json(sampleCatalog)),
   http.put("*/game/gambits", async ({ request }) => {
     const body = await request.json();
@@ -110,4 +113,16 @@ it("disables editing and saving during battle", async () => {
   expect(screen.getByRole("spinbutton", { name: "値" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "条件を追加" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "保存" })).toBeDisabled();
+});
+
+it("limits a new player to one slot and shows the next unlock level", async () => {
+  server.use(
+    http.get("*/game/gambits/capacity", () =>
+      HttpResponse.json({ slots: 1, next_level: 5 }),
+    ),
+  );
+  setup();
+  expect(await screen.findByText("ガンビット 1/1枠 · 次はLv.5")).toBeVisible();
+  expect(screen.getByRole("button", { name: "条件を追加" })).toBeDisabled();
+  expect(screen.getByRole("button", { name: "保存" })).toBeEnabled();
 });

@@ -20,15 +20,25 @@ export default function GambitEditor({
   revision,
   onSaved,
   disabled = false,
+  level = 1,
 }: {
   save: GameSave;
   revision: number;
   onSaved: (state: GameState) => void;
   disabled?: boolean;
+  level?: number;
 }) {
   const { data: catalog, error: loadError } = useSWR("game-catalog", () =>
     requestGameCatalog(),
   );
+  const { data: capacity, error: capacityError } = useSWR(
+    ["game-gambit-capacity", level, revision],
+    () =>
+      gameRequest<{ slots: number; next_level: number | null }>(
+        "gambits/capacity",
+      ),
+  );
+  const slots = capacity?.slots ?? 1;
   const [rules, setRules] = useState<(GambitRule & { rowId: string })[]>(() =>
     (save.gambits ?? []).map((rule) => ({
       ...rule,
@@ -42,7 +52,7 @@ export default function GambitEditor({
     catalog?.skills.filter(
       (s) =>
         s.enabled &&
-        ["attack", "heal_hp", "heal_mp"].includes(s.effect) &&
+        ["attack", "heal_hp", "heal_mp", "buff", "debuff"].includes(s.effect) &&
         (!s.requires_specialty ||
           Object.values(save.bossClears ?? {}).some(
             (levels) => levels.length > 0,
@@ -75,7 +85,7 @@ export default function GambitEditor({
       className="space-y-4"
       onSubmit={async (event) => {
         event.preventDefault();
-        if (saving || disabled) return;
+        if (saving || disabled || !capacity || rules.length > slots) return;
         setSaving(true);
         setSaved(false);
         setError(undefined);
@@ -100,12 +110,23 @@ export default function GambitEditor({
         }
       }}
     >
+      {capacity && (
+        <p className="text-sm tabular-nums">
+          ガンビット {rules.length}/{slots}枠
+          {capacity.next_level !== null && ` · 次はLv.${capacity.next_level}`}
+        </p>
+      )}
+      {rules.length > slots && (
+        <p role="alert" className="text-destructive text-sm">
+          開放枠を超えたルールは実行されません。枠数以内に減らして保存してください。
+        </p>
+      )}
       <p className="text-sm text-muted-foreground">
         上から判定し、実行できる最初の1件を毎ターン使います。正解で発動し、誤答・未回答でもMPやアイテムは消費します。
       </p>
-      {(error || loadError) && (
+      {(error || loadError || capacityError) && (
         <p role="alert" className="text-destructive">
-          {error ?? loadError.message}
+          {error ?? loadError?.message ?? capacityError?.message}
         </p>
       )}
       <fieldset disabled={disabled || saving || !catalog} className="space-y-3">
@@ -119,6 +140,9 @@ export default function GambitEditor({
               className="space-y-3 rounded-lg border p-3"
             >
               <div className="flex items-center gap-2">
+                {index >= slots && (
+                  <span className="text-xs text-muted-foreground">未開放</span>
+                )}
                 <span className="text-sm text-muted-foreground">
                   {index + 1}
                 </span>
@@ -268,7 +292,11 @@ export default function GambitEditor({
         <Button
           type="button"
           variant="outline"
-          disabled={rules.length >= 10 || (!skills.length && !items.length)}
+          disabled={
+            !capacity ||
+            rules.length >= slots ||
+            (!skills.length && !items.length)
+          }
           onClick={() => {
             setRules((current) => [
               ...current,
@@ -288,7 +316,12 @@ export default function GambitEditor({
         </Button>
       </fieldset>
       <div className="flex justify-center">
-        <Button type="submit" disabled={disabled || saving || !catalog}>
+        <Button
+          type="submit"
+          disabled={
+            disabled || saving || !catalog || !capacity || rules.length > slots
+          }
+        >
           {saving ? "保存中…" : "保存"}
         </Button>
       </div>
