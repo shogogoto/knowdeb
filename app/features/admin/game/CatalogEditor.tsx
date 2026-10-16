@@ -5,7 +5,6 @@ import {
   type GameCatalog,
   type ItemDefinition,
   type SkillDefinition,
-  effectLabels,
   requestGameCatalog,
 } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
@@ -66,7 +65,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
       setSaving(false);
     }
   }
-  function add() {
+  function add(effect: SkillDefinition["effect"] = "attack") {
     if (!catalog) return;
     const id = `${kind.slice(0, -1)}_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`;
     const base = {
@@ -79,11 +78,14 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
       kind === "skills"
         ? {
             ...base,
-            effect: "attack",
-            target: "enemy",
-            amount: 0,
+            effect,
+            target: ["attack", "debuff", "ailment"].includes(effect)
+              ? "enemy"
+              : "self",
+            amount: effect === "ailment" ? 5 : 0,
             multiplier: 1,
             mp_cost: 0,
+            animation: "none",
           }
         : kind === "items"
           ? {
@@ -105,15 +107,17 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{names[kind]}</h2>
-        <Button
-          type="button"
-          disabled={
-            !catalog || saving || (kind === "items" && !catalog.skills.length)
-          }
-          onClick={add}
-        >
-          追加
-        </Button>
+        {kind !== "skills" && (
+          <Button
+            type="button"
+            disabled={
+              !catalog || saving || (kind === "items" && !catalog.skills.length)
+            }
+            onClick={() => add()}
+          >
+            追加
+          </Button>
+        )}
       </div>
       {error && (
         <p role="alert" className="text-destructive">
@@ -125,7 +129,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
         <form onSubmit={save} className="space-y-4">
           <fieldset disabled={saving} className="space-y-4">
             {kind === "skills" && (
-              <SkillTables skills={catalog.skills} update={update} />
+              <SkillTables skills={catalog.skills} update={update} add={add} />
             )}
             {catalog[kind]
               .filter(() => kind !== "skills")
@@ -167,252 +171,6 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                       有効
                     </label>
                   </div>
-                  {"effect" in item && (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      <label className="grid gap-1 text-sm">
-                        効果
-                        <select
-                          className={selectClass}
-                          value={item.effect}
-                          onChange={(e) => {
-                            const effect = e.target
-                              .value as SkillDefinition["effect"];
-                            update(item.id, {
-                              effect,
-                              target: ["attack", "debuff", "ailment"].includes(
-                                effect,
-                              )
-                                ? "enemy"
-                                : "self",
-                              stat: "attack",
-                              ...(effect === "ailment"
-                                ? {
-                                    ailment: "poison",
-                                    amount: item.amount || 5,
-                                  }
-                                : {}),
-                              amount_mode: [
-                                "recover_moves",
-                                "equip_attack",
-                              ].includes(effect)
-                                ? "fixed"
-                                : (item.amount_mode ?? "fixed"),
-                            });
-                          }}
-                        >
-                          {Object.entries(effectLabels).map(([key, label]) => (
-                            <option key={key} value={key}>
-                              {label}
-                            </option>
-                          ))}
-                        </select>
-                      </label>
-                      {["attack", "debuff", "ailment"].includes(
-                        item.effect,
-                      ) && (
-                        <label className="grid gap-1 text-sm">
-                          対象
-                          <select
-                            className={selectClass}
-                            value={item.target}
-                            onChange={(e) =>
-                              update(item.id, {
-                                target: e.target
-                                  .value as SkillDefinition["target"],
-                              })
-                            }
-                          >
-                            <option value="enemy">敵1体</option>
-                            <option value="all_enemies">敵全体</option>
-                          </select>
-                        </label>
-                      )}
-                      {item.effect === "attack" && (
-                        <label
-                          htmlFor={`${item.id}-multiplier`}
-                          className="text-sm"
-                        >
-                          攻撃倍率
-                          <Input
-                            id={`${item.id}-multiplier`}
-                            type="number"
-                            min={0}
-                            max={10}
-                            step={0.1}
-                            required
-                            value={
-                              Number.isFinite(item.multiplier)
-                                ? item.multiplier
-                                : ""
-                            }
-                            onChange={(e) =>
-                              update(item.id, {
-                                multiplier: e.target.valueAsNumber,
-                              })
-                            }
-                          />
-                        </label>
-                      )}
-                      <label htmlFor={`${item.id}-amount`} className="text-sm">
-                        {item.effect === "attack" ? "加算ダメージ" : "効果量"}
-                        <Input
-                          id={`${item.id}-amount`}
-                          type="number"
-                          min={0}
-                          max={10000}
-                          required
-                          value={
-                            Number.isFinite(item.amount) ? item.amount : ""
-                          }
-                          onChange={(e) =>
-                            update(item.id, { amount: e.target.valueAsNumber })
-                          }
-                        />
-                      </label>
-                      {!["recover_moves", "equip_attack"].includes(
-                        item.effect,
-                      ) && (
-                        <label className="grid gap-1 text-sm">
-                          効果量の指定
-                          <select
-                            className={selectClass}
-                            value={item.amount_mode ?? "fixed"}
-                            onChange={(e) =>
-                              update(item.id, {
-                                amount_mode: e.target
-                                  .value as SkillDefinition["amount_mode"],
-                              })
-                            }
-                          >
-                            <option value="fixed">固定値</option>
-                            <option value="percent">
-                              ステータスの割合（%）
-                            </option>
-                          </select>
-                        </label>
-                      )}
-                      {["buff", "debuff", "ailment"].includes(item.effect) && (
-                        <>
-                          {item.effect !== "ailment" && (
-                            <label className="grid gap-1 text-sm">
-                              対象ステータス
-                              <select
-                                className={selectClass}
-                                value={item.stat ?? "attack"}
-                                onChange={(e) =>
-                                  update(item.id, {
-                                    stat: e.target
-                                      .value as SkillDefinition["stat"],
-                                  })
-                                }
-                              >
-                                <option value="attack">攻撃力</option>
-                                {item.effect === "buff" && (
-                                  <option value="defense">守備力</option>
-                                )}
-                              </select>
-                            </label>
-                          )}
-                          <label
-                            htmlFor={`${item.id}-duration`}
-                            className="grid gap-1 text-sm"
-                          >
-                            持続ターン
-                            <Input
-                              id={`${item.id}-duration`}
-                              type="number"
-                              min={1}
-                              max={20}
-                              required
-                              value={
-                                Number.isFinite(item.duration_turns ?? 3)
-                                  ? (item.duration_turns ?? 3)
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                update(item.id, {
-                                  duration_turns: e.target.valueAsNumber,
-                                })
-                              }
-                            />
-                          </label>
-                          <label
-                            htmlFor={`${item.id}-stacks`}
-                            className="grid gap-1 text-sm"
-                          >
-                            重複上限（1＝重複せず更新）
-                            <Input
-                              id={`${item.id}-stacks`}
-                              type="number"
-                              min={1}
-                              max={10}
-                              required
-                              value={
-                                Number.isFinite(item.stack_limit ?? 1)
-                                  ? (item.stack_limit ?? 1)
-                                  : ""
-                              }
-                              onChange={(e) =>
-                                update(item.id, {
-                                  stack_limit: e.target.valueAsNumber,
-                                })
-                              }
-                            />
-                          </label>
-                        </>
-                      )}
-                      <label htmlFor={`${item.id}-mp`} className="text-sm">
-                        消費MP
-                        <Input
-                          id={`${item.id}-mp`}
-                          type="number"
-                          min={0}
-                          max={10000}
-                          required
-                          value={
-                            Number.isFinite(item.mp_cost) ? item.mp_cost : ""
-                          }
-                          onChange={(e) =>
-                            update(item.id, { mp_cost: e.target.valueAsNumber })
-                          }
-                        />
-                      </label>
-                    </div>
-                  )}
-                  {"effect" in item && (
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={item.requires_specialty ?? false}
-                        onChange={(e) =>
-                          update(item.id, {
-                            requires_specialty: e.target.checked,
-                          })
-                        }
-                      />
-                      ボス撃破で開放
-                    </label>
-                  )}
-                  {"effect" in item &&
-                    [
-                      "attack",
-                      "heal_hp",
-                      "heal_mp",
-                      "buff",
-                      "debuff",
-                      "ailment",
-                    ].includes(item.effect) && (
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={item.castable !== false}
-                          onChange={(e) =>
-                            update(item.id, { castable: e.target.checked })
-                          }
-                        />
-                        ガンビットから直接使用（オフならアイテム専用）
-                      </label>
-                    )}
                   {"skill_id" in item && (
                     <div className="grid gap-3 sm:grid-cols-3">
                       <label className="grid gap-1 text-sm">

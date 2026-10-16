@@ -21,9 +21,6 @@ function Demo() {
       stack_limit: 1,
       multiplier: 1,
       mp_cost: 3,
-      requires_specialty: true,
-      quiz_required: true,
-      quiz_seconds: 30,
     },
     {
       id: "poison",
@@ -41,6 +38,24 @@ function Demo() {
     <div className="p-4">
       <SkillTables
         skills={skills}
+        add={(effect) =>
+          setSkills((current) => [
+            ...current,
+            {
+              id: `skill_${current.length}`,
+              name: "新しいスキル",
+              icon: "sparkles",
+              enabled: true,
+              effect,
+              target: ["attack", "debuff", "ailment"].includes(effect)
+                ? "enemy"
+                : "self",
+              amount: effect === "ailment" ? 5 : 0,
+              multiplier: 1,
+              mp_cost: 0,
+            },
+          ])
+        }
         update={(id, patch) =>
           setSkills((current) =>
             current.map((s) => (s.id === id ? { ...s, ...patch } : s)),

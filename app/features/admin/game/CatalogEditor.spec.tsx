@@ -64,9 +64,11 @@ it("references a skill from an item rather than defining a separate effect", asy
 it("defines timed percentage buffs with an explicit stacking limit", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
-  let skill = await screen.findByRole("row", { name: "ファイア" });
-  await user.selectOptions(within(skill).getByLabelText("効果"), "buff");
-  skill = screen.getByRole("row", { name: "ファイア" });
+  await screen.findByRole("row", { name: "ファイア" });
+  await user.click(screen.getByRole("button", { name: "buffスキルを追加" }));
+  const skill = within(
+    screen.getByRole("region", { name: "buffスキル" }),
+  ).getByRole("row", { name: "新しいスキル" });
   await user.selectOptions(
     within(skill).getByLabelText("対象ステータス"),
     "defense",
@@ -78,7 +80,7 @@ it("defines timed percentage buffs with an explicit stacking limit", async () =>
   for (const [label, value] of [
     ["効果量", "30"],
     ["持続ターン", "2"],
-    ["重複上限（1＝重複せず更新）", "3"],
+    ["重複上限", "3"],
   ]) {
     const input = within(skill).getByLabelText(label, { exact: true });
     await user.clear(input);
@@ -86,7 +88,11 @@ it("defines timed percentage buffs with an explicit stacking limit", async () =>
   }
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
-  expect(saved.mock.calls[0][0].skills[0]).toMatchObject({
+  expect(
+    saved.mock.calls[0][0].skills.find(
+      (s: { effect: string }) => s.effect === "buff",
+    ),
+  ).toMatchObject({
     effect: "buff",
     target: "self",
     stat: "defense",
@@ -95,6 +101,45 @@ it("defines timed percentage buffs with an explicit stacking limit", async () =>
     duration_turns: 2,
     stack_limit: 3,
   });
+});
+
+it("uses one field per column, group-specific effects, and saves the selected animation", async () => {
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const fire = await screen.findByRole("row", { name: "ファイア" });
+  expect(
+    within(fire)
+      .getAllByRole("option")
+      .filter((o) => o.parentElement?.getAttribute("aria-label") === "効果")
+      .map((o) => o.getAttribute("value")),
+  ).toEqual(["attack"]);
+  expect(screen.queryByLabelText("直接使用可")).not.toBeInTheDocument();
+  expect(screen.queryByLabelText("専用クイズ")).not.toBeInTheDocument();
+  for (const cell of within(fire).getAllByRole("cell")) {
+    expect(cell.querySelectorAll("input, select").length).toBeLessThanOrEqual(
+      1,
+    );
+  }
+  const recovery = screen.getByRole("region", { name: "回復スキル" });
+  const heal = within(recovery).getByRole("row", { name: "ケアル" });
+  expect(
+    within(within(heal).getByLabelText("効果"))
+      .getAllByRole("option")
+      .map((o) => o.getAttribute("value")),
+  ).toEqual(["heal_hp", "heal_mp"]);
+  await user.selectOptions(within(heal).getByLabelText("演出"), "ripple");
+  await user.click(
+    within(heal).getByRole("button", { name: "ケアルの演出を再生" }),
+  );
+  expect(
+    heal.querySelector('[data-skill-animation="ripple"]'),
+  ).toBeInTheDocument();
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(
+    saved.mock.calls[0][0].skills.find((s: { id: string }) => s.id === "heal")
+      .animation,
+  ).toBe("ripple");
 });
 
 it("configures enemy icons and attacks and surfaces save failures", async () => {

@@ -35,9 +35,13 @@ export const sampleCatalog: GameCatalog = {
       amount: 20,
       multiplier: 1,
       mp_cost: 0,
-      castable: false,
     },
   ],
+  player_skills: [
+    { skill_id: "fire", enabled: true },
+    { skill_id: "heal", enabled: true },
+  ],
+  specialty_skills: [],
   items: [
     {
       id: "healing_potion",

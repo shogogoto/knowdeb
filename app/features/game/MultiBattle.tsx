@@ -13,6 +13,7 @@ import BattleDialog from "./BattleDialog";
 import EndTurnAction from "./EndTurnAction";
 import EnemyAvatar from "./EnemyAvatar";
 import GameIcon from "./GameIcon";
+import SkillEffect from "./SkillEffect";
 import type { DungeonContent } from "./api";
 import {
   type BattleTransport,
@@ -447,7 +448,13 @@ export default function MultiBattle({
         </div>
       )}
       {result ? (
-        <div className="space-y-3" data-battle-result>
+        <div className="relative space-y-3" data-battle-result>
+          {!nextResultId && save.endActionReceipt && (
+            <SkillEffect
+              key={save.endActionReceipt.action_id}
+              animation={save.endActionReceipt.animation ?? "none"}
+            />
+          )}
           <div className="flex items-center justify-between gap-2">
             <p className="text-sm text-muted-foreground" aria-live="polite">
               {nextResultId
@@ -472,7 +479,7 @@ export default function MultiBattle({
                 <section
                   key={id}
                   aria-current={index === resultIndex ? "step" : undefined}
-                  className={`rounded-md border p-3 space-y-2 transition-colors duration-300 ${
+                  className={`relative rounded-md border p-3 space-y-2 transition-colors duration-300 ${
                     processed
                       ? correct
                         ? "border-emerald-500/60 bg-emerald-500/10"
@@ -482,6 +489,9 @@ export default function MultiBattle({
                         : "border-border opacity-60"
                   }`}
                 >
+                  {processed && !correct && (
+                    <SkillEffect animation={enemy.animation ?? "none"} />
+                  )}
                   <p className="font-medium">
                     {enemy.name} ·{" "}
                     {processed

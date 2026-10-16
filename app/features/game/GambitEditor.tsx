@@ -57,17 +57,10 @@ export default function GambitEditor({
         s.enabled &&
         ["attack", "heal_hp", "heal_mp", "buff", "debuff", "ailment"].includes(
           s.effect,
-        ) &&
-        (!s.requires_specialty ||
-          Object.values(save.bossClears ?? {}).some(
-            (levels) => levels.length > 0,
-          )),
+        ),
     ) ?? [];
-  const skills = combatSkills.filter(
-    (skill) =>
-      skill.castable !== false &&
-      !skill.requires_specialty &&
-      !skill.quiz_required,
+  const skills = combatSkills.filter((skill) =>
+    catalog?.player_skills?.some((u) => u.enabled && u.skill_id === skill.id),
   );
   const specialties = (save.specialties ?? [])
     .filter((s) => s.equipped)

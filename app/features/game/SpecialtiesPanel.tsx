@@ -38,7 +38,11 @@ export default function SpecialtiesPanel({
   const [error, setError] = useState<string>();
   const entries = save.specialties ?? [];
   const skills =
-    catalog?.skills.filter((s) => s.enabled && s.requires_specialty) ?? [];
+    catalog?.skills.filter(
+      (s) =>
+        s.enabled &&
+        catalog.specialty_skills?.some((u) => u.enabled && u.skill_id === s.id),
+    ) ?? [];
   async function change(operation: string, fields: object) {
     if (busy || disabled) return;
     setBusy(true);

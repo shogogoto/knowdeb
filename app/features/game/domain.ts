@@ -60,6 +60,10 @@ export type GameSave = {
   run?: Run;
   content?: DungeonContent;
   battleFeedback?: string | null;
+  endActionReceipt?: {
+    action_id: string;
+    animation?: import("./catalog").SkillAnimation;
+  } | null;
   maps?: Record<string, DungeonMap>;
   dungeons?: Record<string, ParkedDungeon>;
   allocation?: Allocation;

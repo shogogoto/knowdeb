@@ -23,27 +23,26 @@ shared milestone list and `PLACES_PER_REGION`, not fixed coordinates or row numb
 Challenges cost one step and start from that endpoint or its treasure chest.
 Milestone-row chests move past the boss so the cards never overlap. The legacy
 `/game/boss` list remains available for direct links. Victories unlock that resource
-as a specialty; ordinary three-enemy clears do not. All unlocked specialties stay
-available rather than occupying an equipped-resource slot. The item panel lists
-these resources and the highest cleared quiz band.
+for specialty creation; ordinary three-enemy clears do not. Owned specialties
+remain available when unequipped. The Specialties tab manages equipment and fusion.
 
 The stat editor and admin balance controls include MP and MP-per-point. Live and
 practice encounter setup refill MP; next turns do not. The game menu's Gambits tab
 stores up to ten ordered conditions: HP/MP below a percentage, enemy count, or
-always. The first usable action is pinned at each turn's start. Insufficient MP,
-missing inventory, disabled definitions and locked specialty skills skip to the
-next rule; no matching rule leaves ordinary attacks unchanged. A boss victory
-unlocks skills marked `requires_specialty`, including the initial specialty attack.
-Skills use the ordinary encounter quizzes; there is no additional skill quiz.
-Single-target attacks affect the first enemy; all-target attacks boost each enemy's
-own correct answer. Recovery triggers once when at least one answer is correct,
-before incoming damage. MP/items are consumed once even on incorrect/unanswered
-turns, but retreat does not execute an action. Receipts keep retries idempotent.
+always. One usable action executes automatically at turn end, independent of
+ordinary quiz correctness. Insufficient MP, inventory and unavailable specialty
+sources skip to the next rule within unlocked slots. A specialty can ask one quiz
+per source resource with a separate timer per question. MP/items are consumed once
+per action; receipts keep retries idempotent. Defeat and retreat do not execute an action.
 The old manual specialty endpoints remain for already-open older clients.
 
 Admin game tabs include Skills, Items and Enemies. Their shared catalog persists
-server-side with reference validation. Items refer to skills, including recovery
-and equipment effects; item-only effects cannot be selected as free spells.
+server-side with reference validation. Skill tables have one field per column and
+type-specific add buttons. The Skill Usage tab grants player skills and configures
+specialty quiz policy independently of effects. Items reference skills, including
+recovery and equipment effects, without granting direct use. Skills select short
+animation presets, shared by admin previews and battle results. Reduced-motion
+preferences disable decorative animations.
 Enemies use configurable names, icons and attack skills without changing quiz
 sets. The searchable icon picker provides 22 existing vector assets. Practice uses
 the selected player's gambits and an isolated catalog snapshot, never live writes.

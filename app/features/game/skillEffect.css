@@ -1,0 +1,149 @@
+.skill-fx {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  z-index: 10;
+  color: #fbbf24;
+}
+.skill-fx span {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  opacity: 0;
+  animation: skill-fx-burst 650ms ease-out both;
+  background: currentColor;
+  width: .5rem;
+  height: .5rem;
+  border-radius: 50%;
+}
+.skill-fx span:nth-child(1) {
+  --x: -48px;
+  --y: -28px;
+}
+.skill-fx span:nth-child(2) {
+  --x: 38px;
+  --y: -36px;
+  animation-delay: 40ms;
+}
+.skill-fx span:nth-child(3) {
+  --x: -26px;
+  --y: 32px;
+  animation-delay: 80ms;
+}
+.skill-fx span:nth-child(4) {
+  --x: 50px;
+  --y: 20px;
+  animation-delay: 60ms;
+}
+.skill-fx span:nth-child(5) {
+  --x: 4px;
+  --y: -48px;
+  animation-delay: 100ms;
+}
+.skill-fx-heal,
+.skill-fx-ripple {
+  color: #34d399;
+}
+.skill-fx-buff {
+  color: #38bdf8;
+}
+.skill-fx-debuff,
+.skill-fx-poison {
+  color: #c084fc;
+}
+.skill-fx-fire {
+  color: #fb923c;
+}
+.skill-fx-slash {
+  color: #e2e8f0;
+}
+.skill-fx-slash span {
+  width: 7rem;
+  height: 3px;
+  border-radius: 50%;
+  animation-name: skill-fx-slash;
+  box-shadow: 0 0 8px currentColor;
+}
+.skill-fx-lightning span {
+  width: 4px;
+  height: 4rem;
+  border-radius: 0;
+  animation-name: skill-fx-lightning;
+  box-shadow: 0 0 8px currentColor;
+}
+.skill-fx-ripple span,
+.skill-fx-impact span {
+  background: transparent;
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid currentColor;
+  animation-name: skill-fx-ring;
+}
+.skill-fx-poison span {
+  width: 1.5rem;
+  height: 1.5rem;
+  filter: blur(5px);
+}
+.skill-fx-buff span,
+.skill-fx-heal span {
+  --y: -55px;
+}
+.skill-fx-debuff span {
+  --y: 55px;
+}
+@keyframes skill-fx-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3);
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x), var(--y)) scale(1.5);
+  }
+}
+@keyframes skill-fx-ring {
+  0% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) scale(0.2);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(4);
+  }
+}
+@keyframes skill-fx-slash {
+  0% {
+    opacity: 0;
+    transform: translate(-90%, -50%) rotate(-35deg) scaleX(0.1);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-10%, -50%) rotate(-35deg) scaleX(1.2);
+  }
+}
+@keyframes skill-fx-lightning {
+  0%,
+  45% {
+    opacity: 1;
+    transform: translate(-50%, -70%) skewX(-20deg);
+  }
+  25%,
+  70%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -30%) skewX(20deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skill-fx {
+    display: none;
+  }
+}

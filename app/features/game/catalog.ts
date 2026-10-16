@@ -18,12 +18,7 @@ export type SkillDefinition = {
   amount: number;
   multiplier: number;
   mp_cost: number;
-  requires_specialty?: boolean;
-  quiz_required?: boolean | null;
-  quiz_seconds?: number;
-  wrong_multiplier?: number;
-  power_coefficient?: number;
-  castable?: boolean;
+  animation?: SkillAnimation;
   amount_mode?: "fixed" | "percent";
   stat?: "attack" | "defense" | "maxHp";
   duration_turns?: number;
@@ -51,6 +46,8 @@ export type GameCatalog = {
   skills: SkillDefinition[];
   items: ItemDefinition[];
   enemies: EnemyDefinition[];
+  player_skills?: { skill_id: string; enabled: boolean }[];
+  specialty_skills?: SpecialtySkillUse[];
   triggers?: {
     id: string;
     name: string;
@@ -59,6 +56,27 @@ export type GameCatalog = {
     enabled: boolean;
   }[];
 };
+export type SpecialtySkillUse = {
+  skill_id: string;
+  enabled: boolean;
+  quiz_required: boolean;
+  quiz_seconds: number;
+  wrong_multiplier: number;
+  power_coefficient: number;
+};
+export const animationLabels = {
+  none: "なし",
+  slash: "斬撃",
+  impact: "打撃",
+  fire: "炎",
+  lightning: "雷",
+  heal: "回復の光",
+  ripple: "回復の波紋",
+  buff: "上昇オーラ",
+  debuff: "下降オーラ",
+  poison: "毒の煙",
+} as const;
+export type SkillAnimation = keyof typeof animationLabels;
 export type GambitRule = {
   enabled: boolean;
   condition:
