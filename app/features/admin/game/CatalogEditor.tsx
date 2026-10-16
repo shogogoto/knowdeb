@@ -102,7 +102,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
   }
   return (
     <section
-      className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6"
+      className={`mx-auto w-full min-w-0 space-y-4 p-4 sm:p-6 ${kind === "skills" ? "max-w-[96rem]" : "max-w-5xl"}`}
       aria-label={`${names[kind]}定義`}
     >
       <div className="flex items-center justify-between">
@@ -127,7 +127,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
       {!catalog && !error && <p>読み込み中…</p>}
       {catalog && (
         <form onSubmit={save} className="space-y-4">
-          <fieldset disabled={saving} className="space-y-4">
+          <fieldset disabled={saving} className="min-w-0 space-y-4">
             {kind === "skills" && (
               <SkillTables skills={catalog.skills} update={update} add={add} />
             )}

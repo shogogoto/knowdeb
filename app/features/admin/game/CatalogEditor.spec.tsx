@@ -26,6 +26,7 @@ it("chooses a named icon from the searchable asset list and saves the skill", as
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
   const skill = await screen.findByRole("row", { name: "ファイア" });
+  expect(skill.closest("fieldset")).toHaveClass("min-w-0");
   await user.click(
     within(skill).getByRole("button", { name: "ファイアの素材を選ぶ" }),
   );
