@@ -8,6 +8,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "~/shared/components/ui/collapsible";
+import { TooltipProvider } from "~/shared/components/ui/tooltip";
 import type {
   MResource,
   Tanbun,
@@ -24,7 +25,10 @@ import {
 } from "~/shared/lib/network";
 import { cn } from "~/shared/lib/utils";
 import LocationView from "../components/LocationView";
-import TanbunCard, { TanbunCardContent } from "../components/TanbunCard";
+import TanbunCard, {
+  StatViews,
+  TanbunCardContent,
+} from "../components/TanbunCard";
 import { DetailContextProvider } from "./DetailContext";
 import { canonicalSentenceId } from "./cache";
 import { graphForView } from "./util";
@@ -384,6 +388,13 @@ export default function MainView({
                 k={headerTanbun}
                 className="border border-green-500/30 bg-green-500/10 px-2 py-0.5 text-xs font-medium"
               />
+              {headerTanbun.stats && (
+                <div className="mx-6 mt-3" aria-label="現在の単文のスコア内訳">
+                  <TooltipProvider>
+                    <StatViews stats={headerTanbun.stats} />
+                  </TooltipProvider>
+                </div>
+              )}
               {!preview && (
                 <div className="mx-6 mt-3 border-t pt-3">
                   <SentenceQuizActions

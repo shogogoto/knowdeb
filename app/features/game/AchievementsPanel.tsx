@@ -5,102 +5,50 @@ import type { GameSave } from "./domain";
 export default function AchievementsPanel({
   save,
   resources,
-}: {
-  save: GameSave;
-  resources: Growth[];
-}) {
-  const resourceNames = new Map(
-    resources.map((resource) => [
-      canonicalSentenceId(resource.resource_id),
-      resource.resource_name || "ダンジョン",
-    ]),
+}: { save: GameSave; resources: Growth[] }) {
+  const records = new Map<string, { name: string; achievement: number }>();
+  const names = new Map(
+    resources.map((r) => [canonicalSentenceId(r.resource_id), r.resource_name]),
   );
-  const clears = Object.entries(save.clears).filter(([, count]) => count > 0);
-  const totalClears = clears.reduce((total, [, count]) => total + count, 0);
-  const bosses = Object.entries(save.bossClears ?? {}).flatMap(
-    ([resourceId, levels]) => levels.map((level) => ({ resourceId, level })),
-  );
-  const unlocked = save.unlockedDungeons ?? [];
-
+  const add = (id: string, name?: string, achievement = 0) => {
+    const key = canonicalSentenceId(id);
+    const previous = records.get(key);
+    records.set(key, {
+      name: name || previous?.name || names.get(key) || "ダンジョン",
+      achievement: Math.max(previous?.achievement ?? 0, achievement),
+    });
+  };
+  for (const dungeon of save.unlockedDungeons ?? [])
+    add(dungeon.resourceId, dungeon.name, dungeon.achievement);
+  for (const id of save.visitedDungeons ?? []) add(id);
+  for (const id of Object.keys(save.clears)) add(id);
+  for (const dungeon of Object.values(save.dungeons ?? {}))
+    add(dungeon.run.resourceId, dungeon.run.name);
+  if (save.run) add(save.run.resourceId, save.run.name);
+  // Achievement counts explored places, not three-kill laps.
+  for (const [id, map] of Object.entries(save.maps ?? {}))
+    add(id, undefined, Math.floor(map.places.length / 5));
   return (
-    <div className="space-y-4">
-      <section
-        className="rounded-lg border p-4"
-        aria-labelledby="dungeon-records"
-      >
-        <h3 id="dungeon-records" className="font-medium">
-          ダンジョン攻略
-        </h3>
-        <p className="mt-1 text-2xl font-semibold tabular-nums">
-          {totalClears}回
+    <section aria-label="ダンジョンの達成度" className="space-y-3">
+      {records.size === 0 ? (
+        <p className="text-sm text-muted-foreground">
+          まだダンジョンを探索していません。
         </p>
-        {clears.length > 0 && (
-          <ul className="mt-3 divide-y text-sm">
-            {clears.map(([resourceId, count]) => (
-              <li
-                key={resourceId}
-                className="flex justify-between gap-3 py-2 first:pt-0 last:pb-0"
-              >
-                <span className="truncate">
-                  {resourceNames.get(canonicalSentenceId(resourceId)) ??
-                    "ダンジョン"}
-                </span>
-                <span className="shrink-0 tabular-nums">{count}回</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section className="rounded-lg border p-4" aria-labelledby="boss-records">
-        <h3 id="boss-records" className="font-medium">
-          ボス撃破
-        </h3>
-        <p className="mt-1 text-2xl font-semibold tabular-nums">
-          {bosses.length}体
-        </p>
-        {bosses.length > 0 && (
-          <ul className="mt-3 divide-y text-sm">
-            {bosses.map(({ resourceId, level }) => (
-              <li
-                key={`${resourceId}-${level}`}
-                className="flex justify-between gap-3 py-2 first:pt-0 last:pb-0"
-              >
-                <span className="truncate">
-                  {resourceNames.get(canonicalSentenceId(resourceId)) ??
-                    "ダンジョン"}
-                </span>
-                <span className="shrink-0">達成度 {level}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-
-      <section
-        className="rounded-lg border p-4"
-        aria-labelledby="unlocked-records"
-      >
-        <h3 id="unlocked-records" className="font-medium">
-          開放したダンジョン
-        </h3>
-        <p className="mt-1 text-2xl font-semibold tabular-nums">
-          {unlocked.length}件
-        </p>
-        {unlocked.length > 0 && (
-          <ul className="mt-3 divide-y text-sm">
-            {unlocked.map((dungeon) => (
-              <li
-                key={dungeon.resourceId}
-                className="flex justify-between gap-3 py-2 first:pt-0 last:pb-0"
-              >
-                <span className="truncate">{dungeon.name}</span>
-                <span className="shrink-0">達成度 {dungeon.achievement}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </div>
+      ) : (
+        <ul className="divide-y rounded-lg border px-4 text-sm">
+          {[...records].map(([id, record]) => (
+            <li
+              key={id}
+              className="flex items-center justify-between gap-3 py-3"
+            >
+              <span className="min-w-0 break-words">{record.name}</span>
+              <span className="shrink-0 tabular-nums">
+                達成度 {record.achievement}
+              </span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

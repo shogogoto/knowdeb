@@ -162,7 +162,7 @@ export function createStatView(stats: TanbunStats | undefined) {
   };
 }
 
-function StatViews({
+export function StatViews({
   stats,
   collapsible,
 }: { stats: TanbunStats | undefined; collapsible?: boolean }) {

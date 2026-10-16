@@ -243,9 +243,8 @@ it("locks synthetic answers per enemy and supports quizzes with no correct optio
   await user.click(screen.getByRole("button", { name: "正解" }));
   expect(transport).not.toHaveBeenCalled();
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
-  await user.click(screen.getByRole("button", { name: "敵0" }));
-  expect(screen.getByRole("button", { name: "不正解" })).toBeDisabled();
-  await user.click(screen.getByRole("button", { name: "敵1" }));
+  expect(screen.queryByRole("button", { name: "敵0" })).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "不正解" })).toBeEnabled();
   await user.click(screen.getByRole("button", { name: "不正解" }));
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
   await waitFor(() => expect(transport).toHaveBeenCalledTimes(1));
@@ -289,12 +288,10 @@ it("confirms locally without revealing correctness, locks answers, and sends onc
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
   expect(requests).toHaveLength(0);
   expect(screen.queryByText("正解です")).not.toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "敵0" }));
-  expect(screen.getByText("回答確定")).toBeVisible();
+  expect(screen.queryByRole("button", { name: "敵0" })).not.toBeInTheDocument();
   expect(
     screen.queryByRole("button", { name: "選択肢一" }),
   ).not.toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "敵1" }));
   await user.click(screen.getByRole("button", { name: "選択肢二" }));
   await user.click(screen.getByRole("button", { name: "回答を確定" }));
   await user.click(
@@ -498,7 +495,6 @@ it.each([false, true])(
       await user.keyboard("{Enter}");
       await screen.findByText("ターン精算完了");
     }
-    await user.keyboard("{ArrowDown}");
     await answerBoth();
     expect(requests[0].defeated).toEqual([]);
     expect(

@@ -302,14 +302,11 @@ export default function MultiBattle({
     >
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
         {live.map((enemy, index) => (
-          <button
+          <div
             key={enemy.id}
-            type="button"
             aria-label={enemy.name}
-            aria-pressed={active === index}
-            onClick={() => setActive(index)}
-            onFocus={() => setActive(index)}
-            className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${active === index ? "border-primary bg-background" : "border-transparent hover:bg-background/60"}`}
+            aria-current={!result && active === index ? "step" : undefined}
+            className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
           >
             <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
             <span className="min-w-0 flex-1 space-y-1">
@@ -337,12 +334,12 @@ export default function MultiBattle({
                 />
               </span>
             </span>
-          </button>
+          </div>
         ))}
       </div>
       {displayed && (
         <p className="text-xs text-muted-foreground">
-          矢印で移動 · Spaceで選択 · Enterで確定 · 選択中: {displayed.name}（攻{" "}
+          Spaceで選択 · Enterで確定 · 回答中: {displayed.name}（攻{" "}
           {displayed.attack}）
         </p>
       )}
@@ -624,7 +621,7 @@ export default function MultiBattle({
             </span>
           </div>
           <p className="text-xs text-muted-foreground">
-            敵を切り替えて回答。一度確定した答えは変更できません。全問回答か時間切れで一括精算します。
+            回答を確定すると次のクイズへ進みます。
           </p>
           {live.map((enemy, index) => {
             const quiz = content.quizzes[enemy.quizIndex];

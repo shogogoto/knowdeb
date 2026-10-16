@@ -11,7 +11,8 @@ vi.mock("~/shared/history/hooks", () => ({
     getTanbunTitle: vi.fn(() => "単文"),
   }),
 }));
-vi.mock("../components/TanbunCard", () => ({
+vi.mock("../components/TanbunCard", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("../components/TanbunCard")>()),
   default: ({ k }: { k: { sentence: string } }) => (
     <div>関係する単文: {k.sentence}</div>
   ),
@@ -21,6 +22,25 @@ vi.mock("../components/TanbunCard", () => ({
 }));
 
 describe("単文詳細", () => {
+  it("現在の単文にもスコア内訳を表示する", () => {
+    const detail = structuredClone(fixtureDetail1);
+    detail.knowdes[detail.uid.replaceAll("-", "")].stats = {
+      score: 21,
+      n_detail: 2,
+      n_premise: 3,
+      n_conclusion: 4,
+      n_refer: 5,
+      n_referred: 7,
+    };
+    render(
+      <MemoryRouter>
+        <MainView detail={detail} />
+      </MemoryRouter>,
+    );
+    const stats = screen.getByLabelText("現在の単文のスコア内訳");
+    for (const value of [21, 2, 3, 4, 5, 7])
+      expect(within(stats).getByText(String(value))).toBeVisible();
+  });
   it("現在の単文から一段ずつ関係をたどれる", () => {
     render(
       <MemoryRouter initialEntries={["/tanbun/sentence-1"]}>

@@ -11,8 +11,8 @@ import type { GameState } from "./state";
 const selectClass = "h-9 min-w-0 rounded-md border bg-background px-2 text-sm";
 const conditionLabels = {
   always: "いつでも",
-  hp_below: "自分のHPが未満（%）",
-  mp_below: "自分のMPが未満（%）",
+  hp_below: "自分のHPが以下（%）",
+  mp_below: "自分のMPが以下（%）",
   enemy_count: "敵の数が以上",
 };
 export default function GambitEditor({

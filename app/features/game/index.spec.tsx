@@ -990,13 +990,10 @@ it("switches between status, inventory, and achievement tabs in the game menu", 
   expect(screen.getByTestId("pathname")).toHaveTextContent(
     "/game/achievements",
   );
-  expect(screen.getByRole("heading", { name: "ダンジョン攻略" })).toBeVisible();
-  expect(screen.getAllByText("2回")).toHaveLength(2);
-  expect(screen.getByRole("heading", { name: "ボス撃破" })).toBeVisible();
-  expect(screen.getByText("1体")).toBeVisible();
   expect(
-    screen.getByRole("heading", { name: "開放したダンジョン" }),
+    screen.getByRole("region", { name: "ダンジョンの達成度" }),
   ).toBeVisible();
+  expect(screen.queryByText("2回")).not.toBeInTheDocument();
   expect(
     within(screen.getByRole("dialog", { name: "ゲームメニュー" })).getByText(
       "以前の本",
