@@ -1013,9 +1013,19 @@ it("switches between status, inventory, and achievement tabs in the game menu", 
   renderGame("/game/status");
   const user = userEvent.setup();
   await screen.findByRole("dialog", { name: "ゲームメニュー" });
+  expect(screen.getByRole("dialog", { name: "ゲームメニュー" })).toHaveClass(
+    "top-[5dvh]",
+    "translate-y-0",
+    "max-h-[90dvh]",
+    "overflow-y-auto",
+  );
   await user.click(screen.getByRole("tab", { name: "アイテム" }));
   expect(screen.getByTestId("pathname")).toHaveTextContent("/game/item");
   expect(screen.getByRole("tabpanel", { name: "アイテム" })).toBeVisible();
+  expect(screen.getByRole("dialog", { name: "ゲームメニュー" })).toHaveClass(
+    "top-[5dvh]",
+    "translate-y-0",
+  );
   await user.click(screen.getByRole("tab", { name: "実績" }));
   expect(screen.getByTestId("pathname")).toHaveTextContent(
     "/game/achievements",
@@ -1023,6 +1033,10 @@ it("switches between status, inventory, and achievement tabs in the game menu", 
   expect(
     screen.getByRole("region", { name: "ダンジョンの達成度" }),
   ).toBeVisible();
+  expect(screen.getByRole("dialog", { name: "ゲームメニュー" })).toHaveClass(
+    "top-[5dvh]",
+    "translate-y-0",
+  );
   expect(screen.queryByText("2回")).not.toBeInTheDocument();
   expect(
     within(screen.getByRole("dialog", { name: "ゲームメニュー" })).getByText(

@@ -1595,7 +1595,7 @@ export function GamePlay({
         }}
       >
         <DialogContent
-          className="max-h-[90dvh] overflow-y-auto sm:max-w-lg"
+          className={`max-h-[90dvh] overflow-y-auto sm:max-w-lg ${menuPanel ? "top-[5dvh] translate-y-0" : ""}`}
           data-dashboard-swipe-ignore
         >
           <DialogHeader>
