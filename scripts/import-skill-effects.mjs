@@ -9,7 +9,7 @@ import { join, resolve } from "node:path";
 const input = process.argv[2];
 if (!input)
   throw new Error(
-    "Provide the directory containing extracted slash/, magic/ and Soluna PNGs.",
+    "Provide the directory containing extracted packs listed in SOURCES.md.",
   );
 const output = resolve("public/game-assets/effects");
 const work = mkdtempSync(join(tmpdir(), "tanbun-effect-import-"));
@@ -44,6 +44,27 @@ const specs = [
       author: "Soluna Software",
     }),
   ),
+  ...[0, 1, 2, 3].map((n) => ({
+    id: `oga_nature_${n + 1}`,
+    directory: "nature",
+    prefix: `${n}-`,
+    posterFraction: 0.6,
+    author: "Cethiel",
+  })),
+  ...[1, 2, 3, 4, 5, 6].map((n) => ({
+    id: `oga_arcane_${n}`,
+    directory: `arcane/${String(n).padStart(2, "0")}`,
+    posterFraction: 0.6,
+    author: "Cethiel",
+  })),
+  ...["earth", "cosmic"].flatMap((pack) =>
+    [1, 2, 3, 4, 5].map((n) => ({
+      id: `oga_${pack}_${n}`,
+      directory: `${pack}/${n}`,
+      posterFraction: 0.6,
+      author: "Cethiel",
+    })),
+  ),
 ];
 const manifest = {};
 for (const spec of specs) {
@@ -51,7 +72,7 @@ for (const spec of specs) {
   if (spec.directory) {
     const dir = join(input, spec.directory);
     files = readdirSync(dir)
-      .filter((f) => f.endsWith(".png"))
+      .filter((f) => f.endsWith(".png") && f.startsWith(spec.prefix ?? ""))
       .sort((a, b) => a.localeCompare(b, "en", { numeric: true }))
       .map((f) => join(dir, f));
   } else {
@@ -103,7 +124,7 @@ for (const spec of specs) {
     join(output, `${spec.id}.webp`),
   ]);
   run("convert", [
-    normalized[Math.floor(normalized.length / 3)],
+    normalized[Math.floor(normalized.length * (spec.posterFraction ?? 1 / 3))],
     "-resize",
     "96x96",
     "-define",

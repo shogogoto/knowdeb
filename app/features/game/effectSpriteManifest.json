@@ -118,5 +118,125 @@
     "frameSize": 192,
     "durationMs": 1440,
     "author": "Soluna Software"
+  },
+  "oga_nature_1": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_nature_2": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_nature_3": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_nature_4": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_arcane_1": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_arcane_2": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_arcane_3": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_arcane_4": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_arcane_5": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_arcane_6": {
+    "frames": 8,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_earth_1": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_earth_2": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_earth_3": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_earth_4": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_earth_5": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_cosmic_1": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_cosmic_2": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_cosmic_3": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_cosmic_4": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
+  },
+  "oga_cosmic_5": {
+    "frames": 6,
+    "frameSize": 192,
+    "durationMs": 650,
+    "author": "Cethiel"
   }
 }

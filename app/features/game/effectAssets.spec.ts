@@ -3,9 +3,9 @@ import { resolve } from "node:path";
 import { animationLabels } from "./catalog";
 import { spriteAnimationLabels, spriteAsset } from "./effectAssets";
 
-it("registers twenty local CC0 strips with valid metadata and poster files", () => {
+it("registers forty local CC0 strips with valid metadata and poster files", () => {
   const ids = Object.keys(spriteAnimationLabels);
-  expect(ids).toHaveLength(20);
+  expect(ids).toHaveLength(40);
   for (const id of ids) {
     expect(animationLabels).toHaveProperty(id);
     const asset = spriteAsset(id);

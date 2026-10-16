@@ -148,7 +148,7 @@ it("opens a single independent static gallery and restores focus on Escape", asy
   expect(
     within(gallery).getByRole("button", { name: "火球をプレビュー" }),
   ).toBeVisible();
-  expect(gallery.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(20);
+  expect(gallery.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(40);
   expect(gallery.querySelector(".skill-sprite")).not.toBeInTheDocument();
   expect(
     within(gallery).queryByRole("button", { name: "この演出を使う" }),
@@ -159,32 +159,41 @@ it("opens a single independent static gallery and restores focus on Escape", asy
   expect(saved).not.toHaveBeenCalled();
 });
 
-it("plays thumbnails without changing skills and returns to posters after playback", async () => {
-  render(<CatalogEditor kind="skills" />);
-  const user = userEvent.setup();
-  await user.click(screen.getByRole("button", { name: "演出一覧" }));
-  const gallery = screen.getByRole("dialog", { name: "演出プレビュー一覧" });
-  const tile = within(gallery).getByRole("button", {
-    name: "火球をプレビュー",
-  });
-  await user.click(tile);
-  expect(
-    tile.querySelector('img[src="/game-assets/effects/oga_spell_3.webp"]'),
-  ).toBeInTheDocument();
-  const stage = tile.querySelector(".skill-sprite");
-  if (!stage) throw new Error("Missing animated thumbnail");
-  fireEvent.animationEnd(stage, { animationName: "skill-sprite-play" });
-  fireEvent(stage, new Event("webkitAnimationEnd", { bubbles: true }));
-  expect(tile.querySelector('img[src$="-poster.webp"]')).toBeInTheDocument();
-  await user.click(within(gallery).getByRole("button", { name: "閉じる" }));
-  const fire = await screen.findByRole("row", { name: "ファイア" });
-  expect(within(fire).getByLabelText("演出")).toHaveValue("none");
-  expect(saved).not.toHaveBeenCalled();
-  await user.selectOptions(within(fire).getByLabelText("演出"), "oga_spell_3");
-  await user.click(screen.getByRole("button", { name: "保存" }));
-  await waitFor(() => expect(saved).toHaveBeenCalled());
-  expect(saved.mock.calls[0][0].skills[0].animation).toBe("oga_spell_3");
-});
+it.each([
+  ["火球", "oga_spell_3"],
+  ["樹木の加護", "oga_nature_1"],
+  ["魔力の放電", "oga_arcane_5"],
+  ["岩砕き", "oga_earth_3"],
+  ["時の魔法陣", "oga_cosmic_2"],
+])(
+  "previews %s without changing skills and saves it only through the row selector",
+  async (label, id) => {
+    render(<CatalogEditor kind="skills" />);
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "演出一覧" }));
+    const gallery = screen.getByRole("dialog", { name: "演出プレビュー一覧" });
+    const tile = within(gallery).getByRole("button", {
+      name: `${label}をプレビュー`,
+    });
+    await user.click(tile);
+    expect(
+      tile.querySelector(`img[src="/game-assets/effects/${id}.webp"]`),
+    ).toBeInTheDocument();
+    const stage = tile.querySelector(".skill-sprite");
+    if (!stage) throw new Error("Missing animated thumbnail");
+    fireEvent.animationEnd(stage, { animationName: "skill-sprite-play" });
+    fireEvent(stage, new Event("webkitAnimationEnd", { bubbles: true }));
+    expect(tile.querySelector('img[src$="-poster.webp"]')).toBeInTheDocument();
+    await user.click(within(gallery).getByRole("button", { name: "閉じる" }));
+    const fire = await screen.findByRole("row", { name: "ファイア" });
+    expect(within(fire).getByLabelText("演出")).toHaveValue("none");
+    expect(saved).not.toHaveBeenCalled();
+    await user.selectOptions(within(fire).getByLabelText("演出"), id);
+    await user.click(screen.getByRole("button", { name: "保存" }));
+    await waitFor(() => expect(saved).toHaveBeenCalled());
+    expect(saved.mock.calls[0][0].skills[0].animation).toBe(id);
+  },
+);
 
 it("configures enemy icons and attacks and surfaces save failures", async () => {
   server.use(
