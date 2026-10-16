@@ -41,6 +41,7 @@ export type GameSave = {
   };
   clears: Record<string, number>;
   bossClears?: Record<string, number[]>;
+  gambits?: import("./catalog").GambitRule[];
   visitedDungeons?: string[];
   unlockedDungeons?: {
     sourceId: string;
@@ -64,6 +65,7 @@ export type GameSave = {
     bossLevel?: number | null;
     bossQuizIds?: string[];
     skillUsed?: boolean;
+    gambitAction?: import("./catalog").BattleAction | null;
     skill?: {
       id: string;
       resourceId: string;

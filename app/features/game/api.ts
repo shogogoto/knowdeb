@@ -38,6 +38,7 @@ export type DungeonRegionQuizPool = {
 export type RegionEnemy = {
   id: string;
   name: string;
+  icon?: string | null;
   quizIndex: number;
   quizIndexes?: number[];
   hp?: number;

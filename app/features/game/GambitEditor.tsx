@@ -1,0 +1,303 @@
+import { useState } from "react";
+import useSWR from "swr";
+import { Button } from "~/shared/components/ui/button";
+import { Input } from "~/shared/components/ui/input";
+import GameIcon from "./GameIcon";
+import { gameRequest } from "./battle";
+import { type GambitRule, requestGameCatalog } from "./catalog";
+import type { GameSave } from "./domain";
+import type { GameState } from "./state";
+
+const selectClass = "h-9 min-w-0 rounded-md border bg-background px-2 text-sm";
+const conditionLabels = {
+  always: "いつでも",
+  hp_below: "自分のHPが未満（%）",
+  mp_below: "自分のMPが未満（%）",
+  enemy_count: "敵の数が以上",
+};
+export default function GambitEditor({
+  save,
+  revision,
+  onSaved,
+  disabled = false,
+}: {
+  save: GameSave;
+  revision: number;
+  onSaved: (state: GameState) => void;
+  disabled?: boolean;
+}) {
+  const { data: catalog, error: loadError } = useSWR("game-catalog", () =>
+    requestGameCatalog(),
+  );
+  const [rules, setRules] = useState<(GambitRule & { rowId: string })[]>(() =>
+    (save.gambits ?? []).map((rule) => ({
+      ...rule,
+      rowId: crypto.randomUUID(),
+    })),
+  );
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string>();
+  const [saved, setSaved] = useState(false);
+  const combatSkills =
+    catalog?.skills.filter(
+      (s) =>
+        s.enabled &&
+        ["attack", "heal_hp", "heal_mp"].includes(s.effect) &&
+        (!s.requires_specialty ||
+          Object.values(save.bossClears ?? {}).some(
+            (levels) => levels.length > 0,
+          )),
+    ) ?? [];
+  const skills = combatSkills.filter((skill) => skill.castable !== false);
+  const items =
+    catalog?.items.filter(
+      (i) =>
+        i.enabled &&
+        i.kind === "consumable" &&
+        combatSkills.some((s) => s.id === i.skill_id),
+    ) ?? [];
+  const patch = (index: number, value: Partial<GambitRule>) => {
+    setRules((current) =>
+      current.map((r, i) => (i === index ? { ...r, ...value } : r)),
+    );
+    setSaved(false);
+  };
+  const reorder = (index: number, step: number) => {
+    setRules((current) => {
+      const next = [...current];
+      [next[index], next[index + step]] = [next[index + step], next[index]];
+      return next;
+    });
+    setSaved(false);
+  };
+  return (
+    <form
+      className="space-y-4"
+      onSubmit={async (event) => {
+        event.preventDefault();
+        if (saving || disabled) return;
+        setSaving(true);
+        setSaved(false);
+        setError(undefined);
+        try {
+          onSaved(
+            await gameRequest<GameState>(
+              "gambits",
+              {
+                revision,
+                rules: rules.map(({ rowId: _rowId, ...rule }) => rule),
+              },
+              "PUT",
+            ),
+          );
+          setSaved(true);
+        } catch (cause) {
+          setError(
+            cause instanceof Error ? cause.message : "保存できませんでした。",
+          );
+        } finally {
+          setSaving(false);
+        }
+      }}
+    >
+      <p className="text-sm text-muted-foreground">
+        上から判定し、実行できる最初の1件を毎ターン使います。正解で発動し、誤答・未回答でもMPやアイテムは消費します。
+      </p>
+      {(error || loadError) && (
+        <p role="alert" className="text-destructive">
+          {error ?? loadError.message}
+        </p>
+      )}
+      <fieldset disabled={disabled || saving || !catalog} className="space-y-3">
+        {rules.map((rule, index) => {
+          const options = rule.action === "skill" ? skills : items;
+          const selected = options.find((o) => o.id === rule.definition_id);
+          return (
+            <section
+              key={rule.rowId}
+              aria-label={`ガンビット ${index + 1}`}
+              className="space-y-3 rounded-lg border p-3"
+            >
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {index + 1}
+                </span>
+                <label className="mr-auto flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={rule.enabled}
+                    onChange={(e) =>
+                      patch(index, { enabled: e.target.checked })
+                    }
+                  />
+                  有効
+                </label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  aria-label={`${index + 1}番を上へ`}
+                  disabled={!index}
+                  onClick={() => reorder(index, -1)}
+                >
+                  ↑
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  aria-label={`${index + 1}番を下へ`}
+                  disabled={index === rules.length - 1}
+                  onClick={() => reorder(index, 1)}
+                >
+                  ↓
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  aria-label={`${index + 1}番を削除`}
+                  onClick={() => {
+                    setRules((current) =>
+                      current.filter((_, i) => i !== index),
+                    );
+                    setSaved(false);
+                  }}
+                >
+                  削除
+                </Button>
+              </div>
+              <div className="flex gap-2">
+                <label className="grid min-w-0 flex-1 gap-1 text-sm">
+                  条件
+                  <select
+                    className={selectClass}
+                    value={rule.condition}
+                    onChange={(e) =>
+                      patch(index, {
+                        condition: e.target.value as GambitRule["condition"],
+                      })
+                    }
+                  >
+                    {Object.entries(conditionLabels).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {rule.condition !== "always" && (
+                  <label
+                    htmlFor={`${rule.rowId}-threshold`}
+                    className="w-20 text-sm"
+                  >
+                    値
+                    <Input
+                      id={`${rule.rowId}-threshold`}
+                      type="number"
+                      required
+                      min={1}
+                      max={rule.condition === "enemy_count" ? 20 : 100}
+                      value={
+                        Number.isFinite(rule.threshold) ? rule.threshold : ""
+                      }
+                      onChange={(e) =>
+                        patch(index, { threshold: e.target.valueAsNumber })
+                      }
+                    />
+                  </label>
+                )}
+              </div>
+              <div className="flex items-end gap-2">
+                <label className="grid gap-1 text-sm">
+                  行動
+                  <select
+                    className={selectClass}
+                    value={rule.action}
+                    onChange={(e) => {
+                      const action = e.target.value as GambitRule["action"];
+                      patch(index, {
+                        action,
+                        definition_id:
+                          (action === "skill" ? skills : items)[0]?.id ?? "",
+                      });
+                    }}
+                  >
+                    <option value="skill">スキル</option>
+                    <option value="item">アイテム</option>
+                  </select>
+                </label>
+                <label className="grid min-w-0 flex-1 gap-1 text-sm">
+                  使用するもの
+                  <select
+                    className={selectClass}
+                    value={rule.definition_id}
+                    required
+                    onChange={(e) =>
+                      patch(index, { definition_id: e.target.value })
+                    }
+                  >
+                    <option value="" disabled>
+                      選択
+                    </option>
+                    {!selected && rule.definition_id && (
+                      <option value={rule.definition_id}>
+                        利用不可：{rule.definition_id}
+                      </option>
+                    )}
+                    {options.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.name}
+                        {"mp_cost" in option
+                          ? ` · MP ${option.mp_cost}`
+                          : ` · 所持 ${save.economy?.inventory[option.id] ?? 0}`}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {selected && (
+                  <GameIcon
+                    icon={selected.icon}
+                    className="mb-2 size-6 shrink-0"
+                  />
+                )}
+              </div>
+            </section>
+          );
+        })}
+        <Button
+          type="button"
+          variant="outline"
+          disabled={rules.length >= 10 || (!skills.length && !items.length)}
+          onClick={() => {
+            setRules((current) => [
+              ...current,
+              {
+                rowId: crypto.randomUUID(),
+                enabled: true,
+                condition: "always",
+                threshold: 30,
+                action: skills.length ? "skill" : "item",
+                definition_id: (skills[0] ?? items[0]).id,
+              },
+            ]);
+            setSaved(false);
+          }}
+        >
+          条件を追加
+        </Button>
+      </fieldset>
+      <div className="flex justify-center">
+        <Button type="submit" disabled={disabled || saving || !catalog}>
+          {saving ? "保存中…" : "保存"}
+        </Button>
+      </div>
+      {disabled && (
+        <p className="text-sm text-muted-foreground">
+          戦闘を終えてから変更できます。
+        </p>
+      )}
+      {saved && <output>ガンビットを保存しました</output>}
+    </form>
+  );
+}

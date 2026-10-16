@@ -16,6 +16,7 @@ import MultiBattle from "./MultiBattle";
 import type { DungeonContent } from "./api";
 import { type BattleTransport, type TurnInput, defaultBalance } from "./battle";
 import * as battleSound from "./battleSound";
+import { sampleCatalog } from "./catalog.fixtures";
 import { type GameSave, enterDungeon, newSave } from "./domain";
 import { setMusicPreferences } from "./music";
 
@@ -321,6 +322,48 @@ it("confirms locally without revealing correctness, locks answers, and sends onc
     },
   ]);
   expect(screen.getAllByText("解答後の詳細プレビュー")).toHaveLength(2);
+});
+it("applies the pinned skill to only its target using the normal quiz answers", async () => {
+  const user = userEvent.setup();
+  const save = initial();
+  if (!save.battle) throw new Error("Missing battle");
+  save.battle.gambitAction = {
+    name: "ファイア",
+    item_id: null,
+    skill: { ...sampleCatalog.skills[0], multiplier: 2 },
+  };
+  render(
+    <MemoryRouter>
+      <MultiBattle
+        save={save}
+        content={content}
+        context={{
+          balance: stableBalance,
+          enemies: enemies.map((enemy) => ({ ...enemy, hp: 15 })),
+        }}
+        onSaved={() => undefined}
+        onFinished={async () => undefined}
+        onBusy={() => undefined}
+      />
+    </MemoryRouter>,
+  );
+  await user.click(screen.getByRole("button", { name: "選択肢一" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(screen.getByRole("button", { name: "選択肢二" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(
+    await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
+  );
+  expect(requests[0].defeated).toEqual(["enemy0"]);
+  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "0",
+  );
+  await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
+  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
+    "aria-valuenow",
+    "5",
+  );
 });
 it("seals the timed-out turn and retries the same payload", async () => {
   failures = 1;

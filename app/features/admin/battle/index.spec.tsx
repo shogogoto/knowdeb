@@ -147,7 +147,7 @@ it("saves player time and live enemy corrections without quiz-type weights", asy
   });
 });
 
-it("saves MP base, allocation and specialty cost alongside the draft battle settings", async () => {
+it("saves MP base and allocation alongside the draft battle settings", async () => {
   render(<BattleSettingsManager />);
   const user = userEvent.setup();
   const base = await screen.findByLabelText("初期MP");
@@ -156,15 +156,11 @@ it("saves MP base, allocation and specialty cost alongside the draft battle sett
   const perPoint = screen.getByLabelText("MP / 育成ポイント");
   await user.clear(perPoint);
   await user.type(perPoint, "4");
-  const cost = screen.getByLabelText("専門分野の消費MP");
-  await user.clear(cost);
-  await user.type(cost, "5");
   await user.click(screen.getAllByRole("button", { name: "保存" })[0]);
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(saved.mock.calls[0][0]).toMatchObject({
     base_mp: 15,
     mp_per_point: 4,
-    skill_mp_cost: 5,
   });
 });
 it("retains trials for comparison and lets users revisit their original settings", async () => {

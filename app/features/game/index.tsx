@@ -41,6 +41,7 @@ import AchievementsPanel from "./AchievementsPanel";
 import BattleDialog from "./BattleDialog";
 import BossPanel from "./BossPanel";
 import EconomyPanel from "./EconomyPanel";
+import GambitEditor from "./GambitEditor";
 import ExplorationMap from "./Map";
 import MultiBattle from "./MultiBattle";
 import { useGameMusic } from "./MusicControls";
@@ -133,6 +134,7 @@ export function GamePlay({
     routeMenu === "item" ||
     routeMenu === "shop" ||
     routeMenu === "achievements" ||
+    routeMenu === "gambits" ||
     routeMenu === "boss"
       ? routeMenu
       : undefined;
@@ -140,13 +142,16 @@ export function GamePlay({
     panel === "status" ||
     panel === "item" ||
     panel === "shop" ||
+    panel === "gambits" ||
     panel === "achievements";
   const menuTab =
-    panel === "item" || panel === "shop"
-      ? "item"
-      : panel === "achievements"
-        ? "achievements"
-        : "status";
+    panel === "gambits"
+      ? "gambits"
+      : panel === "item" || panel === "shop"
+        ? "item"
+        : panel === "achievements"
+          ? "achievements"
+          : "status";
   const navigate = useNavigate();
   const location = useLocation();
   function openPanel(panel: "status" | "item" | "shop" | "boss") {
@@ -1616,6 +1621,7 @@ export function GamePlay({
                 <TabsTrigger value="status">ステータス</TabsTrigger>
                 <TabsTrigger value="item">アイテム</TabsTrigger>
                 <TabsTrigger value="achievements">実績</TabsTrigger>
+                <TabsTrigger value="gambits">ガンビット</TabsTrigger>
               </TabsList>
               <TabsContent value="status" className="space-y-4">
                 <div className="flex items-center gap-2">
@@ -1664,6 +1670,19 @@ export function GamePlay({
                         state: location.state,
                       });
                     }}
+                  />
+                )}
+              </TabsContent>
+              <TabsContent value="gambits">
+                {stateLoaded && (
+                  <GambitEditor
+                    key={save.run?.resourceId ?? "player"}
+                    save={save}
+                    revision={revision.current}
+                    onSaved={applyState}
+                    disabled={
+                      busy || Boolean(feedback) || run?.phase === "battle"
+                    }
                   />
                 )}
               </TabsContent>

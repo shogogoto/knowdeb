@@ -115,11 +115,12 @@ export function damageEffect(
   damage: number,
   attack: number,
   balance: GameBalance,
+  nominalDamage?: number,
 ) {
   const settings = { ...defaultBalance, ...balance };
   const nominal = Math.max(
     1,
-    Math.floor(attack * settings.damage_attack_multiplier),
+    nominalDamage ?? Math.floor(attack * settings.damage_attack_multiplier),
   );
   const spread = settings.damage_variance_percent / 100;
   const position =

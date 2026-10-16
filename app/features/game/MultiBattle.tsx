@@ -11,7 +11,7 @@ import { Button } from "~/shared/components/ui/button";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import BattleDialog from "./BattleDialog";
 import EnemyAvatar from "./EnemyAvatar";
-import SpecialtySkill from "./SpecialtySkill";
+import GameIcon from "./GameIcon";
 import type { DungeonContent } from "./api";
 import {
   type BattleTransport,
@@ -26,6 +26,7 @@ import {
   rollPlayerDamage,
 } from "./battle";
 import { playBattleSound } from "./battleSound";
+import { actionDamage } from "./catalog";
 import type { GameSave } from "./domain";
 import { musicPreferences } from "./music";
 import type { GameState } from "./state";
@@ -197,10 +198,15 @@ export default function MultiBattle({
         : Object.fromEntries(
             live.map((enemy) => [
               enemy.id,
-              rollDamage(
-                stats.attack,
-                context.balance,
-                `${battle.turn}:${enemy.id}`,
+              actionDamage(
+                rollDamage(
+                  stats.attack,
+                  context.balance,
+                  `${battle.turn}:${enemy.id}`,
+                ),
+                retreat ? null : battle.gambitAction,
+                enemy.id,
+                battle.enemies[0],
               ),
             ]),
           );
@@ -232,7 +238,15 @@ export default function MultiBattle({
       setResult(resolved);
       setResultIndex(0);
       processedIndex.current = 0;
-      resultStartHp.current = run.hp;
+      resultStartHp.current = Math.min(
+        stats.maxHp,
+        run.hp +
+          (!request.retreat &&
+          battle.gambitAction?.skill.effect === "heal_hp" &&
+          Object.values(resolved.results).some(Boolean)
+            ? battle.gambitAction.skill.amount
+            : 0),
+      );
       setIncomingProcessed(0);
       setTurnDamageByEnemy(damageByEnemy);
       setHitEffects({});
@@ -297,7 +311,7 @@ export default function MultiBattle({
             onFocus={() => setActive(index)}
             className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${active === index ? "border-primary bg-background" : "border-transparent hover:bg-background/60"}`}
           >
-            <EnemyAvatar identity={enemy.id} large />
+            <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
             <span className="min-w-0 flex-1 space-y-1">
               <span className="block truncate text-sm font-medium">
                 {enemy.name}
@@ -502,6 +516,18 @@ export default function MultiBattle({
                       damage,
                       stats.attack,
                       context.balance,
+                      actionDamage(
+                        Math.max(
+                          stats.attack === 0 ? 0 : 1,
+                          Math.floor(
+                            stats.attack *
+                              context.balance.damage_attack_multiplier,
+                          ),
+                        ),
+                        battle.gambitAction,
+                        id,
+                        battle.enemies[0],
+                      ),
                     );
                     setHp((current) => ({
                       ...current,
@@ -512,6 +538,12 @@ export default function MultiBattle({
                       [id]: {
                         damage,
                         ...effect,
+                        label:
+                          battle.gambitAction?.skill.effect === "attack" &&
+                          (battle.gambitAction.skill.target === "all_enemies" ||
+                            id === battle.enemies[0])
+                            ? `${battle.gambitAction.name} · ${effect.label}`
+                            : effect.label,
                       },
                     }));
                     if (musicPreferences().enabled)
@@ -571,42 +603,21 @@ export default function MultiBattle({
                   ? "次のターン"
                   : "続ける"}
             </Button>
-            {!nextResultId && !simulation && (
-              <SpecialtySkill
-                save={save}
-                cost={context.balance.skill_mp_cost ?? 3}
-                clockOffset={clockOffset}
-                enemyHp={Object.fromEntries(
-                  (save.battle?.enemies ?? []).map((id) => [id, currentHp[id]]),
-                )}
-                disabled={busy}
-                onBusy={onBusy}
-                onSaved={onSaved}
-                onResult={(skill) => {
-                  setHp((current) => ({
-                    ...current,
-                    ...Object.fromEntries(
-                      Object.entries(skill.outgoing_damage).map(
-                        ([id, damage]) => [
-                          id,
-                          Math.max(0, (current[id] ?? 0) - damage),
-                        ],
-                      ),
-                    ),
-                  }));
-                  resultStartHp.current = skill.state.save.run?.hp ?? 0;
-                  setIncomingProcessed(0);
-                  setResult(
-                    (current) => current && { ...current, state: skill.state },
-                  );
-                  onSaved(skill.state);
-                }}
-              />
-            )}
           </div>
         </div>
       ) : (
         <>
+          {battle.gambitAction && (
+            <p
+              className="flex items-center gap-2 text-sm"
+              aria-label="このターンの自動行動"
+            >
+              <GameIcon icon={battle.gambitAction.skill.icon} />
+              {battle.gambitAction.name}
+              {!battle.gambitAction.item_id &&
+                ` · MP ${battle.gambitAction.skill.mp_cost}`}
+            </p>
+          )}
           <div className="flex justify-end gap-2 text-sm">
             <span>
               回答確定 {Object.keys(answers).length}/{live.length}

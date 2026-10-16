@@ -11,24 +11,33 @@ available rather than occupying an equipped-resource slot. The item panel lists
 these resources and the highest cleared quiz band.
 
 The stat editor and admin balance controls include MP and MP-per-point. Live and
-practice encounter setup refill MP; next turns do not. Live result screens place
-the specialty button beside Next/Continue, usable once per intermission while
-enemies remain. It consumes MP and opens a real quiz drawn from a random unlocked
-resource's cleared population. Space toggles choices and Enter confirms, with
-the same spatial arrow navigation. Closing does not pause its deadline; failures
-retry the sealed answer. The initial skill attacks every enemy when correct and
-damages the player when incorrect/unanswered. Its coefficient and MP cost are
-admin-controlled. Answers use real learning history/XP; unanswered uses no XP.
-The initial synthetic admin practice supports MP allocation/display but does not
-summon live specialties or persist any specialty rewards.
+practice encounter setup refill MP; next turns do not. The game menu's Gambits tab
+stores up to ten ordered conditions: HP/MP below a percentage, enemy count, or
+always. The first usable action is pinned at each turn's start. Insufficient MP,
+missing inventory, disabled definitions and locked specialty skills skip to the
+next rule; no matching rule leaves ordinary attacks unchanged. A boss victory
+unlocks skills marked `requires_specialty`, including the initial specialty attack.
+Skills use the ordinary encounter quizzes; there is no additional skill quiz.
+Single-target attacks affect the first enemy; all-target attacks boost each enemy's
+own correct answer. Recovery triggers once when at least one answer is correct,
+before incoming damage. MP/items are consumed once even on incorrect/unanswered
+turns, but retreat does not execute an action. Receipts keep retries idempotent.
+The old manual specialty endpoints remain for already-open older clients.
+
+Admin game tabs include Skills, Items and Enemies. Their shared catalog persists
+server-side with reference validation. Items refer to skills, including recovery
+and equipment effects; item-only effects cannot be selected as free spells.
+Enemies use configurable names, icons and attack skills without changing quiz
+sets. The searchable icon picker provides 22 existing vector assets. Practice uses
+the selected player's gambits and an isolated catalog snapshot, never live writes.
 
 Admin game balance ends with practice battle setup, after the settings save button.
 Enemy HP/attack and roster settings share one generation preview inside the
 practice setup, with one set of Power/achievement inputs. Practice defaults to
 generating from those conditions and the current unsaved balance via the server
 simulation API, then passes that result to the shared practice API. Comparison
-snapshots keep their original enemy stats and fixed quiz counts; using one is
-explicit. Clearing comparisons also clears the selectable trials. Actual dungeon
+snapshots keep their original enemy stats and fixed quiz counts; selecting a trial
+also selects it for practice. Clearing comparisons clears the selectable trials. Actual dungeon
 populations and real player allocations/appearance remain available as separate
 sources.
 

@@ -36,6 +36,7 @@ import {
   TabsTrigger,
 } from "~/shared/components/ui/tabs";
 import BattleSettingsManager from "../battle";
+import CatalogEditor from "./CatalogEditor";
 import {
   type AdminGameDungeon,
   alignAdminDungeonRegions,
@@ -467,7 +468,11 @@ function GameDungeonManager() {
 export default function GameAdminManager() {
   const { subtab } = useParams();
   const navigate = useNavigate();
-  const activeTab = subtab === "dungeons" ? "dungeons" : "balance";
+  const activeTab = ["dungeons", "skills", "items", "enemies"].includes(
+    subtab ?? "",
+  )
+    ? subtab
+    : "balance";
   return (
     <Tabs
       value={activeTab}
@@ -496,6 +501,25 @@ export default function GameAdminManager() {
             </kbd>
             ダンジョン母集団
           </TabsTrigger>
+          {(
+            [
+              ["skills", "スキル"],
+              ["items", "アイテム"],
+              ["enemies", "敵"],
+            ] as const
+          ).map(([id, label], index) => (
+            <TabsTrigger
+              key={id}
+              value={id}
+              aria-label={label}
+              title={`t → ${index + 3}`}
+            >
+              <kbd className="mr-1 font-mono text-[10px] text-muted-foreground">
+                {index + 3}
+              </kbd>
+              {label}
+            </TabsTrigger>
+          ))}
         </TabsList>
       </div>
       <TabsContent value="balance" className="mt-0">
@@ -504,6 +528,11 @@ export default function GameAdminManager() {
       <TabsContent value="dungeons" className="mt-0">
         <GameDungeonManager />
       </TabsContent>
+      {(["skills", "items", "enemies"] as const).map((kind) => (
+        <TabsContent key={kind} value={kind} className="mt-0">
+          <CatalogEditor kind={kind} />
+        </TabsContent>
+      ))}
     </Tabs>
   );
 }

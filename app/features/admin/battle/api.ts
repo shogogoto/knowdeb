@@ -23,6 +23,7 @@ export type PracticeInput = {
   seed: number;
 };
 export type PracticeSession = {
+  catalog?: import("~/features/game/catalog").GameCatalog;
   state: GameState;
   context: CombatContext;
   seed: number;

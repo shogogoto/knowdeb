@@ -285,7 +285,7 @@ export default function PracticeBattle({
         seed: createSeed(),
         balance: { ...settings },
         allocation: actualPlayer ? null : { ...allocation },
-        ...(actualPlayer ? { player_user_id: playerId } : {}),
+        ...(playerId ? { player_user_id: playerId } : {}),
       };
       const enemyTrial =
         source === "draft" && enemyConditions

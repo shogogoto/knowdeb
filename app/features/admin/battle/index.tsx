@@ -110,11 +110,6 @@ const groups = [
     ],
   },
   {
-    label: "専門分野",
-    rules: ["攻撃力 = max(1, ceil(log(1 + 用語数) × 補正))"],
-    keys: ["skill_mp_cost", "skill_term_attack"],
-  },
-  {
     label: "ボス",
     keys: ["boss_hp_multiplier", "boss_attack_multiplier"],
   },

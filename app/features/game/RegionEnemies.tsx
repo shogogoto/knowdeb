@@ -79,7 +79,7 @@ export default function RegionEnemies({
                 key={enemy.id}
                 className="flex items-center gap-3 rounded-lg border p-3"
               >
-                <EnemyAvatar identity={enemy.id} />
+                <EnemyAvatar identity={enemy.id} icon={enemy.icon} />
                 <div className="min-w-0">
                   <h3 className="text-sm font-medium">{enemy.name}</h3>
                   <p className="text-sm tabular-nums">

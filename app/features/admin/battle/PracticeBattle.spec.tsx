@@ -439,6 +439,7 @@ it("loads real points and edits only the disposable player before starting", asy
   );
   await screen.findByRole("dialog");
   expect(preparations[0].allocation).toEqual({ ...userPoints, attack: 9 });
+  expect(preparations[0].player_user_id).toBe("other");
   expect(
     screen.getByRole("progressbar", { name: "プレイヤーHP" }),
   ).toHaveAttribute("aria-valuenow", "70");

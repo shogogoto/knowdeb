@@ -2,6 +2,7 @@ import { Coins, Footprints, Heart, Sword } from "lucide-react";
 import { useRef, useState } from "react";
 import useSWR from "swr";
 import { Button } from "~/shared/components/ui/button";
+import GameIcon from "./GameIcon";
 import { gameRequest } from "./battle";
 import type { GameSave } from "./domain";
 import { type GameState, requestGameState } from "./state";
@@ -10,8 +11,11 @@ type Product = {
   id: string;
   name: string;
   price: number | null;
-  kind: "weapon" | "hp" | "moves";
+  kind: "weapon" | "hp" | "mp" | "moves" | "skill";
   amount: number;
+  icon?: string;
+  skill_name?: string;
+  enabled?: boolean;
 };
 type Shop = {
   products: Product[];
@@ -122,18 +126,26 @@ export default function EconomyPanel({
               : product.kind === "hp"
                 ? Heart
                 : Footprints;
-          const unavailable = shop
-            ? (save.economy?.gold ?? 0) < (product.price ?? 0) ||
-              (product.kind === "weapon" && quantity > 0)
-            : (!save.run && product.kind !== "weapon") ||
-              (product.kind === "hp" && save.run?.hp === save.run?.maxHp) ||
-              (product.kind === "moves" && save.run?.moves === 0);
+          const unavailable =
+            (product.enabled === false && !equipped) ||
+            (shop
+              ? (save.economy?.gold ?? 0) < (product.price ?? 0) ||
+                (product.kind === "weapon" && quantity > 0)
+              : (!save.run && product.kind !== "weapon") ||
+                (product.kind === "hp" && save.run?.hp === save.run?.maxHp) ||
+                (product.kind === "mp" && save.run?.mp === save.run?.maxMp) ||
+                product.kind === "skill" ||
+                (product.kind === "moves" && save.run?.moves === 0));
           return (
             <div
               key={product.id}
               className="flex items-center gap-3 rounded-lg border p-3"
             >
-              <Icon className="size-5 shrink-0" />
+              {product.icon ? (
+                <GameIcon icon={product.icon} className="size-5 shrink-0" />
+              ) : (
+                <Icon className="size-5 shrink-0" />
+              )}
               <div className="min-w-0 flex-1">
                 <p className="font-medium">
                   {product.name}
@@ -148,7 +160,11 @@ export default function EconomyPanel({
                     ? `攻 +${product.amount}`
                     : product.kind === "hp"
                       ? `HP ${product.amount}回復`
-                      : `${product.amount}歩回復`}
+                      : product.kind === "mp"
+                        ? `MP ${product.amount}回復`
+                        : product.kind === "skill"
+                          ? `${product.skill_name ?? "スキル"} · 戦闘のガンビットで使用`
+                          : `${product.amount}歩回復`}
                   {equipped && " · 装備中"}
                 </p>
               </div>
