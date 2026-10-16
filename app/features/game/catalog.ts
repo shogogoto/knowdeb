@@ -33,8 +33,8 @@ export type ItemDefinition = {
   enabled: boolean;
   skill_id: string;
   kind: "weapon" | "consumable";
-  price: number | null;
 };
+export type ShopListing = { item_id: string; price: number; enabled: boolean };
 export type EnemyDefinition = {
   id: string;
   name: string;
@@ -46,6 +46,7 @@ export type EnemyDefinition = {
 export type GameCatalog = {
   skills: SkillDefinition[];
   items: ItemDefinition[];
+  shop?: ShopListing[];
   enemies: EnemyDefinition[];
   player_skills?: { skill_id: string; enabled: boolean }[];
   specialty_skills?: SpecialtySkillUse[];

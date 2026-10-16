@@ -164,12 +164,27 @@ export default function GlobalHotkeys() {
       }
 
       const key = event.key.toLowerCase();
-      const dialogOpen = document.querySelector(
-        '[role="dialog"], [role="alertdialog"], dialog[open]',
+      const dialogs = document.querySelectorAll(
+        '[role="dialog"]:not([data-state="closed"]), [role="alertdialog"]:not([data-state="closed"]), dialog[open]',
       );
+      const dialogOpen = dialogs.item(dialogs.length - 1);
 
       // プレビュー中は背後の問題・タブを変更しない。項目移動もdialog内のみ。
       if (dialogOpen) {
+        if (
+          !waitingForDestination.current &&
+          !event.ctrlKey &&
+          key === "s" &&
+          dialogOpen.hasAttribute("data-adventure-map-dialog")
+        ) {
+          const status = document.querySelector<HTMLButtonElement>(
+            "[data-game-status-trigger]",
+          );
+          if (status && !event.repeat) {
+            event.preventDefault();
+            status.click();
+          }
+        }
         if (
           key === "?" &&
           dialogOpen.hasAttribute("data-adventure-map-dialog")
@@ -225,7 +240,7 @@ export default function GlobalHotkeys() {
       }
       if (!waitingForDestination.current && key === "s") {
         const settings = document.querySelector<HTMLButtonElement>(
-          "[data-search-settings-trigger]",
+          "[data-game-status-trigger], [data-search-settings-trigger]",
         );
         if (settings && !settings.closest("[hidden]")) {
           event.preventDefault();
@@ -378,8 +393,10 @@ function ContextHotkeySection({
 type HotkeyDefinition = { keys: string[]; label: string };
 
 function contextHotkeys(pathname: string, search: string): HotkeyDefinition[] {
-  if (pathname === "/game") {
+  if (pathname === "/game" || pathname.startsWith("/game/")) {
     return [
+      { keys: ["s"], label: "ステータスを開く" },
+      { keys: ["Ctrl", "1–5"], label: "ゲームメニューの番号のタブへ移動" },
       { keys: ["矢印"], label: "地点やダンジョンを選ぶ" },
       { keys: ["Enter"], label: "移動・ダンジョン切替" },
       { keys: ["Esc"], label: "選択解除・全画面を閉じる" },

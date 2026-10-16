@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { IconPicker } from "~/features/game/GameIcon";
 import {
   type EnemyDefinition,
   type GameCatalog,
@@ -8,14 +7,20 @@ import {
   requestGameCatalog,
 } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
-import { Input } from "~/shared/components/ui/input";
+import DefinitionTables from "./DefinitionTables";
+import ShopTable from "./ShopTable";
 import SkillTables from "./SkillTables";
 
-type Kind = "skills" | "items" | "enemies";
-const names = { skills: "スキル", items: "アイテム", enemies: "敵" };
-const selectClass = "h-9 min-w-0 rounded-md border bg-background px-2 text-sm";
+type Kind = "skills" | "items" | "enemies" | "shop";
+const names = {
+  skills: "スキル",
+  items: "アイテム",
+  enemies: "敵",
+  shop: "ショップ",
+};
 export default function CatalogEditor({ kind }: { kind: Kind }) {
   const [catalog, setCatalog] = useState<GameCatalog>();
+  const [deletions, setDeletions] = useState(new Set<string>());
   const [error, setError] = useState<string>();
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -32,30 +37,58 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
       active = false;
     };
   }, []);
+  function change(next: GameCatalog) {
+    setCatalog(next);
+    setSaved(false);
+    setError(undefined);
+  }
   const update = (
     id: string,
     patch: Partial<SkillDefinition & ItemDefinition & EnemyDefinition>,
   ) => {
-    setCatalog((current) =>
-      current
-        ? {
-            ...current,
-            [kind]: current[kind].map((item) =>
-              item.id === id ? { ...item, ...patch } : item,
-            ),
-          }
-        : current,
-    );
-    setSaved(false);
+    if (!catalog || kind === "shop") return;
+    change({
+      ...catalog,
+      [kind]: catalog[kind].map((item) =>
+        item.id === id ? { ...item, ...patch } : item,
+      ),
+    });
   };
   async function save(event: React.FormEvent) {
     event.preventDefault();
     if (!catalog || saving) return;
+    const references = [
+      ...catalog.items
+        .filter((i) => deletions.has(i.skill_id))
+        .map((i) => `アイテム「${i.name}」`),
+      ...catalog.enemies
+        .filter((e) => e.attack_skill_id && deletions.has(e.attack_skill_id))
+        .map((e) => `敵「${e.name}」`),
+    ];
+    if (references.length) {
+      setError(
+        `削除するスキルを${references.join("、")}が使用しています。先に参照を変更してください。`,
+      );
+      return;
+    }
     setSaving(true);
     setError(undefined);
     setSaved(false);
     try {
-      setCatalog(await requestGameCatalog(true, catalog));
+      const next = deletions.size
+        ? {
+            ...catalog,
+            skills: catalog.skills.filter((s) => !deletions.has(s.id)),
+            player_skills: catalog.player_skills?.filter(
+              (u) => !deletions.has(u.skill_id),
+            ),
+            specialty_skills: catalog.specialty_skills?.filter(
+              (u) => !deletions.has(u.skill_id),
+            ),
+          }
+        : catalog;
+      setCatalog(await requestGameCatalog(true, next));
+      setDeletions(new Set());
       setSaved(true);
     } catch (cause) {
       setError(
@@ -66,7 +99,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
     }
   }
   function add(effect: SkillDefinition["effect"] = "attack") {
-    if (!catalog) return;
+    if (!catalog || kind === "shop") return;
     const id = `${kind.slice(0, -1)}_${crypto.randomUUID().replaceAll("-", "").slice(0, 12)}`;
     const base = {
       id,
@@ -94,11 +127,9 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                 catalog.skills.find((s) => s.effect !== "equip_attack")?.id ??
                 "",
               kind: "consumable",
-              price: null,
             }
           : { ...base, icon: "ghost", boss: false, attack_skill_id: null };
-    setCatalog({ ...catalog, [kind]: [...catalog[kind], item] });
-    setSaved(false);
+    change({ ...catalog, [kind]: [...catalog[kind], item] });
   }
   return (
     <section
@@ -107,7 +138,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
     >
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">{names[kind]}</h2>
-        {kind !== "skills" && (
+        {kind !== "skills" && kind !== "shop" && (
           <Button
             type="button"
             disabled={
@@ -129,162 +160,38 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
         <form onSubmit={save} className="space-y-4">
           <fieldset disabled={saving} className="min-w-0 space-y-4">
             {kind === "skills" && (
-              <SkillTables skills={catalog.skills} update={update} add={add} />
+              <SkillTables
+                skills={catalog.skills}
+                update={update}
+                add={add}
+                deletions={deletions}
+                toggleDelete={(id) => {
+                  setDeletions((current) => {
+                    const next = new Set(current);
+                    if (next.has(id)) next.delete(id);
+                    else next.add(id);
+                    return next;
+                  });
+                  setSaved(false);
+                  setError(undefined);
+                }}
+              />
             )}
-            {catalog[kind]
-              .filter(() => kind !== "skills")
-              .map((item) => (
-                <article
-                  key={item.id}
-                  className="space-y-4 rounded-xl border p-4"
-                  aria-label={item.name}
-                >
-                  <div className="flex flex-wrap items-center gap-3">
-                    <IconPicker
-                      label={`${item.name}の素材`}
-                      value={item.icon}
-                      onChange={(icon) => update(item.id, { icon })}
-                    />
-                    <label
-                      htmlFor={`${item.id}-name`}
-                      className="min-w-40 flex-1 text-sm"
-                    >
-                      名前
-                      <Input
-                        id={`${item.id}-name`}
-                        required
-                        maxLength={80}
-                        value={item.name}
-                        onChange={(e) =>
-                          update(item.id, { name: e.target.value })
-                        }
-                      />
-                    </label>
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={item.enabled}
-                        onChange={(e) =>
-                          update(item.id, { enabled: e.target.checked })
-                        }
-                      />
-                      有効
-                    </label>
-                  </div>
-                  {"skill_id" in item && (
-                    <div className="grid gap-3 sm:grid-cols-3">
-                      <label className="grid gap-1 text-sm">
-                        種類
-                        <select
-                          className={selectClass}
-                          value={item.kind}
-                          onChange={(e) => {
-                            const value = e.target
-                              .value as ItemDefinition["kind"];
-                            const skill = catalog.skills.find(
-                              (s) =>
-                                (s.effect === "equip_attack") ===
-                                (value === "weapon"),
-                            );
-                            update(item.id, {
-                              kind: value,
-                              skill_id: skill?.id ?? "",
-                            });
-                          }}
-                        >
-                          <option value="consumable">消耗品</option>
-                          <option value="weapon">武器</option>
-                        </select>
-                      </label>
-                      <label className="grid gap-1 text-sm">
-                        発動スキル
-                        <select
-                          className={selectClass}
-                          required
-                          value={item.skill_id}
-                          onChange={(e) =>
-                            update(item.id, { skill_id: e.target.value })
-                          }
-                        >
-                          <option value="" disabled>
-                            選択
-                          </option>
-                          {catalog.skills
-                            .filter(
-                              (s) =>
-                                (s.effect === "equip_attack") ===
-                                (item.kind === "weapon"),
-                            )
-                            .map((s) => (
-                              <option key={s.id} value={s.id}>
-                                {s.name}
-                                {!s.enabled && "（無効）"}
-                              </option>
-                            ))}
-                        </select>
-                      </label>
-                      <label htmlFor={`${item.id}-price`} className="text-sm">
-                        価格（空欄は非売品）
-                        <Input
-                          id={`${item.id}-price`}
-                          type="number"
-                          min={0}
-                          max={1000000}
-                          value={
-                            item.price !== null && Number.isFinite(item.price)
-                              ? item.price
-                              : ""
-                          }
-                          onChange={(e) =>
-                            update(item.id, {
-                              price:
-                                e.target.value === ""
-                                  ? null
-                                  : e.target.valueAsNumber,
-                            })
-                          }
-                        />
-                      </label>
-                    </div>
-                  )}
-                  {"boss" in item && (
-                    <div className="flex flex-wrap items-center gap-4">
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={item.boss}
-                          onChange={(e) =>
-                            update(item.id, { boss: e.target.checked })
-                          }
-                        />
-                        ボス用
-                      </label>
-                      <label className="grid gap-1 text-sm">
-                        攻撃スキル
-                        <select
-                          className={selectClass}
-                          value={item.attack_skill_id ?? ""}
-                          onChange={(e) =>
-                            update(item.id, {
-                              attack_skill_id: e.target.value || null,
-                            })
-                          }
-                        >
-                          <option value="">通常攻撃</option>
-                          {catalog.skills
-                            .filter((s) => s.effect === "attack")
-                            .map((s) => (
-                              <option key={s.id} value={s.id}>
-                                {s.name}
-                              </option>
-                            ))}
-                        </select>
-                      </label>
-                    </div>
-                  )}
-                </article>
-              ))}
+            {(kind === "items" || kind === "enemies") && (
+              <DefinitionTables kind={kind} catalog={catalog} update={update} />
+            )}
+            {kind === "shop" && (
+              <ShopTable
+                catalog={catalog}
+                onChange={(shop) => change({ ...catalog, shop })}
+              />
+            )}
           </fieldset>
+          {deletions.size > 0 && (
+            <output className="block text-sm text-muted-foreground">
+              削除予約 {deletions.size}件 · 保存で確定します。
+            </output>
+          )}
           <div className="flex justify-center">
             <Button type="submit" disabled={saving}>
               {saving ? "保存中…" : "保存"}

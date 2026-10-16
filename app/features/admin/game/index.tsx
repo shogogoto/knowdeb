@@ -477,6 +477,7 @@ export default function GameAdminManager() {
     "enemies",
     "gambits",
     "usage",
+    "shop",
   ].includes(subtab ?? "")
     ? subtab
     : "balance";
@@ -515,6 +516,7 @@ export default function GameAdminManager() {
               ["enemies", "敵"],
               ["gambits", "ガンビット"],
               ["usage", "スキル利用"],
+              ["shop", "ショップ"],
             ] as const
           ).map(([id, label], index) => (
             <TabsTrigger
@@ -543,7 +545,7 @@ export default function GameAdminManager() {
       <TabsContent value="usage" className="mt-0">
         <SkillUsageEditor />
       </TabsContent>
-      {(["skills", "items", "enemies"] as const).map((kind) => (
+      {(["skills", "items", "enemies", "shop"] as const).map((kind) => (
         <TabsContent key={kind} value={kind} className="mt-0">
           <CatalogEditor kind={kind} />
         </TabsContent>

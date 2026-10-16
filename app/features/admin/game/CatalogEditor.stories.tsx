@@ -48,6 +48,7 @@ export default {
   ],
 } satisfies Meta<typeof CatalogEditor>;
 export const Skills: StoryObj<typeof CatalogEditor> = {};
+export const Shop: StoryObj<typeof CatalogEditor> = { args: { kind: "shop" } };
 export const Items: StoryObj<typeof CatalogEditor> = {
   args: { kind: "items" },
 };

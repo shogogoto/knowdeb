@@ -37,6 +37,10 @@ it("aligns only the selected user's dungeon from the admin table", async () => {
       </Routes>
     </MemoryRouter>,
   );
+  expect(screen.getByRole("tab", { name: "ショップ" })).toHaveAttribute(
+    "title",
+    "t → 8",
+  );
   await userEvent
     .setup()
     .click(await screen.findByRole("button", { name: "領域を整列" }));

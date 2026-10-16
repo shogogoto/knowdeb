@@ -1,4 +1,3 @@
-import { IconPicker } from "~/features/game/GameIcon";
 import { type SkillDefinition, effectLabels } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
@@ -18,10 +17,14 @@ export default function SkillTables({
   skills,
   update,
   add,
+  deletions,
+  toggleDelete,
 }: {
   skills: SkillDefinition[];
   update: (id: string, patch: Partial<SkillDefinition>) => void;
   add: (effect: SkillDefinition["effect"]) => void;
+  deletions: Set<string>;
+  toggleDelete: (id: string) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -30,7 +33,6 @@ export default function SkillTables({
         const stat = effects[0] === "buff" || effects[0] === "debuff";
         const headers = [
           "名前",
-          "素材",
           "効果",
           "対象",
           ...(stat ? ["対象ステータス"] : []),
@@ -41,6 +43,7 @@ export default function SkillTables({
           "消費MP",
           "演出",
           "有効",
+          "削除",
         ];
         const rows = skills.filter((s) =>
           (effects as readonly string[]).includes(s.effect),
@@ -76,6 +79,7 @@ export default function SkillTables({
                 </thead>
                 <tbody>
                   {rows.map((s) => {
+                    const removed = deletions.has(s.id);
                     const numeric = (
                       label: string,
                       key:
@@ -90,6 +94,7 @@ export default function SkillTables({
                       step = 1,
                     ) => (
                       <Input
+                        disabled={removed}
                         aria-label={label}
                         className="w-24"
                         type="number"
@@ -113,10 +118,12 @@ export default function SkillTables({
                       <tr
                         key={s.id}
                         aria-label={s.name}
-                        className="border-t [&>td]:p-2"
+                        className={`border-t [&>td]:p-2 ${removed ? "bg-muted text-muted-foreground [&>td:not(:last-child)]:opacity-40" : ""}`}
+                        data-pending-delete={removed || undefined}
                       >
                         <td>
                           <Input
+                            disabled={removed}
                             aria-label="名前"
                             value={s.name}
                             required
@@ -128,14 +135,8 @@ export default function SkillTables({
                           />
                         </td>
                         <td>
-                          <IconPicker
-                            label={`${s.name}の素材`}
-                            value={s.icon}
-                            onChange={(icon) => update(s.id, { icon })}
-                          />
-                        </td>
-                        <td>
                           <select
+                            disabled={removed}
                             aria-label="効果"
                             className={selectClass}
                             value={s.effect}
@@ -158,6 +159,7 @@ export default function SkillTables({
                             s.effect,
                           ) ? (
                             <select
+                              disabled={removed}
                               aria-label="対象"
                               className={selectClass}
                               value={s.target}
@@ -178,6 +180,7 @@ export default function SkillTables({
                         {stat && (
                           <td>
                             <select
+                              disabled={removed}
                               aria-label="対象ステータス"
                               className={selectClass}
                               value={s.stat ?? "attack"}
@@ -217,7 +220,7 @@ export default function SkillTables({
                               aria-label="効果量の指定"
                               className={selectClass}
                               value={s.amount_mode ?? "fixed"}
-                              disabled={s.stat === "maxHp"}
+                              disabled={removed || s.stat === "maxHp"}
                               onChange={(e) =>
                                 update(s.id, {
                                   amount_mode: e.target.value as
@@ -255,6 +258,7 @@ export default function SkillTables({
                         <td>{numeric("消費MP", "mp_cost", 0, 10000)}</td>
                         <td>
                           <SkillAnimationGallery
+                            disabled={removed}
                             name={s.name}
                             value={s.animation ?? "none"}
                             onChange={(animation) =>
@@ -264,6 +268,7 @@ export default function SkillTables({
                         </td>
                         <td>
                           <input
+                            disabled={removed}
                             aria-label="有効"
                             type="checkbox"
                             checked={s.enabled}
@@ -271,6 +276,17 @@ export default function SkillTables({
                               update(s.id, { enabled: e.target.checked })
                             }
                           />
+                        </td>
+                        <td>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            aria-pressed={removed}
+                            onClick={() => toggleDelete(s.id)}
+                          >
+                            {removed ? "削除を取り消す" : "削除"}
+                          </Button>
                         </td>
                       </tr>
                     );

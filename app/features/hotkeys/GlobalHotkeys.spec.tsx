@@ -453,6 +453,79 @@ it("ゲーム画面の操作hotkeyを疑問符の案内に表示する", async (
   expect(screen.getByText("地点やダンジョンを選ぶ")).toBeVisible();
   expect(screen.getByText("移動・ダンジョン切替")).toBeVisible();
   expect(screen.getByText("マップを全画面表示")).toBeVisible();
+  expect(screen.getByText("ステータスを開く")).toBeVisible();
+});
+
+it.each([false, true])(
+  "sでステータスを開きgsや入力中には干渉しない（全画面:%s）",
+  async (fullscreen) => {
+    const open = vi.fn();
+    renderHotkeys(
+      <>
+        <button type="button" data-game-status-trigger onClick={open}>
+          ステータス
+        </button>
+        {fullscreen && (
+          <div
+            role="dialog"
+            aria-label="冒険マップ"
+            data-adventure-map-dialog
+          />
+        )}
+      </>,
+      "/game",
+    );
+    const user = userEvent.setup();
+    await user.click(screen.getByRole("button", { name: "入力を終了" }));
+    await user.keyboard("s");
+    expect(open).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("textbox", { name: "入力欄" }));
+    await user.keyboard("s");
+    expect(open).toHaveBeenCalledTimes(1);
+    await user.click(screen.getByRole("button", { name: "入力を終了" }));
+    if (!fullscreen) {
+      await user.keyboard("gs");
+      expect(open).toHaveBeenCalledTimes(1);
+      expect(screen.getByRole("status", { name: "現在地" })).toHaveTextContent(
+        "/search",
+      );
+    }
+  },
+);
+
+it("全画面マップに重なる戦闘や詳細の上ではsでステータスを開かない", async () => {
+  const open = vi.fn();
+  renderHotkeys(
+    <>
+      <button type="button" data-game-status-trigger onClick={open}>
+        ステータス
+      </button>
+      <div role="dialog" aria-label="冒険マップ" data-adventure-map-dialog />
+      <div role="dialog" aria-label="戦闘" />
+    </>,
+    "/game",
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "入力を終了" }));
+  await user.keyboard("s");
+  expect(open).not.toHaveBeenCalled();
+});
+
+it("閉じるアニメーション中のdialogにsを遮られない", async () => {
+  const open = vi.fn();
+  renderHotkeys(
+    <>
+      <button type="button" data-game-status-trigger onClick={open}>
+        ステータス
+      </button>
+      <div role="dialog" data-state="closed" />
+    </>,
+    "/game",
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "入力を終了" }));
+  await user.keyboard("s");
+  expect(open).toHaveBeenCalledTimes(1);
 });
 
 it("全画面マップ上でも疑問符でゲーム操作hotkeyを表示する", async () => {

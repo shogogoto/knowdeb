@@ -3,6 +3,10 @@ import { http, HttpResponse } from "msw";
 import { Route, Routes } from "react-router";
 import { SWRConfig } from "swr";
 import { AuthContext } from "~/features/auth/AuthProvider";
+import GlobalHotkeys, {
+  HotkeyProvider,
+} from "~/features/hotkeys/GlobalHotkeys";
+import { HistoryPanelProvider } from "~/shared/history/HistoryPanel";
 import { GamePlay } from ".";
 import { defaultBalance } from "./battle";
 import { sampleCatalog } from "./catalog.fixtures";
@@ -71,9 +75,14 @@ export default {
         }}
       >
         <SWRConfig value={{ provider: () => new Map(), errorRetryCount: 0 }}>
-          <Routes>
-            <Route path="/game/:menu?" element={<Story />} />
-          </Routes>
+          <HistoryPanelProvider>
+            <HotkeyProvider>
+              <GlobalHotkeys />
+              <Routes>
+                <Route path="/game/:menu?" element={<Story />} />
+              </Routes>
+            </HotkeyProvider>
+          </HistoryPanelProvider>
         </SWRConfig>
       </AuthContext.Provider>
     ),

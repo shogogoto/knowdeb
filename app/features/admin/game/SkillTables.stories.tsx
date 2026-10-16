@@ -5,6 +5,7 @@ import { sampleCatalog } from "~/features/game/catalog.fixtures";
 import SkillTables from "./SkillTables";
 
 function Demo() {
+  const [deletions, setDeletions] = useState(new Set<string>());
   const [skills, setSkills] = useState<SkillDefinition[]>([
     ...sampleCatalog.skills,
     {
@@ -37,6 +38,15 @@ function Demo() {
   return (
     <div className="p-4">
       <SkillTables
+        deletions={deletions}
+        toggleDelete={(id) =>
+          setDeletions((current) => {
+            const next = new Set(current);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+          })
+        }
         skills={skills}
         add={(effect) =>
           setSkills((current) => [

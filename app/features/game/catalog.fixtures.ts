@@ -50,9 +50,9 @@ export const sampleCatalog: GameCatalog = {
       enabled: true,
       skill_id: "potion",
       kind: "consumable",
-      price: 30,
     },
   ],
+  shop: [{ item_id: "healing_potion", price: 30, enabled: true }],
   enemies: [
     {
       id: "ghost",

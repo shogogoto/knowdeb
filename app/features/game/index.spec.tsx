@@ -27,6 +27,7 @@ import {
   validateKnowledge,
 } from "./api";
 import { defaultBalance } from "./battle";
+import { sampleCatalog } from "./catalog.fixtures";
 import { enterDungeon, move, newSave } from "./domain";
 import { ENTRANCE } from "./exploration";
 import type { GameState } from "./state";
@@ -42,6 +43,19 @@ vi.mock("~/features/auth/AuthProvider", async (importOriginal) => ({
   useAuth: () => ({ user: { uid: "player" }, isAuthenticated: true }),
 }));
 const server = setupServer(
+  http.get("*/game/catalog", () => HttpResponse.json(sampleCatalog)),
+  http.get("*/game/gambits/capacity", () =>
+    HttpResponse.json({ slots: 1, next_level: 20 }),
+  ),
+  http.get("*/game/specialties", () =>
+    HttpResponse.json({
+      slots: 1,
+      next_level: 20,
+      available: [],
+      names: {},
+      amounts: {},
+    }),
+  ),
   http.get("*/game/shop", () =>
     HttpResponse.json({
       products: [],
@@ -991,6 +1005,51 @@ it("opens the item URL directly", async () => {
     "data-state",
     "active",
   );
+});
+
+it("switches the numbered menu tabs with Ctrl+digits", async () => {
+  renderGame();
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole("button", { name: "ステータス" }));
+  expect(
+    await screen.findByRole("dialog", { name: "ゲームメニュー" }),
+  ).toBeVisible();
+  const tabs = ["ステータス", "アイテム", "実績", "ガンビット", "専門分野"];
+  for (const [index, label] of tabs.entries()) {
+    const tab = screen.getByRole("tab", { name: label });
+    expect(tab).toHaveTextContent(String(index + 1));
+    expect(tab).toHaveAttribute("title", `Ctrl + ${index + 1}`);
+    await user.keyboard(`{Control>}${index + 1}{/Control}`);
+    expect(screen.getByRole("tab", { name: label })).toHaveAttribute(
+      "data-state",
+      "active",
+    );
+  }
+  expect(state.revision).toBe(0);
+  expect(consumeCount).toBe(0);
+});
+
+it("does not switch menu tabs while typing or when another dialog is on top", async () => {
+  renderGame("/game/status");
+  await screen.findByRole("tab", { name: "ステータス" });
+  const input = document.createElement("input");
+  document.body.append(input);
+  input.focus();
+  fireEvent.keyDown(input, { key: "2", ctrlKey: true });
+  expect(screen.getByRole("tab", { name: "ステータス" })).toHaveAttribute(
+    "data-state",
+    "active",
+  );
+  input.remove();
+  const overlay = document.createElement("div");
+  overlay.setAttribute("role", "dialog");
+  document.body.append(overlay);
+  fireEvent.keyDown(overlay, { key: "2", ctrlKey: true });
+  expect(screen.getByRole("tab", { name: "ステータス" })).toHaveAttribute(
+    "data-state",
+    "active",
+  );
+  overlay.remove();
 });
 
 it("switches between status, inventory, and achievement tabs in the game menu", async () => {

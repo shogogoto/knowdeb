@@ -107,7 +107,10 @@ leaving an insufficient quiz count labelled as preparing forever.
 Numbers are provisional balancing constants, not a finalized level design.
 Game tabs are removed. `/game` is the map; `/game/status` and `/game/item`
 open floating panels over the same mounted adventure. The upper-left HP opens
-the stat editor without leaving fullscreen. Back closes the panel and Forward
+the stat editor without leaving fullscreen. `s` opens status, including from the
+fullscreen map. Inside the menu, Ctrl+1–5 select the numbered status, items,
+achievements, gambits and specialties tabs. Input fields and overlaid battle/detail
+dialogs are excluded. Back closes the panel and Forward
 reopens it. Escape/close returns to the map's history entry; direct panel links
 replace their entry with `/game` on close. Legacy `/game/adventure` redirects to
 `/game`. Recovery, current location, discovered count and achievement appear
@@ -130,6 +133,12 @@ knowledge place, so it never increases achievement or enters quiz populations.
 The initial catalog offers bronze/steel swords (+3/+8 attack, 100/300 gold) and
 HP potions (+20 HP, 30 gold). Owned weapons can be equipped or removed outside
 combat; the bonus is shared by live combat, stat allocation previews and practice.
+Admin separates item definitions from `shop` listings (`item_id`, price, enabled).
+Legacy item prices migrate on read only when `shop` is absent; an explicit empty
+shop remains empty. Non-sale items remain usable when already owned. Skills have
+no material selector in admin; items and enemies own their art selection. Skill
+deletions are staged until Save and can be undone. Item/enemy references block
+deletion; player/specialty usage bindings are removed with a deleted definition.
 Completing the saved default “今日” knowledge set awards one step potion per
 Japan-calendar day, automatically on exposure or the next game state read.
 It restores up to three of the five shared moves, without consuming the clock

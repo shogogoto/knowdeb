@@ -28,20 +28,17 @@ afterEach(() => {
 });
 afterAll(() => server.close());
 
-it("chooses a named icon from the searchable asset list and saves the skill", async () => {
+it("edits skills without material selection and preserves existing icon data", async () => {
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
   const skill = await screen.findByRole("row", { name: "ファイア" });
   expect(skill.closest("fieldset")).toHaveClass("min-w-0");
-  await user.click(
-    within(skill).getByRole("button", { name: "ファイアの素材を選ぶ" }),
-  );
-  const dialog = screen.getByRole("dialog", { name: "ゲーム素材一覧" });
-  await user.type(
-    within(dialog).getByRole("textbox", { name: "素材を検索" }),
-    "猫",
-  );
-  await user.click(within(dialog).getByRole("button", { name: "猫" }));
+  expect(
+    screen.queryByRole("columnheader", { name: "素材" }),
+  ).not.toBeInTheDocument();
+  expect(
+    within(skill).queryByRole("button", { name: /素材を選ぶ/ }),
+  ).not.toBeInTheDocument();
   const amount = within(skill).getByLabelText("加算ダメージ");
   await user.clear(amount);
   await user.type(amount, "7");
@@ -49,7 +46,7 @@ it("chooses a named icon from the searchable asset list and saves the skill", as
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(saved.mock.calls[0][0].skills[0]).toMatchObject({
     id: "fire",
-    icon: "cat",
+    icon: "flame",
     amount: 7,
   });
   expect(saved.mock.calls[0][0].items).toEqual(sampleCatalog.items);
@@ -60,12 +57,133 @@ it("references a skill from an item rather than defining a separate effect", asy
   render(<CatalogEditor kind="items" />);
   const user = userEvent.setup();
   await user.selectOptions(await screen.findByLabelText("発動スキル"), "heal");
+  expect(screen.getByRole("table", { name: "アイテム定義" })).toBeVisible();
+  expect(screen.queryByLabelText(/価格/)).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(saved.mock.calls[0][0].items[0]).toMatchObject({
     id: "healing_potion",
     skill_id: "heal",
   });
+});
+
+it("selects item art from the material gallery", async () => {
+  render(<CatalogEditor kind="items" />);
+  const user = userEvent.setup();
+  await user.click(
+    await screen.findByRole("button", { name: "回復薬の素材を選ぶ" }),
+  );
+  const dialog = screen.getByRole("dialog", { name: "ゲーム素材一覧" });
+  await user.type(
+    within(dialog).getByRole("textbox", { name: "素材を検索" }),
+    "猫",
+  );
+  await user.click(within(dialog).getByRole("button", { name: "猫" }));
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0].items[0].icon).toBe("cat");
+});
+
+it("marks skills for deletion, supports undo and commits removals only on save", async () => {
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const row = await screen.findByRole("row", { name: "ファイア" });
+  const headers = within(
+    screen.getByRole("region", { name: "攻撃スキル" }),
+  ).getAllByRole("columnheader");
+  expect(headers.at(-1)).toHaveTextContent("削除");
+  await user.click(within(row).getByRole("button", { name: "削除" }));
+  expect(row).toHaveAttribute("data-pending-delete", "true");
+  expect(within(row).getByLabelText("名前")).toBeDisabled();
+  expect(saved).not.toHaveBeenCalled();
+  await user.click(within(row).getByRole("button", { name: "削除を取り消す" }));
+  expect(row).not.toHaveAttribute("data-pending-delete");
+  expect(within(row).getByLabelText("名前")).toBeEnabled();
+  await user.click(within(row).getByRole("button", { name: "削除" }));
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(
+    saved.mock.calls[0][0].skills.some((s: { id: string }) => s.id === "fire"),
+  ).toBe(false);
+  expect(saved.mock.calls[0][0].player_skills).toEqual([
+    { skill_id: "heal", enabled: true },
+  ]);
+  expect(
+    screen.queryByRole("row", { name: "ファイア" }),
+  ).not.toBeInTheDocument();
+});
+
+it("blocks deletion of a referenced skill and retains the pending row after a failed save", async () => {
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const row = await screen.findByRole("row", { name: "薬の回復" });
+  await user.click(within(row).getByRole("button", { name: "削除" }));
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  expect(screen.getByRole("alert")).toHaveTextContent("回復薬");
+  expect(row).toHaveAttribute("data-pending-delete", "true");
+  expect(saved).not.toHaveBeenCalled();
+});
+
+it("configures sale availability and prices independently from item definitions", async () => {
+  render(<CatalogEditor kind="shop" />);
+  const user = userEvent.setup();
+  const row = await screen.findByRole("row", { name: "回復薬" });
+  const price = within(row).getByLabelText("価格（G）");
+  expect(price).toHaveValue(30);
+  await user.click(within(row).getByLabelText("販売"));
+  expect(price).toBeDisabled();
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0].shop).toEqual([
+    { item_id: "healing_potion", price: 30, enabled: false },
+  ]);
+  expect(saved.mock.calls[0][0].items).toEqual(sampleCatalog.items);
+  await user.click(within(row).getByLabelText("販売"));
+  await user.clear(price);
+  await user.type(price, "75");
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalledTimes(2));
+  expect(saved.mock.calls[1][0].shop[0].price).toBe(75);
+});
+
+it("lists a previously non-sale item without changing its definition", async () => {
+  server.use(
+    http.get("*/admin/game/catalog", () =>
+      HttpResponse.json({ ...sampleCatalog, shop: [] }),
+    ),
+  );
+  render(<CatalogEditor kind="shop" />);
+  const user = userEvent.setup();
+  const row = await screen.findByRole("row", { name: "回復薬" });
+  expect(within(row).getByLabelText("販売")).not.toBeChecked();
+  await user.click(within(row).getByLabelText("販売"));
+  const price = within(row).getByLabelText("価格（G）");
+  await user.clear(price);
+  await user.type(price, "10");
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(saved.mock.calls[0][0].shop).toEqual([
+    { item_id: "healing_potion", price: 10, enabled: true },
+  ]);
+});
+
+it("retains the pending deletion when the server rejects saving", async () => {
+  server.use(
+    http.put("*/admin/game/catalog", () =>
+      HttpResponse.json({ detail: "他の設定で使用中です。" }, { status: 422 }),
+    ),
+  );
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const row = await screen.findByRole("row", { name: "ファイア" });
+  await user.click(within(row).getByRole("button", { name: "削除" }));
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "他の設定で使用中です。",
+  );
+  expect(row).toHaveAttribute("data-pending-delete", "true");
+  await user.click(within(row).getByRole("button", { name: "削除を取り消す" }));
+  expect(within(row).getByLabelText("名前")).toBeEnabled();
 });
 
 it("defines timed percentage buffs with an explicit stacking limit", async () => {

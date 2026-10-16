@@ -159,6 +159,45 @@ export function GamePlay({
             : "status";
   const navigate = useNavigate();
   const location = useLocation();
+  useEffect(() => {
+    function menuHotkey(event: KeyboardEvent) {
+      if (
+        event.defaultPrevented ||
+        event.isComposing ||
+        event.repeat ||
+        event.altKey ||
+        event.metaKey ||
+        (event.target instanceof HTMLElement &&
+          event.target.closest(
+            'input,textarea,select,[contenteditable="true"],[role="textbox"]',
+          ))
+      )
+        return;
+      const dialogs = document.querySelectorAll(
+        '[role="dialog"], [role="alertdialog"]',
+      );
+      const topDialog = dialogs[dialogs.length - 1];
+      if (menuPanel && topDialog?.hasAttribute("data-game-menu")) {
+        if (event.ctrlKey && /^[1-5]$/.test(event.key)) {
+          event.preventDefault();
+          const tab = [
+            "status",
+            "item",
+            "achievements",
+            "gambits",
+            "specialties",
+          ][Number(event.key) - 1];
+          void navigate(`/game/${tab}`, {
+            replace: true,
+            state: location.state,
+          });
+        }
+        return;
+      }
+    }
+    window.addEventListener("keydown", menuHotkey, true);
+    return () => window.removeEventListener("keydown", menuHotkey, true);
+  }, [menuPanel, navigate, location.state]);
   function openPanel(panel: "status" | "item" | "shop" | "boss") {
     void navigate(`/game/${panel}`, { state: { gamePanelFromMap: true } });
   }
@@ -968,7 +1007,11 @@ export function GamePlay({
       <div className="space-y-4">
         {!run && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => openPanel("status")}>
+            <Button
+              data-game-status-trigger
+              variant="outline"
+              onClick={() => openPanel("status")}
+            >
               ステータス
             </Button>
             <Button variant="outline" onClick={() => openPanel("item")}>
@@ -1397,6 +1440,7 @@ export function GamePlay({
                       <Button
                         variant="ghost"
                         onClick={() => openPanel("status")}
+                        data-game-status-trigger
                         aria-label="プレイヤーのステータス・育成ポイントを開く"
                         title="ステータス・育成ポイント"
                         className="-mx-3 -my-2 flex min-h-11 min-w-0 items-center rounded-lg px-3 py-2 outline-none hover:bg-accent/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
@@ -1597,6 +1641,7 @@ export function GamePlay({
         <DialogContent
           className={`max-h-[90dvh] overflow-y-auto sm:max-w-lg ${menuPanel ? "top-[5dvh] translate-y-0" : ""}`}
           data-dashboard-swipe-ignore
+          data-game-menu={menuPanel ? "" : undefined}
         >
           <DialogHeader>
             <DialogTitle>{menuPanel ? "ゲームメニュー" : "ボス"}</DialogTitle>
@@ -1628,11 +1673,27 @@ export function GamePlay({
                 aria-label="ゲームメニュー"
                 className="h-auto w-full flex-wrap"
               >
-                <TabsTrigger value="status">ステータス</TabsTrigger>
-                <TabsTrigger value="item">アイテム</TabsTrigger>
-                <TabsTrigger value="achievements">実績</TabsTrigger>
-                <TabsTrigger value="gambits">ガンビット</TabsTrigger>
-                <TabsTrigger value="specialties">専門分野</TabsTrigger>
+                {(
+                  [
+                    ["status", "ステータス"],
+                    ["item", "アイテム"],
+                    ["achievements", "実績"],
+                    ["gambits", "ガンビット"],
+                    ["specialties", "専門分野"],
+                  ] as const
+                ).map(([value, label], index) => (
+                  <TabsTrigger
+                    key={value}
+                    value={value}
+                    aria-label={label}
+                    title={`Ctrl + ${index + 1}`}
+                  >
+                    <kbd className="mr-1 font-mono text-[10px] text-muted-foreground">
+                      {index + 1}
+                    </kbd>
+                    {label}
+                  </TabsTrigger>
+                ))}
               </TabsList>
               <TabsContent value="status" className="space-y-4">
                 <div className="flex items-center gap-2">

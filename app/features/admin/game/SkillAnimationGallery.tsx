@@ -33,10 +33,12 @@ export default function SkillAnimationGallery({
   name,
   value,
   onChange,
+  disabled = false,
 }: {
   name: string;
   value: SkillAnimation;
   onChange: (animation: SkillAnimation) => void;
+  disabled?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<SkillAnimation>("none");
@@ -56,6 +58,7 @@ export default function SkillAnimationGallery({
         <Button
           type="button"
           variant="outline"
+          disabled={disabled}
           aria-label={`${name}の演出を選ぶ`}
         >
           {animationLabels[value]}
