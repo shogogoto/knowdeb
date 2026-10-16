@@ -181,3 +181,7 @@
     opacity: 0;
   }
 }
+.skill-fx-still > span {
+  animation-play-state: paused;
+  animation-delay: -200ms;
+}

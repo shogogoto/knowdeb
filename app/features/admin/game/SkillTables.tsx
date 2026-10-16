@@ -1,26 +1,8 @@
-import { useState } from "react";
-import GameIcon, { IconPicker } from "~/features/game/GameIcon";
-import SkillEffect from "~/features/game/SkillEffect";
-import {
-  type SkillAnimation,
-  type SkillDefinition,
-  animationLabels,
-  effectLabels,
-} from "~/features/game/catalog";
-import {
-  spriteAnimationLabels,
-  spriteAsset,
-} from "~/features/game/effectAssets";
+import { IconPicker } from "~/features/game/GameIcon";
+import { type SkillDefinition, effectLabels } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/shared/components/ui/dialog";
 import { Input } from "~/shared/components/ui/input";
+import SkillAnimationPicker from "./SkillAnimationPicker";
 
 const selectClass = "h-9 rounded-md border bg-background px-2 text-sm";
 export const skillGroups = [
@@ -41,14 +23,6 @@ export default function SkillTables({
   update: (id: string, patch: Partial<SkillDefinition>) => void;
   add: (effect: SkillDefinition["effect"]) => void;
 }) {
-  const [preview, setPreview] = useState<{
-    id: string;
-    key: number;
-    animation?: SkillAnimation;
-  }>();
-  const previewSkill = skills.find((s) => s.id === preview?.id);
-  const previewAnimation =
-    preview?.animation ?? previewSkill?.animation ?? "none";
   return (
     <div className="space-y-6">
       {skillGroups.map(([title, effects]) => {
@@ -66,7 +40,6 @@ export default function SkillTables({
           ...(status ? ["持続ターン", "重複上限"] : []),
           "消費MP",
           "演出",
-          "プレビュー",
           "有効",
         ];
         const rows = skills.filter((s) =>
@@ -281,41 +254,13 @@ export default function SkillTables({
                         )}
                         <td>{numeric("消費MP", "mp_cost", 0, 10000)}</td>
                         <td>
-                          <select
-                            aria-label="演出"
-                            className={selectClass}
+                          <SkillAnimationPicker
+                            name={s.name}
                             value={s.animation ?? "none"}
-                            onChange={(e) =>
-                              update(s.id, {
-                                animation: e.target
-                                  .value as SkillDefinition["animation"],
-                              })
+                            onChange={(animation) =>
+                              update(s.id, { animation })
                             }
-                          >
-                            {Object.entries(animationLabels).map(
-                              ([key, label]) => (
-                                <option key={key} value={key}>
-                                  {label}
-                                </option>
-                              ),
-                            )}
-                          </select>
-                        </td>
-                        <td>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            aria-label={`${s.name}の演出を再生`}
-                            onClick={() =>
-                              setPreview({
-                                id: s.id,
-                                key: (preview?.key ?? 0) + 1,
-                              })
-                            }
-                          >
-                            再生
-                          </Button>
+                          />
                         </td>
                         <td>
                           <input
@@ -346,106 +291,6 @@ export default function SkillTables({
           </section>
         );
       })}
-      <Dialog
-        open={Boolean(previewSkill)}
-        onOpenChange={(open) => !open && setPreview(undefined)}
-      >
-        <DialogContent className="w-[min(42rem,calc(100vw-2rem))] max-w-none max-h-[90dvh] overflow-y-auto sm:max-w-none">
-          <DialogHeader>
-            <DialogTitle>{previewSkill?.name}の演出プレビュー</DialogTitle>
-            <DialogDescription>
-              {animationLabels[previewAnimation]}
-            </DialogDescription>
-          </DialogHeader>
-          <div
-            aria-label="演出の再生領域"
-            className="relative isolate flex h-56 items-center justify-center overflow-hidden rounded-xl border bg-slate-950 text-slate-100"
-          >
-            {previewAnimation !== "none" ? (
-              <>
-                <div className="flex flex-col items-center gap-2 text-slate-400">
-                  <GameIcon icon="target" className="size-12" />
-                  <span className="text-xs">対象</span>
-                </div>
-                <SkillEffect
-                  key={preview?.key}
-                  animation={previewAnimation}
-                  preview
-                />
-              </>
-            ) : (
-              <p className="text-sm">演出が「なし」に設定されています。</p>
-            )}
-          </div>
-          <details>
-            <summary className="cursor-pointer text-sm">
-              フリー素材一覧（20種類・CC0）
-            </summary>
-            <div
-              className="mt-3 grid max-h-56 grid-cols-2 gap-2 overflow-y-auto sm:grid-cols-4"
-              aria-label="演出素材一覧"
-            >
-              {Object.entries(spriteAnimationLabels).map(([id, label]) => (
-                <button
-                  key={id}
-                  type="button"
-                  aria-label={`${label}をプレビュー`}
-                  aria-pressed={previewAnimation === id}
-                  className="flex flex-col items-center gap-1 rounded-md border p-2 text-xs hover:border-primary aria-pressed:border-primary"
-                  onClick={() =>
-                    setPreview(
-                      (p) =>
-                        p && {
-                          ...p,
-                          animation: id as SkillAnimation,
-                          key: p.key + 1,
-                        },
-                    )
-                  }
-                >
-                  <img
-                    src={spriteAsset(id)?.poster}
-                    alt=""
-                    loading="lazy"
-                    className="size-16 rounded bg-slate-950 object-contain"
-                  />
-                  {label}
-                </button>
-              ))}
-            </div>
-          </details>
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setPreview(undefined)}
-            >
-              閉じる
-            </Button>
-            <Button
-              type="button"
-              disabled={previewAnimation === "none"}
-              onClick={() => setPreview((p) => p && { ...p, key: p.key + 1 })}
-            >
-              もう一度再生
-            </Button>
-            <Button
-              type="button"
-              disabled={
-                !previewSkill ||
-                previewAnimation === (previewSkill.animation ?? "none")
-              }
-              onClick={() => {
-                if (previewSkill)
-                  update(previewSkill.id, { animation: previewAnimation });
-                setPreview(undefined);
-              }}
-            >
-              この演出を使う
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

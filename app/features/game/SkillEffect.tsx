@@ -7,7 +7,8 @@ import "./skillEffect.css";
 export default function SkillEffect({
   animation,
   preview = false,
-}: { animation: SkillAnimation; preview?: boolean }) {
+  still = false,
+}: { animation: SkillAnimation; preview?: boolean; still?: boolean }) {
   if (animation === "none") return null;
   const sprite = spriteAsset(animation);
   if (sprite)
@@ -23,7 +24,7 @@ export default function SkillEffect({
     <span
       aria-hidden="true"
       data-skill-animation={animation}
-      className={`skill-fx skill-fx-${animation}${preview ? " skill-fx-preview" : ""}`}
+      className={`skill-fx skill-fx-${animation}${preview ? " skill-fx-preview" : ""}${still ? " skill-fx-still" : ""}`}
     >
       <span />
       <span />
