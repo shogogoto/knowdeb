@@ -361,9 +361,6 @@ export default function SkillTables({
                   animation={previewSkill.animation}
                   preview
                 />
-                <p className="absolute bottom-3 text-xs text-slate-400 hidden motion-reduce:block">
-                  動きを減らす設定のため静止表示
-                </p>
               </>
             ) : (
               <p className="text-sm">演出が「なし」に設定されています。</p>

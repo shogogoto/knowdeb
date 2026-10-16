@@ -143,15 +143,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .skill-fx {
+  .skill-fx:not(.skill-fx-preview) {
     display: none;
-  }
-  .skill-fx-preview {
-    display: block;
-  }
-  .skill-fx-preview span {
-    animation: none;
-    opacity: 0.65;
-    transform: translate(var(--x), var(--y));
   }
 }
