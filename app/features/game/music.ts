@@ -1,4 +1,6 @@
 /** Original, procedurally composed loops. No music assets or network requests. */
+import { stopBattleSounds } from "./battleSound";
+
 export type MusicScene = "explore" | "battle";
 type Preferences = { enabled: boolean };
 const defaults: Preferences = { enabled: false };
@@ -44,7 +46,10 @@ export function setMusicPreferences(update: Partial<Preferences>) {
   engine?.setVolume(preferences.enabled ? 1 : 0);
   for (const listener of subscribers) listener();
   if (preferences.enabled) unlockMusic();
-  else engine?.pause();
+  else {
+    engine?.pause();
+    stopBattleSounds();
+  }
 }
 
 function scene(): MusicScene {

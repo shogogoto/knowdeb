@@ -41,7 +41,8 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 `duration_turns` は1〜20、`stack_limit` は1〜10です。
 バブルは `effect: "buff"`, `stat: "maxHp"`, `amount_mode: "percent"` で定義します。
 `animation` は演出一覧で選んだものを書き出すとIDを確認できます。
-`sound` はSEのプリセット。省略時は `auto`（効果種別に応じた音）、`none` で無音です。
+`sound` はローカル配信するCC0音声素材の選択です。省略時は `auto`（効果種別に応じた音。攻撃は炎・雷・斬撃の演出も参照）、`none` で無音です。
+素材の出典・ライセンスは `public/game-assets/sounds/SOURCES.md` に記載しています。
 adminの「試聴」で確認できます。戦闘中は音楽OFFにするとSEも再生しません。
 
 効果種別ごとにキーの組み合わせが異なります。共通項目は

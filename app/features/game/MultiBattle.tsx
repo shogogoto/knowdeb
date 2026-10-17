@@ -162,6 +162,7 @@ export default function MultiBattle({
       playSkillSound({
         effect: receipt.effect,
         sound: receipt.sound,
+        animation: receipt.animation ?? undefined,
         ailment: receipt.ailment ?? undefined,
       });
   }, [save.endActionReceipt, nextResultId]);
@@ -708,9 +709,19 @@ export default function MultiBattle({
                     }
                     if (musicPreferences().enabled) {
                       const enemy = live.find((e) => e.id === id);
-                      if (enemy?.sound && enemy.sound !== "auto")
+                      if (
+                        enemy &&
+                        ((enemy.sound && enemy.sound !== "auto") ||
+                          (enemy.animation &&
+                            enemy.animation !== "none" &&
+                            enemy.animation !== "impact"))
+                      )
                         playSkillSound(
-                          { effect: "attack", sound: enemy.sound },
+                          {
+                            effect: "attack",
+                            sound: enemy.sound,
+                            animation: enemy.animation,
+                          },
                           false,
                         );
                       else playBattleSound(false);

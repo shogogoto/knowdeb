@@ -1,111 +1,121 @@
+import { readFileSync } from "node:fs";
 import { vi } from "vitest";
-import { playBattleSound, playSkillSound } from "./battleSound";
+import {
+  battleSoundFiles,
+  playBattleSound,
+  playSkillSound,
+  stopBattleSounds,
+} from "./battleSound";
 
-const parameter = () => ({
-  value: 0,
-  setValueAtTime: vi.fn(),
-  exponentialRampToValueAtTime: vi.fn(),
-});
-const node = () => ({ connect: vi.fn(), start: vi.fn(), stop: vi.fn() });
-let context: {
-  currentTime: number;
-  sampleRate: number;
-  destination: object;
-  createBuffer: ReturnType<typeof vi.fn>;
-  createBufferSource: ReturnType<typeof vi.fn>;
-  createBiquadFilter: ReturnType<typeof vi.fn>;
-  createGain: ReturnType<typeof vi.fn>;
-  createOscillator: ReturnType<typeof vi.fn>;
-  resume: ReturnType<typeof vi.fn>;
-  close: ReturnType<typeof vi.fn>;
-};
-let crack: ReturnType<typeof node> & { buffer?: unknown; onended?: () => void };
-let body: ReturnType<typeof node> & {
-  type: string;
-  frequency: ReturnType<typeof parameter>;
-};
+class TestAudio {
+  static instances: TestAudio[] = [];
+  volume = 1;
+  onended: (() => void) | null = null;
+  onerror: (() => void) | null = null;
+  play = vi.fn(async () => undefined);
+  pause = vi.fn();
+  constructor(public src: string) {
+    TestAudio.instances.push(this);
+  }
+}
 beforeEach(() => {
-  crack = node();
-  body = { ...node(), type: "", frequency: parameter() };
-  context = {
-    currentTime: 0,
-    sampleRate: 1000,
-    destination: {},
-    createBuffer: vi.fn((_channels, length) => ({
-      getChannelData: () => new Float32Array(length),
-    })),
-    createBufferSource: vi.fn(() => crack),
-    createBiquadFilter: vi.fn(() => ({
-      ...node(),
-      type: "",
-      frequency: parameter(),
-      Q: parameter(),
-    })),
-    createGain: vi.fn(() => ({ ...node(), gain: parameter() })),
-    createOscillator: vi.fn(() => body),
-    resume: vi.fn(async () => undefined),
-    close: vi.fn(async () => undefined),
-  };
-  vi.stubGlobal(
-    "AudioContext",
-    class {
-      constructor() {
-        Object.assign(this, context);
-      }
-    },
-  );
+  TestAudio.instances = [];
+  vi.stubGlobal("Audio", TestAudio);
 });
-afterEach(() => vi.unstubAllGlobals());
+afterEach(() => {
+  stopBattleSounds();
+  vi.unstubAllGlobals();
+});
 
-it.each([true, false])(
-  "uses a noise transient and a low thump, then releases the audio context (correct=%s)",
-  (correct) => {
-    playBattleSound(correct, 3);
-    expect(context.createBufferSource).toHaveBeenCalledOnce();
-    expect(context.createBiquadFilter).toHaveBeenCalledOnce();
-    expect(body.type).toBe("sine");
-    expect(body.frequency.setValueAtTime.mock.calls[0][0]).toBeLessThan(200);
-    expect(body.frequency.exponentialRampToValueAtTime.mock.calls[0][0]).toBe(
-      40,
-    );
-    expect(crack.start).toHaveBeenCalledWith(0);
-    expect(crack.stop.mock.calls[0][0]).toBeLessThan(0.3);
-    crack.onended?.();
-    expect(context.close).toHaveBeenCalledOnce();
+it.each(Object.keys(battleSoundFiles) as (keyof typeof battleSoundFiles)[])(
+  "plays a real, locally bundled WAV for %s",
+  (sound) => {
+    playSkillSound({ effect: "attack", sound });
+    const audio = TestAudio.instances[0];
+    expect(audio.src).toBe(battleSoundFiles[sound]);
+    expect(audio.play).toHaveBeenCalledOnce();
+    const wav = readFileSync(`public${audio.src}`);
+    expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
+    expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
+    expect(wav.length).toBeGreaterThan(5000);
+    expect(wav.length).toBeLessThan(200000);
+    expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
+    audio.onended?.();
+    stopBattleSounds();
+    expect(audio.pause).not.toHaveBeenCalled();
   },
 );
-it("does not break gameplay when audio is unavailable or rejected", async () => {
-  context.resume.mockRejectedValueOnce(new Error("blocked"));
-  expect(() => playBattleSound(true)).not.toThrow();
-  await Promise.resolve();
-  expect(context.close).toHaveBeenCalled();
-  vi.stubGlobal("AudioContext", undefined);
-  expect(() => playBattleSound(false)).not.toThrow();
-});
 
-it("keeps an explicitly silent skill silent", () => {
-  playSkillSound({ effect: "attack", sound: "none" });
-  expect(context.createBufferSource).not.toHaveBeenCalled();
+it("keeps explicitly silent skills silent", () => {
+  playSkillSound({ effect: "attack", animation: "fire", sound: "none" });
+  expect(TestAudio.instances).toHaveLength(0);
 });
 
 it.each([
-  "slash",
-  "fire",
-  "lightning",
-  "heal",
-  "buff",
-  "debuff",
-  "poison",
-  "curse",
-] as const)("plays the selected %s preset", (sound) => {
-  playSkillSound({ effect: "attack", sound });
-  expect(crack.start).toHaveBeenCalledOnce();
-  expect(body.frequency.setValueAtTime.mock.calls[0][0]).toBeGreaterThan(0);
+  ["fire", "fire"],
+  ["oga_spell_3", "fire"],
+  ["lightning", "lightning"],
+  ["oga_spell_8", "lightning"],
+  ["slash", "slash"],
+] as const)(
+  "matches automatic %s animation to %s audio",
+  (animation, sound) => {
+    playSkillSound({ effect: "attack", animation });
+    expect(TestAudio.instances[0].src).toBe(battleSoundFiles[sound]);
+  },
+);
+
+it("prioritizes explicit sound, then effect, over animation", () => {
+  playSkillSound({ effect: "attack", animation: "fire", sound: "slash" });
+  playSkillSound({ effect: "heal_mp", animation: "fire" });
+  playSkillSound({ effect: "ailment", ailment: "curse" });
+  expect(TestAudio.instances.map((audio) => audio.src)).toEqual([
+    battleSoundFiles.slash,
+    battleSoundFiles.heal,
+    battleSoundFiles.curse,
+  ]);
 });
 
-it("resolves automatic recovery and curse sounds from their actual effects", () => {
-  playSkillSound({ effect: "heal_mp" });
-  expect(body.frequency.setValueAtTime).toHaveBeenLastCalledWith(440, 0);
-  playSkillSound({ effect: "ailment", ailment: "curse" });
-  expect(body.frequency.setValueAtTime).toHaveBeenLastCalledWith(110, 0);
+it("uses the same impact sample for both sides without pitch shifting", () => {
+  playBattleSound(true, 3);
+  playBattleSound(false);
+  expect(TestAudio.instances.map((audio) => audio.src)).toEqual([
+    battleSoundFiles.impact,
+    battleSoundFiles.impact,
+  ]);
+  expect(TestAudio.instances[0].volume).toBeCloseTo(0.85);
+});
+
+it("stops playing effects when music is disabled", async () => {
+  const { setMusicPreferences } = await import("./music");
+  playBattleSound(true);
+  setMusicPreferences({ enabled: false });
+  expect(TestAudio.instances[0].pause).toHaveBeenCalledOnce();
+});
+
+it("limits overlapping voices", () => {
+  for (let i = 0; i < 9; i++) playBattleSound(true);
+  expect(TestAudio.instances[0].pause).toHaveBeenCalledOnce();
+  expect(TestAudio.instances[1].pause).not.toHaveBeenCalled();
+});
+
+it("releases rejected or failed playback without interrupting gameplay", async () => {
+  playBattleSound(true);
+  TestAudio.instances[0].onerror?.();
+  const rejected = vi.fn().mockRejectedValue(new Error("autoplay blocked"));
+  vi.stubGlobal(
+    "Audio",
+    class extends TestAudio {
+      play = rejected;
+    },
+  );
+  expect(() => playBattleSound(false)).not.toThrow();
+  await Promise.resolve();
+  await Promise.resolve();
+  stopBattleSounds();
+  expect(
+    TestAudio.instances.every((audio) => !audio.pause.mock.calls.length),
+  ).toBe(true);
+  vi.stubGlobal("Audio", undefined);
+  expect(() => playBattleSound(false)).not.toThrow();
 });
