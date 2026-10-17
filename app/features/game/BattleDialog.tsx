@@ -203,6 +203,9 @@ export default function BattleDialog({
               {run.name} · 第{run.readIds.length}地点
             </DialogDescription>
           </DialogHeader>
+          <div className="shrink-0">
+            <PlayerStatus run={run} name={playerName} player={player} />
+          </div>
           {enemyPanel ?? (
             <section
               aria-label="敵"
@@ -272,10 +275,9 @@ export default function BattleDialog({
           <div className="min-h-0 flex-1 overflow-y-auto space-y-3 pr-1">
             {children}
           </div>
-          <div className="shrink-0 space-y-2 border-t pt-2">
-            <PlayerStatus run={run} name={playerName} player={player} />
-            {footer}
-          </div>
+          {footer && (
+            <div className="shrink-0 space-y-2 border-t pt-2">{footer}</div>
+          )}
         </DialogContent>
       </Dialog>
     </>
