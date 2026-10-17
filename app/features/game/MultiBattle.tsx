@@ -35,7 +35,6 @@ import {
   modifiedStat,
   poisonDamage,
 } from "./catalog";
-import { characterAsset } from "./characterAssets";
 import type { GameSave } from "./domain";
 import { musicPreferences } from "./music";
 import type { GameState } from "./state";
@@ -323,7 +322,7 @@ export default function MultiBattle({
   );
   const enemyPanel = (
     <div
-      className="rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
+      className="shrink-0 rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
       aria-label="敵一覧"
     >
       <div
@@ -334,33 +333,20 @@ export default function MultiBattle({
             key={enemy.id}
             aria-label={enemy.name}
             aria-current={!result && active === index ? "step" : undefined}
-            className={`flex min-w-0 items-center gap-3 rounded-md border p-2 text-left ${characterAsset(enemy.icon) ? "flex-col" : ""} ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
+            className={`flex min-w-0 flex-col items-center gap-1 rounded-md border p-2 text-center ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
           >
             <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
-            <span className="min-w-0 w-full flex-1 space-y-1">
-              <span className="block truncate text-sm font-medium">
-                {enemy.name}
-              </span>
-              <span className="block text-xs tabular-nums text-muted-foreground">
-                {enemy.id in answers ? "回答確定" : `敵 ${index + 1}`} · HP{" "}
-                {currentHp[enemy.id]}/{enemy.hp}
-              </span>
-              <span
-                role="progressbar"
-                tabIndex={-1}
-                aria-label={`${enemy.name}のHP`}
-                aria-valuenow={currentHp[enemy.id]}
-                aria-valuemin={0}
-                aria-valuemax={enemy.hp}
-                className="block h-1.5 overflow-hidden rounded-full bg-rose-500/15"
-              >
-                <span
-                  className="block h-full bg-rose-500"
-                  style={{
-                    width: `${Math.min(100, (currentHp[enemy.id] / enemy.hp) * 100)}%`,
-                  }}
-                />
-              </span>
+            <span
+              className="max-w-full truncate text-sm font-medium"
+              title={enemy.name}
+            >
+              {enemy.name}
+            </span>
+            <span
+              aria-label={`${enemy.name}のHP`}
+              className="text-sm tabular-nums"
+            >
+              HP {currentHp[enemy.id]}/{enemy.hp}
             </span>
           </div>
         ))}

@@ -42,7 +42,7 @@ it("separates enemy HP from named player HP in the floating battle", () => {
   );
   const dialog = screen.getByRole("dialog", { name: "敵と遭遇" });
   expect(within(dialog).getByRole("region", { name: "敵" })).toHaveTextContent(
-    "敵HP 20/20",
+    "HP 20/20",
   );
   const player = within(dialog).getByRole("region", { name: "プレイヤー" });
   const enemy = within(dialog).getByRole("region", { name: "敵" });
@@ -53,6 +53,7 @@ it("separates enemy HP from named player HP in the floating battle", () => {
   expect(player).toHaveTextContent(/HP\s*35\/35/);
   expect(player).toHaveTextContent(/MP\s*10\/10/);
   expect(within(player).queryByRole("progressbar")).not.toBeInTheDocument();
+  expect(within(enemy).queryByRole("progressbar")).not.toBeInTheDocument();
 });
 
 it("keeps an active battle open when Escape is pressed", async () => {
@@ -63,7 +64,7 @@ it("keeps an active battle open when Escape is pressed", async () => {
   );
   const user = userEvent.setup();
   await user.keyboard("{Escape}");
-  expect(screen.getByRole("dialog")).toHaveTextContent("敵HP 20/20");
+  expect(screen.getByRole("dialog")).toHaveTextContent("HP 20/20");
 });
 
 it("does not dismiss while a game save is in progress", async () => {

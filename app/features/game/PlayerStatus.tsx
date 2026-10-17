@@ -1,4 +1,4 @@
-import { Heart, Shield, Swords, WandSparkles } from "lucide-react";
+import { Heart, WandSparkles } from "lucide-react";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import type { Run } from "./domain";
@@ -76,33 +76,18 @@ export default function PlayerStatus({
   return (
     <section
       aria-label="プレイヤー"
-      className="rounded-lg border border-sky-500/30 bg-sky-500/5 p-3 space-y-2"
+      className="flex flex-col items-center gap-1 rounded-lg border border-sky-500/30 bg-sky-500/5 p-3 text-center text-sm tabular-nums"
     >
-      <h3 className="flex items-center gap-2 text-sm font-medium">
-        <UserAvatar user={player} className="size-7 shrink-0" />
-        <span className="min-w-0 flex-1 truncate" title={name}>
-          {name}
-        </span>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          プレイヤー
-        </span>
+      <UserAvatar user={player} className="size-12 shrink-0" />
+      <h3 className="max-w-full truncate font-medium" title={name}>
+        {name}
       </h3>
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs tabular-nums sm:gap-x-4 sm:text-sm">
-        <span className="flex items-center gap-1">
-          <Heart className="size-4 text-rose-400" />
-          HP {run.hp}/{run.maxHp}
-        </span>
-        <span className="flex items-center gap-1">
-          <WandSparkles className="size-4 text-violet-400" />
-          MP {run.mp ?? 0}/{run.maxMp ?? 0}
-        </span>
-        <span className="flex items-center gap-1">
-          <Swords className="size-4" />攻 {run.attack}
-        </span>
-        <span className="flex items-center gap-1">
-          <Shield className="size-4" />守 {run.defense}
-        </span>
-      </div>
+      <p>
+        HP {run.hp}/{run.maxHp}
+      </p>
+      <p>
+        MP {run.mp ?? 0}/{run.maxMp ?? 0}
+      </p>
     </section>
   );
 }

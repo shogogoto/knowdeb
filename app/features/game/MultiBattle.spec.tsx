@@ -297,14 +297,8 @@ it("confirms locally without revealing correctness, locks answers, and sends onc
   await user.click(
     await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
   );
-  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "0",
-  );
-  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "10",
-  );
+  expect(screen.getByLabelText("敵0のHP")).toHaveTextContent("HP 0/10");
+  expect(screen.getByLabelText("敵1のHP")).toHaveTextContent("HP 10/10");
   expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
   expect(screen.getAllByText("解答後の詳細プレビュー")).toHaveLength(1);
   await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
@@ -353,15 +347,9 @@ it("applies the pinned skill to only its target using the normal quiz answers", 
     await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
   );
   expect(requests[0].defeated).toEqual(["enemy0"]);
-  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "0",
-  );
+  expect(screen.getByLabelText("敵0のHP")).toHaveTextContent("HP 0/15");
   await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
-  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "5",
-  );
+  expect(screen.getByLabelText("敵1のHP")).toHaveTextContent("HP 5/15");
 });
 it.each([1, 2])(
   "uses attack buffs only on their active turns (turn=%s)",
@@ -469,18 +457,12 @@ it("processes poison after attacks and stops it at HP one without counting a kil
     await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
   );
   expect(requests[0].defeated).toEqual([]);
-  expect(screen.getByRole("progressbar", { name: "敵0のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "1",
-  );
+  expect(screen.getByLabelText("敵0のHP")).toHaveTextContent("HP 1/20");
   expect(screen.getByLabelText("敵0の毒ダメージ")).toHaveTextContent(
     "9ダメージ",
   );
   await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
-  expect(screen.getByRole("progressbar", { name: "敵1のHP" })).toHaveAttribute(
-    "aria-valuenow",
-    "1",
-  );
+  expect(screen.getByLabelText("敵1のHP")).toHaveTextContent("HP 1/2");
   expect(screen.getByLabelText("敵1の毒ダメージ")).toHaveTextContent(
     "1ダメージ",
   );
@@ -622,12 +604,8 @@ it.each([false, true])(
     }
     await answerBoth();
     expect(requests[0].defeated).toEqual([]);
-    expect(
-      screen.getByRole("progressbar", { name: "敵0のHP" }),
-    ).toHaveAttribute("aria-valuenow", "5");
-    expect(
-      screen.getByRole("progressbar", { name: "敵1のHP" }),
-    ).toHaveAttribute("aria-valuenow", "5");
+    expect(screen.getByLabelText("敵0のHP")).toHaveTextContent("HP 5/15");
+    expect(screen.getByLabelText("敵1のHP")).toHaveTextContent("HP 5/15");
     await user.keyboard("{Enter}");
     await answerBoth(true);
     expect(requests[1].turn).toBe(1);
