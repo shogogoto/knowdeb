@@ -1,3 +1,4 @@
+import { Plus } from "lucide-react";
 import { type SkillDefinition, effectLabels } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
@@ -50,18 +51,7 @@ export default function SkillTables({
         );
         return (
           <section key={title} aria-label={`${title}スキル`}>
-            <div className="mb-2 flex items-center justify-between gap-2">
-              <h3 className="font-semibold">{title}</h3>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                aria-label={`${title}スキルを追加`}
-                onClick={() => add(effects[0])}
-              >
-                追加
-              </Button>
-            </div>
+            <h3 className="mb-2 font-semibold">{title}</h3>
             <div className="overflow-x-auto rounded-lg border">
               <table className="w-full whitespace-nowrap text-sm">
                 <thead className="bg-muted/40">
@@ -301,6 +291,19 @@ export default function SkillTables({
                       </td>
                     </tr>
                   )}
+                  <tr className="border-t">
+                    <td colSpan={headers.length} className="p-1 text-center">
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="ghost"
+                        aria-label={`${title}スキルを追加`}
+                        onClick={() => add(effects[0])}
+                      >
+                        <Plus aria-hidden="true" />
+                      </Button>
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>

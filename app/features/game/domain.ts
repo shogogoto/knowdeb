@@ -170,13 +170,14 @@ export function resumeEvent(save: GameSave): GameSave {
 /** Recovery at the entrance costs one remaining move, even without a defeat. */
 export function recoverAtEntrance(save: GameSave): GameSave {
   const run = save.run;
+  const maxMp = run?.maxMp ?? 0;
   if (
     !run ||
     !["path", "cleared", "defeated"].includes(run.phase) ||
     save.battle ||
     save.battleFeedback ||
     run.moves >= MOVES_PER_EVENT ||
-    run.hp >= run.maxHp ||
+    (run.hp >= run.maxHp && (run.mp ?? 0) >= maxMp) ||
     (run.phase !== "defeated" &&
       (save.maps?.[run.resourceId]?.current ?? ENTRANCE) !== ENTRANCE)
   )
@@ -200,6 +201,7 @@ export function recoverAtEntrance(save: GameSave): GameSave {
     run: {
       ...run,
       hp: run.maxHp,
+      mp: maxMp,
       enemyHp: 0,
       moves,
       phase: moves >= MOVES_PER_EVENT ? "rest" : "path",
