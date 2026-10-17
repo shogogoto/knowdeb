@@ -184,9 +184,9 @@ export function GamePlay({
           const tab = [
             "status",
             "item",
-            "achievements",
             "gambits",
             "specialties",
+            "achievements",
           ][Number(event.key) - 1];
           void navigate(`/game/${tab}`, {
             replace: true,
@@ -1660,9 +1660,9 @@ export function GamePlay({
                   [
                     ["status", "ステータス"],
                     ["item", "アイテム"],
-                    ["achievements", "実績"],
                     ["gambits", "ガンビット"],
                     ["specialties", "専門分野"],
+                    ["achievements", "実績"],
                   ] as const
                 ).map(([value, label], index) => (
                   <TabsTrigger

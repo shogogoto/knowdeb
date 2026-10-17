@@ -805,8 +805,8 @@ it("records seen knowledge and a batch turn, then retreats after remount without
     await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
   );
   expect(
-    await screen.findByText("正解 0/1 · 撃破 0体 · HP -11"),
-  ).toBeInTheDocument();
+    screen.queryByText("正解 0/1 · 撃破 0体 · HP -11"),
+  ).not.toBeInTheDocument();
   expect(state.save.run).toMatchObject({
     hp: 24,
     phase: "battle",
@@ -820,8 +820,10 @@ it("records seen knowledge and a batch turn, then retreats after remount without
     await screen.findByRole("heading", { name: /敵と遭遇/ }),
   ).toBeInTheDocument();
   expect(
-    within(screen.getByRole("dialog")).getByText("24/35"),
-  ).toBeInTheDocument();
+    within(screen.getByRole("dialog")).getByRole("region", {
+      name: "プレイヤー",
+    }),
+  ).toHaveTextContent(/HP\s*24\/35/);
   const revisionBeforeClosing = state.revision;
   await user.click(
     within(screen.getByRole("dialog")).getByRole("button", { name: "条件" }),
@@ -1014,7 +1016,7 @@ it("switches the numbered menu tabs with Ctrl+digits", async () => {
   expect(
     await screen.findByRole("dialog", { name: "ゲームメニュー" }),
   ).toBeVisible();
-  const tabs = ["ステータス", "アイテム", "実績", "ガンビット", "専門分野"];
+  const tabs = ["ステータス", "アイテム", "ガンビット", "専門分野", "実績"];
   for (const [index, label] of tabs.entries()) {
     const tab = screen.getByRole("tab", { name: label });
     expect(tab).toHaveTextContent(String(index + 1));
