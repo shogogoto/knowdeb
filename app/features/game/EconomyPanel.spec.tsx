@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { SWRConfig } from "swr";
@@ -92,4 +92,108 @@ it("uses an owned step potion without showing review tasks in the inventory", as
 it("disables purchases during battle", async () => {
   show(true, true);
   expect(await screen.findByRole("button", { name: "100 G" })).toBeDisabled();
+});
+
+function showDungeonKey({
+  opened = false,
+  disabled = false,
+  shop = false,
+} = {}) {
+  const id = "@dungeon:resource";
+  const save = {
+    ...newSave(),
+    economy: {
+      gold: 0,
+      inventory: { [id]: 1 },
+      weapon: null,
+      weapon_attack: 0,
+    },
+  };
+  vi.mocked(gameRequest).mockResolvedValue({
+    products: [
+      {
+        id,
+        name: "読書メモのダンジョン開放キー",
+        kind: "dungeon_unlock",
+        resource_id: "resource",
+        price: null,
+        amount: 0,
+        max_uses: 1,
+        icon: "key",
+        enabled: !opened,
+      },
+    ],
+  });
+  const onSaved = vi.fn();
+  render(
+    <MemoryRouter>
+      <SWRConfig value={{ provider: () => new Map() }}>
+        <EconomyPanel
+          userId="user"
+          save={save}
+          revision={3}
+          shop={shop}
+          disabled={disabled}
+          onSaved={onSaved}
+          onTab={vi.fn()}
+        />
+      </SWRConfig>
+    </MemoryRouter>,
+  );
+  return { id, save, onSaved };
+}
+
+it("uses a resource-bound key before starting any dungeon and applies the server's unlock", async () => {
+  const { id, save, onSaved } = showDungeonKey();
+  const button = await screen.findByRole("button", { name: "開放する" });
+  expect(button).toBeEnabled();
+  const result = {
+    revision: 4,
+    save: {
+      ...save,
+      unlockedDungeons: [
+        {
+          sourceId: "resource",
+          resourceId: "resource",
+          name: "読書メモ",
+          achievement: 0,
+          source: "item",
+        },
+      ],
+    },
+  };
+  vi.mocked(gameRequest).mockResolvedValueOnce(result);
+  await userEvent.setup().click(button);
+  expect(gameRequest).toHaveBeenCalledWith("inventory/use", {
+    revision: 3,
+    product_id: id,
+  });
+  expect(onSaved).toHaveBeenCalledWith(result);
+  expect(screen.getByRole("status")).toHaveTextContent(
+    "ダンジョンを開放しました",
+  );
+});
+
+it("does not consume a key for an already opened dungeon", async () => {
+  showDungeonKey({ opened: true });
+  expect(
+    await screen.findByRole("button", { name: "開放済み" }),
+  ).toBeDisabled();
+});
+
+it("does not allow using keys during battle", async () => {
+  showDungeonKey({ disabled: true });
+  expect(
+    await screen.findByRole("button", { name: "開放する" }),
+  ).toBeDisabled();
+});
+
+it("never sells the import reward in the shop", async () => {
+  showDungeonKey({ shop: true });
+  await waitFor(() =>
+    expect(screen.queryByText("読み込み中…")).not.toBeInTheDocument(),
+  );
+  expect(
+    screen.queryByText("読書メモのダンジョン開放キー"),
+  ).not.toBeInTheDocument();
 });

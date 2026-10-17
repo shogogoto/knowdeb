@@ -36,6 +36,7 @@ export type GameSave = {
     weapon_attack: number;
     weapon_max_uses?: number;
     remaining_uses?: Record<string, number>;
+    dungeon_keys?: Record<string, { resource_id: string; name: string }>;
     review_reward_day?: string | null;
     quiz_reward_day?: string | null;
     opened_chests?: Record<
@@ -59,6 +60,7 @@ export type GameSave = {
     resourceId: string;
     name: string;
     achievement: number;
+    source?: "exploration" | "item";
   }[];
   run?: Run;
   content?: DungeonContent;
