@@ -32,7 +32,7 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 | `amount_mode` | `fixed`（固定値）, `percent`（対象能力に対する割合） |
 | `stat` | `attack`, `defense`, `maxHp` |
 | `enabled` | `true`, `false` |
-| `sound` | `auto`, `none`, `impact`, `slash`, `fire`, `lightning`, `heal`, `buff`, `debuff`, `poison`, `curse` |
+| `sound` | `auto`, `none`, `impact`, `slash` / `slash_2` / `slash_3`, `fire` / `fire_2` … `fire_7`, `lightning` / `lightning_2` / `lightning_storm`, `heal` / `heal_2` … `heal_7`, `buff`, `debuff`, `poison` / `poison_2` … `poison_4`, `curse`, `magic`, `metal` / `metal_2`, `coins`, `stones` |
 
 `id` は英小文字から始まる英小文字・数字・アンダースコアで64文字以内。
 `name` は1〜80文字。`id`・`name`・`effect` は必須です。
@@ -43,7 +43,7 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 `animation` は演出一覧で選んだものを書き出すとIDを確認できます。
 `sound` はローカル配信するCC0音声素材の選択です。省略時は `auto`（効果種別に応じた音。攻撃は炎・雷・斬撃の演出も参照）、`none` で無音です。
 素材の出典・ライセンスは `public/game-assets/sounds/SOURCES.md` に記載しています。
-adminの「試聴」で確認できます。戦闘中は音楽OFFにするとSEも再生しません。
+adminの「演出」パネルで映像とSEを一緒に選択し、組み合わせて試聴できます。確定前に閉じると両方の選択を破棄します。戦闘中は音楽OFFにするとSEも再生しません。
 
 効果種別ごとにキーの組み合わせが異なります。共通項目は
 `id`, `name`, `icon`, `enabled`, `effect`, `target`, `amount`, `mp_cost`, `animation`, `sound` です。

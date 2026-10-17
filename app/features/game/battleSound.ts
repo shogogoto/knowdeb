@@ -1,18 +1,11 @@
 import type { SkillAnimation, SkillDefinition, SkillSound } from "./catalog";
+import { soundAssets } from "./soundAssets";
 
 type Preset = Exclude<SkillSound, "auto" | "none">;
 /** Locally hosted CC0 recordings; provenance: public/game-assets/sounds/SOURCES.md. */
-export const battleSoundFiles: Record<Preset, string> = {
-  impact: "/game-assets/sounds/impact.wav",
-  slash: "/game-assets/sounds/slash.wav",
-  fire: "/game-assets/sounds/fire.wav",
-  lightning: "/game-assets/sounds/lightning.wav",
-  heal: "/game-assets/sounds/heal.wav",
-  buff: "/game-assets/sounds/buff.wav",
-  debuff: "/game-assets/sounds/debuff.wav",
-  poison: "/game-assets/sounds/poison.wav",
-  curse: "/game-assets/sounds/curse.wav",
-};
+export const battleSoundFiles = Object.fromEntries(
+  Object.keys(soundAssets).map((id) => [id, `/game-assets/sounds/${id}.wav`]),
+) as Record<Preset, string>;
 const animationSounds: Partial<Record<SkillAnimation, Preset>> = {
   slash: "slash",
   fire: "fire",

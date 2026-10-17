@@ -12,12 +12,32 @@ const sources = {
   impact: ["punch.ogg"],
   slash: ["rpg/blade_01.ogg"],
   fire: ["rpg/spell_fire_01.ogg"],
-  lightning: ["lightning.ogg", 0.4, 1.6],
+  // Complete phrases bounded by the source's quiet gaps, including decay.
+  lightning: ["lightning.ogg", 7.6, 11.3],
+  lightning_2: ["lightning.ogg", 11.3, 16.5],
+  lightning_storm: ["lightning2.ogg"],
   heal: ["cure/Cure1.wav"],
   buff: ["cure/Cure2.wav"],
   debuff: ["rpg/spell_02.ogg"],
   poison: ["rpg/creature_slime_01.ogg"],
   curse: ["rpg/creature_monster_01.ogg"],
+  ...Object.fromEntries(
+    [2, 3].map((n) => [`slash_${n}`, [`rpg/blade_0${n}.ogg`]]),
+  ),
+  ...Object.fromEntries(
+    [2, 3, 4, 5, 6, 7].map((n) => [`fire_${n}`, [`rpg/spell_fire_0${n}.ogg`]]),
+  ),
+  ...Object.fromEntries(
+    [2, 3, 4, 5, 6, 7].map((n) => [`heal_${n}`, [`cure/Cure${n + 1}.wav`]]),
+  ),
+  ...Object.fromEntries(
+    [2, 3, 4].map((n) => [`poison_${n}`, [`rpg/creature_slime_0${n}.ogg`]]),
+  ),
+  magic: ["rpg/spell_01.ogg"],
+  metal: ["rpg/metal_01.ogg"],
+  metal_2: ["rpg/metal_02.ogg"],
+  coins: ["rpg/item_coins_01.ogg"],
+  stones: ["rpg/stones_01.ogg"],
 };
 const browser = await chromium.launch({
   headless: true,
@@ -26,7 +46,7 @@ const browser = await chromium.launch({
 try {
   const page = await browser.newPage();
   await mkdir(output, { recursive: true });
-  for (const [id, [file, start = 0, end = 3]] of Object.entries(sources)) {
+  for (const [id, [file, start = 0, end = null]] of Object.entries(sources)) {
     const base64 = (await readFile(resolve(input, file))).toString("base64");
     const samples = await page.evaluate(
       async ({ base64, start, end }) => {
@@ -41,7 +61,11 @@ try {
             mono[i] += data[i] / decoded.numberOfChannels;
         }
         let first = Math.floor(start * decoded.sampleRate);
-        let last = Math.min(mono.length, Math.floor(end * decoded.sampleRate));
+        const boundary =
+          end === null
+            ? mono.length
+            : Math.min(mono.length, Math.floor(end * decoded.sampleRate));
+        let last = boundary;
         let peak = 0;
         for (let i = first; i < last; i++)
           peak = Math.max(peak, Math.abs(mono[i]));
@@ -49,7 +73,7 @@ try {
         while (Math.abs(mono[first]) < peak * 0.002) first++;
         while (Math.abs(mono[last - 1]) < peak * 0.002) last--;
         // Leave 20 ms of tail, normalize peaks, and fade boundaries (5 ms).
-        last = Math.min(mono.length, last + 640);
+        last = Math.min(boundary, last + 640);
         const length = last - first;
         return Array.from(mono.subarray(first, last), (sample, i) =>
           Math.round(

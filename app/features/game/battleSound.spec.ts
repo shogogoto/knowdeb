@@ -38,13 +38,27 @@ it.each(Object.keys(battleSoundFiles) as (keyof typeof battleSoundFiles)[])(
     expect(wav.toString("ascii", 0, 4)).toBe("RIFF");
     expect(wav.toString("ascii", 8, 12)).toBe("WAVE");
     expect(wav.length).toBeGreaterThan(5000);
-    expect(wav.length).toBeLessThan(200000);
+    expect(wav.length).toBeLessThan(2000000);
     expect(wav.readUInt32LE(40)).toBe(wav.length - 44);
     audio.onended?.();
     stopBattleSounds();
     expect(audio.pause).not.toHaveBeenCalled();
   },
 );
+
+it("keeps the lightning phrase and its quiet decay instead of a 1.2-second slice", () => {
+  const wav = readFileSync(`public${battleSoundFiles.lightning}`);
+  const seconds = wav.readUInt32LE(40) / wav.readUInt32LE(28);
+  expect(seconds).toBeGreaterThan(3);
+  expect(seconds).toBeLessThan(4);
+  let peak = 0;
+  let tail = 0;
+  for (let offset = 44; offset < wav.length; offset += 2)
+    peak = Math.max(peak, Math.abs(wav.readInt16LE(offset)));
+  for (let offset = wav.length - 3200; offset < wav.length; offset += 2)
+    tail = Math.max(tail, Math.abs(wav.readInt16LE(offset)));
+  expect(tail / peak).toBeLessThan(0.02);
+});
 
 it("keeps explicitly silent skills silent", () => {
   playSkillSound({ effect: "attack", animation: "fire", sound: "none" });

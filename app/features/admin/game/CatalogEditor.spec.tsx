@@ -24,32 +24,60 @@ const server = setupServer(
   }),
 );
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
+beforeEach(() => {
+  vi.spyOn(battleSound, "playSkillSound").mockImplementation(() => undefined);
+});
 afterEach(() => {
   server.resetHandlers();
   vi.clearAllMocks();
+  vi.restoreAllMocks();
 });
 afterAll(() => server.close());
 
-it("saves and previews each skill's sound independently of its visual animation", async () => {
+it("previews and applies animation and SE together without saving other skills", async () => {
   const play = vi
     .spyOn(battleSound, "playSkillSound")
     .mockImplementation(() => undefined);
   render(<CatalogEditor kind="skills" />);
   const user = userEvent.setup();
   const row = await screen.findByRole("row", { name: "ファイア" });
-  await user.selectOptions(within(row).getByLabelText("SE"), "fire");
-  await user.click(within(row).getByRole("button", { name: "試聴" }));
+  expect(within(row).queryByLabelText("SE")).not.toBeInTheDocument();
+  await user.click(
+    within(row).getByRole("button", { name: "ファイアの演出を選ぶ" }),
+  );
+  const gallery = screen.getByRole("dialog", { name: "ファイアの演出" });
+  await user.click(
+    within(gallery).getByRole("button", { name: "炎をプレビュー" }),
+  );
+  await user.click(
+    within(gallery).getByRole("button", { name: "炎魔法 2のSEを試聴" }),
+  );
   expect(play).toHaveBeenCalledWith(
-    expect.objectContaining({ id: "fire", sound: "fire" }),
+    expect.objectContaining({ id: "fire", animation: "fire", sound: "fire_2" }),
+  );
+  await user.click(
+    within(gallery).getByRole("button", { name: "組み合わせを再生" }),
+  );
+  expect(play).toHaveBeenLastCalledWith(
+    expect.objectContaining({ animation: "fire", sound: "fire_2" }),
+  );
+  expect(saved).not.toHaveBeenCalled();
+  await user.click(
+    within(gallery).getByRole("button", { name: "この演出を使う" }),
   );
   await user.click(screen.getByRole("button", { name: "保存" }));
   await waitFor(() => expect(saved).toHaveBeenCalled());
   expect(
     saved.mock.calls[0][0].skills.find((s: { id: string }) => s.id === "fire"),
-  ).toMatchObject({ sound: "fire" });
+  ).toMatchObject({ sound: "fire_2", animation: "fire" });
   expect(
     within(row).getByRole("button", { name: "ファイアの演出を選ぶ" }),
-  ).toHaveTextContent("なし");
+  ).toHaveTextContent("炎 · 炎魔法 2");
+  expect(
+    saved.mock.calls[0][0].skills.filter(
+      (s: { id: string }) => s.id !== "fire",
+    ),
+  ).toEqual(sampleCatalog.skills.filter((s) => s.id !== "fire"));
   play.mockRestore();
 });
 
@@ -421,13 +449,20 @@ it("opens the skill's static gallery and discards the selection on Escape", asyn
   await user.click(
     within(gallery).getByRole("button", { name: "火球をプレビュー" }),
   );
+  await user.click(
+    within(gallery).getByRole("button", { name: "雷 2のSEを試聴" }),
+  );
   await user.keyboard("{Escape}");
   expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   expect(trigger).toHaveFocus();
   expect(trigger).toHaveTextContent("なし");
+  expect(trigger).toHaveTextContent("自動");
   await user.click(trigger);
   expect(
     screen.getByRole("button", { name: "なしをプレビュー" }),
+  ).toHaveAttribute("aria-pressed", "true");
+  expect(
+    screen.getByRole("button", { name: "自動のSEを試聴" }),
   ).toHaveAttribute("aria-pressed", "true");
   await user.click(screen.getByRole("button", { name: "閉じる" }));
   expect(saved).not.toHaveBeenCalled();

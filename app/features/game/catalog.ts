@@ -1,5 +1,8 @@
 import { networkFetch } from "~/shared/lib/networkFetch";
 import { spriteAnimationLabels } from "./effectAssets";
+import type { soundLabels } from "./soundAssets";
+
+export { soundLabels } from "./soundAssets";
 
 type SkillBase = {
   id: string;
@@ -182,19 +185,6 @@ export const animationLabels = {
   ...spriteAnimationLabels,
 } as const;
 export type SkillAnimation = keyof typeof animationLabels;
-export const soundLabels = {
-  auto: "自動",
-  none: "なし",
-  impact: "打撃",
-  slash: "斬撃",
-  fire: "炎",
-  lightning: "雷",
-  heal: "回復",
-  buff: "強化",
-  debuff: "弱体",
-  poison: "毒",
-  curse: "呪い",
-} as const;
 export type SkillSound = keyof typeof soundLabels;
 export type GambitRule = {
   enabled: boolean;
