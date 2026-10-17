@@ -41,6 +41,7 @@ export default function SkillTables({
           "効果",
           "対象",
           ...(stat ? ["対象ステータス"] : []),
+          ...(effects[0] === "ailment" ? ["状態異常"] : []),
           "効果量",
           ...(title !== "その他" ? ["指定方式"] : []),
           ...(title === "攻撃" ? ["攻撃倍率"] : []),
@@ -197,6 +198,24 @@ export default function SkillTables({
                                   </option>
                                 </>
                               )}
+                            </select>
+                          </td>
+                        )}
+                        {s.effect === "ailment" && (
+                          <td>
+                            <select
+                              disabled={removed}
+                              aria-label="状態異常の種類"
+                              className={selectClass}
+                              value={s.ailment ?? "poison"}
+                              onChange={(e) =>
+                                update(s.id, {
+                                  ailment: e.target.value as "poison" | "curse",
+                                })
+                              }
+                            >
+                              <option value="poison">毒（HP減少）</option>
+                              <option value="curse">呪い（MP減少）</option>
                             </select>
                           </td>
                         )}

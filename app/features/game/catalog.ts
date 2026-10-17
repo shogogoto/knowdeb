@@ -41,7 +41,11 @@ export type SkillDefinition = SkillBase &
         ailment?: never;
       })
     | (TimedSkill & { effect: "debuff"; stat?: "attack"; ailment?: never })
-    | (TimedSkill & { effect: "ailment"; ailment?: "poison"; stat?: never })
+    | (TimedSkill & {
+        effect: "ailment";
+        ailment?: "poison" | "curse";
+        stat?: never;
+      })
     | (InstantSkill & {
         effect: "recover_moves" | "equip_attack";
         multiplier?: never;
@@ -56,7 +60,7 @@ export type SkillPatch = Partial<
     stat: "attack" | "defense" | "maxHp";
     duration_turns: number;
     stack_limit: number;
-    ailment: "poison";
+    ailment: "poison" | "curse";
   }
 >;
 
@@ -126,6 +130,7 @@ export type ItemDefinition = {
   enabled: boolean;
   skill_id: string;
   kind: "weapon" | "consumable";
+  max_uses?: number;
 };
 export type ShopListing = { item_id: string; price: number; enabled: boolean };
 export type EnemyDefinition = {
@@ -135,6 +140,7 @@ export type EnemyDefinition = {
   enabled: boolean;
   boss: boolean;
   attack_skill_id: string | null;
+  on_hit_skill_id?: string | null;
 };
 export type GameCatalog = {
   skills: SkillDefinition[];
@@ -191,6 +197,7 @@ export type GambitRule = {
 export type BattleAction = {
   skill: SkillDefinition;
   item_id: string | null;
+  item_max_uses?: number;
   name: string;
 };
 export const effectLabels: Record<SkillDefinition["effect"], string> = {
@@ -201,7 +208,7 @@ export const effectLabels: Record<SkillDefinition["effect"], string> = {
   equip_attack: "装備：攻撃力",
   buff: "buff：能力向上",
   debuff: "debuff：能力低下",
-  ailment: "状態変化：毒",
+  ailment: "状態異常",
 };
 export async function requestGameCatalog(
   admin = false,
@@ -305,6 +312,7 @@ export function poisonDamage(
         (e) =>
           e.target_id === target &&
           e.skill.effect === "ailment" &&
+          e.skill.ailment !== "curse" &&
           e.starts_turn <= (battle?.turn ?? 0) &&
           (battle?.turn ?? 0) < e.expires_turn,
       )

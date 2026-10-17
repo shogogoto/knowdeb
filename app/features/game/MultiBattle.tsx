@@ -117,6 +117,7 @@ export default function MultiBattle({
   const retryDamage = useRef<
     { key: string; values: Record<string, number> } | undefined
   >(undefined);
+  const turnAttackByEnemy = useRef<Record<string, number>>({});
   const resultEnemies = useRef(battle?.enemies ?? []);
   const resultQuizIndices = useRef(battle?.quizIndices);
   const resultContext = useRef(context);
@@ -213,24 +214,55 @@ export default function MultiBattle({
     setBusy(true);
     onBusy(true);
     setError(undefined);
+    const correctAnswer = (enemy: (typeof live)[number]) => {
+      const quiz = content.quizzes[enemy.quizIndex];
+      const selected = (input?.answers ?? answers)[enemy.id];
+      return Boolean(
+        selected &&
+          (quiz.no_correct_option
+            ? selected.length === 0
+            : quiz.correct.length === selected.length &&
+              quiz.correct.every((id) => selected.includes(id))),
+      );
+    };
+    let weaponUses = save.economy?.weapon
+      ? (save.economy.remaining_uses?.[save.economy.weapon] ??
+        save.economy.weapon_max_uses ??
+        30)
+      : 0;
     const damageByEnemy =
       retryDamage.current?.key === damageKey
         ? retryDamage.current.values
         : Object.fromEntries(
-            live.map((enemy) => [
-              enemy.id,
-              actionDamage(
-                rollDamage(
-                  stats.attack,
+            live.map((enemy) => {
+              const attack = modifiedStat(
+                playerStats(
+                  save.allocation,
                   context.balance,
-                  `${battle.turn}:${enemy.id}`,
-                ),
-                retreat ? null : battle.gambitAction,
+                  weaponUses > 0 ? save.economy?.weapon_attack : 0,
+                ).attack,
+                battle,
+                "player",
+                "attack",
+              );
+              turnAttackByEnemy.current[enemy.id] = attack;
+              if (correctAnswer(enemy))
+                weaponUses = Math.max(0, weaponUses - 1);
+              return [
                 enemy.id,
-                battle.enemies[0],
-                stats.attack,
-              ),
-            ]),
+                actionDamage(
+                  rollDamage(
+                    attack,
+                    context.balance,
+                    `${battle.turn}:${enemy.id}`,
+                  ),
+                  retreat ? null : battle.gambitAction,
+                  enemy.id,
+                  battle.enemies[0],
+                  attack,
+                ),
+              ];
+            }),
           );
     retryDamage.current = { key: damageKey, values: damageByEnemy };
     const request = input ?? {
@@ -239,15 +271,10 @@ export default function MultiBattle({
       answers,
       defeated: live
         .filter((enemy) => {
-          const quiz = content.quizzes[enemy.quizIndex];
-          const selected = answers[enemy.id];
-          const correct =
-            selected &&
-            (quiz.no_correct_option
-              ? selected.length === 0
-              : quiz.correct.length === selected.length &&
-                quiz.correct.every((id) => selected.includes(id)));
-          return correct && currentHp[enemy.id] <= damageByEnemy[enemy.id];
+          return (
+            correctAnswer(enemy) &&
+            currentHp[enemy.id] <= damageByEnemy[enemy.id]
+          );
         })
         .map((enemy) => enemy.id),
       retreat,
@@ -325,17 +352,26 @@ export default function MultiBattle({
       className="shrink-0 rounded-lg border border-rose-500/30 bg-rose-500/5 p-3 space-y-2"
       aria-label="敵一覧"
     >
-      <div
-        className={`grid gap-2 ${live.length === 1 ? "grid-cols-1" : "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4"}`}
-      >
+      <div className="flex flex-wrap items-start justify-evenly gap-2">
         {live.map((enemy, index) => (
           <div
             key={enemy.id}
             aria-label={enemy.name}
             aria-current={!result && active === index ? "step" : undefined}
-            className={`flex min-w-0 flex-col items-center gap-1 rounded-md border p-2 text-center ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
+            className={`flex min-w-0 basis-32 max-w-56 flex-1 flex-col items-center gap-1 rounded-md border p-2 text-center ${!result && active === index ? "border-primary bg-background" : "border-transparent"}`}
           >
-            <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
+            <div className="relative">
+              <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
+              {result &&
+                index === resultIndex - 1 &&
+                result.results[enemy.id] &&
+                (hitEffects[enemy.id]?.damage ?? 0) > 0 && (
+                  <SkillEffect
+                    key={`${battle.id}:${battle.turn}:${index}`}
+                    animation="impact"
+                  />
+                )}
+            </div>
             <span
               className="max-w-full truncate text-sm font-medium"
               title={enemy.name}
@@ -355,6 +391,17 @@ export default function MultiBattle({
   );
   return (
     <BattleDialog
+      playerEffect={
+        result &&
+        resultIndex > 0 &&
+        !result.results[live[resultIndex - 1]?.id] &&
+        (result.incoming_damage?.[live[resultIndex - 1]?.id] ?? 0) > 0 ? (
+          <SkillEffect
+            key={`${battle.id}:${battle.turn}:${resultIndex}`}
+            animation="impact"
+          />
+        ) : undefined
+      }
       run={{
         ...run,
         ...stats,
@@ -518,6 +565,16 @@ export default function MultiBattle({
             );
           })}
           <div className="flex flex-wrap items-center gap-2">
+            {!nextResultId && Boolean(result.player_poison_damage) && (
+              <p className="text-lime-500">
+                毒 · HP -{result.player_poison_damage}
+              </p>
+            )}
+            {!nextResultId && Boolean(result.curse_damage) && (
+              <p className="text-violet-400">
+                呪い · MP -{result.curse_damage}
+              </p>
+            )}
             {!nextResultId && save.battle && Boolean(save.gambits?.length) && (
               <EndTurnAction
                 key={`${save.battle.id}:${save.battle.turn}`}
@@ -559,22 +616,23 @@ export default function MultiBattle({
                   const id = nextResultId;
                   if (result.results[id]) {
                     const damage = turnDamageByEnemy[id] ?? 0;
+                    const attack =
+                      turnAttackByEnemy.current[id] ?? stats.attack;
                     const effect = damageEffect(
                       damage,
-                      stats.attack,
+                      attack,
                       context.balance,
                       actionDamage(
                         Math.max(
-                          stats.attack === 0 ? 0 : 1,
+                          attack === 0 ? 0 : 1,
                           Math.floor(
-                            stats.attack *
-                              context.balance.damage_attack_multiplier,
+                            attack * context.balance.damage_attack_multiplier,
                           ),
                         ),
                         battle.gambitAction,
                         id,
                         battle.enemies[0],
-                        stats.attack,
+                        attack,
                       ),
                     );
                     setHp((current) => ({

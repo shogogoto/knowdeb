@@ -28,11 +28,14 @@ export type Run = {
 };
 export type GameSave = {
   version: 2;
+  totalSteps?: number;
   economy?: {
     gold: number;
     inventory: Record<string, number>;
     weapon: string | null;
     weapon_attack: number;
+    weapon_max_uses?: number;
+    remaining_uses?: Record<string, number>;
     review_reward_day?: string | null;
     quiz_reward_day?: string | null;
     opened_chests?: Record<

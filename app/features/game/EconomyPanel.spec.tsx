@@ -60,6 +60,7 @@ function show(shop: boolean, disabled = false) {
 it("purchases with the displayed state's revision and applies the returned balance", async () => {
   const { onSaved, save } = show(true);
   const button = await screen.findByRole("button", { name: "100 G" });
+  expect(screen.getByText("攻 +3 · 30回使用可")).toBeVisible();
   const result = {
     revision: 8,
     save: { ...save, economy: { ...save.economy, gold: 20 } },

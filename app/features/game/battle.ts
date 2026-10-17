@@ -88,6 +88,8 @@ export type TurnResult = {
   state: GameState;
   results: Record<string, boolean>;
   damage: number;
+  player_poison_damage?: number;
+  curse_damage?: number;
   incoming_damage?: Record<string, number>;
   gold_earned?: number;
   poison_damage?: Record<string, number>;

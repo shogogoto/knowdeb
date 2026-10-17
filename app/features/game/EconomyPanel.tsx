@@ -17,6 +17,7 @@ type Product = {
   icon?: string;
   skill_name?: string;
   enabled?: boolean;
+  max_uses?: number;
 };
 type Shop = {
   products: Product[];
@@ -121,6 +122,8 @@ export default function EconomyPanel({
         .map((product) => {
           const quantity = inventory[product.id] ?? 0;
           const equipped = save.economy?.weapon === product.id;
+          const maxUses =
+            product.max_uses ?? (product.kind === "weapon" ? 30 : 1);
           const Icon =
             product.kind === "weapon"
               ? Sword
@@ -167,6 +170,9 @@ export default function EconomyPanel({
                           ? `${product.skill_name ?? "スキル"} · 戦闘のガンビットで使用`
                           : `${product.amount}歩回復`}
                   {equipped && " · 装備中"}
+                  {shop
+                    ? ` · ${maxUses}回使用可`
+                    : ` · 残り ${Math.min(save.economy?.remaining_uses?.[product.id] ?? maxUses, maxUses)}/${maxUses}回`}
                 </p>
               </div>
               <Button

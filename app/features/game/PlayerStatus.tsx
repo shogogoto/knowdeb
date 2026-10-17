@@ -1,4 +1,5 @@
 import { Heart, WandSparkles } from "lucide-react";
+import type { ReactNode } from "react";
 import UserAvatar from "~/features/user/UserAvatar";
 import type { UserReadPublic } from "~/shared/generated/fastAPI.schemas";
 import type { Run } from "./domain";
@@ -8,7 +9,14 @@ export default function PlayerStatus({
   name = "あなた",
   player,
   compact = false,
-}: { run: Run; name?: string; player?: UserReadPublic; compact?: boolean }) {
+  effect,
+}: {
+  run: Run;
+  name?: string;
+  player?: UserReadPublic;
+  compact?: boolean;
+  effect?: ReactNode;
+}) {
   if (compact)
     return (
       <div
@@ -78,7 +86,10 @@ export default function PlayerStatus({
       aria-label="プレイヤー"
       className="flex flex-col items-center gap-1 rounded-lg border border-sky-500/30 bg-sky-500/5 p-3 text-center text-sm tabular-nums"
     >
-      <UserAvatar user={player} className="size-12 shrink-0" />
+      <div className="relative size-12">
+        <UserAvatar user={player} className="size-12 shrink-0" />
+        {effect}
+      </div>
       <h3 className="max-w-full truncate font-medium" title={name}>
         {name}
       </h3>

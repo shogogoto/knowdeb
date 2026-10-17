@@ -132,6 +132,11 @@ it("automatically processes unanswered damage at the selected tempo without adva
   });
   expect(screen.getByText("敵0 · 未回答")).toBeVisible();
   expect(
+    screen
+      .getByRole("region", { name: "プレイヤー" })
+      .querySelector('[data-skill-animation="impact"]'),
+  ).not.toBeNull();
+  expect(
     screen.getByLabelText("敵0からプレイヤーへのダメージ"),
   ).toHaveTextContent("5ダメージ");
   expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
@@ -214,6 +219,49 @@ function Fixture({ deadline }: { deadline?: number }) {
     </MemoryRouter>
   );
 }
+it("drops weapon damage after its last correct attack within the same turn", async () => {
+  const save = initial();
+  save.economy = {
+    gold: 0,
+    inventory: { sword: 1 },
+    weapon: "sword",
+    weapon_attack: 50,
+    remaining_uses: { sword: 1 },
+    weapon_max_uses: 30,
+  };
+  const transport = vi.fn(async (_path: string, body: unknown) => {
+    requests.push(body as TurnInput);
+    return {
+      results: { enemy0: true, enemy1: true },
+      damage: 0,
+      state: { revision: 1, save },
+    };
+  });
+  render(
+    <MemoryRouter>
+      <MultiBattle
+        save={save}
+        content={content}
+        context={{
+          balance: stableBalance,
+          enemies: enemies.map((e) => ({ ...e, hp: 30 })),
+        }}
+        transport={transport as BattleTransport}
+        rollDamage={(attack) => attack}
+        onSaved={() => undefined}
+        onFinished={async () => undefined}
+        onBusy={() => undefined}
+      />
+    </MemoryRouter>,
+  );
+  const user = userEvent.setup();
+  await user.click(screen.getByRole("button", { name: "選択肢一" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await user.click(screen.getByRole("button", { name: "選択肢二" }));
+  await user.click(screen.getByRole("button", { name: "回答を確定" }));
+  await waitFor(() => expect(requests).toHaveLength(1));
+  expect(requests[0].defeated).toEqual(["enemy0"]);
+});
 it("locks synthetic answers per enemy and supports quizzes with no correct option", async () => {
   const simulatedContent = structuredClone(content);
   simulatedContent.quizzes[1].no_correct_option = true;
@@ -299,6 +347,11 @@ it("confirms locally without revealing correctness, locks answers, and sends onc
     await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
   );
   expect(screen.getByLabelText("敵0のHP")).toHaveTextContent("HP 0/10");
+  expect(
+    screen
+      .getByLabelText("敵0")
+      .querySelector('[data-skill-animation="impact"]'),
+  ).not.toBeNull();
   expect(screen.getByLabelText("敵1のHP")).toHaveTextContent("HP 10/10");
   expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
   expect(screen.getAllByText("解答後の詳細プレビュー")).toHaveLength(1);

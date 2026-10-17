@@ -22,7 +22,9 @@ export default function DefinitionTables({
   const headers = [
     "名前",
     "素材",
-    ...(kind === "items" ? ["種類", "発動スキル"] : ["ボス用", "攻撃スキル"]),
+    ...(kind === "items"
+      ? ["種類", "発動スキル", "使用回数"]
+      : ["ボス用", "攻撃スキル", "命中時スキル"]),
     "有効",
   ];
   return (
@@ -80,6 +82,7 @@ export default function DefinitionTables({
                         );
                         update(item.id, {
                           kind: value,
+                          max_uses: value === "weapon" ? 30 : 1,
                           skill_id: skill?.id ?? "",
                         });
                       }}
@@ -115,6 +118,20 @@ export default function DefinitionTables({
                         ))}
                     </select>
                   </td>
+                  <td>
+                    <Input
+                      aria-label="使用回数"
+                      type="number"
+                      min={1}
+                      max={10000}
+                      required
+                      className="w-24"
+                      value={item.max_uses ?? (item.kind === "weapon" ? 30 : 1)}
+                      onChange={(e) =>
+                        update(item.id, { max_uses: Number(e.target.value) })
+                      }
+                    />
+                  </td>
                 </>
               ) : (
                 <>
@@ -142,6 +159,30 @@ export default function DefinitionTables({
                       <option value="">通常攻撃</option>
                       {catalog.skills
                         .filter((s) => s.effect === "attack")
+                        .map((s) => (
+                          <option key={s.id} value={s.id}>
+                            {s.name}
+                          </option>
+                        ))}
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      aria-label="命中時スキル"
+                      className={selectClass}
+                      value={item.on_hit_skill_id ?? ""}
+                      onChange={(e) =>
+                        update(item.id, {
+                          on_hit_skill_id: e.target.value || null,
+                        })
+                      }
+                    >
+                      <option value="">なし</option>
+                      {catalog.skills
+                        .filter(
+                          (s) =>
+                            s.effect === "debuff" || s.effect === "ailment",
+                        )
                         .map((s) => (
                           <option key={s.id} value={s.id}>
                             {s.name}

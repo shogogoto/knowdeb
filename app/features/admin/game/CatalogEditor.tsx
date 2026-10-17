@@ -110,7 +110,11 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
         .filter((i) => deletions.has(i.skill_id))
         .map((i) => `アイテム「${i.name}」`),
       ...catalog.enemies
-        .filter((e) => e.attack_skill_id && deletions.has(e.attack_skill_id))
+        .filter(
+          (e) =>
+            (e.attack_skill_id && deletions.has(e.attack_skill_id)) ||
+            (e.on_hit_skill_id && deletions.has(e.on_hit_skill_id)),
+        )
         .map((e) => `敵「${e.name}」`),
     ];
     if (references.length) {
@@ -175,8 +179,15 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
                 catalog.skills.find((s) => s.effect !== "equip_attack")?.id ??
                 "",
               kind: "consumable",
+              max_uses: 1,
             }
-          : { ...base, icon: "ghost", boss: false, attack_skill_id: null };
+          : {
+              ...base,
+              icon: "ghost",
+              boss: false,
+              attack_skill_id: null,
+              on_hit_skill_id: null,
+            };
     change({ ...catalog, [kind]: [...catalog[kind], item] });
   }
   return (

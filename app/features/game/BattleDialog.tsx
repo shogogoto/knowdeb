@@ -24,6 +24,7 @@ export default function BattleDialog({
   headerControls,
   busy,
   enemyPanel,
+  playerEffect,
   simulation = false,
   remainingTimeMs,
   totalTimeSeconds,
@@ -36,6 +37,7 @@ export default function BattleDialog({
   headerControls?: ReactNode;
   busy: boolean;
   enemyPanel?: ReactNode;
+  playerEffect?: ReactNode;
   simulation?: boolean;
   remainingTimeMs?: number;
   totalTimeSeconds?: number;
@@ -204,7 +206,12 @@ export default function BattleDialog({
             </DialogDescription>
           </DialogHeader>
           <div className="shrink-0">
-            <PlayerStatus run={run} name={playerName} player={player} />
+            <PlayerStatus
+              run={run}
+              name={playerName}
+              player={player}
+              effect={playerEffect}
+            />
           </div>
           {enemyPanel ?? (
             <section

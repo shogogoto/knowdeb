@@ -5,6 +5,7 @@ import { enterDungeon, newSave } from "./domain";
 it("lists each dungeon once using explored achievement rather than clear counts", () => {
   const save = enterDungeon(newSave(), "book", "現在の本", 1);
   save.clears = { book: 99 };
+  save.totalSteps = 123;
   save.visitedDungeons = ["book"];
   save.unlockedDungeons = [
     { sourceId: "book", resourceId: "other", name: "他の本", achievement: 3 },
@@ -28,9 +29,11 @@ it("lists each dungeon once using explored achievement rather than clear counts"
   expect(unlocked).not.toBeNull();
   expect(within(unlocked as HTMLElement).getByText("達成度 0")).toBeVisible();
   expect(screen.queryByText("99回")).not.toBeInTheDocument();
+  expect(screen.getByText("総歩数 123 歩")).toBeVisible();
 });
 
 it("shows an empty state before any dungeon is explored", () => {
   render(<AchievementsPanel save={newSave()} resources={[]} />);
   expect(screen.getByText("まだダンジョンを探索していません。")).toBeVisible();
+  expect(screen.getByText("総歩数 0 歩")).toBeVisible();
 });

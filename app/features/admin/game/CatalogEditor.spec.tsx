@@ -167,6 +167,9 @@ it("references a skill from an item rather than defining a separate effect", asy
   render(<CatalogEditor kind="items" />);
   const user = userEvent.setup();
   await user.selectOptions(await screen.findByLabelText("発動スキル"), "heal");
+  fireEvent.change(screen.getByLabelText("使用回数"), {
+    target: { value: "3" },
+  });
   expect(screen.getByRole("table", { name: "アイテム定義" })).toBeVisible();
   expect(screen.queryByLabelText(/価格/)).not.toBeInTheDocument();
   await user.click(screen.getByRole("button", { name: "保存" }));
@@ -174,6 +177,7 @@ it("references a skill from an item rather than defining a separate effect", asy
   expect(saved.mock.calls[0][0].items[0]).toMatchObject({
     id: "healing_potion",
     skill_id: "heal",
+    max_uses: 3,
   });
 });
 
