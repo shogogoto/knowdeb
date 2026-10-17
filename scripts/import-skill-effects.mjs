@@ -1,4 +1,4 @@
-// Rebuild locally hosted CC0 sprite strips from the original downloaded packs.
+// Rebuild locally hosted sprite strips from the original downloaded packs.
 // Usage: node scripts/import-skill-effects.mjs /tmp/tanbun-skill-effects.XXXXXX
 // Requires ImageMagick (convert/identify). No network access; see SOURCES.md.
 import { execFileSync } from "node:child_process";
@@ -65,6 +65,12 @@ const specs = [
       author: "Cethiel",
     })),
   ),
+  ...["curse", "buff", "shield", "heal", "speed"].map((effect) => ({
+    id: `mochi_status_${effect}`,
+    directory: `mochi/game-fx-starter-vol1/frames/starter_status_${effect}`,
+    posterFraction: 0.5,
+    author: "Mochi Lab Studio",
+  })),
 ];
 const manifest = {};
 for (const spec of specs) {
@@ -142,4 +148,4 @@ writeFileSync(
   resolve("app/features/game/effectSpriteManifest.json"),
   `${JSON.stringify(manifest, null, 2)}\n`,
 );
-console.log(`Imported ${specs.length} CC0 animations to ${output}`);
+console.log(`Imported ${specs.length} animations to ${output}`);

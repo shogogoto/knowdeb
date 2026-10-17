@@ -278,7 +278,7 @@ it("opens the skill's static gallery and discards the selection on Escape", asyn
   expect(
     within(gallery).getByRole("button", { name: "火球をプレビュー" }),
   ).toBeVisible();
-  expect(gallery.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(40);
+  expect(gallery.querySelectorAll('img[src$="-poster.webp"]')).toHaveLength(45);
   expect(gallery.querySelector(".skill-sprite")).not.toBeInTheDocument();
   await user.click(
     within(gallery).getByRole("button", { name: "火球をプレビュー" }),
@@ -301,6 +301,11 @@ it.each([
   ["魔力の放電", "oga_arcane_5"],
   ["岩砕き", "oga_earth_3"],
   ["時の魔法陣", "oga_cosmic_2"],
+  ["呪いのドクロ", "mochi_status_curse"],
+  ["攻撃力アップ", "mochi_status_buff"],
+  ["守りの盾", "mochi_status_shield"],
+  ["再生の光", "mochi_status_heal"],
+  ["加速の羽根", "mochi_status_speed"],
 ])(
   "previews %s and applies it only to the originating skill on confirmation",
   async (label, id) => {

@@ -238,5 +238,35 @@
     "frameSize": 192,
     "durationMs": 650,
     "author": "Cethiel"
+  },
+  "mochi_status_curse": {
+    "frames": 25,
+    "frameSize": 192,
+    "durationMs": 1080,
+    "author": "Mochi Lab Studio"
+  },
+  "mochi_status_buff": {
+    "frames": 25,
+    "frameSize": 192,
+    "durationMs": 1080,
+    "author": "Mochi Lab Studio"
+  },
+  "mochi_status_shield": {
+    "frames": 25,
+    "frameSize": 192,
+    "durationMs": 1080,
+    "author": "Mochi Lab Studio"
+  },
+  "mochi_status_heal": {
+    "frames": 25,
+    "frameSize": 192,
+    "durationMs": 1080,
+    "author": "Mochi Lab Studio"
+  },
+  "mochi_status_speed": {
+    "frames": 25,
+    "frameSize": 192,
+    "durationMs": 1080,
+    "author": "Mochi Lab Studio"
   }
 }

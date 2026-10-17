@@ -42,6 +42,11 @@ export const spriteAnimationLabels = {
   oga_cosmic_3: "時空の渦",
   oga_cosmic_4: "転移の門",
   oga_cosmic_5: "虚空の渦",
+  mochi_status_curse: "呪いのドクロ",
+  mochi_status_buff: "攻撃力アップ",
+  mochi_status_shield: "守りの盾",
+  mochi_status_heal: "再生の光",
+  mochi_status_speed: "加速の羽根",
 } as const satisfies Record<keyof typeof manifest, string>;
 export type SpriteAnimation = keyof typeof spriteAnimationLabels;
 export function spriteAsset(animation: string) {
