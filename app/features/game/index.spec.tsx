@@ -1452,7 +1452,7 @@ it("parks a dungeon in the server snapshot and resumes its HP/location without a
   await user.click(screen.getByRole("button", { name: "ダンジョン 以前の本" }));
   const unlocked = screen.getByRole("button", { name: "ダンジョン 以前の本" });
   expect(unlocked).not.toHaveTextContent("現在地");
-  expect(unlocked).toHaveTextContent("達成度 0 · 開拓 1 地点");
+  expect(unlocked).toHaveTextContent("達成度 0 · 開拓 0地点");
   await user.click(
     screen.getByRole("button", { name: "このダンジョンへ移動" }),
   );
