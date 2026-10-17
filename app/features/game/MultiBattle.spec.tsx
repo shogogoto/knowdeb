@@ -308,7 +308,8 @@ it("confirms locally without revealing correctness, locks answers, and sends onc
   expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
   expect(screen.getAllByText("解答後の詳細プレビュー")).toHaveLength(1);
   await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
-  await screen.findByText("ターン精算完了");
+  expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "続ける" })).toBeVisible();
   expect(requests).toEqual([
     {
       battle_id: "battle",
@@ -497,7 +498,8 @@ it("seals the timed-out turn and retries the same payload", async () => {
     await screen.findByRole("button", { name: "結果を処理 · 1/2" }),
   );
   await user.click(screen.getByRole("button", { name: "結果を処理 · 2/2" }));
-  await screen.findByText("ターン精算完了");
+  expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "続ける" })).toBeVisible();
   expect(requests).toHaveLength(2);
   expect(requests[1]).toEqual(requests[0]);
   expect(requests[0].answers).toEqual({});
@@ -615,7 +617,8 @@ it.each([false, true])(
       await waitFor(() => expect(process).toHaveFocus());
       await user.keyboard("{Enter}");
       await user.keyboard("{Enter}");
-      await screen.findByText("ターン精算完了");
+      expect(screen.queryByText("ターン精算完了")).not.toBeInTheDocument();
+      expect(screen.getByRole("button", { name: "次のターン" })).toBeVisible();
     }
     await answerBoth();
     expect(requests[0].defeated).toEqual([]);

@@ -90,13 +90,13 @@ export function HotkeyProvider({ children }: PropsWithChildren) {
 }
 
 export function HotkeyHelpButton() {
-  const { openHelp } = useHotkeys();
+  const context = useContext(HotkeyContext);
   return (
     <Button
       type="button"
       variant="ghost"
       size="icon"
-      onClick={openHelp}
+      onClick={() => context?.openHelp()}
       aria-label="キーボードショートカットを開く"
     >
       <CircleHelp className="size-4" />
@@ -397,8 +397,9 @@ function contextHotkeys(pathname: string, search: string): HotkeyDefinition[] {
     return [
       { keys: ["s"], label: "ステータスを開く" },
       { keys: ["Ctrl", "1–5"], label: "ゲームメニューの番号のタブへ移動" },
-      { keys: ["矢印"], label: "地点やダンジョンを選ぶ" },
-      { keys: ["Enter"], label: "移動・ダンジョン切替" },
+      { keys: ["矢印"], label: "地点を選ぶ／戦闘パネルを移動" },
+      { keys: ["Space"], label: "戦闘の選択肢を選択・解除" },
+      { keys: ["Enter"], label: "移動・回答・結果の処理" },
       { keys: ["Esc"], label: "選択解除・全画面を閉じる" },
       { keys: ["f"], label: "マップを全画面表示" },
     ];

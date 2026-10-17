@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
 } from "react";
+import { HotkeyHelpButton } from "~/features/hotkeys/GlobalHotkeys";
 import QuizAttempt from "~/features/quiz/QuizAttempt";
 import QuizPreviewPrompt from "~/features/quiz/QuizPreviewPrompt";
 import { Button } from "~/shared/components/ui/button";
@@ -300,23 +301,25 @@ export default function MultiBattle({
       void submitTurn();
   });
   if (!battle || !run) return null;
-  const displayed = live[active] ?? live[0];
   const tempoControl = (
-    <label className="flex items-center" title="戦闘テンポ">
-      <select
-        aria-label="戦闘テンポ"
-        className="h-8 w-14 rounded-md border bg-background px-1 text-sm"
-        value={tempo.tempo}
-        disabled={tempo.saving}
-        onChange={(event) =>
-          void tempo.change(event.target.value as BattleTempo)
-        }
-      >
-        <option value="slow">遅</option>
-        <option value="medium">中</option>
-        <option value="fast">速</option>
-      </select>
-    </label>
+    <div className="flex items-center gap-1">
+      <label className="flex items-center" title="戦闘テンポ">
+        <select
+          aria-label="戦闘テンポ"
+          className="h-8 w-14 rounded-md border bg-background px-1 text-sm"
+          value={tempo.tempo}
+          disabled={tempo.saving}
+          onChange={(event) =>
+            void tempo.change(event.target.value as BattleTempo)
+          }
+        >
+          <option value="slow">遅</option>
+          <option value="medium">中</option>
+          <option value="fast">速</option>
+        </select>
+      </label>
+      <HotkeyHelpButton />
+    </div>
   );
   const enemyPanel = (
     <div
@@ -362,12 +365,6 @@ export default function MultiBattle({
           </div>
         ))}
       </div>
-      {displayed && (
-        <p className="text-xs text-muted-foreground">
-          Spaceで選択 · Enterで確定 · 回答中: {displayed.name}（攻{" "}
-          {displayed.attack}）
-        </p>
-      )}
     </div>
   );
   return (
@@ -455,21 +452,16 @@ export default function MultiBattle({
               animation={save.endActionReceipt.animation ?? "none"}
             />
           )}
-          <div className="flex items-center justify-between gap-2">
+          {nextResultId && (
             <p className="text-sm text-muted-foreground" aria-live="polite">
-              {nextResultId
-                ? `結果 ${resultIndex + 1}/${resultIds.length} を処理します`
-                : resultIds.length > 0
-                  ? "全ての結果を処理しました"
-                  : "戦闘結果を確認してください"}
+              結果 {resultIndex + 1}/{resultIds.length} を処理します
             </p>
-          </div>
+          )}
           {tempo.error && (
             <p role="alert" className="text-sm text-destructive">
               {tempo.error}
             </p>
           )}
-          {!nextResultId && <output>{result.state.save.battleFeedback}</output>}
           {resultIds.map((id, index) => {
             const enemy = live.find((item) => item.id === id);
             const processed = index < resultIndex;
@@ -739,9 +731,6 @@ export default function MultiBattle({
               回答確定 {Object.keys(answers).length}/{live.length}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            回答を確定すると次のクイズへ進みます。
-          </p>
           {live.map((enemy, index) => {
             const quiz = content.quizzes[enemy.quizIndex];
             const confirm = (selected: string[]) => {
@@ -843,9 +832,6 @@ export default function MultiBattle({
                       >
                         回答を確定
                       </Button>
-                      <p className="text-xs text-muted-foreground">
-                        Spaceで選択/解除 · Enterで確定
-                      </p>
                     </form>
                     {enemy.id in answers && (
                       <p className="text-xs text-muted-foreground">
@@ -858,7 +844,7 @@ export default function MultiBattle({
                     quiz={quiz}
                     compactMobile
                     enterToSubmit
-                    keyboardHint="矢印で移動 · Spaceで選択/解除 · Enterで確定"
+                    keyboardHint={null}
                     allowReport={!simulation}
                     disabled={busy || !!retry || remaining === 0}
                     canSubmit={() =>

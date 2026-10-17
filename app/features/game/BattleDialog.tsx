@@ -266,9 +266,6 @@ export default function BattleDialog({
           <div className="shrink-0 space-y-2 border-t pt-2">
             <PlayerStatus run={run} name={playerName} player={player} />
             {footer}
-            <p className="text-xs text-muted-foreground">
-              閉じても制限時間は進みます。
-            </p>
           </div>
         </DialogContent>
       </Dialog>
