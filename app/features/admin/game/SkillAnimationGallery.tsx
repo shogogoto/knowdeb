@@ -1,7 +1,11 @@
 import { Volume2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import SkillEffect from "~/features/game/SkillEffect";
-import { playSkillSound, stopBattleSounds } from "~/features/game/battleSound";
+import {
+  playSkillSound,
+  resolveSkillSound,
+  stopBattleSounds,
+} from "~/features/game/battleSound";
 import {
   type SkillAnimation,
   type SkillDefinition,
@@ -56,6 +60,7 @@ export default function SkillAnimationGallery({
   const [selected, setSelected] = useState<SkillAnimation>("none");
   const [sound, setSound] = useState<SkillSound>("auto");
   const [playing, setPlaying] = useState<{ id: SkillAnimation; key: number }>();
+  const resolved = resolveSkillSound({ ...skill, animation: selected, sound });
   useEffect(() => stopBattleSounds, []);
   const changeOpen = (next: boolean) => {
     stopBattleSounds();
@@ -119,7 +124,10 @@ export default function SkillAnimationGallery({
           </div>
           <div className="min-w-0 space-y-2 text-sm">
             <p className="break-words">
-              {animationLabels[selected]} · SE：{soundLabels[sound]}
+              {animationLabels[selected]} · SE：
+              {sound === "auto"
+                ? `自動（${resolved ? soundLabels[resolved] : "なし"}）`
+                : soundLabels[sound]}
             </p>
             <Button
               type="button"

@@ -12,12 +12,12 @@ Credits are retained here even though attribution is not required by CC0.
 | fire.wav | spell_fire_01.ogg | rubberduck, same pack |
 | debuff.wav | spell_02.ogg | rubberduck, same pack |
 | poison.wav | creature_slime_01.ogg | rubberduck, same pack (slime sound used for poison) |
-| curse.wav | creature_monster_01.ogg | rubberduck, same pack (monster sound used for curse) |
+| curse.wav | dark_magic/fout-02.flac | qubodup, [3 dark magic spells](https://opengameart.org/content/3-dark-magic-spells) |
 | heal.wav | Cure1.wav | Someoneman, [Cure Magic](https://opengameart.org/content/cure-magic) |
 | buff.wav | Cure2.wav | Someoneman, same pack |
-| lightning.wav | electricspell.ogg, complete phrase 7.6–11.3 seconds | Augmentality (Brandon Morris), submitted by HaelDB, [Spell sounds](https://opengameart.org/content/spell-sounds); CC0 option selected, not OGA-BY |
-| lightning_2.wav | electricspell.ogg, complete phrase 11.3–16.5 seconds | Augmentality, same source |
-| lightning_storm.wav | electricspell2.ogg (entire non-silent recording) | Augmentality, same source |
+| lightning.wav | spark.wav (saved as tesla1.wav) | BMacZero / Brian MacIntosh, [Electricity Sound Effects](https://opengameart.org/content/electricity-sound-effects-0); recording of a small Tesla generator |
+| lightning_2.wav | continuousspark.wav (saved as tesla0.wav) | BMacZero, same source |
+| lightning_storm.wav | zapTwoTone2.mp3 | Kenney, [63 Digital sound effects](https://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc) |
 | slash_2.wav, slash_3.wav | blade_02.ogg, blade_03.ogg | rubberduck, same RPG pack |
 | fire_2.wav … fire_7.wav | spell_fire_02.ogg … spell_fire_07.ogg | rubberduck, same RPG pack |
 | heal_2.wav … heal_7.wav | Cure3.wav … Cure8.wav | Someoneman, same Cure Magic pack |
@@ -26,27 +26,62 @@ Credits are retained here even though attribution is not required by CC0.
 | metal.wav, metal_2.wav | metal_01.ogg, metal_02.ogg | rubberduck, same RPG pack |
 | coins.wav | item_coins_01.ogg | rubberduck, same RPG pack |
 | stones.wav | stones_01.ogg | rubberduck, same RPG pack |
+| fire_burst.wav, fire_burst_2.wav, fire_burst_3.wav | Fire Spell Impact 4.wav, 5.wav, 1.wav | lentikula, [Basic Spell Impacts](https://lentikula.itch.io/freecc0-basic-spell-impacts-sfx); original 48 kHz / 24-bit recordings and CC0 material |
+| ice.wav, ice_2.wav, ice_3.wav, ice_4.wav, ice_5.wav | Ice Spell Impact 5.wav, 4.wav, 3.wav, 1.wav, 2.wav | lentikula, same pack |
+| water.wav, water_2.wav, water_3.wav, water_4.wav, water_5.wav | Water Spell Impact 4.wav, 1.wav, 2.wav, 3.wav, 5.wav | lentikula, same pack |
+| earth.wav | Earth Element Magic Spell_3.ogg (saved as earth.ogg) | qubodup, [Earth Element Magic Spell](https://opengameart.org/content/earth-element-magic-spell) |
+| dark_2.wav, dark_3.wav | dark_magic/fout-01.flac, fout-03.flac | qubodup, same dark magic pack |
+| drain.wav | qubodup-PowerDrain/ogg/qubodup-PowerDrain.ogg | qubodup, [Energy Drain](https://opengameart.org/content/energy-drain); author's 2024-06-23 CC0 relicensing supersedes the old archive notice |
+| teleport.wav | teleport.wav | Ogrebane, [Teleport Spell](https://opengameart.org/content/teleport-spell) |
+| chime.wav, chime_2.wav, chime_3.wav, chime_4.wav | magical_1_0.ogg, magical_2.ogg, magical_3.ogg, magical_4.ogg (saved as chime.ogg, chime2.ogg, chime3.ogg, chime4.ogg) | JaggedStone, [Magic Spell SFX](https://opengameart.org/content/magic-spell-sfx) |
+| wind.wav | sand-spell.flac (saved as sand.flac) | qubodup, [Sand spell](https://opengameart.org/content/sand-spell); mouth-recorded whoosh |
+| explosion.wav, explosion_2.wav | explosion_5.ogg, explosion1_3.ogg (saved as explosion.ogg, explosion2.ogg) | Delta12 Studio, same RPG pack |
+| zap.wav, zap_2.wav, magic_rise.wav | zap1.mp3, zap2.mp3, powerUp2.mp3 | Kenney, same Digital SFX pack |
 
 Direct downloads:
 
 - https://opengameart.org/sites/default/files/80-CC0-RPG-SFX_0.zip
 - https://opengameart.org/sites/default/files/curemagic.zip
 - https://opengameart.org/sites/default/files/punch_1.ogg
-- https://opengameart.org/sites/default/files/electricspell.ogg
-- https://opengameart.org/sites/default/files/electricspell2.ogg
+- https://opengameart.org/sites/default/files/spark.wav
+- https://opengameart.org/sites/default/files/continuousspark.wav
+- https://opengameart.org/sites/default/files/Digital_SFX_Set.zip
+- https://lentikula.itch.io/freecc0-basic-spell-impacts-sfx (free download, Basic Spell Impacts.zip)
+- https://opengameart.org/sites/default/files/dark_magic.7z
+- https://opengameart.org/sites/default/files/qubodup-PowerDrain.7z
+- https://opengameart.org/sites/default/files/Earth%20Element%20Magic%20Spell_3.ogg
+- https://opengameart.org/sites/default/files/teleport.wav
+- https://opengameart.org/sites/default/files/magical_1_0.ogg
+- https://opengameart.org/sites/default/files/magical_2.ogg
+- https://opengameart.org/sites/default/files/magical_3.ogg
+- https://opengameart.org/sites/default/files/magical_4.ogg
+- https://opengameart.org/sites/default/files/sand-spell.flac
+- https://opengameart.org/sites/default/files/explosion_5.ogg
+- https://opengameart.org/sites/default/files/explosion1_3.ogg
 
 ## Reproduction
 
-Extract the first archive under `rpg/`, the second under `cure/`, and save the
-individual OGG downloads as `punch.ogg`, `lightning.ogg` and `lightning2.ogg` beside those folders.
+Extract the RPG archive under `rpg/`, Cure Magic under `cure/`, Basic Spell
+Impacts under `impacts/` (retaining its four named subfolders), and Digital SFX
+under `digital/`. Extract the two 7z archives retaining their `dark_magic/` and
+`qubodup-PowerDrain/` directories. Save individual files with the local source
+names shown in the table above.
 Run `node scripts/import-skill-sounds.mjs /path/to/extracted-sources` from the
 repository root. Set `PLAYWRIGHT_CHROMIUM_EXECUTABLE` if necessary.
+An optional third argument selects comma-separated sound IDs for partial imports.
 
 Conversion: decode to 32 kHz mono PCM, trim boundary silence, normalize peaks to
 85%, add 5 ms boundary fades, encode 16-bit WAV for browser compatibility. Clips
-are no longer capped at an arbitrary duration. Lightning phrases include their
-decay up to the quiet gap before the next phrase. The long continuous-discharge
-variant retains the complete non-silent source. The previous 1.2-second lightning
-slice was replaced because it cut through an active phrase. No newly synthesized
-tones or pitch shifts are added.
+retain the complete non-silent one-shot rather than cutting through a phrase.
+The former 3.7/5.2/17.8-second lightning assets have all been replaced by short
+spark/zap recordings, preserving their existing IDs. No newly synthesized tones
+or pitch shifts are added.
 The game hosts these files locally and never requests the source sites.
+
+## Defaults
+
+Every visual animation has an explicit default in
+`app/features/game/battleSound.ts` (`animationSounds`). `auto` prioritizes this
+visual pairing, with a skill-category fallback only when no visual is selected.
+Explicit sound selections and `none` remain overrides. The picker shows the
+resolved default so that "auto" is not an unexplained choice.

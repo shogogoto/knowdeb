@@ -49,6 +49,9 @@ it("previews and applies animation and SE together without saving other skills",
   await user.click(
     within(gallery).getByRole("button", { name: "炎をプレビュー" }),
   );
+  expect(
+    within(gallery).getByLabelText("組み合わせプレビュー").parentElement,
+  ).toHaveTextContent("SE：自動（炎の着弾）");
   await user.click(
     within(gallery).getByRole("button", { name: "炎魔法 2のSEを試聴" }),
   );

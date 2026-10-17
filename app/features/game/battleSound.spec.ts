@@ -1,11 +1,13 @@
 import { readFileSync } from "node:fs";
 import { vi } from "vitest";
 import {
+  animationSounds,
   battleSoundFiles,
   playBattleSound,
   playSkillSound,
   stopBattleSounds,
 } from "./battleSound";
+import { animationLabels } from "./catalog";
 
 class TestAudio {
   static instances: TestAudio[] = [];
@@ -46,18 +48,26 @@ it.each(Object.keys(battleSoundFiles) as (keyof typeof battleSoundFiles)[])(
   },
 );
 
-it("keeps the lightning phrase and its quiet decay instead of a 1.2-second slice", () => {
-  const wav = readFileSync(`public${battleSoundFiles.lightning}`);
-  const seconds = wav.readUInt32LE(40) / wav.readUInt32LE(28);
-  expect(seconds).toBeGreaterThan(3);
-  expect(seconds).toBeLessThan(4);
-  let peak = 0;
-  let tail = 0;
-  for (let offset = 44; offset < wav.length; offset += 2)
-    peak = Math.max(peak, Math.abs(wav.readInt16LE(offset)));
-  for (let offset = wav.length - 3200; offset < wav.length; offset += 2)
-    tail = Math.max(tail, Math.abs(wav.readInt16LE(offset)));
-  expect(tail / peak).toBeLessThan(0.02);
+it.each(["lightning", "lightning_2", "lightning_storm"] as const)(
+  "uses a short complete %s one-shot rather than a long discharge",
+  (sound) => {
+    const wav = readFileSync(`public${battleSoundFiles[sound]}`);
+    const seconds = wav.readUInt32LE(40) / wav.readUInt32LE(28);
+    expect(seconds).toBeGreaterThan(0.08);
+    expect(seconds).toBeLessThan(1.2);
+    expect(wav.readInt16LE(wav.length - 2)).toBe(0);
+  },
+);
+
+it("assigns an intentional sound to every visual effect", () => {
+  expect(Object.keys(animationSounds).sort()).toEqual(
+    Object.keys(animationLabels).sort(),
+  );
+  for (const [animation, sound] of Object.entries(animationSounds)) {
+    if (animation === "none") continue;
+    expect(sound).not.toBeNull();
+    expect(sound && battleSoundFiles[sound]).toBeTruthy();
+  }
 });
 
 it("keeps explicitly silent skills silent", () => {
@@ -66,11 +76,19 @@ it("keeps explicitly silent skills silent", () => {
 });
 
 it.each([
-  ["fire", "fire"],
-  ["oga_spell_3", "fire"],
+  ["fire", "fire_burst"],
+  ["oga_spell_3", "fire_burst"],
   ["lightning", "lightning"],
   ["oga_spell_8", "lightning"],
   ["slash", "slash"],
+  ["oga_spell_9", "water"],
+  ["oga_effect_4", "ice"],
+  ["oga_effect_1", "explosion"],
+  ["oga_effect_2", "explosion_2"],
+  ["oga_cosmic_4", "teleport"],
+  ["oga_nature_1", "earth"],
+  ["mochi_status_curse", "curse"],
+  ["mochi_status_shield", "chime_3"],
 ] as const)(
   "matches automatic %s animation to %s audio",
   (animation, sound) => {
@@ -79,14 +97,23 @@ it.each([
   },
 );
 
-it("prioritizes explicit sound, then effect, over animation", () => {
+it("preserves overrides and uses the visual preset before the skill category", () => {
   playSkillSound({ effect: "attack", animation: "fire", sound: "slash" });
   playSkillSound({ effect: "heal_mp", animation: "fire" });
   playSkillSound({ effect: "ailment", ailment: "curse" });
   expect(TestAudio.instances.map((audio) => audio.src)).toEqual([
     battleSoundFiles.slash,
-    battleSoundFiles.heal,
+    battleSoundFiles.fire_burst,
     battleSoundFiles.curse,
+  ]);
+});
+
+it("preserves legacy auto behavior when no visual effect is selected", () => {
+  playSkillSound({ effect: "heal_mp" });
+  playSkillSound({ effect: "heal_hp", animation: "none" });
+  expect(TestAudio.instances.map((audio) => audio.src)).toEqual([
+    battleSoundFiles.heal,
+    battleSoundFiles.heal,
   ]);
 });
 

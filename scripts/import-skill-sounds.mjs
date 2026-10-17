@@ -12,15 +12,15 @@ const sources = {
   impact: ["punch.ogg"],
   slash: ["rpg/blade_01.ogg"],
   fire: ["rpg/spell_fire_01.ogg"],
-  // Complete phrases bounded by the source's quiet gaps, including decay.
-  lightning: ["lightning.ogg", 7.6, 11.3],
-  lightning_2: ["lightning.ogg", 11.3, 16.5],
-  lightning_storm: ["lightning2.ogg"],
+  // Short, complete sparks and zaps, not excerpts from a long discharge.
+  lightning: ["tesla1.wav"],
+  lightning_2: ["tesla0.wav"],
+  lightning_storm: ["digital/zapTwoTone2.mp3"],
   heal: ["cure/Cure1.wav"],
   buff: ["cure/Cure2.wav"],
   debuff: ["rpg/spell_02.ogg"],
   poison: ["rpg/creature_slime_01.ogg"],
-  curse: ["rpg/creature_monster_01.ogg"],
+  curse: ["dark_magic/fout-02.flac"],
   ...Object.fromEntries(
     [2, 3].map((n) => [`slash_${n}`, [`rpg/blade_0${n}.ogg`]]),
   ),
@@ -38,7 +38,38 @@ const sources = {
   metal_2: ["rpg/metal_02.ogg"],
   coins: ["rpg/item_coins_01.ogg"],
   stones: ["rpg/stones_01.ogg"],
+  fire_burst: ["impacts/Fire Spell Impacts/Fire Spell Impact 4.wav"],
+  fire_burst_2: ["impacts/Fire Spell Impacts/Fire Spell Impact 5.wav"],
+  fire_burst_3: ["impacts/Fire Spell Impacts/Fire Spell Impact 1.wav"],
+  ...Object.fromEntries(
+    [5, 4, 3, 1, 2].map((n, i) => [
+      i ? `ice_${i + 1}` : "ice",
+      [`impacts/Ice Spell Impacts/Ice Spell Impact ${n}.wav`],
+    ]),
+  ),
+  ...Object.fromEntries(
+    [4, 1, 2, 3, 5].map((n, i) => [
+      i ? `water_${i + 1}` : "water",
+      [`impacts/Water Spell Impacts/Water Spell Impact ${n}.wav`],
+    ]),
+  ),
+  earth: ["earth.ogg"],
+  dark_2: ["dark_magic/fout-01.flac"],
+  dark_3: ["dark_magic/fout-03.flac"],
+  drain: ["qubodup-PowerDrain/ogg/qubodup-PowerDrain.ogg"],
+  teleport: ["teleport.wav"],
+  chime: ["chime.ogg"],
+  chime_2: ["chime2.ogg"],
+  chime_3: ["chime3.ogg"],
+  chime_4: ["chime4.ogg"],
+  wind: ["sand.flac"],
+  explosion: ["explosion.ogg"],
+  explosion_2: ["explosion2.ogg"],
+  zap: ["digital/zap1.mp3"],
+  zap_2: ["digital/zap2.mp3"],
+  magic_rise: ["digital/powerUp2.mp3"],
 };
+const only = process.argv[3]?.split(",");
 const browser = await chromium.launch({
   headless: true,
   executablePath: process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE || undefined,
@@ -47,6 +78,7 @@ try {
   const page = await browser.newPage();
   await mkdir(output, { recursive: true });
   for (const [id, [file, start = 0, end = null]] of Object.entries(sources)) {
+    if (only && !only.includes(id)) continue;
     const base64 = (await readFile(resolve(input, file))).toString("base64");
     const samples = await page.evaluate(
       async ({ base64, start, end }) => {
