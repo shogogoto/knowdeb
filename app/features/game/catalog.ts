@@ -1,31 +1,124 @@
 import { networkFetch } from "~/shared/lib/networkFetch";
 import { spriteAnimationLabels } from "./effectAssets";
 
-export type SkillDefinition = {
+type SkillBase = {
   id: string;
   name: string;
   icon: string;
   enabled: boolean;
-  effect:
-    | "attack"
-    | "heal_hp"
-    | "heal_mp"
-    | "recover_moves"
-    | "equip_attack"
-    | "buff"
-    | "debuff"
-    | "ailment";
   target: "enemy" | "all_enemies" | "self";
   amount: number;
-  multiplier: number;
   mp_cost: number;
   animation?: SkillAnimation;
+};
+type InstantSkill = {
+  stat?: never;
+  duration_turns?: never;
+  stack_limit?: never;
+  ailment?: never;
+};
+type TimedSkill = {
   amount_mode?: "fixed" | "percent";
-  stat?: "attack" | "defense" | "maxHp";
   duration_turns?: number;
   stack_limit?: number;
-  ailment?: "poison";
+  multiplier?: never;
 };
+export type SkillDefinition = SkillBase &
+  (
+    | (InstantSkill & {
+        effect: "attack";
+        multiplier: number;
+        amount_mode?: "fixed" | "percent";
+      })
+    | (InstantSkill & {
+        effect: "heal_hp" | "heal_mp";
+        multiplier?: never;
+        amount_mode?: "fixed" | "percent";
+      })
+    | (TimedSkill & {
+        effect: "buff";
+        stat?: "attack" | "defense" | "maxHp";
+        ailment?: never;
+      })
+    | (TimedSkill & { effect: "debuff"; stat?: "attack"; ailment?: never })
+    | (TimedSkill & { effect: "ailment"; ailment?: "poison"; stat?: never })
+    | (InstantSkill & {
+        effect: "recover_moves" | "equip_attack";
+        multiplier?: never;
+        amount_mode?: never;
+      })
+  );
+export type SkillPatch = Partial<
+  SkillBase & {
+    effect: SkillDefinition["effect"];
+    multiplier: number;
+    amount_mode: "fixed" | "percent";
+    stat: "attack" | "defense" | "maxHp";
+    duration_turns: number;
+    stack_limit: number;
+    ailment: "poison";
+  }
+>;
+
+/** Keep drafts and exports canonical even when the server still returns legacy flat data. */
+export function normalizeSkill(
+  skill: SkillBase & SkillPatch & { effect: SkillDefinition["effect"] },
+): SkillDefinition {
+  const {
+    id,
+    name,
+    icon,
+    enabled,
+    target,
+    amount,
+    mp_cost,
+    animation,
+    effect,
+  } = skill;
+  const common = {
+    id,
+    name,
+    icon,
+    enabled,
+    target,
+    amount,
+    mp_cost,
+    animation,
+    effect,
+  };
+  const numeric = { amount_mode: skill.amount_mode ?? "fixed" };
+  const timed = {
+    ...numeric,
+    duration_turns: skill.duration_turns ?? 3,
+    stack_limit: skill.stack_limit ?? 1,
+  };
+  switch (effect) {
+    case "attack":
+      return {
+        ...common,
+        effect,
+        ...numeric,
+        multiplier: skill.multiplier ?? 1,
+      };
+    case "heal_hp":
+    case "heal_mp":
+      return { ...common, effect, ...numeric };
+    case "buff":
+      return { ...common, effect, ...timed, stat: skill.stat ?? "attack" };
+    case "debuff":
+      return { ...common, effect, ...timed, stat: "attack" };
+    case "ailment":
+      return {
+        ...common,
+        effect,
+        ...timed,
+        ailment: skill.ailment ?? "poison",
+      };
+    case "recover_moves":
+    case "equip_attack":
+      return { ...common, effect };
+  }
+}
 export type ItemDefinition = {
   id: string;
   name: string;
@@ -186,8 +279,8 @@ export function modifiedStat(
     .filter(
       (e) =>
         e.target_id === target &&
-        e.skill.stat === stat &&
         ["buff", "debuff"].includes(e.skill.effect) &&
+        e.skill.stat === stat &&
         e.starts_turn <= (battle?.turn ?? 0) &&
         (battle?.turn ?? 0) < e.expires_turn,
     )

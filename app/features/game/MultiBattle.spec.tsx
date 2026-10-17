@@ -16,6 +16,7 @@ import MultiBattle from "./MultiBattle";
 import type { DungeonContent } from "./api";
 import { type BattleTransport, type TurnInput, defaultBalance } from "./battle";
 import * as battleSound from "./battleSound";
+import { normalizeSkill } from "./catalog";
 import { sampleCatalog } from "./catalog.fixtures";
 import { type GameSave, enterDungeon, newSave } from "./domain";
 import { setMusicPreferences } from "./music";
@@ -360,7 +361,7 @@ it.each([1, 2])(
     save.battle.turn = turn;
     save.battle.effects = [
       {
-        skill: {
+        skill: normalizeSkill({
           ...sampleCatalog.skills[0],
           id: "boost",
           name: "攻撃強化",
@@ -369,7 +370,7 @@ it.each([1, 2])(
           stat: "attack",
           amount_mode: "percent",
           amount: 50,
-        },
+        }),
         target_id: "player",
         starts_turn: 1,
         expires_turn: 2,
@@ -411,11 +412,11 @@ it("processes poison after attacks and stops it at HP one without counting a kil
   if (!save.battle) throw new Error("Missing battle");
   save.battle.turn = 1;
   save.battle.effects = enemies.map((e) => ({
-    skill: {
+    skill: normalizeSkill({
       ...sampleCatalog.skills[0],
       effect: "ailment" as const,
       amount: 100,
-    },
+    }),
     target_id: e.id,
     starts_turn: 1,
     expires_turn: 3,

@@ -129,7 +129,7 @@ it("exports current edits while leaving out skills marked for deletion", async (
     });
     await user.click(screen.getByRole("button", { name: "JSONを書き出す" }));
     expect(download).toHaveBeenCalledWith([
-      { ...sampleCatalog.skills[1], amount: 25 },
+      expect.objectContaining({ ...sampleCatalog.skills[1], amount: 25 }),
       sampleCatalog.skills[2],
     ]);
     expect(saved).not.toHaveBeenCalled();

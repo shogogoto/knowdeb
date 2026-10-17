@@ -1,7 +1,7 @@
-import type { GameCatalog } from "./catalog";
+import type { GameCatalog, SkillDefinition } from "./catalog";
 
 /** Isolated examples for UI stories and tests, never used as live fallbacks. */
-export const sampleCatalog: GameCatalog = {
+export const sampleCatalog = {
   skills: [
     {
       id: "fire",
@@ -22,7 +22,6 @@ export const sampleCatalog: GameCatalog = {
       effect: "heal_hp",
       target: "self",
       amount: 20,
-      multiplier: 1,
       mp_cost: 3,
     },
     {
@@ -33,7 +32,6 @@ export const sampleCatalog: GameCatalog = {
       effect: "heal_hp",
       target: "self",
       amount: 20,
-      multiplier: 1,
       mp_cost: 0,
     },
   ],
@@ -63,4 +61,6 @@ export const sampleCatalog: GameCatalog = {
       attack_skill_id: null,
     },
   ],
+} satisfies GameCatalog & {
+  skills: [SkillDefinition, SkillDefinition, SkillDefinition];
 };

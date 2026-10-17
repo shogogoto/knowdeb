@@ -1,5 +1,9 @@
 import { Plus } from "lucide-react";
-import { type SkillDefinition, effectLabels } from "~/features/game/catalog";
+import {
+  type SkillDefinition,
+  type SkillPatch,
+  effectLabels,
+} from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
 import SkillAnimationGallery from "./SkillAnimationGallery";
@@ -22,7 +26,7 @@ export default function SkillTables({
   toggleDelete,
 }: {
   skills: SkillDefinition[];
-  update: (id: string, patch: Partial<SkillDefinition>) => void;
+  update: (id: string, patch: SkillPatch) => void;
   add: (effect: SkillDefinition["effect"]) => void;
   deletions: Set<string>;
   toggleDelete: (id: string) => void;

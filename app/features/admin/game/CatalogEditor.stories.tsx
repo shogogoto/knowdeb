@@ -42,7 +42,7 @@ export default {
           };
           if (
             document.format !== "tanbunism.skills" ||
-            document.version !== 1 ||
+            ![1, 2].includes(document.version) ||
             !Array.isArray(document.skills)
           ) {
             return HttpResponse.json(

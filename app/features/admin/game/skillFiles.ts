@@ -1,12 +1,16 @@
-import type { GameCatalog, SkillDefinition } from "~/features/game/catalog";
+import {
+  type GameCatalog,
+  type SkillDefinition,
+  normalizeSkill,
+} from "~/features/game/catalog";
 import { networkFetch } from "~/shared/lib/networkFetch";
 
 export const SKILL_FILE_FORMAT = "tanbunism.skills";
-export const SKILL_FILE_VERSION = 1;
+export const SKILL_FILE_VERSION = 2;
 export const MAX_SKILL_FILE_BYTES = 1024 * 1024;
 
 export function skillFileText(skills: SkillDefinition[]) {
-  return `${JSON.stringify({ format: SKILL_FILE_FORMAT, version: SKILL_FILE_VERSION, skills }, null, 2)}\n`;
+  return `${JSON.stringify({ format: SKILL_FILE_FORMAT, version: SKILL_FILE_VERSION, skills: skills.map(normalizeSkill) }, null, 2)}\n`;
 }
 
 /** Server-side definitions validate enums, ranges, defaults and references. No writes. */

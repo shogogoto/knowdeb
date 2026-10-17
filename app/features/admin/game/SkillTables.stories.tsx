@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useState } from "react";
-import type { SkillDefinition } from "~/features/game/catalog";
+import { type SkillDefinition, normalizeSkill } from "~/features/game/catalog";
 import { sampleCatalog } from "~/features/game/catalog.fixtures";
 import SkillTables from "./SkillTables";
 
@@ -20,7 +20,6 @@ function Demo() {
       stat: "maxHp",
       duration_turns: 3,
       stack_limit: 1,
-      multiplier: 1,
       mp_cost: 3,
     },
     {
@@ -31,7 +30,6 @@ function Demo() {
       effect: "ailment",
       target: "enemy",
       amount: 5,
-      multiplier: 1,
       mp_cost: 2,
     },
   ]);
@@ -51,7 +49,7 @@ function Demo() {
         add={(effect) =>
           setSkills((current) => [
             ...current,
-            {
+            normalizeSkill({
               id: `skill_${current.length}`,
               name: "新しいスキル",
               icon: "sparkles",
@@ -63,12 +61,14 @@ function Demo() {
               amount: effect === "ailment" ? 5 : 0,
               multiplier: 1,
               mp_cost: 0,
-            },
+            }),
           ])
         }
         update={(id, patch) =>
           setSkills((current) =>
-            current.map((s) => (s.id === id ? { ...s, ...patch } : s)),
+            current.map((s) =>
+              s.id === id ? normalizeSkill({ ...s, ...patch }) : s,
+            ),
           )
         }
       />

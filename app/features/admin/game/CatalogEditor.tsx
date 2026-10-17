@@ -4,6 +4,8 @@ import {
   type GameCatalog,
   type ItemDefinition,
   type SkillDefinition,
+  type SkillPatch,
+  normalizeSkill,
   requestGameCatalog,
 } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
@@ -82,14 +84,22 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
   }
   const update = (
     id: string,
-    patch: Partial<SkillDefinition & ItemDefinition & EnemyDefinition>,
+    patch: SkillPatch & Partial<ItemDefinition & EnemyDefinition>,
   ) => {
     if (!catalog || kind === "shop") return;
     change({
       ...catalog,
-      [kind]: catalog[kind].map((item) =>
-        item.id === id ? { ...item, ...patch } : item,
-      ),
+      ...(kind === "skills"
+        ? {
+            skills: catalog.skills.map((skill) =>
+              skill.id === id ? normalizeSkill({ ...skill, ...patch }) : skill,
+            ),
+          }
+        : {
+            [kind]: catalog[kind].map((item) =>
+              item.id === id ? { ...item, ...patch } : item,
+            ),
+          }),
     });
   };
   async function save(event: React.FormEvent) {
@@ -147,7 +157,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
     };
     const item =
       kind === "skills"
-        ? {
+        ? normalizeSkill({
             ...base,
             effect,
             target: ["attack", "debuff", "ailment"].includes(effect)
@@ -157,7 +167,7 @@ export default function CatalogEditor({ kind }: { kind: Kind }) {
             multiplier: 1,
             mp_cost: 0,
             animation: "none",
-          }
+          })
         : kind === "items"
           ? {
               ...base,

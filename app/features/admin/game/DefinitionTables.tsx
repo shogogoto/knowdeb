@@ -3,7 +3,6 @@ import type {
   EnemyDefinition,
   GameCatalog,
   ItemDefinition,
-  SkillDefinition,
 } from "~/features/game/catalog";
 import { Input } from "~/shared/components/ui/input";
 
@@ -17,7 +16,7 @@ export default function DefinitionTables({
   catalog: GameCatalog;
   update: (
     id: string,
-    patch: Partial<ItemDefinition & EnemyDefinition & SkillDefinition>,
+    patch: Partial<ItemDefinition & EnemyDefinition>,
   ) => void;
 }) {
   const headers = [

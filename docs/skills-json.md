@@ -8,7 +8,7 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 ```json
 {
   "format": "tanbunism.skills",
-  "version": 1,
+  "version": 2,
   "skills": [
     {
       "id": "heal",
@@ -39,6 +39,20 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 `duration_turns` は1〜20、`stack_limit` は1〜10です。
 バブルは `effect: "buff"`, `stat: "maxHp"`, `amount_mode: "percent"` で定義します。
 `animation` は演出一覧で選んだものを書き出すとIDを確認できます。
+
+効果種別ごとにキーの組み合わせが異なります。共通項目は
+`id`, `name`, `icon`, `enabled`, `effect`, `target`, `amount`, `mp_cost`, `animation` です。
+
+| 効果種別 | 種別ごとの項目 |
+|---|---|
+| 攻撃 | `amount_mode`, `multiplier` |
+| HP・MP回復 | `amount_mode` |
+| buff・debuff | `amount_mode`, `stat`, `duration_turns`, `stack_limit` |
+| 状態異常 | `amount_mode`, `ailment`, `duration_turns`, `stack_limit` |
+| 歩数回復・装備効果 | なし（常に固定値） |
+
+バージョン2では種類に合わないキーをエラーにします。以前のバージョン1は取り込み可能で、
+旧形式に含まれていた無関係な既知項目は読み込み時に除去します。
 
 未知の項目・IDの重複・不正な値・既存アイテムや敵の参照を壊す変更は取り込めません。
 上限は200スキル、1ファイル1MBです。効果種別などの値はサーバーのStrEnumで定義され、
