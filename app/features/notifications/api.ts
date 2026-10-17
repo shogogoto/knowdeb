@@ -9,7 +9,8 @@ export type AppNotification = {
     | "quiz_issue_reported"
     | "pagerank_complete"
     | "user_level_up"
-    | "resource_level_up";
+    | "resource_level_up"
+    | "dungeon_key_granted";
   title: string;
   description: string | null;
   href: string | null;

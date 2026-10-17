@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import NotificationPage from "./NotificationPage";
@@ -8,6 +8,7 @@ import {
   listNotifications,
   markAllNotificationsRead,
 } from "./api";
+import { notifyNotificationsChanged } from "./events";
 
 vi.mock("./api", () => ({
   deletePushSubscription: vi.fn(),
@@ -58,5 +59,41 @@ describe("NotificationPage", () => {
     await waitFor(() =>
       expect(markAllNotificationsRead).toHaveBeenCalledOnce(),
     );
+  });
+
+  it("import完了の更新通知ですぐに開放キーの通知を取得し、所持品へのリンクを表示する", async () => {
+    vi.mocked(listNotifications).mockResolvedValue({
+      notifications: [],
+      unread_count: 0,
+    });
+    render(
+      <MemoryRouter>
+        <NotificationProvider userId="user-1">
+          <NotificationPage />
+        </NotificationProvider>
+      </MemoryRouter>,
+    );
+    await screen.findByText("通知はありません");
+    vi.mocked(listNotifications).mockResolvedValue({
+      notifications: [
+        {
+          ...notification,
+          kind: "dungeon_key_granted",
+          title: "ダンジョン開放キーを入手しました",
+          description: "読書メモの開放キーを1個入手しました。",
+          href: "/game/item",
+        },
+      ],
+      unread_count: 1,
+    });
+    act(() => notifyNotificationsChanged());
+    expect(
+      await screen.findByRole("link", {
+        name: /ダンジョン開放キーを入手しました/,
+      }),
+    ).toHaveAttribute("href", "/game/item");
+    expect(
+      screen.getByText("読書メモの開放キーを1個入手しました。"),
+    ).toBeVisible();
   });
 });

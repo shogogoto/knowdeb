@@ -2,7 +2,8 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import Uploader from "./Uploader";
+import { NOTIFICATIONS_CHANGED_EVENT } from "~/features/notifications/events";
+import Uploader, { notifyImportComplete } from "./Uploader";
 
 const { postText } = vi.hoisted(() => ({
   postText: vi.fn(),
@@ -56,6 +57,16 @@ vi.mock("./UploadUnit", async (importOriginal) => {
 });
 
 describe("Uploader", () => {
+  it("import完了時に通知バッジの更新を要求する", async () => {
+    const refresh = vi.fn();
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
+    try {
+      await notifyImportComplete(1);
+      expect(refresh).toHaveBeenCalledOnce();
+    } finally {
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
+    }
+  });
   beforeEach(() => {
     localStorage.clear();
     postText.mockReset();

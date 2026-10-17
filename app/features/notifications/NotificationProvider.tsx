@@ -16,6 +16,7 @@ import {
   markNotificationRead,
   savePushSubscription,
 } from "./api";
+import { NOTIFICATIONS_CHANGED_EVENT } from "./events";
 
 export type PushState =
   | "checking"
@@ -94,12 +95,14 @@ export function NotificationProvider({
       if (event.data?.type === "tanbunism:push") refresh();
     };
     window.addEventListener("focus", refresh);
+    window.addEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
     document.addEventListener("visibilitychange", refreshWhenVisible);
     navigator.serviceWorker?.addEventListener("message", refreshFromPush);
     const interval = window.setInterval(refresh, REFRESH_INTERVAL_MS);
     return () => {
       controller.abort();
       window.removeEventListener("focus", refresh);
+      window.removeEventListener(NOTIFICATIONS_CHANGED_EVENT, refresh);
       document.removeEventListener("visibilitychange", refreshWhenVisible);
       navigator.serviceWorker?.removeEventListener("message", refreshFromPush);
       window.clearInterval(interval);

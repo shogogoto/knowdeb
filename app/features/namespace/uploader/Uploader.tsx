@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { notifyNotificationsChanged } from "~/features/notifications/events";
 import { Button } from "~/shared/components/ui/button";
 import { Progress } from "~/shared/components/ui/progress";
 import type { IdentityResolutionBody } from "~/shared/generated/fastAPI.schemas";
@@ -420,6 +421,7 @@ export default function Uploader({ refresh, autoOpenPicker = false }: Props) {
 }
 
 export async function notifyImportComplete(count: number) {
+  notifyNotificationsChanged();
   const body = `${count}件のファイルの処理が完了しました。`;
   toast.success(body);
   if (
