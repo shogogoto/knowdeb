@@ -450,8 +450,9 @@ it("ゲーム画面の操作hotkeyを疑問符の案内に表示する", async (
   await user.click(screen.getByRole("button", { name: "入力を終了" }));
   await user.keyboard("?");
 
-  expect(screen.getByText("地点やダンジョンを選ぶ")).toBeVisible();
-  expect(screen.getByText("移動・ダンジョン切替")).toBeVisible();
+  expect(screen.getByText("地点を選ぶ／戦闘パネルを移動")).toBeVisible();
+  expect(screen.getByText("戦闘の選択肢を選択・解除")).toBeVisible();
+  expect(screen.getByText("移動・回答・結果の処理")).toBeVisible();
   expect(screen.getByText("マップを全画面表示")).toBeVisible();
   expect(screen.getByText("ステータスを開く")).toBeVisible();
 });
@@ -538,7 +539,8 @@ it("全画面マップ上でも疑問符でゲーム操作hotkeyを表示する"
   await user.click(screen.getByRole("button", { name: "入力を終了" }));
   await user.keyboard("?");
 
-  expect(screen.getByText("地点やダンジョンを選ぶ")).toBeVisible();
+  expect(screen.getByText("地点を選ぶ／戦闘パネルを移動")).toBeVisible();
+  expect(screen.getByText("戦闘の選択肢を選択・解除")).toBeVisible();
 });
 
 it("ヘルプボタンでショートカット一覧を開く", async () => {

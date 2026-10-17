@@ -247,9 +247,9 @@ it("selects a player's appearance while using draft initial stats and the enemy 
     player_user_id: "other",
   });
   expect(preparations[0].seed).toEqual(expect.any(Number));
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "70");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    /HP\s*70\/70/,
+  );
 });
 
 it("explains a missing deployment route without confusing it with missing data", async () => {
@@ -406,7 +406,7 @@ it("answers the real dungeon quiz by keyboard through practice endpoints only", 
   await user.click(
     await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
   );
-  await screen.findByText("模擬ターン精算");
+  await screen.findByRole("button", { name: "続ける" });
   expect(turns).toHaveLength(1);
   expect(turns[0]).toMatchObject({ turn: { answers: { enemy: ["yes"] } } });
   expect(
@@ -440,9 +440,9 @@ it("loads real points and edits only the disposable player before starting", asy
   await screen.findByRole("dialog");
   expect(preparations[0].allocation).toEqual({ ...userPoints, attack: 9 });
   expect(preparations[0].player_user_id).toBe("other");
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "70");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    /HP\s*70\/70/,
+  );
 });
 
 it("uses real battle UI with draft settings, records results and replays without live writes", async () => {
@@ -461,9 +461,9 @@ it("uses real battle UI with draft settings, records results and replays without
     await screen.findByRole("heading", { name: "模擬戦（保存されません）" }),
   ).toBeInTheDocument();
   expect(preparations[0].balance).toEqual(draft);
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "60");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    /HP\s*60\/60/,
+  );
   expect(
     screen.queryByRole("button", { name: "本番の通報操作" }),
   ).not.toBeInTheDocument();
@@ -474,7 +474,7 @@ it("uses real battle UI with draft settings, records results and replays without
   await user.click(
     await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
   );
-  await screen.findByText("模擬ターン精算");
+  await screen.findByRole("button", { name: "続ける" });
   expect(screen.getByLabelText("模擬敵へのダメージ")).toHaveTextContent(
     "HIT · 10ダメージ",
   );
@@ -488,9 +488,9 @@ it("uses real battle UI with draft settings, records results and replays without
   expect(turns).toHaveLength(1);
   await user.click(screen.getByRole("button", { name: "同じ条件で再戦" }));
   expect(preparations).toHaveLength(1);
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "60");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    /HP\s*60\/60/,
+  );
 });
 
 it("confirms an incorrect synthetic answer and applies incoming damage", async () => {
@@ -510,11 +510,11 @@ it("confirms an incorrect synthetic answer and applies incoming damage", async (
   await user.click(
     await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
   );
-  await screen.findByText("模擬ターン精算");
+  await screen.findByText("模擬敵 · 不正解");
   expect(screen.getByText("模擬敵 · 不正解")).toBeInTheDocument();
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "49");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    /HP\s*49\/60/,
+  );
   expect(turns).toHaveLength(1);
   expect(turns[0]).toMatchObject({ turn: { answers: { enemy: [] } } });
   expect(screen.queryByText("正解の選択肢")).not.toBeInTheDocument();
@@ -615,7 +615,7 @@ it("settles unanswered timeout through practice and reports count, damage, and t
   await user.click(
     await screen.findByRole("button", { name: "結果を処理 · 1/1" }),
   );
-  await screen.findByText("模擬ターン精算");
+  await screen.findByRole("button", { name: "続ける" });
   await user.click(screen.getByRole("button", { name: "続ける" }));
   const row = within(
     screen.getByRole("table", { name: "模擬戦の比較" }),
