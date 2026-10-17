@@ -1,7 +1,7 @@
 # Battle sound effects
 
 These are third-party CC0 audio assets, not our former runtime oscillator/noise
-presets. Downloaded 2026-10-17. All selected works allow use under
+presets. Downloaded 2026-10-17; lightning replacements downloaded 2026-10-18. All selected works allow use under
 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/).
 Credits are retained here even though attribution is not required by CC0.
 
@@ -15,9 +15,9 @@ Credits are retained here even though attribution is not required by CC0.
 | curse.wav | dark_magic/fout-02.flac | qubodup, [3 dark magic spells](https://opengameart.org/content/3-dark-magic-spells) |
 | heal.wav | Cure1.wav | Someoneman, [Cure Magic](https://opengameart.org/content/cure-magic) |
 | buff.wav | Cure2.wav | Someoneman, same pack |
-| lightning.wav | spark.wav (saved as tesla1.wav) | BMacZero / Brian MacIntosh, [Electricity Sound Effects](https://opengameart.org/content/electricity-sound-effects-0); recording of a small Tesla generator |
-| lightning_2.wav | continuousspark.wav (saved as tesla0.wav) | BMacZero, same source |
-| lightning_storm.wav | zapTwoTone2.mp3 | Kenney, [63 Digital sound effects](https://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc) |
+| lightning.wav | crackleelectricityloop.wav, 0–0.7 s (or source end), 25 ms fades | faxcorp, [Electricity Game Sound Pack](https://opengameart.org/content/electricity-game-sound-pack) |
+| lightning_2.wav | snaploop.wav, 0–0.55 s, 30 ms fades | faxcorp, same source |
+| lightning_storm.wav | snaploop.wav, 0.55–1.5 s (or source end), 40 ms fades | faxcorp, same source |
 | slash_2.wav, slash_3.wav | blade_02.ogg, blade_03.ogg | rubberduck, same RPG pack |
 | fire_2.wav … fire_7.wav | spell_fire_02.ogg … spell_fire_07.ogg | rubberduck, same RPG pack |
 | heal_2.wav … heal_7.wav | Cure3.wav … Cure8.wav | Someoneman, same Cure Magic pack |
@@ -36,15 +36,15 @@ Credits are retained here even though attribution is not required by CC0.
 | chime.wav, chime_2.wav, chime_3.wav, chime_4.wav | magical_1_0.ogg, magical_2.ogg, magical_3.ogg, magical_4.ogg (saved as chime.ogg, chime2.ogg, chime3.ogg, chime4.ogg) | JaggedStone, [Magic Spell SFX](https://opengameart.org/content/magic-spell-sfx) |
 | wind.wav | sand-spell.flac (saved as sand.flac) | qubodup, [Sand spell](https://opengameart.org/content/sand-spell); mouth-recorded whoosh |
 | explosion.wav, explosion_2.wav | explosion_5.ogg, explosion1_3.ogg (saved as explosion.ogg, explosion2.ogg) | Delta12 Studio, same RPG pack |
-| zap.wav, zap_2.wav, magic_rise.wav | zap1.mp3, zap2.mp3, powerUp2.mp3 | Kenney, same Digital SFX pack |
+| zap.wav, zap_2.wav, magic_rise.wav | zap1.mp3, zap2.mp3, powerUp2.mp3 | Kenney, [63 Digital sound effects](https://opengameart.org/content/63-digital-sound-effects-lasers-phasers-space-etc); pitched magic bolts, not lightning defaults |
 
 Direct downloads:
 
 - https://opengameart.org/sites/default/files/80-CC0-RPG-SFX_0.zip
 - https://opengameart.org/sites/default/files/curemagic.zip
 - https://opengameart.org/sites/default/files/punch_1.ogg
-- https://opengameart.org/sites/default/files/spark.wav
-- https://opengameart.org/sites/default/files/continuousspark.wav
+- https://opengameart.org/sites/default/files/crackleelectricityloop.wav
+- https://opengameart.org/sites/default/files/snaploop.wav
 - https://opengameart.org/sites/default/files/Digital_SFX_Set.zip
 - https://lentikula.itch.io/freecc0-basic-spell-impacts-sfx (free download, Basic Spell Impacts.zip)
 - https://opengameart.org/sites/default/files/dark_magic.7z
@@ -73,9 +73,13 @@ An optional third argument selects comma-separated sound IDs for partial imports
 Conversion: decode to 32 kHz mono PCM, trim boundary silence, normalize peaks to
 85%, add 5 ms boundary fades, encode 16-bit WAV for browser compatibility. Clips
 retain the complete non-silent one-shot rather than cutting through a phrase.
-The former 3.7/5.2/17.8-second lightning assets have all been replaced by short
-spark/zap recordings, preserving their existing IDs. No newly synthesized tones
-or pitch shifts are added.
+Lightning instead uses short bursts from the author's electricity crackle and
+snap loops, with 25–40 ms edge fades to avoid clicks. The previous long discharge,
+Tesla-generator, and pitched Zap choices were replaced after user feedback on
+duration and timbre. Pitched Kenney Zaps are retained as magic bolts in a separate
+group, not as lightning. Existing IDs remain compatible. No newly synthesized
+tones or pitch shifts are added. Selection is based on author descriptions and
+technical playback checks, not a claim of human listening verification.
 The game hosts these files locally and never requests the source sites.
 
 ## Defaults

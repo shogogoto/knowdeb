@@ -12,10 +12,10 @@ const sources = {
   impact: ["punch.ogg"],
   slash: ["rpg/blade_01.ogg"],
   fire: ["rpg/spell_fire_01.ogg"],
-  // Short, complete sparks and zaps, not excerpts from a long discharge.
-  lightning: ["tesla1.wav"],
-  lightning_2: ["tesla0.wav"],
-  lightning_storm: ["digital/zapTwoTone2.mp3"],
+  // Crackling discharge loops, shaped into short bursts (no pitched Zap tones).
+  lightning: ["crackleelectricityloop.wav", 0, 0.7, 0.025],
+  lightning_2: ["snaploop.wav", 0, 0.55, 0.03],
+  lightning_storm: ["snaploop.wav", 0.55, 1.5, 0.04],
   heal: ["cure/Cure1.wav"],
   buff: ["cure/Cure2.wav"],
   debuff: ["rpg/spell_02.ogg"],
@@ -77,11 +77,14 @@ const browser = await chromium.launch({
 try {
   const page = await browser.newPage();
   await mkdir(output, { recursive: true });
-  for (const [id, [file, start = 0, end = null]] of Object.entries(sources)) {
+  for (const [
+    id,
+    [file, start = 0, end = null, fade = 0.005],
+  ] of Object.entries(sources)) {
     if (only && !only.includes(id)) continue;
     const base64 = (await readFile(resolve(input, file))).toString("base64");
     const samples = await page.evaluate(
-      async ({ base64, start, end }) => {
+      async ({ base64, start, end, fade }) => {
         const context = new OfflineAudioContext(1, 1, 32000);
         const decoded = await context.decodeAudioData(
           Uint8Array.from(atob(base64), (c) => c.charCodeAt(0)).buffer,
@@ -104,19 +107,20 @@ try {
         if (peak === 0) throw new Error("Silent source");
         while (Math.abs(mono[first]) < peak * 0.002) first++;
         while (Math.abs(mono[last - 1]) < peak * 0.002) last--;
-        // Leave 20 ms of tail, normalize peaks, and fade boundaries (5 ms).
+        // Leave 20 ms of tail, normalize peaks, and fade boundaries.
         last = Math.min(boundary, last + 640);
         const length = last - first;
+        const fadeSamples = Math.round(fade * decoded.sampleRate);
         return Array.from(mono.subarray(first, last), (sample, i) =>
           Math.round(
             (sample / peak) *
               0.85 *
-              Math.min(1, i / 160, (length - 1 - i) / 160) *
+              Math.min(1, i / fadeSamples, (length - 1 - i) / fadeSamples) *
               32767,
           ),
         );
       },
-      { base64, start, end },
+      { base64, start, end, fade },
     );
     const wav = Buffer.alloc(44 + samples.length * 2);
     wav.write("RIFF", 0);

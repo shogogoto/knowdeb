@@ -8,6 +8,7 @@ import {
   stopBattleSounds,
 } from "./battleSound";
 import { animationLabels } from "./catalog";
+import { soundAssets } from "./soundAssets";
 
 class TestAudio {
   static instances: TestAudio[] = [];
@@ -67,6 +68,22 @@ it("assigns an intentional sound to every visual effect", () => {
     if (animation === "none") continue;
     expect(sound).not.toBeNull();
     expect(sound && battleSoundFiles[sound]).toBeTruthy();
+  }
+});
+
+it("keeps pitched magic-bolt sounds out of lightning choices and defaults", () => {
+  expect(
+    Object.entries(soundAssets)
+      .filter(([, sound]) => sound.group === "雷")
+      .map(([id]) => id),
+  ).toEqual(["lightning", "lightning_2", "lightning_storm"]);
+  for (const animation of [
+    "lightning",
+    "oga_spell_8",
+    "oga_arcane_5",
+    "oga_arcane_6",
+  ] as const) {
+    expect(animationSounds[animation]).toMatch(/^lightning/);
   }
 });
 

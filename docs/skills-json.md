@@ -42,7 +42,7 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 バブルは `effect: "buff"`, `stat: "maxHp"`, `amount_mode: "percent"` で定義します。
 `animation` は演出一覧で選んだものを書き出すとIDを確認できます。
 `sound` はローカル配信するCC0音声素材の選択です。省略時は `auto`（全映像演出に設定済みのデフォルトSE。映像が「なし」のときだけ効果種別で補完）、`none` で無音です。明示的に選んだSEは映像を変更しても保持します。
-氷 `ice`〜`ice_5`、水 `water`〜`water_5`、炎の着弾 `fire_burst`〜`fire_burst_3`、大地 `earth`、風 `wind`、爆発 `explosion` / `explosion_2`、暗黒 `dark_2` / `dark_3`、吸収 `drain`、転移 `teleport`、魔法の響き `chime`〜`chime_4`、電撃弾 `zap` / `zap_2`、魔力上昇 `magic_rise` も選択できます。
+氷 `ice`〜`ice_5`、水 `water`〜`water_5`、炎の着弾 `fire_burst`〜`fire_burst_3`、大地 `earth`、風 `wind`、爆発 `explosion` / `explosion_2`、暗黒 `dark_2` / `dark_3`、吸収 `drain`、転移 `teleport`、魔法の響き `chime`〜`chime_4`、魔力弾 `zap` / `zap_2`、魔力上昇 `magic_rise` も選択できます。雷の3種類は音程付きのZapではなく、電気のクラックル／スナップ素材を使います。
 素材の出典・ライセンスは `public/game-assets/sounds/SOURCES.md` に記載しています。
 adminの「演出」パネルで映像とSEを一緒に選択し、組み合わせて試聴できます。確定前に閉じると両方の選択を破棄します。戦闘中は音楽OFFにするとSEも再生しません。
 
