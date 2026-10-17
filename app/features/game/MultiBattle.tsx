@@ -28,7 +28,8 @@ import {
   remainingHp,
   rollPlayerDamage,
 } from "./battle";
-import { playBattleSound } from "./battleSound";
+import { playBattleSound, playSkillSound } from "./battleSound";
+import type { SkillAnimation } from "./catalog";
 import {
   actionDamage,
   effectAmount,
@@ -39,6 +40,9 @@ import type { GameSave } from "./domain";
 import { musicPreferences } from "./music";
 import type { GameState } from "./state";
 import useBattleTempo, { type BattleTempo } from "./useBattleTempo";
+
+const hitAnimation = (animation?: SkillAnimation): SkillAnimation =>
+  animation && animation !== "none" ? animation : "impact";
 
 export default function MultiBattle({
   save,
@@ -141,6 +145,26 @@ export default function MultiBattle({
   const currentHp = remainingHp(hp, live);
   const resultIds = result ? live.map((enemy) => enemy.id) : [];
   const nextResultId = resultIds[resultIndex];
+  const lastActionReceipt = useRef(save.endActionReceipt?.action_id);
+  const [actionEffect, setActionEffect] =
+    useState<GameSave["endActionReceipt"]>();
+  useEffect(() => {
+    const receipt = save.endActionReceipt;
+    if (
+      !receipt ||
+      receipt.action_id === lastActionReceipt.current ||
+      nextResultId
+    )
+      return;
+    lastActionReceipt.current = receipt.action_id;
+    setActionEffect(receipt);
+    if (receipt.effect && musicPreferences().enabled)
+      playSkillSound({
+        effect: receipt.effect,
+        sound: receipt.sound,
+        ailment: receipt.ailment ?? undefined,
+      });
+  }, [save.endActionReceipt, nextResultId]);
   const delay =
     context.balance[`battle_tempo_${tempo.tempo}_seconds`] ??
     {
@@ -362,13 +386,25 @@ export default function MultiBattle({
           >
             <div className="relative">
               <EnemyAvatar identity={enemy.id} icon={enemy.icon} large />
+              {actionEffect?.target_ids?.includes(enemy.id) && (
+                <SkillEffect
+                  key={actionEffect.action_id}
+                  animation={actionEffect.animation ?? "none"}
+                  onIcon
+                />
+              )}
               {result &&
                 index === resultIndex - 1 &&
                 result.results[enemy.id] &&
                 (hitEffects[enemy.id]?.damage ?? 0) > 0 && (
                   <SkillEffect
                     key={`${battle.id}:${battle.turn}:${index}`}
-                    animation="impact"
+                    animation={hitAnimation(
+                      battle.gambitAction?.skill.effect === "attack"
+                        ? battle.gambitAction.skill.animation
+                        : undefined,
+                    )}
+                    onIcon
                   />
                 )}
             </div>
@@ -392,13 +428,20 @@ export default function MultiBattle({
   return (
     <BattleDialog
       playerEffect={
-        result &&
-        resultIndex > 0 &&
-        !result.results[live[resultIndex - 1]?.id] &&
-        (result.incoming_damage?.[live[resultIndex - 1]?.id] ?? 0) > 0 ? (
+        actionEffect?.target_ids?.includes("player") ? (
+          <SkillEffect
+            key={actionEffect.action_id}
+            animation={actionEffect.animation ?? "none"}
+            onIcon
+          />
+        ) : result &&
+          resultIndex > 0 &&
+          !result.results[live[resultIndex - 1]?.id] &&
+          (result.incoming_damage?.[live[resultIndex - 1]?.id] ?? 0) > 0 ? (
           <SkillEffect
             key={`${battle.id}:${battle.turn}:${resultIndex}`}
-            animation="impact"
+            animation={hitAnimation(live[resultIndex - 1]?.animation)}
+            onIcon
           />
         ) : undefined
       }
@@ -479,12 +522,6 @@ export default function MultiBattle({
       )}
       {result ? (
         <div className="relative space-y-3" data-battle-result>
-          {!nextResultId && save.endActionReceipt && (
-            <SkillEffect
-              key={save.endActionReceipt.action_id}
-              animation={save.endActionReceipt.animation ?? "none"}
-            />
-          )}
           {nextResultId && (
             <p className="text-sm text-muted-foreground" aria-live="polite">
               結果 {resultIndex + 1}/{resultIds.length} を処理します
@@ -514,9 +551,6 @@ export default function MultiBattle({
                         : "border-border opacity-60"
                   }`}
                 >
-                  {processed && !correct && (
-                    <SkillEffect animation={enemy.animation ?? "none"} />
-                  )}
                   <p className="font-medium">
                     {enemy.name} ·{" "}
                     {processed
@@ -652,8 +686,17 @@ export default function MultiBattle({
                             : effect.label,
                       },
                     }));
-                    if (musicPreferences().enabled)
-                      playBattleSound(true, effect.level);
+                    if (musicPreferences().enabled) {
+                      const skill = battle.gambitAction?.skill;
+                      if (
+                        skill &&
+                        skill.effect === "attack" &&
+                        (skill.target === "all_enemies" ||
+                          id === battle.enemies[0])
+                      )
+                        playSkillSound(skill, true, effect.level);
+                      else playBattleSound(true, effect.level);
+                    }
                   } else {
                     const damage = result.incoming_damage?.[id];
                     if (damage !== undefined) {
@@ -663,7 +706,15 @@ export default function MultiBattle({
                         [id]: { damage, level: 1, label: "被ダメージ" },
                       }));
                     }
-                    if (musicPreferences().enabled) playBattleSound(false);
+                    if (musicPreferences().enabled) {
+                      const enemy = live.find((e) => e.id === id);
+                      if (enemy?.sound && enemy.sound !== "auto")
+                        playSkillSound(
+                          { effect: "attack", sound: enemy.sound },
+                          false,
+                        );
+                      else playBattleSound(false);
+                    }
                   }
                   const nextIndex = resultIndex + 1;
                   const enemy = live.find((item) => item.id === id);
@@ -711,6 +762,7 @@ export default function MultiBattle({
                     setResultIndex(0);
                     setTurnDamageByEnemy({});
                     setHitEffects({});
+                    setActionEffect(undefined);
                     setPoisonEffects({});
                     onSaved(state);
                   })

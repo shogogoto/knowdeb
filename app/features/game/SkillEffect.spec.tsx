@@ -1,6 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import SkillEffect from "./SkillEffect";
 
+it("gives icon effects an unclipped overlay without relying on preview mode", () => {
+  const { container } = render(<SkillEffect animation="impact" onIcon />);
+  expect(
+    container.querySelector('[data-skill-animation="impact"]'),
+  ).toHaveClass("skill-fx-icon");
+  expect(container.querySelector("[data-skill-animation]")).not.toHaveClass(
+    "skill-fx-preview",
+  );
+});
+
 it("starts a sprite only after its image loads and keeps explicit previews enabled", () => {
   const { container } = render(<SkillEffect animation="oga_spell_3" preview />);
   const image = container.querySelector("img");

@@ -142,9 +142,30 @@
     transform: translate(-50%, -30%) skewX(20deg);
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .skill-fx:not(.skill-fx-preview) {
-    display: none;
+.skill-fx-icon {
+  inset: -1.5rem;
+  overflow: visible;
+  border-radius: 0;
+}
+.skill-fx-impact::before {
+  content: "";
+  position: absolute;
+  inset: 20%;
+  background: radial-gradient(circle, #fff 0%, #fde68a 20%, transparent 65%);
+  animation: skill-fx-impact-flash 500ms ease-out both;
+}
+@keyframes skill-fx-impact-flash {
+  0% {
+    opacity: 1;
+    transform: scale(0.35);
+  }
+  30% {
+    opacity: 0.95;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
   }
 }
 .skill-sprite {

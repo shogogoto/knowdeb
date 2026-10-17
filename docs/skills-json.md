@@ -18,7 +18,8 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
       "amount": 20,
       "amount_mode": "fixed",
       "mp_cost": 3,
-      "animation": "heal"
+      "animation": "heal",
+      "sound": "heal"
     }
   ]
 }
@@ -31,6 +32,7 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 | `amount_mode` | `fixed`（固定値）, `percent`（対象能力に対する割合） |
 | `stat` | `attack`, `defense`, `maxHp` |
 | `enabled` | `true`, `false` |
+| `sound` | `auto`, `none`, `impact`, `slash`, `fire`, `lightning`, `heal`, `buff`, `debuff`, `poison`, `curse` |
 
 `id` は英小文字から始まる英小文字・数字・アンダースコアで64文字以内。
 `name` は1〜80文字。`id`・`name`・`effect` は必須です。
@@ -39,9 +41,11 @@ admin → ゲーム → スキルから、編集中の一覧を書き出し、�
 `duration_turns` は1〜20、`stack_limit` は1〜10です。
 バブルは `effect: "buff"`, `stat: "maxHp"`, `amount_mode: "percent"` で定義します。
 `animation` は演出一覧で選んだものを書き出すとIDを確認できます。
+`sound` はSEのプリセット。省略時は `auto`（効果種別に応じた音）、`none` で無音です。
+adminの「試聴」で確認できます。戦闘中は音楽OFFにするとSEも再生しません。
 
 効果種別ごとにキーの組み合わせが異なります。共通項目は
-`id`, `name`, `icon`, `enabled`, `effect`, `target`, `amount`, `mp_cost`, `animation` です。
+`id`, `name`, `icon`, `enabled`, `effect`, `target`, `amount`, `mp_cost`, `animation`, `sound` です。
 
 | 効果種別 | 種別ごとの項目 |
 |---|---|

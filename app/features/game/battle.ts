@@ -75,6 +75,7 @@ export type LiveEnemy = RegionEnemy & {
   region: number;
   relations: number;
   animation?: import("./catalog").SkillAnimation;
+  sound?: import("./catalog").SkillSound;
 };
 export type CombatContext = { balance: GameBalance; enemies: LiveEnemy[] };
 export type TurnInput = {

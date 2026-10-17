@@ -1,5 +1,5 @@
 import { vi } from "vitest";
-import { playBattleSound } from "./battleSound";
+import { playBattleSound, playSkillSound } from "./battleSound";
 
 const parameter = () => ({
   value: 0,
@@ -81,4 +81,31 @@ it("does not break gameplay when audio is unavailable or rejected", async () => 
   expect(context.close).toHaveBeenCalled();
   vi.stubGlobal("AudioContext", undefined);
   expect(() => playBattleSound(false)).not.toThrow();
+});
+
+it("keeps an explicitly silent skill silent", () => {
+  playSkillSound({ effect: "attack", sound: "none" });
+  expect(context.createBufferSource).not.toHaveBeenCalled();
+});
+
+it.each([
+  "slash",
+  "fire",
+  "lightning",
+  "heal",
+  "buff",
+  "debuff",
+  "poison",
+  "curse",
+] as const)("plays the selected %s preset", (sound) => {
+  playSkillSound({ effect: "attack", sound });
+  expect(crack.start).toHaveBeenCalledOnce();
+  expect(body.frequency.setValueAtTime.mock.calls[0][0]).toBeGreaterThan(0);
+});
+
+it("resolves automatic recovery and curse sounds from their actual effects", () => {
+  playSkillSound({ effect: "heal_mp" });
+  expect(body.frequency.setValueAtTime).toHaveBeenLastCalledWith(440, 0);
+  playSkillSound({ effect: "ailment", ailment: "curse" });
+  expect(body.frequency.setValueAtTime).toHaveBeenLastCalledWith(110, 0);
 });

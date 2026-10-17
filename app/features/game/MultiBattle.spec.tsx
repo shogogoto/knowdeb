@@ -219,6 +219,50 @@ function Fixture({ deadline }: { deadline?: number }) {
     </MemoryRouter>
   );
 }
+it("plays a completed skill once on its target and respects the shared music switch", () => {
+  setMusicPreferences({ enabled: true });
+  const play = vi
+    .spyOn(battleSound, "playSkillSound")
+    .mockImplementation(() => undefined);
+  const save = initial();
+  const receipt = {
+    action_id: "cast-1",
+    animation: "heal" as const,
+    effect: "heal_hp" as const,
+    sound: "heal" as const,
+    target_ids: ["player"],
+  };
+  const show = (state: GameSave) => (
+    <MemoryRouter>
+      <MultiBattle
+        save={state}
+        content={content}
+        context={{ balance: stableBalance, enemies }}
+        onSaved={() => undefined}
+        onFinished={async () => undefined}
+        onBusy={() => undefined}
+      />
+    </MemoryRouter>
+  );
+  const view = render(show(save));
+  view.rerender(show({ ...save, endActionReceipt: receipt }));
+  expect(play).toHaveBeenCalledOnce();
+  expect(play).toHaveBeenCalledWith(
+    expect.objectContaining({ effect: "heal_hp", sound: "heal" }),
+  );
+  expect(
+    screen
+      .getByRole("region", { name: "プレイヤー" })
+      .querySelector('[data-skill-animation="heal"]'),
+  ).not.toBeNull();
+  view.rerender(show({ ...save, endActionReceipt: { ...receipt } }));
+  expect(play).toHaveBeenCalledOnce();
+  act(() => setMusicPreferences({ enabled: false }));
+  view.rerender(
+    show({ ...save, endActionReceipt: { ...receipt, action_id: "cast-2" } }),
+  );
+  expect(play).toHaveBeenCalledOnce();
+});
 it("drops weapon damage after its last correct attack within the same turn", async () => {
   const save = initial();
   save.economy = {

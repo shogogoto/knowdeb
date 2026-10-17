@@ -1,8 +1,11 @@
 import { Plus } from "lucide-react";
+import { playSkillSound } from "~/features/game/battleSound";
 import {
   type SkillDefinition,
   type SkillPatch,
+  type SkillSound,
   effectLabels,
+  soundLabels,
 } from "~/features/game/catalog";
 import { Button } from "~/shared/components/ui/button";
 import { Input } from "~/shared/components/ui/input";
@@ -48,6 +51,7 @@ export default function SkillTables({
           ...(status ? ["持続ターン", "重複上限"] : []),
           "消費MP",
           "演出",
+          "SE",
           "有効",
           "削除",
         ];
@@ -278,6 +282,38 @@ export default function SkillTables({
                               update(s.id, { animation })
                             }
                           />
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-1">
+                            <select
+                              aria-label="SE"
+                              disabled={removed}
+                              className={selectClass}
+                              value={s.sound ?? "auto"}
+                              onChange={(e) =>
+                                update(s.id, {
+                                  sound: e.target.value as SkillSound,
+                                })
+                              }
+                            >
+                              {Object.entries(soundLabels).map(
+                                ([id, label]) => (
+                                  <option key={id} value={id}>
+                                    {label}
+                                  </option>
+                                ),
+                              )}
+                            </select>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              disabled={removed || s.sound === "none"}
+                              onClick={() => playSkillSound(s)}
+                            >
+                              試聴
+                            </Button>
+                          </div>
                         </td>
                         <td>
                           <input

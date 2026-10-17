@@ -9,6 +9,7 @@ import userEvent from "@testing-library/user-event";
 import { http, HttpResponse } from "msw";
 import { setupServer } from "msw/node";
 import { vi } from "vitest";
+import * as battleSound from "~/features/game/battleSound";
 import { sampleCatalog } from "~/features/game/catalog.fixtures";
 import CatalogEditor from "./CatalogEditor";
 import * as skillFiles from "./skillFiles";
@@ -28,6 +29,29 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 afterAll(() => server.close());
+
+it("saves and previews each skill's sound independently of its visual animation", async () => {
+  const play = vi
+    .spyOn(battleSound, "playSkillSound")
+    .mockImplementation(() => undefined);
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const row = await screen.findByRole("row", { name: "ファイア" });
+  await user.selectOptions(within(row).getByLabelText("SE"), "fire");
+  await user.click(within(row).getByRole("button", { name: "試聴" }));
+  expect(play).toHaveBeenCalledWith(
+    expect.objectContaining({ id: "fire", sound: "fire" }),
+  );
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalled());
+  expect(
+    saved.mock.calls[0][0].skills.find((s: { id: string }) => s.id === "fire"),
+  ).toMatchObject({ sound: "fire" });
+  expect(
+    within(row).getByRole("button", { name: "ファイアの演出を選ぶ" }),
+  ).toHaveTextContent("なし");
+  play.mockRestore();
+});
 
 it("merges a skill file into the draft, preserving other edits until explicit save", async () => {
   server.use(

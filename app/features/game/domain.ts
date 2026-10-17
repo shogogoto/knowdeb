@@ -66,6 +66,11 @@ export type GameSave = {
   endActionReceipt?: {
     action_id: string;
     animation?: import("./catalog").SkillAnimation;
+    sound?: import("./catalog").SkillSound;
+    effect?: import("./catalog").SkillDefinition["effect"];
+    target?: "self" | "enemy" | "all_enemies";
+    target_ids?: string[];
+    ailment?: "poison" | "curse" | null;
   } | null;
   maps?: Record<string, DungeonMap>;
   dungeons?: Record<string, ParkedDungeon>;

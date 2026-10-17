@@ -8,7 +8,13 @@ export default function SkillEffect({
   animation,
   preview = false,
   still = false,
-}: { animation: SkillAnimation; preview?: boolean; still?: boolean }) {
+  onIcon = false,
+}: {
+  animation: SkillAnimation;
+  preview?: boolean;
+  still?: boolean;
+  onIcon?: boolean;
+}) {
   if (animation === "none") return null;
   const sprite = spriteAsset(animation);
   if (sprite)
@@ -18,13 +24,14 @@ export default function SkillEffect({
         animation={animation}
         sprite={sprite}
         preview={preview}
+        onIcon={onIcon}
       />
     );
   return (
     <span
       aria-hidden="true"
       data-skill-animation={animation}
-      className={`skill-fx skill-fx-${animation}${preview ? " skill-fx-preview" : ""}${still ? " skill-fx-still" : ""}`}
+      className={`skill-fx skill-fx-${animation}${preview ? " skill-fx-preview" : ""}${still ? " skill-fx-still" : ""}${onIcon ? " skill-fx-icon" : ""}`}
     >
       <span />
       <span />
@@ -39,10 +46,12 @@ function SpriteEffect({
   animation,
   sprite,
   preview,
+  onIcon,
 }: {
   animation: SkillAnimation;
   sprite: NonNullable<ReturnType<typeof spriteAsset>>;
   preview: boolean;
+  onIcon: boolean;
 }) {
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
@@ -56,7 +65,7 @@ function SpriteEffect({
     <div
       aria-hidden="true"
       data-skill-animation={animation}
-      className={`skill-fx${preview ? " skill-fx-preview" : ""}`}
+      className={`skill-fx${preview ? " skill-fx-preview" : ""}${onIcon ? " skill-fx-icon" : ""}`}
     >
       <div
         className="skill-sprite"
