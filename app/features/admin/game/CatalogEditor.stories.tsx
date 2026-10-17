@@ -31,6 +31,34 @@ export default {
         http.put("*/admin/game/catalog", async ({ request }) =>
           HttpResponse.json(await request.json()),
         ),
+        http.post("*/admin/game/skills/preview", async ({ request }) => {
+          const { catalog, document } = (await request.json()) as {
+            catalog: typeof sampleCatalog;
+            document: {
+              format: string;
+              version: number;
+              skills: typeof sampleCatalog.skills;
+            };
+          };
+          if (
+            document.format !== "tanbunism.skills" ||
+            document.version !== 1 ||
+            !Array.isArray(document.skills)
+          ) {
+            return HttpResponse.json(
+              { detail: "スキルJSONの形式が正しくありません。" },
+              { status: 422 },
+            );
+          }
+          const skills = new Map(
+            catalog.skills.map((skill) => [skill.id, skill]),
+          );
+          for (const skill of document.skills) skills.set(skill.id, skill);
+          return HttpResponse.json({
+            ...catalog,
+            skills: [...skills.values()],
+          });
+        }),
       ],
     },
   },

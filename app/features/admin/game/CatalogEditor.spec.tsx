@@ -11,6 +11,7 @@ import { setupServer } from "msw/node";
 import { vi } from "vitest";
 import { sampleCatalog } from "~/features/game/catalog.fixtures";
 import CatalogEditor from "./CatalogEditor";
+import * as skillFiles from "./skillFiles";
 
 const saved = vi.fn();
 const server = setupServer(
@@ -27,6 +28,115 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 afterAll(() => server.close());
+
+it("merges a skill file into the draft, preserving other edits until explicit save", async () => {
+  server.use(
+    http.post("*/admin/game/skills/preview", async ({ request }) => {
+      const { catalog, document } = (await request.json()) as {
+        catalog: typeof sampleCatalog;
+        document: { skills: typeof sampleCatalog.skills };
+      };
+      const skills = new Map(catalog.skills.map((s) => [s.id, s]));
+      for (const skill of document.skills) skills.set(skill.id, skill);
+      return HttpResponse.json({ ...catalog, skills: [...skills.values()] });
+    }),
+  );
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const fire = await screen.findByRole("row", { name: "ファイア" });
+  fireEvent.change(within(fire).getByLabelText("加算ダメージ"), {
+    target: { value: "7" },
+  });
+  const imported = [
+    { ...sampleCatalog.skills[1], name: "ケアル改", amount: 30 },
+    { ...sampleCatalog.skills[0], id: "ice", name: "ブリザド" },
+  ];
+  await user.upload(
+    screen.getByLabelText("スキルJSONファイル"),
+    new File([skillFiles.skillFileText(imported)], "skills.json", {
+      type: "application/json",
+    }),
+  );
+  expect(await screen.findByRole("row", { name: "ケアル改" })).toBeVisible();
+  expect(screen.getByRole("row", { name: "ブリザド" })).toBeVisible();
+  expect(within(fire).getByLabelText("加算ダメージ")).toHaveValue(7);
+  expect(saved).not.toHaveBeenCalled();
+  expect(screen.getByText(/表を確認して「保存」/)).toBeVisible();
+  await user.click(screen.getByRole("button", { name: "保存" }));
+  await waitFor(() => expect(saved).toHaveBeenCalledTimes(1));
+  const catalog = saved.mock.calls[0][0];
+  expect(catalog.skills).toHaveLength(4);
+  expect(catalog.items).toEqual(sampleCatalog.items);
+  expect(catalog.player_skills).toEqual(sampleCatalog.player_skills);
+});
+
+it("keeps the draft and deletion reservations when file validation fails", async () => {
+  server.use(
+    http.post("*/admin/game/skills/preview", () =>
+      HttpResponse.json(
+        {
+          detail: [
+            {
+              loc: ["body", "document", "skills", 0, "effect"],
+              msg: "Unknown effect",
+            },
+          ],
+        },
+        { status: 422 },
+      ),
+    ),
+  );
+  render(<CatalogEditor kind="skills" />);
+  const user = userEvent.setup();
+  const fire = await screen.findByRole("row", { name: "ファイア" });
+  await user.click(within(fire).getByRole("button", { name: "削除" }));
+  const input = screen.getByLabelText("スキルJSONファイル");
+  await user.upload(
+    input,
+    new File(["{"], "invalid.json", { type: "application/json" }),
+  );
+  expect(await screen.findByRole("alert")).toHaveTextContent(
+    "JSONの形式が正しくありません",
+  );
+  await user.upload(
+    input,
+    new File([skillFiles.skillFileText(sampleCatalog.skills)], "invalid.json", {
+      type: "application/json",
+    }),
+  );
+  await waitFor(() =>
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "document.skills.0.effect",
+    ),
+  );
+  expect(fire).toHaveAttribute("data-pending-delete", "true");
+  expect(saved).not.toHaveBeenCalled();
+  expect(screen.getAllByRole("row", { name: "ケアル" })).toHaveLength(1);
+});
+
+it("exports current edits while leaving out skills marked for deletion", async () => {
+  const download = vi
+    .spyOn(skillFiles, "downloadSkillFile")
+    .mockImplementation(() => undefined);
+  try {
+    render(<CatalogEditor kind="skills" />);
+    const user = userEvent.setup();
+    const fire = await screen.findByRole("row", { name: "ファイア" });
+    await user.click(within(fire).getByRole("button", { name: "削除" }));
+    const heal = screen.getByRole("row", { name: "ケアル" });
+    fireEvent.change(within(heal).getByLabelText("効果量"), {
+      target: { value: "25" },
+    });
+    await user.click(screen.getByRole("button", { name: "JSONを書き出す" }));
+    expect(download).toHaveBeenCalledWith([
+      { ...sampleCatalog.skills[1], amount: 25 },
+      sampleCatalog.skills[2],
+    ]);
+    expect(saved).not.toHaveBeenCalled();
+  } finally {
+    download.mockRestore();
+  }
+});
 
 it("edits skills without material selection and preserves existing icon data", async () => {
   render(<CatalogEditor kind="skills" />);

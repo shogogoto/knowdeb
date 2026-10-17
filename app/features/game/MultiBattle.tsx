@@ -712,7 +712,8 @@ export default function MultiBattle({
                 ` · MP ${battle.gambitAction.skill.mp_cost}`}
             </p>
           )}
-          <div className="flex justify-end gap-2 text-sm">
+          <div className="flex justify-between gap-2 text-sm">
+            <span className="text-muted-foreground">通常の攻防</span>
             <span>
               回答確定 {Object.keys(answers).length}/{live.length}
             </span>
