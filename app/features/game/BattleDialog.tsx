@@ -86,7 +86,7 @@ export default function BattleDialog({
               target.focus();
             }
           }}
-          className="flex max-h-[96dvh] flex-col gap-3 overflow-hidden p-3 sm:max-w-5xl sm:p-5"
+          className="top-2 flex max-h-[calc(100dvh-1rem)] translate-y-0 flex-col gap-3 overflow-hidden p-3 sm:max-w-5xl sm:p-5"
           data-dashboard-swipe-ignore
           onKeyDownCapture={(event) => {
             const target = event.target;
@@ -181,14 +181,23 @@ export default function BattleDialog({
             }
           }}
         >
-          <DialogHeader className="shrink-0 pr-20 text-left">
+          <DialogHeader className="shrink-0 pr-36 text-left sm:pr-20">
             <div className="absolute right-10 top-2 flex items-center gap-1 sm:top-3">
               {headerControls}
               <MusicControls />
             </div>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex min-w-0 items-center gap-2">
               <Swords className="size-4" />
-              {simulation ? "模擬戦（保存されません）" : "敵と遭遇"}
+              <span className="truncate">
+                {simulation ? (
+                  <>
+                    模擬戦
+                    <span className="hidden sm:inline">（保存されません）</span>
+                  </>
+                ) : (
+                  "敵と遭遇"
+                )}
+              </span>
             </DialogTitle>
             <DialogDescription className="truncate">
               {run.name} · 第{run.readIds.length}地点

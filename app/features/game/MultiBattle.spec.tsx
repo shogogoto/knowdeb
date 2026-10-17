@@ -123,9 +123,9 @@ it("automatically processes unanswered damage at the selected tempo without adva
   await act(async () => {
     await vi.advanceTimersByTimeAsync(499);
   });
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "35");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    "35/35",
+  );
   await act(async () => {
     await vi.advanceTimersByTimeAsync(1);
   });
@@ -133,18 +133,18 @@ it("automatically processes unanswered damage at the selected tempo without adva
   expect(
     screen.getByLabelText("敵0からプレイヤーへのダメージ"),
   ).toHaveTextContent("5ダメージ");
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "30");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    "30/35",
+  );
   fireEvent.click(bgm);
   expect(bgm).toHaveAttribute("aria-pressed", "false");
   await act(async () => {
     await vi.advanceTimersByTimeAsync(500);
   });
   expect(screen.getByText("敵1 · 未回答")).toBeVisible();
-  expect(
-    screen.getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "24");
+  expect(screen.getByRole("region", { name: "プレイヤー" })).toHaveTextContent(
+    "24/35",
+  );
   expect(screen.getByRole("button", { name: "続ける" })).toBeEnabled();
   expect(playSound).toHaveBeenCalledTimes(1);
   await act(async () => {

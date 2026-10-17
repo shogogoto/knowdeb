@@ -50,10 +50,9 @@ it("separates enemy HP from named player HP in the floating battle", () => {
     enemy.compareDocumentPosition(player) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
   expect(player).toHaveTextContent("テストプレイヤー");
-  expect(within(player).getByText("35/35")).toBeVisible();
-  expect(
-    within(player).getByRole("progressbar", { name: "プレイヤーHP" }),
-  ).toHaveAttribute("aria-valuenow", "35");
+  expect(player).toHaveTextContent(/HP\s*35\/35/);
+  expect(player).toHaveTextContent(/MP\s*10\/10/);
+  expect(within(player).queryByRole("progressbar")).not.toBeInTheDocument();
 });
 
 it("keeps an active battle open when Escape is pressed", async () => {
