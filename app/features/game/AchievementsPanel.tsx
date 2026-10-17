@@ -1,6 +1,7 @@
 import type { Growth } from "~/features/gamification/ResourceGrowth";
 import { canonicalSentenceId } from "~/features/tanbun/detail/cache";
 import type { GameSave } from "./domain";
+import { exploredPlaceCount } from "./progress";
 
 export default function AchievementsPanel({
   save,
@@ -19,15 +20,15 @@ export default function AchievementsPanel({
     });
   };
   for (const dungeon of save.unlockedDungeons ?? [])
-    add(dungeon.resourceId, dungeon.name, dungeon.achievement);
+    add(dungeon.resourceId, dungeon.name);
   for (const id of save.visitedDungeons ?? []) add(id);
   for (const id of Object.keys(save.clears)) add(id);
   for (const dungeon of Object.values(save.dungeons ?? {}))
     add(dungeon.run.resourceId, dungeon.run.name);
   if (save.run) add(save.run.resourceId, save.run.name);
-  // Achievement counts explored places, not three-kill laps.
-  for (const [id, map] of Object.entries(save.maps ?? {}))
-    add(id, undefined, Math.floor(map.places.length / 5));
+  // The unlock's achievement belongs to its source dungeon, not this target.
+  for (const [id, record] of records)
+    record.achievement = Math.floor(exploredPlaceCount(save, id) / 5);
   return (
     <section aria-label="ダンジョンの達成度" className="space-y-3">
       {records.size === 0 ? (

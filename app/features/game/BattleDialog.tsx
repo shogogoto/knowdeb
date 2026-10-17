@@ -74,6 +74,9 @@ export default function BattleDialog({
       >
         <DialogContent
           ref={content}
+          onEscapeKeyDown={(event) => {
+            if (!simulation && run.phase === "battle") event.preventDefault();
+          }}
           onOpenAutoFocus={(event) => {
             const target = content.current?.querySelector<HTMLButtonElement>(
               '[aria-label="敵一覧"] button:not(:disabled), button[data-quiz-option-index]:not(:disabled), button[data-simulation-option]:not(:disabled)',

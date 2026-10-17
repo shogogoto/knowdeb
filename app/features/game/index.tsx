@@ -89,6 +89,7 @@ import {
   knownKnowledge,
   parkDungeon,
 } from "./exploration";
+import { exploredPlaceCount } from "./progress";
 import { recoverGameState, requestGameState } from "./state";
 import { readGameSave } from "./storage";
 import { chestRegion, openChest, regionChests } from "./treasure";
@@ -1286,33 +1287,15 @@ export function GamePlay({
                         ),
                     )
                     .map((item) => {
-                      const dungeonId = canonicalSentenceId(item.resource_id);
-                      const savedMap = Object.entries(save.maps ?? {}).find(
-                        ([id]) => canonicalSentenceId(id) === dungeonId,
-                      )?.[1];
-                      const parked = Object.entries(save.dungeons ?? {}).find(
-                        ([id]) => canonicalSentenceId(id) === dungeonId,
-                      )?.[1];
-                      const exploredPlaces =
-                        savedMap?.places.length ??
-                        new Set(parked?.run.readIds ?? []).size;
-                      const currentPlace = savedMap?.current ?? ENTRANCE;
-                      const placeIndex =
-                        savedMap?.places.findIndex(
-                          (place) => place.id === currentPlace,
-                        ) ?? -1;
+                      const exploredPlaces = exploredPlaceCount(
+                        save,
+                        item.resource_id,
+                      );
                       return {
                         id: item.resource_id,
                         name: item.resource_name ?? "ダンジョン",
                         exploredPlaces,
                         achievement: Math.floor(exploredPlaces / 5),
-                        location:
-                          currentPlace &&
-                          chestRegion(currentPlace) !== undefined
-                            ? `領域 ${(chestRegion(currentPlace) ?? 0) + 1}の宝箱`
-                            : currentPlace === ENTRANCE
-                              ? "入口"
-                              : `第${placeIndex >= 0 ? placeIndex + 1 : exploredPlaces}地点`,
                       };
                     })}
                   dungeonConnections={(save.unlockedDungeons ?? []).map(

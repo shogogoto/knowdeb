@@ -56,7 +56,7 @@ it("separates enemy HP from named player HP in the floating battle", () => {
   ).toHaveAttribute("aria-valuenow", "35");
 });
 
-it("closes with Escape and reopens the same battle", async () => {
+it("keeps an active battle open when Escape is pressed", async () => {
   render(
     <BattleDialog run={battle()} busy={false}>
       <button type="button">回答</button>
@@ -64,8 +64,6 @@ it("closes with Escape and reopens the same battle", async () => {
   );
   const user = userEvent.setup();
   await user.keyboard("{Escape}");
-  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-  await user.click(screen.getByRole("button", { name: "戦闘を開く" }));
   expect(screen.getByRole("dialog")).toHaveTextContent("敵HP 20/20");
 });
 
@@ -94,5 +92,5 @@ it("toggles BGM directly without opening another panel", async () => {
   await user.keyboard("{Escape}");
   expect(
     screen.queryByRole("dialog", { name: "敵と遭遇" }),
-  ).not.toBeInTheDocument();
+  ).toBeInTheDocument();
 });

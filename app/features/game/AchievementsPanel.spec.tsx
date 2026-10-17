@@ -24,7 +24,9 @@ it("lists each dungeon once using explored achievement rather than clear counts"
   const current = screen.getByText("現在の本").closest("li");
   expect(current).not.toBeNull();
   expect(within(current as HTMLElement).getByText("達成度 2")).toBeVisible();
-  expect(screen.getByText("達成度 3")).toBeVisible();
+  const unlocked = screen.getByText("他の本").closest("li");
+  expect(unlocked).not.toBeNull();
+  expect(within(unlocked as HTMLElement).getByText("達成度 0")).toBeVisible();
   expect(screen.queryByText("99回")).not.toBeInTheDocument();
 });
 

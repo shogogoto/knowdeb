@@ -77,7 +77,6 @@ export default function ExplorationMap({
     name: string;
     exploredPlaces?: number;
     achievement?: number;
-    location?: string;
   }[];
   dungeonConnections?: { from: string; to: string }[];
   onDungeon?: (id: string) => void;
@@ -626,9 +625,6 @@ export default function ExplorationMap({
                     達成度 {dungeon.achievement ?? 0} · 開拓{" "}
                     {dungeon.exploredPlaces ?? 0}
                     地点
-                  </span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    現在地 · {dungeon.location ?? "入口"}
                   </span>
                 </button>
               );
